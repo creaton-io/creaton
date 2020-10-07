@@ -1,0 +1,16 @@
+{
+  "appName": "Creaton",
+  "appShortName": "Creaton",
+  "appDescription": "A Production Ready Template for Decentralised Applications.",
+  "appShortDescription": "Template for Decentralised Applications.",
+  "developerName": "Nobody",
+  "developerURL": "",
+  "url": "https://creaton.eth.link",
+  "ensName": "creaton.eth",
+  "background": "#1f253a",
+  "theme_color": "#1f253a",
+  "appleStatusBarStyle": "black-translucent",
+  "display": "fullscreen",
+  "icon": "icon.svg",
+  "maskable_icon": "android-chrome-512x512.png"
+}

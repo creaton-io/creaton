@@ -1,0 +1,7 @@
+{
+  "build": {
+    "image": "node:12",
+    "command": "npm install --ignore-scripts && npm run prepare && cd web && npm run prepare && cd .. && npm run staging:web:build",
+    "publicDir": "web/dist"
+  }
+ }

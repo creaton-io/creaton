@@ -1,0 +1,25 @@
+specVersion: 0.0.2
+description: Creaton
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: Creaton
+    network: {{chainName}}
+    source:
+      address: '{{contracts.Creaton.address}}'
+      abi: CreatonContract
+      startBlock: {{contracts.Creaton.receipt.blockNumber}}
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.3
+      language: wasm/assemblyscript
+      entities:
+        - MessageEntry
+      abis:
+        - name: CreatonContract
+          file: ./abis/Creaton.json
+      eventHandlers:
+        - event: MessageChanged(indexed address,string)
+          handler: handleMessageChanged
+      file: ./src/mapping.ts

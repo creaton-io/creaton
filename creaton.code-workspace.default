@@ -1,0 +1,60 @@
+{
+  "folders": [
+    {
+      "path": "contracts"
+    },
+    {
+      "path": "common-lib"
+    },
+    {
+      "path": "subgraph"
+    },
+    {
+      "path": "web"
+    },
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "[solidity]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "[svelte]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode"
+    },
+    "solidity.linter": "solhint",
+    "solidity.enableLocalNodeCompiler": false,
+    "solidity.compileUsingRemoteVersion": "0.7.1+commit.f4a555be.Emscripten.clang",
+    "solidity.packageDefaultDependenciesContractsDirectory": "contracts/src",
+    "solidity.packageDefaultDependenciesDirectory": "contracts/node_modules",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "[json]": {
+      "editor.formatOnSave": false,
+      "editor.codeActionsOnSave": {}
+    },
+    // ---------------------------------------------------------------------------------------------------------------------------------------------
+    // The following is required by mocha test explorer vscode plugin: https://marketplace.visualstudio.com/items?itemName=hbenl.vscode-mocha-test-adapter
+    "mochaExplorer.env": {
+      "BUIDLER_CONFIG": "buidler.config.ts"
+    },
+    "mochaExplorer.require": ["ts-node/register/transpile-only"]
+    // ----------------------------------------------------------------------------------------------------------------------------------------------
+  },
+  "extensions": {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "editorconfig.editorconfig",
+      "esbenp.prettier-vscode",
+      "hbenl.vscode-mocha-test-adapter",
+      "juanblanco.solidity",
+      "gruntfuggly.todo-tree",
+      "svelte.svelte-vscode"
+    ],
+    "unwantedRecommendations": []
+  }
+}

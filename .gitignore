@@ -1,0 +1,7 @@
+node_modules/
+.newsh.json
+.env*
+!.env*.default
+creaton.code-workspace
+.vscode/*
+!.vscode/settings.json.default
