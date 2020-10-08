@@ -9,13 +9,13 @@ contract Creaton is Proxied {
     // Events
     // -----------------------------------------
 
-    event MessageChanged(address indexed user, string message);
+    event CreatorDeployed(address indexed user, indexed address creatorContract);
 
     // -----------------------------------------
     // Storage
     // -----------------------------------------
 
-    mapping(address => string) _messages;
+    mapping(address => address) _creatorContracts;
 
     // -----------------------------------------
     // Constructor
@@ -31,14 +31,14 @@ contract Creaton is Proxied {
     // External Functions
     // -----------------------------------------
 
-    function setMessage(string calldata message) external {
-        _messages[msg.sender] = message;
-        emit MessageChanged(msg.sender, message);
-    }
-
-    function fails(string calldata message) external {
-        console.log("it fails: '%s'", message);
-        emit MessageChanged(msg.sender, message);
-        revert("fails");
+    function deployCreator(
+        string calldata creatorTitle, 
+        uint256 calldata subscriptionPrice, 
+        uint256 calldata projectDuration) external {
+            
+        console.log(creatorTitle, subscriptionPrice, projectDuration)
+        // address memory _creatorContractAddr = todo: deploy contract & save to _creatorContracts 
+        // _creatorContracts[msg.sender] = _creatorContractAddr;
+        emit CreatorDeployed(msg.sender, _creatorContractAddr);
     }
 }

@@ -1,4 +1,4 @@
-export default {
+module.exports = {
   // minify: false,
   // sourcemap: true,
   optimizeDeps: {
