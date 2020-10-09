@@ -8,12 +8,6 @@ describe('Creaton', function () {
     expect(creatonContract.address).to.be.a('string');
   });
 
-  it('should fails', async function () {
-    await deployments.fixture();
-    const creatonContract = await ethers.getContract('Creaton');
-    expect(creatonContract.fails('testing')).to.be.revertedWith('fails');
-  });
-
   it('setMessage works', async function () {
     await deployments.fixture();
     const others = await getUnnamedAccounts();

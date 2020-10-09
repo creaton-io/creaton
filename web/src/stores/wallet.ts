@@ -1,7 +1,11 @@
 import WalletStores from 'web3w';
 import {TorusModuleLoader} from 'web3w-torus-loader';
 import {WalletConnectModuleLoader} from 'web3w-walletconnect-loader';
+import {PortisModuleLoader} from 'web3w-portis-loader';
+
 import contractsInfo from '../contracts.json';
+
+const PORTIS_DAPP_ID = '00d1d879-a8bb-432d-bbbc-d913da388c1f';
 
 const chainId = import.meta.env.VITE_CHAIN_ID;
 let nodeUrl: string | undefined;
@@ -15,10 +19,8 @@ const walletStores = WalletStores({
   localStoragePrefix: window.basepath && window.basepath.startsWith('/ipfs/') ? window.basepath.slice(6) : undefined, // ensure local storage is not shared across web3w apps on ipfs gateway
   options: [
     'builtin',
-    new TorusModuleLoader({verifier: 'google', nodeUrl, chainId}),
-    new TorusModuleLoader({verifier: 'facebook', nodeUrl, chainId}),
-    new TorusModuleLoader({verifier: 'discord', nodeUrl, chainId}),
     new WalletConnectModuleLoader({nodeUrl, chainId, infuraId: 'bc0bdd4eaac640278cdebc3aa91fabe4'}),
+    new PortisModuleLoader(PORTIS_DAPP_ID, {nodeUrl, chainId}),
   ],
 });
 

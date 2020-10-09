@@ -94,7 +94,7 @@
     <div class="flex items-center border-b border-pink-600 py-2">
       <input
         class="appearance-none bg-transparent border-none w-full text-gray-700 dark:text-gray-300 mr-3 py-1 px-2
-          leading-tight focus:outline-none"
+        leading-tight focus:outline-none"
         type="text"
         placeholder="Hello world!"
         aria-label="Your Message"
@@ -103,7 +103,7 @@
         disabled={!message || message === ''}
         on:click={setMessage}
         class="flex-shrink-0 bg-pink-600 hover:bg-pink-700 border-pink-600 hover:border-pink-700 text-sm border-4
-          text-white py-1 px-2 rounded disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed"
+        text-white py-1 px-2 rounded disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed"
         type="button">
         Say It!
       </button>
