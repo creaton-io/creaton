@@ -4,8 +4,6 @@ dist-ssr
 
 _build/pages.ts
 
-src/contracts.json
-
 .vscode/*
 !.vscode/settings.json.default
 
