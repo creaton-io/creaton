@@ -12,14 +12,12 @@
   let projectDuration: number; // 6337 = approx # of blocks per day
 
   async function deployCreator() {
-    await flow.execute((contracts) =>
-      contracts.CreatonFactory.deployCreator(creatorName, subscriptionPrice, projectDuration)
-    );
+    await flow.execute(async (contracts) => {
+      const receipt = await contracts.CreatonFactory.deployCreator(creatorName, subscriptionPrice, projectDuration);
+      console.log(receipt);
+      return receipt;
+    });
   }
-
-  const handleSubmit = (e) => {
-    console.log(creatorName, subscriptionPrice, projectDuration);
-  };
 </script>
 
 <style>

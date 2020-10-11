@@ -1,5 +1,4 @@
 import WalletStores from 'web3w';
-import {TorusModuleLoader} from 'web3w-torus-loader';
 import {WalletConnectModuleLoader} from 'web3w-walletconnect-loader';
 import {PortisModuleLoader} from 'web3w-portis-loader';
 

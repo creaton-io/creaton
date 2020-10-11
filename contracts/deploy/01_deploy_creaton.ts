@@ -7,7 +7,7 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
 
   // proxy only in non-live network (localhost and buidlerevm) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
-  await deploy('Creaton', {from: deployer, proxy: useProxy && 'postUpgrade', args: [2], log: true});
+  await deploy('CreatonFactory', {from: deployer, proxy: useProxy && 'postUpgrade', args: [2], log: true});
 
   return !useProxy; // when live network, record the script as executed to prevent rexecution
 };
