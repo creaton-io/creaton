@@ -1,0 +1,120 @@
+<script type="text/javascript">
+
+var encrypted, decrypted, key, counter; // encryption info
+var fileType, fileName; // necessary file info
+
+function arrayBufferToBase64(buffer) {
+	var binary = '';
+	var bytes = new Uint8Array( buffer );
+	var len = bytes.byteLength;
+	for (var i = 0; i < len; i++) {
+		binary += String.fromCharCode( bytes[ i ] );
+	}
+	return window.btoa(binary);
+}
+
+function base64ToArrayBuffer(base64) {
+    var binary_string =  window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
+    return bytes.buffer;
+}
+
+function downloadURL (data, fileName) {
+  const a = document.createElement('a')
+  a.href = data
+  a.download = fileName
+  document.body.appendChild(a)
+  a.style.display = 'none'
+  a.click()
+  a.remove()
+}
+
+function downloadBlob() {
+
+  const blob = new Blob([new Uint8Array(decrypted)], {
+    type: fileType
+  })
+
+  const url = window.URL.createObjectURL(blob)
+
+  downloadURL(url, fileName)
+
+  setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+}
+
+function decrypt(){
+    data = base64ToArrayBuffer(encrypted);
+    window.crypto.subtle.decrypt(
+        {
+            name: "AES-CTR",
+            counter: counter, // have to be contained in cipher I guess, will add later
+            length: 128, 
+        },
+        key,
+        data
+    ).then(function(decData){
+        decrypted = decData;
+        downloadBlob();
+    });
+}
+
+function encrypt(data, key){
+    counter = new Uint8Array(16) // no counter reuse, probably should generate random but works for now
+    window.crypto.subtle.encrypt(
+        {
+            name: "AES-CTR",
+            counter: counter, 
+            length: 128, 
+        },
+        key, 
+        data 
+    ).then(function(encData){
+        encrypted = arrayBufferToBase64(encData);
+        console.log(encrypted);
+    });
+}
+
+function genKey(data){
+    window.crypto.subtle.generateKey(
+        {
+            name: "AES-CTR",
+            length: 256
+        },
+        true,
+        ["encrypt", "decrypt"]
+    ).then(function(keyData){
+        key = keyData;
+        return encrypt(data, key);
+    });
+    
+}
+
+function getFile(input) {
+    let file = input.files[0];
+    fileType = file.type;
+    fileName = file.name;
+    console.log(file);
+    var reader = new FileReader();
+    reader.readAsArrayBuffer(file);
+
+    reader.onload = function() {
+        var arrayBuffer = reader.result
+        genKey(arrayBuffer);
+    }
+}
+</script>
+
+<!DOCTYPE html>
+<html>
+<body>
+
+    <input type="file" onchange="getFile(this)">
+    <br><br>
+    <button onclick="decrypt()"> Download </button>
+
+</body>
+</html>
