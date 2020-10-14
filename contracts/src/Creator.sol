@@ -4,7 +4,7 @@ pragma solidity 0.7.1;
 import "buidler-deploy/solc_0.7/proxy/Proxied.sol";
 import "@nomiclabs/buidler/console.sol";
 
-contract Creator {
+contract Creator is Proxied {
     // -----------------------------------------
     // Events
     // -----------------------------------------
@@ -25,7 +25,7 @@ contract Creator {
         string memory _creatorTitle,
         uint256 _subscriptionPrice,
         uint256 _projectDuration
-    ) public proxied {
+    ) public {
         creatorTitle = _creatorTitle;
         subscriptionPrice = _subscriptionPrice;
         projectDuration = _projectDuration;

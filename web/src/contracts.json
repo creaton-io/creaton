@@ -2,17 +2,11 @@
   "name": "localhost",
   "chainId": "1337",
   "contracts": {
-    "Creaton": {
-      "address": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24",
+    "CreatonFactory_Implementation": {
+      "address": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
       "abi": [
         {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "id",
-              "type": "uint256"
-            }
-          ],
+          "inputs": [],
           "stateMutability": "nonpayable",
           "type": "constructor"
         },
@@ -27,130 +21,47 @@
             },
             {
               "indexed": false,
-              "internalType": "string",
-              "name": "message",
-              "type": "string"
+              "internalType": "contract Creator",
+              "name": "creatorContract",
+              "type": "address"
             }
           ],
-          "name": "MessageChanged",
+          "name": "CreatorDeployed",
           "type": "event"
         },
         {
           "inputs": [
             {
               "internalType": "string",
-              "name": "message",
+              "name": "creatorTitle",
               "type": "string"
-            }
-          ],
-          "name": "fails",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "id",
-              "type": "uint256"
-            }
-          ],
-          "name": "postUpgrade",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "message",
-              "type": "string"
-            }
-          ],
-          "name": "setMessage",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }
-      ]
-    },
-    "Creaton_Implementation": {
-      "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "id",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "user",
-              "type": "address"
             },
             {
-              "indexed": false,
-              "internalType": "string",
-              "name": "message",
-              "type": "string"
-            }
-          ],
-          "name": "MessageChanged",
-          "type": "event"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "message",
-              "type": "string"
-            }
-          ],
-          "name": "fails",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
+              "internalType": "uint256",
+              "name": "subscriptionPrice",
+              "type": "uint256"
+            },
             {
               "internalType": "uint256",
-              "name": "id",
+              "name": "projectDuration",
               "type": "uint256"
             }
           ],
-          "name": "postUpgrade",
+          "name": "deployCreator",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         },
         {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "message",
-              "type": "string"
-            }
-          ],
-          "name": "setMessage",
+          "inputs": [],
+          "name": "test",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
         }
       ]
     },
-    "Creaton_Proxy": {
+    "CreatonFactory_Proxy": {
       "address": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24",
       "abi": [
         {
@@ -255,85 +166,7 @@
       ]
     },
     "CreatonFactory": {
-      "address": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
-      "abi": [
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "id",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "nonpayable",
-          "type": "constructor"
-        },
-        {
-          "anonymous": false,
-          "inputs": [
-            {
-              "indexed": true,
-              "internalType": "address",
-              "name": "user",
-              "type": "address"
-            },
-            {
-              "indexed": false,
-              "internalType": "contract Creator",
-              "name": "creatorContract",
-              "type": "address"
-            }
-          ],
-          "name": "CreatorDeployed",
-          "type": "event"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "string",
-              "name": "creatorTitle",
-              "type": "string"
-            },
-            {
-              "internalType": "uint256",
-              "name": "subscriptionPrice",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "projectDuration",
-              "type": "uint256"
-            }
-          ],
-          "name": "deployCreator",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [
-            {
-              "internalType": "uint256",
-              "name": "id",
-              "type": "uint256"
-            }
-          ],
-          "name": "postUpgrade",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "test",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        }
-      ]
-    },
-    "CreatonFactory_Implementation": {
-      "address": "0xc34175a79acca40392becd22ff10faebfe780ae7",
+      "address": "0x5b1869D9A4C187F2EAa108f3062412ecf0526b24",
       "abi": [
         {
           "inputs": [],
@@ -391,8 +224,75 @@
         }
       ]
     },
-    "CreatonFactory_Proxy": {
-      "address": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+    "Creator_Implementation": {
+      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "getCreatorTitle",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getProjectDuration",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getSubscriptionPrice",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_creatorTitle",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_subscriptionPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_projectDuration",
+              "type": "uint256"
+            }
+          ],
+          "name": "init",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        }
+      ]
+    },
+    "Creator_Proxy": {
+      "address": "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B",
       "abi": [
         {
           "inputs": [
@@ -492,6 +392,73 @@
         {
           "stateMutability": "payable",
           "type": "receive"
+        }
+      ]
+    },
+    "Creator": {
+      "address": "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B",
+      "abi": [
+        {
+          "inputs": [],
+          "name": "getCreatorTitle",
+          "outputs": [
+            {
+              "internalType": "string",
+              "name": "",
+              "type": "string"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getProjectDuration",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [],
+          "name": "getSubscriptionPrice",
+          "outputs": [
+            {
+              "internalType": "uint256",
+              "name": "",
+              "type": "uint256"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_creatorTitle",
+              "type": "string"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_subscriptionPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "_projectDuration",
+              "type": "uint256"
+            }
+          ],
+          "name": "init",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
         }
       ]
     }
