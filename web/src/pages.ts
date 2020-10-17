@@ -15,6 +15,11 @@ export default [
   {
     name: 'Sign up',
     path: 'creator-sign-up',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/sign-up.svelte'),
+  },
+  {
+    name: 'Creator',
+    path: 'creator/:id',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/creator.svelte'),
   },
   {
