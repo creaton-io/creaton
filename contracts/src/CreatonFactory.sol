@@ -10,14 +10,13 @@ contract CreatonFactory is Proxied {
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address indexed user, Creator creatorContract);
+    event CreatorDeployed(address user, address creatorContract);
 
     // -----------------------------------------
     // Storage
     // -----------------------------------------
 
-    // TODO: change this to a mapping: creator's address => contract address
-    Creator[] creatorContracts;
+    mapping(address => address) public creatorContracts;
 
     // -----------------------------------------
     // Constructor
@@ -30,16 +29,20 @@ contract CreatonFactory is Proxied {
     // -----------------------------------------
 
     function deployCreator(
+        string calldata avatarURL,
         string calldata creatorTitle, 
         uint256 subscriptionPrice, 
         uint256 projectDuration) external {
             
-        Creator _creatorContract = new Creator();
-        _creatorContract.init(creatorTitle, subscriptionPrice, projectDuration);
-        creatorContracts.push(_creatorContract);
+        Creator creatorContract = new Creator();
+        address creatorContractAddr = address(creatorContract);
+        creatorContract.init(
+            avatarURL,
+            creatorTitle, 
+            subscriptionPrice, 
+            projectDuration);
+        creatorContracts[msg.sender] = creatorContractAddr;
 
-        emit CreatorDeployed(msg.sender, _creatorContract);
+        emit CreatorDeployed(msg.sender, creatorContractAddr);
     }
-
-    function test() public {}
 }

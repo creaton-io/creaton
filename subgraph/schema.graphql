@@ -1,5 +1,6 @@
-type MessageEntry @entity {
+type Creator @entity {
   id: ID!
-  message: String!
+  user: Bytes!
+  creatorContract: Bytes!
   timestamp: BigInt!
 }

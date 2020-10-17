@@ -1,17 +1,17 @@
 /* eslint-disable prefer-const */
-import {MessageChanged} from '../generated/Creaton/CreatonContract';
-import {MessageEntry} from '../generated/schema';
-// import {log} from '@graphprotocol/graph-ts';
+import {CreatorDeployed as CreatorDeployedEvent} from '../generated/CreatonFactory/CreatonFactory';
+import {Creator} from '../generated/schema';
 
 // const zeroAddress = '0x0000000000000000000000000000000000000000';
 
-export function handleMessageChanged(event: MessageChanged): void {
+export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   let id = event.params.user.toHex();
-  let entity = MessageEntry.load(id);
+  let entity = Creator.load(id);
   if (!entity) {
-    entity = new MessageEntry(id);
+    entity = new Creator(id);
   }
-  entity.message = event.params.message;
+  entity.user = event.params.user;
+  entity.creatorContract = event.params.creatorContract;
   entity.timestamp = event.block.timestamp;
   entity.save();
 }

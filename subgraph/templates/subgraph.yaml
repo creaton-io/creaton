@@ -4,22 +4,22 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: Creaton
+    name: CreatonFactory
     network: {{chainName}}
     source:
-      address: '{{contracts.Creaton.address}}'
-      abi: CreatonContract
-      startBlock: {{contracts.Creaton.receipt.blockNumber}}
+      address: '{{contracts.CreatonFactory.address}}'
+      abi: CreatonFactory
+      startBlock: {{contracts.CreatonFactory.receipt.blockNumber}}
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.3
       language: wasm/assemblyscript
       entities:
-        - MessageEntry
+        - Creator
       abis:
-        - name: CreatonContract
-          file: ./abis/Creaton.json
+        - name: CreatonFactory
+          file: ./abis/CreatonFactory.json
       eventHandlers:
-        - event: MessageChanged(indexed address,string)
-          handler: handleMessageChanged
+        - event: CreatorDeployed(address,address)
+          handler: handleCreatorDeployed
       file: ./src/mapping.ts

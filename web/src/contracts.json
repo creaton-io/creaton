@@ -3,7 +3,7 @@
   "chainId": "1337",
   "contracts": {
     "CreatonFactory_Implementation": {
-      "address": "0xC89Ce4735882C9F0f0FE26686c53074E09B0D550",
+      "address": "0xe78A0F7E598Cc8b0Bb87894B0F60dD2a88d6a8Ab",
       "abi": [
         {
           "inputs": [],
@@ -14,14 +14,14 @@
           "anonymous": false,
           "inputs": [
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "address",
               "name": "user",
               "type": "address"
             },
             {
               "indexed": false,
-              "internalType": "contract Creator",
+              "internalType": "address",
               "name": "creatorContract",
               "type": "address"
             }
@@ -31,6 +31,30 @@
         },
         {
           "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "creatorContracts",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "avatarURL",
+              "type": "string"
+            },
             {
               "internalType": "string",
               "name": "creatorTitle",
@@ -48,13 +72,6 @@
             }
           ],
           "name": "deployCreator",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "test",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -177,14 +194,14 @@
           "anonymous": false,
           "inputs": [
             {
-              "indexed": true,
+              "indexed": false,
               "internalType": "address",
               "name": "user",
               "type": "address"
             },
             {
               "indexed": false,
-              "internalType": "contract Creator",
+              "internalType": "address",
               "name": "creatorContract",
               "type": "address"
             }
@@ -194,6 +211,30 @@
         },
         {
           "inputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "name": "creatorContracts",
+          "outputs": [
+            {
+              "internalType": "address",
+              "name": "",
+              "type": "address"
+            }
+          ],
+          "stateMutability": "view",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "avatarURL",
+              "type": "string"
+            },
             {
               "internalType": "string",
               "name": "creatorTitle",
@@ -214,60 +255,19 @@
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "test",
-          "outputs": [],
-          "stateMutability": "nonpayable",
-          "type": "function"
         }
       ]
     },
     "Creator_Implementation": {
-      "address": "0x9561C133DD8580860B6b7E504bC5Aa500f0f06a7",
+      "address": "0xCfEB869F69431e42cdB54A4F4f105C19C080A601",
       "abi": [
         {
-          "inputs": [],
-          "name": "getCreatorTitle",
-          "outputs": [
+          "inputs": [
             {
               "internalType": "string",
-              "name": "",
+              "name": "_avatarURL",
               "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getProjectDuration",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getSubscriptionPrice",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
+            },
             {
               "internalType": "string",
               "name": "_creatorTitle",
@@ -285,6 +285,19 @@
             }
           ],
           "name": "init",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_newURL",
+              "type": "string"
+            }
+          ],
+          "name": "setAvatarURL",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"
@@ -399,46 +412,12 @@
       "address": "0x254dffcd3277C0b1660F6d42EFbB754edaBAbC2B",
       "abi": [
         {
-          "inputs": [],
-          "name": "getCreatorTitle",
-          "outputs": [
+          "inputs": [
             {
               "internalType": "string",
-              "name": "",
+              "name": "_avatarURL",
               "type": "string"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getProjectDuration",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [],
-          "name": "getSubscriptionPrice",
-          "outputs": [
-            {
-              "internalType": "uint256",
-              "name": "",
-              "type": "uint256"
-            }
-          ],
-          "stateMutability": "view",
-          "type": "function"
-        },
-        {
-          "inputs": [
+            },
             {
               "internalType": "string",
               "name": "_creatorTitle",
@@ -456,6 +435,19 @@
             }
           ],
           "name": "init",
+          "outputs": [],
+          "stateMutability": "nonpayable",
+          "type": "function"
+        },
+        {
+          "inputs": [
+            {
+              "internalType": "string",
+              "name": "_newURL",
+              "type": "string"
+            }
+          ],
+          "name": "setAvatarURL",
           "outputs": [],
           "stateMutability": "nonpayable",
           "type": "function"

@@ -1,6 +1,14 @@
 import {getUnnamedAccounts, ethers} from '@nomiclabs/buidler';
 
-const messages = ['Hello', '你好', 'سلام', 'здравствуйте', 'Habari', 'Bonjour', 'नमस्ते'];
+const mockCreators = [
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Alice', 8, 12],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Bob', 5, 6],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Carl', 10, 30],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Dave', 8, 400],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Elaine', 5, 600],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Frank', 4, 24],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Greg', 2, 2],
+];
 
 function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {
   return p.then((tx) => tx.wait());
@@ -8,11 +16,11 @@ function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {
 
 async function main() {
   const others = await getUnnamedAccounts();
-  for (let i = 0; i < messages.length; i++) {
+  for (let i = 0; i < mockCreators.length; i++) {
     const sender = others[i];
     if (sender) {
-      const creatonContract = await ethers.getContract('Creaton', sender);
-      await waitFor(creatonContract.setMessage(messages[i]));
+      const creatonContract = await ethers.getContract('CreatonFactory', sender);
+      await waitFor(creatonContract.deployCreator(...mockCreators[i]));
     }
   }
 }
