@@ -1,5 +1,5 @@
 <script lang="ts">
-  export let user: string;
+  export let title: string;
   export let id: string;
 
   import Link from '../_routing/curi/Link.svelte';
@@ -8,7 +8,7 @@
 </script>
 
 <Link {id} name="Creator" class="px-4 py-8 border rounded overflow-hidden">
-  <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-500 truncate">{user}</h3>
+  <h3 class="text-2xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{title}</h3>
   <p class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300 truncate">
     <slot />
   </p>

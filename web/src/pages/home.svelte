@@ -36,7 +36,7 @@
             <div>Loading creators...</div>
           {:else}
             {#each $creators.data as creator, index}
-              <CreatorCard id={creator.user} user={creator.user}>{creator.user}</CreatorCard>
+              <CreatorCard id={creator.user} title={creator.title}>{creator.user}</CreatorCard>
             {/each}
           {/if}
 

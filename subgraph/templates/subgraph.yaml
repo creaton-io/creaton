@@ -20,6 +20,6 @@ dataSources:
         - name: CreatonFactory
           file: ./abis/CreatonFactory.json
       eventHandlers:
-        - event: CreatorDeployed(address,address)
+        - event: CreatorDeployed(address,address,string)
           handler: handleCreatorDeployed
       file: ./src/mapping.ts

@@ -10,7 +10,7 @@ contract CreatonFactory is Proxied {
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address user, address creatorContract);
+    event CreatorDeployed(address user, address creatorContract, string title);
 
     // -----------------------------------------
     // Storage
@@ -30,7 +30,7 @@ contract CreatonFactory is Proxied {
 
     function deployCreator(
         string calldata avatarURL,
-        string calldata creatorTitle, 
+        string calldata title, 
         uint256 subscriptionPrice, 
         uint256 projectDuration) external {
             
@@ -38,11 +38,11 @@ contract CreatonFactory is Proxied {
         address creatorContractAddr = address(creatorContract);
         creatorContract.init(
             avatarURL,
-            creatorTitle, 
+            title, 
             subscriptionPrice, 
             projectDuration);
         creatorContracts[msg.sender] = creatorContractAddr;
 
-        emit CreatorDeployed(msg.sender, creatorContractAddr);
+        emit CreatorDeployed(msg.sender, creatorContractAddr, title);
     }
 }

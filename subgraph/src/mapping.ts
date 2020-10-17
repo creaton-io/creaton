@@ -12,6 +12,7 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   }
   entity.user = event.params.user;
   entity.creatorContract = event.params.creatorContract;
+  entity.title = event.params.title;
   entity.timestamp = event.block.timestamp;
   entity.save();
 }
