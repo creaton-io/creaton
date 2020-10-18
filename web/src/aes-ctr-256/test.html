@@ -51,11 +51,11 @@ function decrypt(){
     window.crypto.subtle.decrypt(
         {
             name: "AES-CTR",
-            counter: counter, // have to be contained in cipher I guess, will add later
-            length: 128, 
+            counter: new Uint8Array(data.slice(0,16)),
+            length: 128,
         },
         key,
-        data
+        data.slice(16, data.byteLength)
     ).then(function(decData){
         decrypted = decData;
         downloadBlob();
@@ -63,7 +63,7 @@ function decrypt(){
 }
 
 function encrypt(data, key){
-    counter = new Uint8Array(16) // no counter reuse, probably should generate random but works for now
+    counter = window.crypto.getRandomValues(new Uint8Array(16)) 
     window.crypto.subtle.encrypt(
         {
             name: "AES-CTR",
@@ -73,7 +73,10 @@ function encrypt(data, key){
         key, 
         data 
     ).then(function(encData){
-        encrypted = arrayBufferToBase64(encData);
+        var tmp = new Uint8Array(encData.byteLength + 16);
+        tmp.set(counter, 0);
+        tmp.set(new Uint8Array(encData), 16);
+        encrypted = arrayBufferToBase64(tmp.buffer);
         console.log(encrypted);
     });
 }
