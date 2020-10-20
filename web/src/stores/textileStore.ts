@@ -130,8 +130,9 @@ export class TextileStore {
   }
 
   private async setupMailbox() {
-    const mailId = await this.user.getMailboxID();
-    if (!mailId) {
+    try {
+      await this.user.getMailboxID();
+    } catch (error) {
       await this.user.setupMailbox();
     }
   }
@@ -144,33 +145,15 @@ export class TextileStore {
   }
 
   private async create_thread(): Promise<void> {
-    // const threadResponse = await this.client.listThreads();
-    // const threadList = threadResponse.listList;
-    // const thread = threadList.find((obj) => obj.name == 'creaton');
-    // if (!thread) {
-    //   this.threadID = await this.client.newDB(undefined, 'creaton');
-    // } else {
-    //   this.threadID = thread.id;
-    // }
-
-    let threadId = await this.getThreadId();
-    if (threadId === undefined) {
-      threadId = await this.client.newDB(undefined, 'creaton');
-      await this.client.newCollection(threadId, {name: 'creator', schema: schema});
-      await this.client.newCollection(threadId, {name: 'subscriber', schema: schema});
-    }
-
-    this.threadID = threadId;
-    await this.bucketInfo.bucket.pushPath(this.bucketInfo.privBucketKey, 'keys/threadid.txt', threadId.toString());
-  }
-
-  private async getThreadId(): Promise<ThreadID | undefined> {
-    try {
-      const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.privBucketKey, 'keys/threadid.txt');
-      const {value} = await metadata.next();
-      ThreadID.fromString(new TextDecoder().decode(value));
-    } catch (error) {
-      return undefined;
+    const threadResponse = await this.client.listThreads();
+    const threadList = threadResponse.listList;
+    const thread = threadList.find((obj) => obj.name === 'creaton');
+    if (!thread) {
+      this.threadID = await this.client.newDB(undefined, 'creaton');
+      await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
+      await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
+    } else {
+      this.threadID = ThreadID.fromString(thread.id)
     }
   }
 
