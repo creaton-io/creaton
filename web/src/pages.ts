@@ -27,4 +27,9 @@ export default [
     path: '.*',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/notfound.svelte'),
   },
+  {
+    name: 'Upload',
+    path: 'upload',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/upload.svelte'),
+  },
 ];

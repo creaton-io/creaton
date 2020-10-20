@@ -153,7 +153,7 @@ export class TextileStore {
       await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
       await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
     } else {
-      this.threadID = ThreadID.fromString(thread.id)
+      this.threadID = ThreadID.fromString(thread.id);
     }
   }
 
@@ -223,13 +223,13 @@ export class TextileStore {
    * @param cid CID of the content to receive
    */
   public async decryptFile(path: string, cid: string): Promise<ArrayBuffer> {
-    // get content from path on ipfs
+    //get content from path on ipfs
     const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.bucketKey, path);
     const {value} = await metadata.next();
     const content = this.base64ToArrayBuffer(value);
 
     // TODO get key if subscriber has been given, has to handle error when no key is available
-    // i.e. when query fails
+    // i.e.when query fails
     const query = new Where('cid').eq(cid);
     const result = await this.client.find<CidKey>(this.threadID, 'subscriber', query);
     const pair = result[0];
@@ -299,7 +299,7 @@ export class TextileStore {
     for (const msg of messages) {
       const decryptedInbox = await this.messageDecoder(msg);
       const keyPair: CidKey = JSON.parse(decryptedInbox.body);
-      // encrypt key and store
+      //encrypt key and store
       const encKey = await this.identity.public.encrypt(new Uint8Array(this.base64ToArrayBuffer(keyPair.key)));
       const pair: CidKey = {
         cid: keyPair.cid,
@@ -309,7 +309,7 @@ export class TextileStore {
     }
   }
 
-  // from contract
+  //from contract
   public async getSubscribers(): Promise<CidKey[]> {
     return new Array({cid: 'cid', key: 'pubKey'});
   }
