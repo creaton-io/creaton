@@ -1,13 +1,13 @@
 import {getUnnamedAccounts, ethers} from '@nomiclabs/buidler';
 
 const mockCreators = [
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Alice', 8, 12],
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Bob', 5, 6],
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Carl', 10, 30],
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Dave', 8, 400],
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Elaine', 5, 600],
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Frank', 4, 24],
-  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Greg', 2, 2],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Alice', 8],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Bob', 5],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Carl', 10],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Dave', 8],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Elaine', 5],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Frank', 4],
+  ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'Greg', 2],
 ];
 
 function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {

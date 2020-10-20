@@ -1,7 +1,7 @@
 import {expect} from './chai-setup';
 import {ethers, deployments, getUnnamedAccounts} from '@nomiclabs/buidler';
 
-const mockCreator = ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'ETHGlobal', 5, 12];
+const mockCreator = ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'ETHGlobal', 5];
 
 describe('CreatonFactory', function () {
   it('deploys successfully', async function () {
@@ -32,7 +32,6 @@ describe('Creator', function () {
   //   expect(await creator.creatorTitle()).to.equal('ETHGlobal');
   //   expect(await creator.avatarURL()).to.equal('https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg');
   //   expect(await creator.subscriptionPrice()).to.equal(5);
-  //   expect(await creator.projectDuration()).to.equal(12);
   // });
   it('sets avatar url', async function () {
     creator.setAvatarURL(

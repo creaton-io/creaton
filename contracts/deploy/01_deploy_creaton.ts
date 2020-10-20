@@ -11,7 +11,7 @@ const func: DeployFunction = async function (bre: BuidlerRuntimeEnvironment) {
   await deploy('Creator', {
     from: deployer,
     proxy: useProxy && 'init',
-    args: ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'ETHGlobal', 5, 12],
+    args: ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'ETHGlobal', 5],
     log: true,
   });
 

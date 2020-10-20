@@ -3,8 +3,11 @@ pragma solidity 0.7.1;
 
 import "buidler-deploy/solc_0.7/proxy/Proxied.sol";
 import "@nomiclabs/buidler/console.sol";
+import "./ERC1155/ERC1155MixedFungibleMintable.sol";
 
-contract Creator is Proxied {
+//import "openzeppelin-solidity/contracts/presets/ERC1155PresetMinterPauser.sol";
+
+contract Creator is Proxied, ERC1155MixedFungibleMintable {
     // -----------------------------------------
     // Events
     // -----------------------------------------
@@ -17,7 +20,6 @@ contract Creator is Proxied {
     string avatarURL;
     string creatorTitle;
     uint256 subscriptionPrice;
-    uint256 projectDuration;
 
     // -----------------------------------------
     // Constructor
@@ -26,14 +28,12 @@ contract Creator is Proxied {
     function init(
         string calldata _avatarURL,
         string calldata _creatorTitle,
-        uint256 _subscriptionPrice,
-        uint256 _projectDuration
+        uint256 _subscriptionPrice
     ) public {
         owner = msg.sender;
         avatarURL = _avatarURL;
         creatorTitle = _creatorTitle;
         subscriptionPrice = _subscriptionPrice;
-        projectDuration = _projectDuration;
     }
 
     // -----------------------------------------

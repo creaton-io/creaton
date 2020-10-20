@@ -11,12 +11,11 @@
   let creatorName: string = '';
   let avatarURL: string = '';
   let subscriptionPrice: number;
-  let projectDuration: number; // 6337 = approx # of blocks per day
 
   async function deployCreator() {
     await flow.execute(async (contracts) => {
       avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
-      const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice, projectDuration);
+      const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
       // const creatorContract = await Contract(contracts.Creator, )
       return receipt;
     });
@@ -75,10 +74,6 @@
       <div class="field-row">
         <label for="subscription-price">Subscription Price: $</label>
         <Input id="subscription-price" type="number" placeholder="Cost per month" className="field" bind:value={subscriptionPrice} />
-      </div>
-      <div class="field-row">
-        <label for="project-length">Project length:</label>
-        <Input id="project-length" type="number" placeholder="Enter months" className="field" bind:value={projectDuration} />
       </div>
       <button class="mt-6" type="button" on:click={deployCreator}>Create!</button>
     </form>
