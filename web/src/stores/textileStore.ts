@@ -1,4 +1,4 @@
-import type {WalletStore} from 'web3w';
+/*
 import {
   Buckets,
   KeyInfo,
@@ -96,6 +96,9 @@ export class TextileStore {
       identity = PrivateKey.fromString(storedIdent);
       this.identity = identity;
     } catch (e) {
+      /**
+       * If any error, create a new identity.
+       *//*
       try {
         identity = PrivateKey.fromRandom();
         const identityString = identity.toString();
@@ -243,7 +246,7 @@ export class TextileStore {
    * its cid to retrieve its corresponding keys from DB.
    * @param path The relative path in bucket
    * @param cid CID of the content to receive
-   */
+   *//*
   public async decryptFile(path: string, cid: string): Promise<ArrayBuffer> {
     // get content from path on ipfs
     const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.bucketKey, path);
@@ -357,3 +360,4 @@ export class TextileStore {
     return this.user.sendMessage(from, to, body);
   }
 }
+*/
