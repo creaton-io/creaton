@@ -12,8 +12,6 @@ import {
   ThreadID,
 } from '@textile/hub';
 
-const Box = require('3box');
-
 export interface FileMetadata {
   cid: string;
   path: string;
@@ -80,34 +78,34 @@ export class TextileStore {
   }
 
   public async authenticate(): Promise<void> {
-    this.box = await Box.create(this.wallet.web3Provider);
-    const address = this.wallet.address;
-    await this.box.auth([], {address});
+    this.identity = await this.getIdentity();
+    this.initialize();
+  }
 
-    const space = await this.box.openSpace('io-textile-3box-demo');
-    await this.box.syncDone;
-    let identity: PrivateKey;
-
+  private async getIdentity(): Promise<PrivateKey> {
     try {
-      const storedIdent = await space.private.get('ed25519-identity');
+      const storedIdent = localStorage.getItem('identity-creaton');
       if (storedIdent === null) {
         throw new Error('No identity');
       }
-      identity = PrivateKey.fromString(storedIdent);
-      this.identity = identity;
+      const restored = PrivateKey.fromString(storedIdent);
+      return restored;
     } catch (e) {
+      /**
+       * If any error, create a new identity.
+       */
       try {
-        identity = PrivateKey.fromRandom();
+        const identity = PrivateKey.fromRandom();
         const identityString = identity.toString();
-        await space.private.set('ed25519-identity', identityString);
+        localStorage.setItem('identity-creaton', identityString);
+        return identity;
       } catch (err) {
         return err.message;
       }
     }
-    this.identity = identity;
   }
 
-  public async initialize(): Promise<void> {
+  private async initialize(): Promise<void> {
     if (!this.identity || !this.keyInfo) {
       throw new Error('Identity or API key not set');
     }
