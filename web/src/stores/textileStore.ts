@@ -1,4 +1,3 @@
-import type {WalletStore} from 'web3w';
 import {
   Buckets,
   KeyInfo,
@@ -53,7 +52,6 @@ const schema = {
 };
 
 export class TextileStore {
-  private wallet: WalletStore;
   private identity: PrivateKey;
   private box;
   private keyInfo: KeyInfo;
@@ -67,8 +65,7 @@ export class TextileStore {
   };
   private threadID;
 
-  constructor(wallet: WalletStore) {
-    this.wallet = wallet;
+  constructor() {
     this.keyInfo = {
       key: process.env.TEXTILE_HUB_API_KEY as string,
     };
