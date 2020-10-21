@@ -22,7 +22,7 @@ export interface EncryptedFileMetadata {
   encryptedFile: FileMetadata;
 }
 
-interface DecryptedInbox {
+export interface DecryptedInbox {
   id: string;
   body: string;
   from: string;
@@ -30,12 +30,12 @@ interface DecryptedInbox {
   readAt?: number;
 }
 
-interface EncryptedMetadata {
+export interface EncryptedMetadata {
   file: ArrayBuffer;
   key: ArrayBuffer;
 }
 
-interface CidKey {
+export interface CidKey {
   cid: string;
   key: string;
 }
@@ -46,6 +46,10 @@ const schema = {
   type: 'object',
   required: ['cid', 'key'],
   properties: {
+    _id: {
+      type: "string",
+      description: "The instance's id.",
+    },
     cid: {type: 'string'},
     key: {type: 'string'},
   },
@@ -67,16 +71,16 @@ export class TextileStore {
 
   constructor() {
     this.keyInfo = {
-      key: 'bso63jf6uyqhgzd4n2636bhmdru',
+      key: 'bztzcvlar4fdod24mbamtz5prne',
     };
     this.keyInfoOptions = {
-      debug: false,
+      debug: true,
     };
   }
 
   public async authenticate(): Promise<void> {
     this.identity = await this.getIdentity();
-    this.initialize();
+    await this.initialize();
   }
 
   private async getIdentity(): Promise<PrivateKey> {
@@ -106,42 +110,45 @@ export class TextileStore {
     if (!this.identity || !this.keyInfo) {
       throw new Error('Identity or API key not set');
     }
-
-    const buckets = await Buckets.withKeyInfo(this.keyInfo, this.keyInfoOptions);
+    // alert("hi");
+    const buckets = await Buckets.withKeyInfo(this.keyInfo);
+    // alert("hi key info");
     // Authorize the user and your insecure keys with getToken
     await buckets.getToken(this.identity);
-
+    // alert('hi!');
     const buck = await buckets.getOrCreate('creaton');
+    // alert("hi!!");
     const privBuck = await buckets.getOrCreate('creaton-keys', undefined, true);
 
     if (!buck.root || !privBuck.root) {
       throw new Error('Failed to get or create bucket');
     }
-
+    // alert("buckets?");
     this.bucketInfo = {
       bucket: buckets,
       bucketKey: buck.root.key,
       privBucketKey: privBuck.root.key,
     };
-
-    await this.setupAPI();
-    await this.setupMailbox();
-    await this.create_thread();
+    // alert(this.bucketInfo.bucketKey.toString());
+    // alert(this.bucketInfo.privBucketKey.toString());
+    const api = await this.setupAPI();
+    const mailbox = await this.setupMailbox();
+    const thread = await this.create_thread();
   }
 
   private async setupMailbox() {
     try {
-      await this.user.getMailboxID();
+      const id = await this.user.getMailboxID();
     } catch (error) {
-      await this.user.setupMailbox();
+      const setup = await this.user.setupMailbox();
     }
   }
 
   private async setupAPI(): Promise<void> {
     this.user = await Users.withKeyInfo(this.keyInfo);
     this.client = await Client.withKeyInfo(this.keyInfo);
-    await this.user.getToken(this.identity);
-    await this.client.getToken(this.identity);
+    const user = await this.user.getToken(this.identity);
+    const client = await this.client.getToken(this.identity);
   }
 
   private async create_thread(): Promise<void> {
@@ -150,8 +157,8 @@ export class TextileStore {
     const thread = threadList.find((obj) => obj.name === 'creaton');
     if (!thread) {
       this.threadID = await this.client.newDB(undefined, 'creaton');
-      await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
-      await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
+      const col1 = await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
+      const col2 = await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
     } else {
       this.threadID = ThreadID.fromString(thread.id);
     }
@@ -182,7 +189,7 @@ export class TextileStore {
 
     return {
       encryptedFile: {
-        cid: rawFile.path.cid.toString(),
+        cid: rawFile.path.path.toString(),
         name: fileName,
         path: fileLocation,
         date: now.toString(),
@@ -271,16 +278,23 @@ export class TextileStore {
   }
 
   private arrayBufferToBase64(buffer: ArrayBuffer) {
+    var binary = '';
     const bytes = new Uint8Array(buffer);
-    const binary = new TextDecoder().decode(bytes);
+    var len = bytes.byteLength;
+	  for (var i = 0; i < len; i++) {
+		  binary += String.fromCharCode( bytes[ i ] );
+	}
 
     return window.btoa(binary);
   }
 
   private base64ToArrayBuffer(base64: string) {
-    const str = window.atob(base64);
-    const bytes = new TextEncoder().encode(str);
-
+    var binary_string =  window.atob(base64);
+    var len = binary_string.length;
+    var bytes = new Uint8Array(len);
+    for (var i = 0; i < len; i++)        {
+        bytes[i] = binary_string.charCodeAt(i);
+    }
     return bytes.buffer;
   }
 

@@ -8,27 +8,30 @@
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
   import {TextileStore} from '../stores/textileStore';
+  import { Buffer } from "buffer";
+  global.Buffer = Buffer;
 
   const textile: TextileStore = new TextileStore();
   let creatorName: string = '';
   let subscriptionPrice: number;
-  let files;
-  let encrypted;
-  var arrayBuffer, uint8Array;
+  let uploader;
 
-  $: if (files) {
-    let file = files[0];
-    await textile.authenticate();
-    encrypted = await textile.uploadFile(file);
+
+  async function deployTextile(){
+    const setup = await textile.authenticate();
+    alert("done setup!")
   }
 
-  async function deployCreator() {
-    await flow.execute(async (contracts) => {
-      const receipt = await contracts.CreatonFactory.deployCreator(this.creatorName, this.subscriptionPrice);
-      console.log(receipt);
-      return receipt;
-    });
+  async function upload(){
+    const file = uploader.files[0];
+    const encFile = await textile.uploadFile(file);
+    console.log(encFile.encryptedFile.cid, encFile.encryptedFile.path);
   }
+
+  async function download(){
+
+  }
+
 </script>
 
 <style>
@@ -64,5 +67,19 @@
   }
 </style>
 
+<button on:click={deployTextile}> Setup </button>
+<br>
 <label for="avatar">Upload a file (picture for now):</label>
-<input accept="image/png, image/jpeg" bind:deployCreator id="content" name="content" type="file" />
+<label>
+  <slot name="content">
+  </slot>
+  <input 
+			 bind:this={uploader}
+			 type="file" 
+			 class="visually-hidden"
+			 on:change={upload} 
+			/>
+</label>
+
+<br>
+<button on:click={download}> Download </button>
