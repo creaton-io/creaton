@@ -15,11 +15,12 @@
   let creatorName: string = '';
   let subscriptionPrice: number;
   let uploader;
+  let path, pubkey;
 
 
   async function deployTextile(){
     const setup = await textile.authenticate();
-    alert("done setup!")
+    alert("you're good");
   }
 
   async function upload(){
@@ -28,8 +29,36 @@
     console.log(encFile.encryptedFile.cid, encFile.encryptedFile.path);
   }
 
-  async function download(){
+  async function sendKeys(){
+    await textile.sendKeysToSubscribers(path, pubkey);
+  }
 
+  async function download(){
+    await textile.getKeysFromCreator();
+    const decrypted = await textile.decryptFile(path);
+    downloadBlob(decrypted);
+  }
+
+  function downloadURL (data, fileName) {
+    const a = document.createElement('a')
+    a.href = data
+    a.download = fileName
+    document.body.appendChild(a)
+    a.style.display = 'none'
+    a.click()
+    a.remove()
+  }
+
+  function downloadBlob(decrypted: ArrayBuffer) {
+    const blob = new Blob([new Uint8Array(decrypted)], {
+      type: 'image/jpeg',
+    })
+
+    const url = window.URL.createObjectURL(blob)
+
+    downloadURL(url, 'whatever')
+
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000)
   }
 
 </script>
@@ -82,4 +111,19 @@
 </label>
 
 <br>
+<div class="field-row">
+  <label for="path-url">path</label>
+  <Input id="path-url" type="text" placeholder="Path" className="field" bind:value={path} />
+</div>
+<div class="field-row">
+  <label for="pubkey-url">pubkey</label>
+  <Input id="pubkey-url" type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
+</div>
+<button on:click={sendKeys}> Send Keys </button>
+
+<br>
+<div class="field-row">
+  <label for="dpath-url">pubkey</label>
+  <Input id="dpath-url" type="text" placeholder="Profile image URL" className="field" bind:value={path} />
+</div>
 <button on:click={download}> Download </button>

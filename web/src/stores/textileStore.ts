@@ -81,6 +81,7 @@ export class TextileStore {
   public async authenticate(): Promise<void> {
     this.identity = await this.getIdentity();
     await this.initialize();
+    console.log(this.identity.toString());
   }
 
   private async getIdentity(): Promise<PrivateKey> {
@@ -181,7 +182,7 @@ export class TextileStore {
     // encrypt this key with creator public key to store in creator collection
     const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
     const pair: CidKey = {
-      cid: rawFile.path.cid.toString(),
+      cid: rawFile.path.path.toString(),
       key: this.arrayBufferToBase64(encKey.buffer),
     };
 
@@ -227,9 +228,8 @@ export class TextileStore {
    * Decrypts a file given the relative bucket path and
    * its cid to retrieve its corresponding keys from DB.
    * @param path The relative path in bucket
-   * @param cid CID of the content to receive
    */
-  public async decryptFile(path: string, cid: string): Promise<ArrayBuffer> {
+  public async decryptFile(path: string): Promise<ArrayBuffer> {
     //get content from path on ipfs
     const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.bucketKey, path);
     const {value} = await metadata.next();
@@ -237,7 +237,7 @@ export class TextileStore {
 
     // TODO get key if subscriber has been given, has to handle error when no key is available
     // i.e.when query fails
-    const query = new Where('cid').eq(cid);
+    const query = new Where('cid').eq(path);
     const result = await this.client.find<CidKey>(this.threadID, 'subscriber', query);
     const pair = result[0];
     const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
@@ -328,8 +328,8 @@ export class TextileStore {
     return new Array({cid: 'cid', key: 'pubKey'});
   }
 
-  public async sendKeysToSubscribers(): Promise<void> {
-    const subscribers = await this.getSubscribers();
+  public async sendKeysToSubscribers(cid: string, key: string): Promise<void> {
+    const subscribers = new Array({cid: cid, key: key});
 
     for (const sub of subscribers) {
       const query = new Where('cid').eq(sub.cid);
