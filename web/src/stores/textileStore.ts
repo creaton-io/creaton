@@ -67,7 +67,7 @@ export class TextileStore {
 
   constructor() {
     this.keyInfo = {
-      key: process.env.TEXTILE_HUB_API_KEY as string,
+      key: 'bso63jf6uyqhgzd4n2636bhmdru',
     };
     this.keyInfoOptions = {
       debug: false,

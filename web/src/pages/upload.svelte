@@ -7,9 +7,9 @@
   import {logs} from 'named-logs';
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
-  //import {TextileStore} from '../stores/textileStore';
+  import {TextileStore} from '../stores/textileStore';
 
-  //const textile: TextileStore = new TextileStore();
+  const textile: TextileStore = new TextileStore();
   let creatorName: string = '';
   let subscriptionPrice: number;
   let files;
@@ -18,13 +18,8 @@
 
   $: if (files) {
     let file = files[0];
-    let reader = new FileReader();
-    reader.onload = async function (evt) {
-      arrayBuffer = this.result;
-      uint8Array = new Uint8Array(arrayBuffer);
-    };
-    reader.readAsArrayBuffer(file);
-    //encrypted = textile.uploadFile(uint8Array);
+    await textile.authenticate();
+    encrypted = await textile.uploadFile(file);
   }
 
   async function deployCreator() {
@@ -70,4 +65,4 @@
 </style>
 
 <label for="avatar">Upload a file (picture for now):</label>
-<input accept="image/png, image/jpeg" bind:files id="content" name="content" type="file" />
+<input accept="image/png, image/jpeg" bind:deployCreator id="content" name="content" type="file" />
