@@ -37,7 +37,7 @@
     "local:seed": "cross-env BUIDLER_NETWORK=localhost ts-node --files scripts/seed.ts",
     "local:export": "buidler --network localhost export",
     "void:deploy": "buidler deploy",
-    "staging:deploy": "buidler --network staging deploy",
+    "staging:deploy": "buidler --network staging deploy --show-stack-traces",
     "staging:export": "buidler --network staging export",
     "staging:seed": "cross-env BUIDLER_NETWORK=staging ts-node --files scripts/seed.ts",
     "rinkeby:deploy": "buidler --network rinkeby deploy",

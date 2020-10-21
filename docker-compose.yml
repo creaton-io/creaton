@@ -46,7 +46,7 @@ services:
       - /app/ganache-core.docker.cli.js
       - --deterministic
       - --mnemonic
-      - '${MNEMONIC-minimum symptom minute gloom tragic situate silver mechanic salad amused elite beef}'
+      - '${MNEMONIC-tattoo bulk finish hurdle bread monster tip say absent cake high damp}'
       - --hostname
       - '0.0.0.0'
       # - --blockTime

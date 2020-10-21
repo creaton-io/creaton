@@ -21,6 +21,7 @@
     "smelte": "^1.0.16",
     "svelte": "3.25.1",
     "svelte-hmr": "0.10.3",
+    "svelte-dropzone": "^1.0.6",
     "svelte-routing": "^1.4.2",
     "web3w": "^0.2.36",
     "web3w-portis-loader": "^0.2.0",
@@ -42,6 +43,10 @@
     "svelte-check": "^1.0.60",
     "svelte-preprocess": "^4.5.1",
     "svite": "^0.7.2",
+    "postcss": "^8.1.2",
+    "postcss-import": "^12.0.1",
+    "postcss-load-config": "^3.0.0",
+    "postcss-preset-env": "^6.7.0",
     "tailwindcss": "^1.9.5",
     "ts-node": "^9.0.0",
     "tsconfig-paths": "^3.9.0",
@@ -58,6 +63,6 @@
     "build:serve": "npm run build && npm run serve",
     "generate": "ts-node --project _build/tsconfig.json _build/generate.ts",
     "spa2static": "node _build/fixPages.js && ts-node --project _build/tsconfig.json -r tsconfig-paths/register -r svelte/register _build/spa2static.ts",
-    "deploy": "ipfs-deploy -p pinata -s creaton dist"
+    "deploy": "ipfs-deploy -p infura -s creaton dist"
   }
 }

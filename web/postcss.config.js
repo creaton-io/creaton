@@ -1,11 +1,13 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
-const autoprefixer = require('autoprefixer');
-const tailwindcss = require('tailwindcss');
 
-const plugins = [tailwindcss];
+const plugins = [
+  require('postcss-import'),
+  require('tailwindcss'),
+  require('postcss-preset-env')({ stage: 1 })
+];
 
 if (process.env.NODE_ENV !== 'development') {
-  plugins.push(autoprefixer); // crash chrome when inspecting element, so disable it in development mode
+  plugins.push(require('autoprefixer')); // crash chrome when inspecting element, so disable it in development mode
 }
 
 module.exports = {

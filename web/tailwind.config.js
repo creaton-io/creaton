@@ -21,6 +21,23 @@ module.exports = {
       './src/**/*.tsx',
       './src/**/*.vue',
     ],
+    options: {
+      whitelistPatterns: [/svelte-/],
+      defaultExtractor: (content) => {
+        const regExp = new RegExp(/[A-Za-z0-9-_:/]+/g);
+        const matchedTokens = [];
+        let match = regExp.exec(content);
+        while (match) {
+          if (match[0].startsWith('class:')) {
+            matchedTokens.push(match[0].substring(6));
+          } else {
+            matchedTokens.push(match[0]);
+          }
+          match = regExp.exec(content);
+        }
+        return matchedTokens;
+      },
+    },
   },
   future: {
     removeDeprecatedGapUtilities: true,
@@ -51,7 +68,7 @@ module.exports = {
   },
   plugins: [
     tailwindUI({}),
-    function ({addVariant, e}) {
+    function ({ addVariant, e }) {
       const variants = [
         {
           name: 'focus-not-active',
@@ -68,11 +85,10 @@ module.exports = {
       ];
 
       variants.forEach((variant) => {
-        addVariant(variant.name, ({modifySelectors, separator}) => {
-          modifySelectors(({className}) => {
-            return `${variant.parent ? `${variant.parent} ` : ''}.${e(`${variant.name}${separator}${className}`)}${
-              variant.rule ? `:${variant.rule}` : ''
-            }`;
+        addVariant(variant.name, ({ modifySelectors, separator }) => {
+          modifySelectors(({ className }) => {
+            return `${variant.parent ? `${variant.parent} ` : ''}.${e(`${variant.name}${separator}${className}`)}${variant.rule ? `:${variant.rule}` : ''
+              }`;
           });
         });
       });

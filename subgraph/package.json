@@ -28,7 +28,7 @@
     "mainnet:redeploy": "dotenv -- cross-var graph deploy --access-token $THEGRAPH_TOKEN $SUBGRAPH_NAME --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
     "mainnet:deploy": "npm-run-all \"generate -- {1} mainnet\" mainnet:redeploy --",
     "staging:redeploy": "dotenv -- cross-var graph deploy --access-token $THEGRAPH_TOKEN $SUBGRAPH_NAME --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
-    "staging:deploy": "npm-run-all \"generate -- {1} rinkeby\" staging:redeploy --",
+    "staging:deploy": "npm-run-all \"generate -- {1} goerli\" staging:redeploy --",
     "kovan:redeploy": "dotenv -- cross-var graph deploy --access-token $THEGRAPH_TOKEN $SUBGRAPH_NAME --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",
     "kovan:deploy": "npm-run-all \"generate -- {1} kovan\" kovan:redeploy --"
   }

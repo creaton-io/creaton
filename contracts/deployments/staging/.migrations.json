@@ -1,0 +1,3 @@
+{
+  "01_deploy_{{=_.snakeCase(it.contractName)}}.ts": 1603260523
+}

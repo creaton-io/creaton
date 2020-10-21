@@ -40,7 +40,9 @@ const config: BuidlerConfig = {
     },
   },
   namedAccounts: {
-    deployer: 0,
+    deployer: {
+      default: 0,
+    },
   },
   networks: {
     coverage: {
@@ -54,7 +56,7 @@ const config: BuidlerConfig = {
       accounts,
     },
     staging: {
-      url: 'https://rinkeby.infura.io/v3/' + process.env.INFURA_TOKEN,
+      url: 'https://goerli.infura.io/v3/' + process.env.INFURA_TOKEN,
       accounts,
     },
     rinkeby: {
