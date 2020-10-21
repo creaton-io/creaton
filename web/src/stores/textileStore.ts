@@ -215,6 +215,36 @@ export class TextileStore {
     };
   }
 
+    public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
+    const now = new Date().getTime();
+    const fileName = `${file.name}`;
+    const uploadName = `${now}_metadata.json`;
+    const fileLocation = `contents/${uploadName}`;
+
+    const rawFile = await this.bucketInfo.bucket.pushPath(
+      this.bucketInfo.bucketKey,
+      fileLocation,
+      file
+    );
+
+    // encrypt this key with creator public key to store in creator collection
+    const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
+    const pair: CidKey = {
+      cid: rawFile.path.cid.toString(),
+      key: this.arrayBufferToBase64(encKey.buffer),
+    };
+
+    await this.client.create(this.threadID, 'creator', [pair]);
+
+    return {
+      JSONFile: {
+        name: fileName,
+        path: fileLocation,
+        date: now.toString(),
+      },
+    };
+  }
+
   public async encryptFile(file: File): Promise<EncryptedMetadata> {
     const buf = await file.arrayBuffer();
     const key = await this.generateKey();
