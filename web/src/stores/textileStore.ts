@@ -12,8 +12,8 @@ import {
 } from '@textile/hub';
 
 export interface FileMetadata {
-  cid: string;
-  path: string;
+  ipfsPath: string;
+  bucketPath: string;
   name: string;
   date: string;
 }
@@ -47,7 +47,7 @@ const schema = {
   required: ['cid', 'key'],
   properties: {
     _id: {
-      type: "string",
+      type: 'string',
       description: "The instance's id.",
     },
     cid: {type: 'string'},
@@ -57,7 +57,6 @@ const schema = {
 
 export class TextileStore {
   private identity: PrivateKey;
-  private box;
   private keyInfo: KeyInfo;
   private user: Users;
   private client: Client;
@@ -68,6 +67,7 @@ export class TextileStore {
     privBucketKey: string;
   };
   private threadID;
+  private ipfsGateway = 'https://hub.textile.io';
 
   constructor() {
     this.keyInfo = {
@@ -132,24 +132,24 @@ export class TextileStore {
     };
     // alert(this.bucketInfo.bucketKey.toString());
     // alert(this.bucketInfo.privBucketKey.toString());
-    const api = await this.setupAPI();
-    const mailbox = await this.setupMailbox();
-    const thread = await this.create_thread();
+    await this.setupAPI();
+    await this.setupMailbox();
+    await this.create_thread();
   }
 
   private async setupMailbox() {
     try {
-      const id = await this.user.getMailboxID();
+      await this.user.getMailboxID();
     } catch (error) {
-      const setup = await this.user.setupMailbox();
+      await this.user.setupMailbox();
     }
   }
 
   private async setupAPI(): Promise<void> {
     this.user = await Users.withKeyInfo(this.keyInfo);
     this.client = await Client.withKeyInfo(this.keyInfo);
-    const user = await this.user.getToken(this.identity);
-    const client = await this.client.getToken(this.identity);
+    await this.user.getToken(this.identity);
+    await this.client.getToken(this.identity);
   }
 
   private async create_thread(): Promise<void> {
@@ -158,8 +158,8 @@ export class TextileStore {
     const thread = threadList.find((obj) => obj.name === 'creaton');
     if (!thread) {
       this.threadID = await this.client.newDB(undefined, 'creaton');
-      const col1 = await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
-      const col2 = await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
+      await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
+      await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
     } else {
       this.threadID = ThreadID.fromString(thread.id);
     }
@@ -192,43 +192,49 @@ export class TextileStore {
 
     return {
       encryptedFile: {
-        cid: rawFile.path.path.toString(),
+        ipfsPath: rawFile.path.path.toString(),
         name: fileName,
-        path: fileLocation,
+        bucketPath: fileLocation,
         date: now.toString(),
       },
     };
   }
 
-    public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
+  public async uploadJSONBuffer(buf: Buffer): Promise<string> {
     const now = new Date().getTime();
-    const fileName = `${file.name}`;
     const uploadName = `${now}_metadata.json`;
     const fileLocation = `contents/${uploadName}`;
 
-    const rawFile = await this.bucketInfo.bucket.pushPath(
-      this.bucketInfo.bucketKey,
-      fileLocation,
-      file
-    );
+    const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, buf);
 
-    // encrypt this key with creator public key to store in creator collection
-    const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
-    const pair: CidKey = {
-      cid: rawFile.path.cid.toString(),
-      key: this.arrayBufferToBase64(encKey.buffer),
-    };
-
-    await this.client.create(this.threadID, 'creator', [pair]);
-
-    return {
-      JSONFile: {
-        name: fileName,
-        path: fileLocation,
-        date: now.toString(),
-      },
-    };
+    return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
   }
+
+  // public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
+  //   const now = new Date().getTime();
+  //   const fileName = `${file.name}`;
+  //   const uploadName = `${now}_metadata.json`;
+  //   const fileLocation = `contents/${uploadName}`;
+
+  //   const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, file);
+
+  //   // encrypt this key with creator public key to store in creator collection
+  //   const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
+  //   const pair: CidKey = {
+  //     ipfsPath: rawFile.path.cid.toString(),
+  //     key: this.arrayBufferToBase64(encKey.buffer),
+  //   };
+
+  //   await this.client.create(this.threadID, 'creator', [pair]);
+
+  //   return {
+  //     JSONFile: {
+  //       name: fileName,
+  //       path: fileLocation,
+  //       date: now.toString(),
+  //     },
+  //   };
+  // }
 
   public async encryptFile(file: File): Promise<EncryptedMetadata> {
     const buf = await file.arrayBuffer();
@@ -264,15 +270,15 @@ export class TextileStore {
   public async decryptFile(path: string): Promise<ArrayBuffer> {
     //get content from path on ipfs
     const metadata = await this.bucketInfo.bucket.pullIpfsPath(path);
-    var binary = '';
-    for await (let value of metadata){
-      var len = value.byteLength;
+    let binary = '';
+    for await (const value of metadata) {
+      const len = value.byteLength;
       console.log(len);
-	    for (var i = 0; i < len; i++) {
-		    binary += String.fromCharCode( value[ i ] );
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(value[i]);
       }
     }
-    
+
     console.log(binary);
     const content = this.base64ToArrayBuffer(binary);
 
@@ -320,26 +326,25 @@ export class TextileStore {
   }
 
   private arrayBufferToBase64(buffer: ArrayBuffer) {
-    var binary = '';
+    let binary = '';
     const bytes = new Uint8Array(buffer);
-    var len = bytes.byteLength;
-	  for (var i = 0; i < len; i++) {
-		  binary += String.fromCharCode( bytes[ i ] );
-	  }
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
 
     return window.btoa(binary);
   }
 
   private base64ToArrayBuffer(base64: string) {
-    var binary_string =  window.atob(base64);
-    var len = binary_string.length;
-    var bytes = new Uint8Array(len);
-    for (var i = 0; i < len; i++)        {
-        bytes[i] = binary_string.charCodeAt(i);
+    const binary_string = window.atob(base64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
     }
     return bytes.buffer;
   }
-
 
   public async messageDecoder(message: UserMessage): Promise<DecryptedInbox> {
     const bytes = await this.identity.decrypt(message.body);
