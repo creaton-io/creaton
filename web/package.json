@@ -11,11 +11,13 @@
     "@ethersproject/providers": "^5.0.13",
     "@ethersproject/solidity": "^5.0.5",
     "@hickory/browser": "^2.1.0",
-    "@urql/core": "^1.13.1",
+    "@textile/hub": "^1.1.1",
+    "@urql/core": "^1.12.3",
     "@urql/devtools": "^2.0.2",
     "buffer": "^5.6.0",
     "creaton-common": "../common-lib",
     "graphql": "^15.3.0",
+    "isomorphic-ws": "^4.0.1",
     "named-logs": "0.0.13",
     "named-logs-console": "0.0.14",
     "smelte": "^1.0.16",
@@ -27,7 +29,8 @@
     "web3w-portis-loader": "^0.2.0",
     "web3w-torus-loader": "^0.2.4",
     "web3w-walletconnect-loader": "^0.2.0",
-    "wonka": "^4.0.14"
+    "wonka": "^4.0.14",
+    "ws": "^7.3.1"
   },
   "devDependencies": {
     "@tailwindcss/ui": "^0.5.0",
