@@ -36,7 +36,7 @@ export interface EncryptedMetadata {
 }
 
 export interface CidKey {
-  ipfsPath: string;
+  cid: string;
   key: string;
 }
 
@@ -182,7 +182,7 @@ export class TextileStore {
     // encrypt this key with creator public key to store in creator collection
     const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
     const pair: CidKey = {
-      ipfsPath: rawFile.path.path.toString(),
+      cid: rawFile.path.path.toString(),
       key: this.arrayBufferToBase64(encKey.buffer),
     };
 
@@ -364,7 +364,7 @@ export class TextileStore {
       //encrypt key and store
       const encKey = await this.identity.public.encrypt(new Uint8Array(this.base64ToArrayBuffer(keyPair.key)));
       const pair: CidKey = {
-        ipfsPath: keyPair.ipfsPath,
+        cid: keyPair.cid,
         key: this.arrayBufferToBase64(encKey.buffer),
       };
       await this.client.create(this.threadID, 'subscriber', [pair]);
@@ -373,7 +373,7 @@ export class TextileStore {
 
   //from contract
   public async getSubscribers(): Promise<CidKey[]> {
-    return new Array({ipfsPath: 'cid', key: 'pubKey'});
+    return new Array({cid: 'cid', key: 'pubKey'});
   }
 
   public async sendKeysToSubscribers(cid: string, key: string): Promise<void> {
