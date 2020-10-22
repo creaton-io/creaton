@@ -19,11 +19,11 @@ contract Creator is Proxied, ERC1155MixedFungibleMintable {
     // Storage
     // -----------------------------------------
 
-    address owner;
-    string avatarURL;
-    string creatorTitle;
-    uint256 subscriptionPrice;
-    string[] metadataURL;
+    string[] public metadataURL;
+    address public owner ;
+    string public avatarURL;
+    string public creatorTitle;
+    uint256 public subscriptionPrice;
 
     // -----------------------------------------
     // Constructor

@@ -7,10 +7,12 @@
   let avatarURL: string = '';
   let subscriptionPrice: number;
 
+  console.log($chain.contracts)
+  console.log($chain.addresses)
+
   async function deployCreator() {
     await flow.execute(async (contracts) => {
       avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
-      
       const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
       return receipt;
     });

@@ -2,12 +2,11 @@
   export let creator: {
     user: string;
     title: string;
+    creatorContract: string;
     subscriptionPrice: number;
   };
 
   import Link from '../_routing/curi/Link.svelte';
-  import {getRouter, getResponse} from '@curi/svelte';
-  import {active as activeInteraction, pathname} from '@curi/interactions';
 
 </script>
 
