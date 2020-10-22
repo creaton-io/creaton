@@ -7,11 +7,11 @@
   import {logs} from 'named-logs';
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
-  import {TextileStore} from '../stores/textileStore';
-  import { Buffer } from "buffer";
-  global.Buffer = Buffer;
+  // import {TextileStore} from '../stores/textileStore';
+  // import { Buffer } from "buffer";
+  // global.Buffer = Buffer;
 
-  const textile: TextileStore = new TextileStore();
+  // const textile: TextileStore = new TextileStore();
   let creatorName: string = '';
   let subscriptionPrice: number;
   let uploader;
@@ -19,60 +19,60 @@
 
 
   async function deployTextile(){
-    const setup = await textile.authenticate();
-    alert("you're good");
+    // const setup = await textile.authenticate();
+    // alert("you're good");
   }
 
   async function upload(){
-    const file = uploader.files[0];
-    const encFile = await textile.uploadFile(file);
-    console.log(encFile.encryptedFile.ipfsPath, encFile.encryptedFile.bucketPath);
-    const metadata = {
-      name: encFile.encryptedFile.name,
-      description: 'A creaton content',
-      image: 'Not found',
-      date: encFile.encryptedFile.date,
-      content: encFile.encryptedFile.ipfsPath,
-    }
+    // const file = uploader.files[0];
+    // const encFile = await textile.uploadFile(file);
+    // console.log(encFile.encryptedFile.ipfsPath, encFile.encryptedFile.bucketPath);
+    // const metadata = {
+    //   name: encFile.encryptedFile.name,
+    //   description: 'A creaton content',
+    //   image: 'Not found',
+    //   date: encFile.encryptedFile.date,
+    //   content: encFile.encryptedFile.ipfsPath,
+    // }
 
-    console.log(JSON.stringify(metadata));
-    const buf = Buffer.from(JSON.stringify(metadata));
-    const url = await textile.uploadJSONBuffer(buf);
+    // console.log(JSON.stringify(metadata));
+    // const buf = Buffer.from(JSON.stringify(metadata));
+    // const url = await textile.uploadJSONBuffer(buf);
 
-    console.log(url);
+    // console.log(url);
   }
 
   async function sendKeys(){
-    await textile.sendKeysToSubscribers(path, pubkey);
-    alert("keys sent");
+    // await textile.sendKeysToSubscribers(path, pubkey);
+    // alert("keys sent");
   }
 
   async function download(){
-    await textile.getKeysFromCreator();
-    const decrypted = await textile.decryptFile(downloadPath);
-    await downloadBlob(decrypted);
+    // await textile.getKeysFromCreator();
+    // const decrypted = await textile.decryptFile(downloadPath);
+    // await downloadBlob(decrypted);
   }
 
   function downloadURL (data, fileName) {
-    const a = document.createElement('a')
-    a.href = data
-    a.download = fileName
-    document.body.appendChild(a)
-    a.style.display = 'none'
-    a.click()
-    a.remove()
+    // const a = document.createElement('a')
+    // a.href = data
+    // a.download = fileName
+    // document.body.appendChild(a)
+    // a.style.display = 'none'
+    // a.click()
+    // a.remove()
   }
 
   function downloadBlob(decrypted: ArrayBuffer) {
-    const blob = new Blob([new Uint8Array(decrypted)], {
-      type: 'image/jpg',
-    })
+    // const blob = new Blob([new Uint8Array(decrypted)], {
+    //   type: 'image/jpg',
+    // })
 
-    const url = window.URL.createObjectURL(blob)
+    // const url = window.URL.createObjectURL(blob)
 
-    downloadURL(url, 'whatever')
+    // downloadURL(url, 'whatever')
 
-    setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+    // setTimeout(() => window.URL.revokeObjectURL(url), 1000)
   }
 
 </script>
