@@ -81,7 +81,7 @@ export class TextileStore {
   public async authenticate(): Promise<void> {
     this.identity = await this.getIdentity();
     await this.initialize();
-    console.log(this.identity.toString());
+    console.log(this.identity.public.toString());
   }
 
   private async getIdentity(): Promise<PrivateKey> {
@@ -186,6 +186,8 @@ export class TextileStore {
       key: this.arrayBufferToBase64(encKey.buffer),
     };
 
+    console.log(this.arrayBufferToBase64(encMetadata.key));
+
     await this.client.create(this.threadID, 'creator', [pair]);
 
     return {
@@ -231,9 +233,18 @@ export class TextileStore {
    */
   public async decryptFile(path: string): Promise<ArrayBuffer> {
     //get content from path on ipfs
-    const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.bucketKey, path);
-    const {value} = await metadata.next();
-    const content = this.base64ToArrayBuffer(value);
+    const metadata = await this.bucketInfo.bucket.pullIpfsPath(path);
+    var binary = '';
+    for await (let value of metadata){
+      var len = value.byteLength;
+      console.log(len);
+	    for (var i = 0; i < len; i++) {
+		    binary += String.fromCharCode( value[ i ] );
+      }
+    }
+    
+    console.log(binary);
+    const content = this.base64ToArrayBuffer(binary);
 
     // TODO get key if subscriber has been given, has to handle error when no key is available
     // i.e.when query fails
@@ -243,6 +254,7 @@ export class TextileStore {
     const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
     const decryptKey = await this.importKey(keyBuffer.buffer);
 
+    await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
     return await window.crypto.subtle.decrypt(
       {
         name: 'AES-CTR',
@@ -283,7 +295,7 @@ export class TextileStore {
     var len = bytes.byteLength;
 	  for (var i = 0; i < len; i++) {
 		  binary += String.fromCharCode( bytes[ i ] );
-	}
+	  }
 
     return window.btoa(binary);
   }
@@ -297,6 +309,7 @@ export class TextileStore {
     }
     return bytes.buffer;
   }
+
 
   public async messageDecoder(message: UserMessage): Promise<DecryptedInbox> {
     const bytes = await this.identity.decrypt(message.body);

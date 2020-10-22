@@ -15,7 +15,7 @@
   let creatorName: string = '';
   let subscriptionPrice: number;
   let uploader;
-  let path, pubkey;
+  let path, pubkey, downloadPath;
 
 
   async function deployTextile(){
@@ -31,12 +31,13 @@
 
   async function sendKeys(){
     await textile.sendKeysToSubscribers(path, pubkey);
+    alert("keys sent");
   }
 
   async function download(){
     await textile.getKeysFromCreator();
-    const decrypted = await textile.decryptFile(path);
-    downloadBlob(decrypted);
+    const decrypted = await textile.decryptFile(downloadPath);
+    await downloadBlob(decrypted);
   }
 
   function downloadURL (data, fileName) {
@@ -51,7 +52,7 @@
 
   function downloadBlob(decrypted: ArrayBuffer) {
     const blob = new Blob([new Uint8Array(decrypted)], {
-      type: 'image/jpeg',
+      type: 'image/jpg',
     })
 
     const url = window.URL.createObjectURL(blob)
@@ -123,7 +124,7 @@
 
 <br>
 <div class="field-row">
-  <label for="dpath-url">pubkey</label>
-  <Input id="dpath-url" type="text" placeholder="Profile image URL" className="field" bind:value={path} />
+  <label for="dpath-url">download path</label>
+  <Input id="dpath-url" type="text" placeholder="Dpath" className="field" bind:value={downloadPath} />
 </div>
 <button on:click={download}> Download </button>
