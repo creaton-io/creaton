@@ -2,6 +2,7 @@
   export let creator: {
     user: string;
     title: string;
+    creatorContract: string;
     subscriptionPrice: number;
     avatarURL: string;
   };
@@ -10,7 +11,7 @@
 </script>
 <style>
   .avatar {
-    max-height: 300px;
+    height: 300px;
     object-fit: cover;
     width: 100%;
   }

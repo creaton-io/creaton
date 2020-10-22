@@ -1,4 +1,3 @@
-/*
 import {
   Buckets,
   KeyInfo,
@@ -12,11 +11,9 @@ import {
   ThreadID,
 } from '@textile/hub';
 
-const Box = require('3box');
-
 export interface FileMetadata {
-  cid: string;
-  path: string;
+  ipfsPath: string;
+  bucketPath: string;
   name: string;
   date: string;
 }
@@ -25,7 +22,7 @@ export interface EncryptedFileMetadata {
   encryptedFile: FileMetadata;
 }
 
-interface DecryptedInbox {
+export interface DecryptedInbox {
   id: string;
   body: string;
   from: string;
@@ -33,12 +30,12 @@ interface DecryptedInbox {
   readAt?: number;
 }
 
-interface EncryptedMetadata {
+export interface EncryptedMetadata {
   file: ArrayBuffer;
   key: ArrayBuffer;
 }
 
-interface CidKey {
+export interface CidKey {
   cid: string;
   key: string;
 }
@@ -49,15 +46,17 @@ const schema = {
   type: 'object',
   required: ['cid', 'key'],
   properties: {
+    _id: {
+      type: 'string',
+      description: "The instance's id.",
+    },
     cid: {type: 'string'},
     key: {type: 'string'},
   },
 };
 
 export class TextileStore {
-  private wallet: WalletStore;
   private identity: PrivateKey;
-  private box;
   private keyInfo: KeyInfo;
   private user: Users;
   private client: Client;
@@ -68,78 +67,80 @@ export class TextileStore {
     privBucketKey: string;
   };
   private threadID;
+  private ipfsGateway = 'https://hub.textile.io';
 
-  constructor(wallet: WalletStore) {
-    this.wallet = wallet;
+  constructor() {
     this.keyInfo = {
-      key: process.env.TEXTILE_HUB_API_KEY as string,
+      key: 'bztzcvlar4fdod24mbamtz5prne',
     };
     this.keyInfoOptions = {
-      debug: false,
+      debug: true,
     };
   }
 
   public async authenticate(): Promise<void> {
-    this.box = await Box.create(this.wallet.web3Provider);
-    const address = this.wallet.address;
-    await this.box.auth([], {address});
+    this.identity = await this.getIdentity();
+    await this.initialize();
+    console.log(this.identity.public.toString());
+  }
 
-    const space = await this.box.openSpace('io-textile-3box-demo');
-    await this.box.syncDone;
-    let identity: PrivateKey;
-
+  private async getIdentity(): Promise<PrivateKey> {
     try {
-      const storedIdent = await space.private.get('ed25519-identity');
+      const storedIdent = localStorage.getItem('identity-creaton');
       if (storedIdent === null) {
         throw new Error('No identity');
       }
-      identity = PrivateKey.fromString(storedIdent);
-      this.identity = identity;
+      const restored = PrivateKey.fromString(storedIdent);
+      return restored;
     } catch (e) {
       /**
        * If any error, create a new identity.
-       *//*
+       */
       try {
-        identity = PrivateKey.fromRandom();
+        const identity = PrivateKey.fromRandom();
         const identityString = identity.toString();
-        await space.private.set('ed25519-identity', identityString);
+        localStorage.setItem('identity-creaton', identityString);
+        return identity;
       } catch (err) {
         return err.message;
       }
     }
-    this.identity = identity;
   }
 
-  public async initialize(): Promise<void> {
+  private async initialize(): Promise<void> {
     if (!this.identity || !this.keyInfo) {
       throw new Error('Identity or API key not set');
     }
-
-    const buckets = await Buckets.withKeyInfo(this.keyInfo, this.keyInfoOptions);
+    // alert("hi");
+    const buckets = await Buckets.withKeyInfo(this.keyInfo);
+    // alert("hi key info");
     // Authorize the user and your insecure keys with getToken
     await buckets.getToken(this.identity);
-
+    // alert('hi!');
     const buck = await buckets.getOrCreate('creaton');
+    // alert("hi!!");
     const privBuck = await buckets.getOrCreate('creaton-keys', undefined, true);
 
     if (!buck.root || !privBuck.root) {
       throw new Error('Failed to get or create bucket');
     }
-
+    // alert("buckets?");
     this.bucketInfo = {
       bucket: buckets,
       bucketKey: buck.root.key,
       privBucketKey: privBuck.root.key,
     };
-
+    // alert(this.bucketInfo.bucketKey.toString());
+    // alert(this.bucketInfo.privBucketKey.toString());
     await this.setupAPI();
     await this.setupMailbox();
     await this.create_thread();
   }
 
   private async setupMailbox() {
-    const mailId = await this.user.getMailboxID();
-    if (!mailId) {
+    try {
+      await this.user.getMailboxID();
+    } catch (error) {
       await this.user.setupMailbox();
     }
   }
@@ -152,33 +153,15 @@ export class TextileStore {
   }
 
   private async create_thread(): Promise<void> {
-    // const threadResponse = await this.client.listThreads();
-    // const threadList = threadResponse.listList;
-    // const thread = threadList.find((obj) => obj.name == 'creaton');
-    // if (!thread) {
-    //   this.threadID = await this.client.newDB(undefined, 'creaton');
-    // } else {
-    //   this.threadID = thread.id;
-    // }
-
-    let threadId = await this.getThreadId();
-    if (threadId === undefined) {
-      threadId = await this.client.newDB(undefined, 'creaton');
-      await this.client.newCollection(threadId, {name: 'creator', schema: schema});
-      await this.client.newCollection(threadId, {name: 'subscriber', schema: schema});
-    }
-
-    this.threadID = threadId;
-    await this.bucketInfo.bucket.pushPath(this.bucketInfo.privBucketKey, 'keys/threadid.txt', threadId.toString());
-  }
-
-  private async getThreadId(): Promise<ThreadID | undefined> {
-    try {
-      const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.privBucketKey, 'keys/threadid.txt');
-      const {value} = await metadata.next();
-      ThreadID.fromString(new TextDecoder().decode(value));
-    } catch (error) {
-      return undefined;
+    const threadResponse = await this.client.listThreads();
+    const threadList = threadResponse.listList;
+    const thread = threadList.find((obj) => obj.name === 'creaton');
+    if (!thread) {
+      this.threadID = await this.client.newDB(undefined, 'creaton');
+      await this.client.newCollection(this.threadID, {name: 'creator', schema: schema});
+      await this.client.newCollection(this.threadID, {name: 'subscriber', schema: schema});
+    } else {
+      this.threadID = ThreadID.fromString(thread.id);
     }
   }
 
@@ -199,51 +182,59 @@ export class TextileStore {
     // encrypt this key with creator public key to store in creator collection
     const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
     const pair: CidKey = {
-      cid: rawFile.path.cid.toString(),
+      cid: rawFile.path.path.toString(),
       key: this.arrayBufferToBase64(encKey.buffer),
     };
+
+    console.log(this.arrayBufferToBase64(encMetadata.key));
 
     await this.client.create(this.threadID, 'creator', [pair]);
 
     return {
       encryptedFile: {
-        cid: rawFile.path.cid.toString(),
+        ipfsPath: rawFile.path.path.toString(),
         name: fileName,
-        path: fileLocation,
+        bucketPath: fileLocation,
         date: now.toString(),
       },
     };
   }
 
-    public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
+  public async uploadJSONBuffer(buf: Buffer): Promise<string> {
     const now = new Date().getTime();
-    const fileName = `${file.name}`;
     const uploadName = `${now}_metadata.json`;
     const fileLocation = `contents/${uploadName}`;
 
-    const rawFile = await this.bucketInfo.bucket.pushPath(
-      this.bucketInfo.bucketKey,
-      fileLocation,
-      file
-    );
+    const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, buf);
 
-    // encrypt this key with creator public key to store in creator collection
-    const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
-    const pair: CidKey = {
-      cid: rawFile.path.cid.toString(),
-      key: this.arrayBufferToBase64(encKey.buffer),
-    };
-
-    await this.client.create(this.threadID, 'creator', [pair]);
-
-    return {
-      JSONFile: {
-        name: fileName,
-        path: fileLocation,
-        date: now.toString(),
-      },
-    };
+    return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
   }
+
+  // public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
+  //   const now = new Date().getTime();
+  //   const fileName = `${file.name}`;
+  //   const uploadName = `${now}_metadata.json`;
+  //   const fileLocation = `contents/${uploadName}`;
+
+  //   const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, file);
+
+  //   // encrypt this key with creator public key to store in creator collection
+  //   const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
+  //   const pair: CidKey = {
+  //     ipfsPath: rawFile.path.cid.toString(),
+  //     key: this.arrayBufferToBase64(encKey.buffer),
+  //   };
+
+  //   await this.client.create(this.threadID, 'creator', [pair]);
+
+  //   return {
+  //     JSONFile: {
+  //       name: fileName,
+  //       path: fileLocation,
+  //       date: now.toString(),
+  //     },
+  //   };
+  // }
 
   public async encryptFile(file: File): Promise<EncryptedMetadata> {
     const buf = await file.arrayBuffer();
@@ -275,22 +266,31 @@ export class TextileStore {
    * Decrypts a file given the relative bucket path and
    * its cid to retrieve its corresponding keys from DB.
    * @param path The relative path in bucket
-   * @param cid CID of the content to receive
-   *//*
-  public async decryptFile(path: string, cid: string): Promise<ArrayBuffer> {
-    // get content from path on ipfs
-    const metadata = await this.bucketInfo.bucket.pullPath(this.bucketInfo.bucketKey, path);
-    const {value} = await metadata.next();
-    const content = this.base64ToArrayBuffer(value);
+   */
+  public async decryptFile(path: string): Promise<ArrayBuffer> {
+    //get content from path on ipfs
+    const metadata = await this.bucketInfo.bucket.pullIpfsPath(path);
+    let binary = '';
+    for await (const value of metadata) {
+      const len = value.byteLength;
+      console.log(len);
+      for (let i = 0; i < len; i++) {
+        binary += String.fromCharCode(value[i]);
+      }
+    }
+
+    console.log(binary);
+    const content = this.base64ToArrayBuffer(binary);
 
     // TODO get key if subscriber has been given, has to handle error when no key is available
-    // i.e. when query fails
-    const query = new Where('cid').eq(cid);
+    // i.e.when query fails
+    const query = new Where('cid').eq(path);
     const result = await this.client.find<CidKey>(this.threadID, 'subscriber', query);
     const pair = result[0];
     const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
     const decryptKey = await this.importKey(keyBuffer.buffer);
 
+    await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
     return await window.crypto.subtle.decrypt(
       {
         name: 'AES-CTR',
@@ -326,16 +326,23 @@ export class TextileStore {
   }
 
   private arrayBufferToBase64(buffer: ArrayBuffer) {
+    let binary = '';
     const bytes = new Uint8Array(buffer);
-    const binary = new TextDecoder().decode(bytes);
+    const len = bytes.byteLength;
+    for (let i = 0; i < len; i++) {
+      binary += String.fromCharCode(bytes[i]);
+    }
 
     return window.btoa(binary);
   }
 
   private base64ToArrayBuffer(base64: string) {
-    const str = window.atob(base64);
-    const bytes = new TextEncoder().encode(str);
-
+    const binary_string = window.atob(base64);
+    const len = binary_string.length;
+    const bytes = new Uint8Array(len);
+    for (let i = 0; i < len; i++) {
+      bytes[i] = binary_string.charCodeAt(i);
+    }
     return bytes.buffer;
   }
 
@@ -354,7 +361,7 @@ export class TextileStore {
     for (const msg of messages) {
       const decryptedInbox = await this.messageDecoder(msg);
       const keyPair: CidKey = JSON.parse(decryptedInbox.body);
-      // encrypt key and store
+      //encrypt key and store
       const encKey = await this.identity.public.encrypt(new Uint8Array(this.base64ToArrayBuffer(keyPair.key)));
       const pair: CidKey = {
         cid: keyPair.cid,
@@ -364,13 +371,13 @@ export class TextileStore {
     }
   }
 
-  // from contract
+  //from contract
   public async getSubscribers(): Promise<CidKey[]> {
     return new Array({cid: 'cid', key: 'pubKey'});
   }
 
-  public async sendKeysToSubscribers(): Promise<void> {
-    const subscribers = await this.getSubscribers();
+  public async sendKeysToSubscribers(cid: string, key: string): Promise<void> {
+    const subscribers = new Array({cid: cid, key: key});
 
     for (const sub of subscribers) {
       const query = new Where('cid').eq(sub.cid);
@@ -390,4 +397,3 @@ export class TextileStore {
     return this.user.sendMessage(from, to, body);
   }
 }
-*/

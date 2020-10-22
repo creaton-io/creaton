@@ -7,73 +7,74 @@
   import {logs} from 'named-logs';
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
-  //import {TextileStore} from '../stores/textileStore';
+  // import {TextileStore} from '../stores/textileStore';
+  // import { Buffer } from "buffer";
+  // global.Buffer = Buffer;
 
-  //const textile: TextileStore = new TextileStore();
-  import Buffer from 'buffer/';
-  let contentName: string = '';
-  let contentDescription: string = '';
-  //let ERC1155address where to mint the content NFT in
-  let files;
-  let encrypted;
-  var arrayBuffer, uint8Array;
-  //var Buffer = require('buffer/')
+  // const textile: TextileStore = new TextileStore();
+  let creatorName: string = '';
+  let subscriptionPrice: number;
+  let uploader;
+  let path, pubkey, downloadPath;
 
-  // const initIndex = async (buckets: Buckets, bucketKey: string, identity: Identity) => {
-  // Create a json model for the index
-  let contentLocation;
-  const metadata = {
-    title: 'Asset Metadata',
-    type: 'object',
-    properties: {
-      name: {
-        type: 'string',
-        description: 'Identifies the asset to which this NFT represents',
-      },
-      description: {
-        type: 'string',
-        description: 'Describes the asset to which this NFT represents',
-      },
-      image: {
-        type: 'string',
-        description:
-          'A URI pointing to a resource with mime type image/* representing the asset to which this NFT represents. Consider making any images at a width between 320 and 1080 pixels and aspect ratio between 1.91:1 and 4:5 inclusive.',
-      },
-      content: {
-        type: 'string',
-        description: contentLocation,
-      },
-      date: {
-        type: 'string',
-        description: new Date().getTime(),
-      },
-    },
-  };
 
-  $: if (files) {
-    let file = files[0];
-    let reader = new FileReader();
-    reader.onload = async function (evt) {
-      arrayBuffer = this.result;
-      uint8Array = new Uint8Array(arrayBuffer);
-    };
-    reader.readAsArrayBuffer(file);
-    //encrypted = textile.uploadFile(uint8Array);
-
-    contentLocation = encrypted.path; //update content location in metadata
-    //TODO: upload content first and then put content link in metadata json and upload json
-    const buf = Buffer.Buffer.from(JSON.stringify(metadata));
-    //const JSONFile = textile.uploadJSONFile(buf);
-    //TODO: mint NFT token in ERC1155address with metadata json link as uri
+  async function deployTextile(){
+    // const setup = await textile.authenticate();
+    // alert("you're good");
   }
 
-  async function deployCreator() {
-    await flow.execute(async (contracts) => {
-      const receipt = await contracts.CreatonFactory.deployCreator(this.creatorName, this.subscriptionPrice);
-      console.log(receipt);
-      return receipt;
-    });
+  async function upload(){
+    // const file = uploader.files[0];
+    // const encFile = await textile.uploadFile(file);
+    // console.log(encFile.encryptedFile.ipfsPath, encFile.encryptedFile.bucketPath);
+    // const metadata = {
+    //   name: encFile.encryptedFile.name,
+    //   description: 'A creaton content',
+    //   image: 'Not found',
+    //   date: encFile.encryptedFile.date,
+    //   content: encFile.encryptedFile.ipfsPath,
+    // }
+
+    // console.log(JSON.stringify(metadata));
+    // const buf = Buffer.from(JSON.stringify(metadata));
+    // const url = await textile.uploadJSONBuffer(buf);
+
+    // console.log(url);
   }
+
+  async function sendKeys(){
+    // await textile.sendKeysToSubscribers(path, pubkey);
+    // alert("keys sent");
+  }
+
+  async function download(){
+    // await textile.getKeysFromCreator();
+    // const decrypted = await textile.decryptFile(downloadPath);
+    // await downloadBlob(decrypted);
+  }
+
+  function downloadURL (data, fileName) {
+    // const a = document.createElement('a')
+    // a.href = data
+    // a.download = fileName
+    // document.body.appendChild(a)
+    // a.style.display = 'none'
+    // a.click()
+    // a.remove()
+  }
+
+  function downloadBlob(decrypted: ArrayBuffer) {
+    // const blob = new Blob([new Uint8Array(decrypted)], {
+    //   type: 'image/jpg',
+    // })
+
+    // const url = window.URL.createObjectURL(blob)
+
+    // downloadURL(url, 'whatever')
+
+    // setTimeout(() => window.URL.revokeObjectURL(url), 1000)
+  }
+
 </script>
 
 <style>
@@ -97,17 +98,36 @@
     color: black;
     opacity: 0.5;
   }
-  .field-row {
-    @apply mt-3 flex items-center;
-  }
-  label {
-    @apply mr-3;
-  }
-  button {
-    @apply flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 border-indigo-600 hover:border-indigo-700 text-sm border-4
-          text-white py-1 px-2 rounded disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed;
-  }
 </style>
 
+<button on:click={deployTextile}> Setup </button>
+<br>
 <label for="avatar">Upload a file (picture for now):</label>
-<input accept="image/png, image/jpeg" bind:files id="content" name="content" type="file" />
+<label>
+  <slot name="content">
+  </slot>
+  <input 
+			 bind:this={uploader}
+			 type="file" 
+			 class="visually-hidden"
+			 on:change={upload} 
+			/>
+</label>
+
+<br>
+<div class="field-row">
+  <label for="path-url">path</label>
+  <Input id="path-url" type="text" placeholder="Path" className="field" bind:value={path} />
+</div>
+<div class="field-row">
+  <label for="pubkey-url">pubkey</label>
+  <Input id="pubkey-url" type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
+</div>
+<button on:click={sendKeys}> Send Keys </button>
+
+<br>
+<div class="field-row">
+  <label for="dpath-url">download path</label>
+  <Input id="dpath-url" type="text" placeholder="Dpath" className="field" bind:value={downloadPath} />
+</div>
+<button on:click={download}> Download </button>
