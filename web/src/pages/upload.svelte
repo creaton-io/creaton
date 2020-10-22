@@ -29,8 +29,8 @@
     // console.log(encFile.encryptedFile.ipfsPath, encFile.encryptedFile.bucketPath);
     // const metadata = {
     //   name: encFile.encryptedFile.name,
-    //   description: 'A creaton content',
-    //   image: 'Not found',
+    //   type: encFile.encryptedFile.type,
+    //   description: 'creator content',
     //   date: encFile.encryptedFile.date,
     //   content: encFile.encryptedFile.ipfsPath,
     // }
@@ -100,6 +100,7 @@
   }
 </style>
 
+<section class="py-8 px-4 text-center">
 <button on:click={deployTextile}> Setup </button>
 <br>
 <label for="avatar">Upload a file (picture for now):</label>
@@ -131,3 +132,4 @@
   <Input id="dpath-url" type="text" placeholder="Dpath" className="field" bind:value={downloadPath} />
 </div>
 <button on:click={download}> Download </button>
+</section>

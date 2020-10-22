@@ -15,6 +15,7 @@ export interface FileMetadata {
   ipfsPath: string;
   bucketPath: string;
   name: string;
+  type: string;
   date: string;
 }
 
@@ -194,6 +195,7 @@ export class TextileStore {
       encryptedFile: {
         ipfsPath: rawFile.path.path.toString(),
         name: fileName,
+        type: file.type,
         bucketPath: fileLocation,
         date: now.toString(),
       },
