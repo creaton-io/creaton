@@ -35,8 +35,11 @@
       content: encFile.encryptedFile.ipfsPath,
     }
 
+    console.log(JSON.stringify(metadata));
     const buf = Buffer.from(JSON.stringify(metadata));
     const url = await textile.uploadJSONBuffer(buf);
+
+    console.log(url);
   }
 
   async function sendKeys(){
