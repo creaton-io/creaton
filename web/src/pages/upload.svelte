@@ -1,10 +1,10 @@
 <script lang="ts">
   // import {wallet, balance, flow, chain} from '../stores/wallet';
   // import {identity} from 'svelte/internal';
-  //import {TextileStore} from '../stores/textileStore';
+  // import {TextileStore} from '../stores/textileStore';
 
-  //const textile: TextileStore = new TextileStore();
-  import Buffer from 'buffer/';
+  // const textile: TextileStore = new TextileStore();
+  // import Buffer from 'buffer/';
   let contentName: string = '';
   let contentDescription: string = '';
   //let ERC1155address where to mint the content NFT in
@@ -85,6 +85,5 @@
     opacity: 0.5;
   }
 </style>
-testasdgadg
-<!-- <label for="content">Upload a file (picture for now):</label>
-<input id="content" accept="image/png, image/jpeg" bind:files name="content" type="file" /> -->
+<label for="content">Upload a file (picture for now):</label>
+<input id="content" accept="image/png, image/jpeg" bind:files name="content" type="file" />
