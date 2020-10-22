@@ -85,16 +85,6 @@
     color: black;
     opacity: 0.5;
   }
-  .field-row {
-    @apply mt-3 flex items-center;
-  }
-  label {
-    @apply mr-3;
-  }
-  button {
-    @apply flex-shrink-0 bg-pink-600 hover:bg-pink-700 border-pink-600 hover:border-pink-700 text-sm border-4
-          text-white py-1 px-2 rounded disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed;
-  }
 </style>
 
 <button on:click={deployTextile}> Setup </button>
