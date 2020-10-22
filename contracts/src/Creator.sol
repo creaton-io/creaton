@@ -22,6 +22,7 @@ contract Creator is Proxied, ERC1155MixedFungibleMintable {
     string avatarURL;
     string creatorTitle;
     uint256 subscriptionPrice;
+    string metadataURL;
 
     // -----------------------------------------
     // Constructor
@@ -45,5 +46,10 @@ contract Creator is Proxied, ERC1155MixedFungibleMintable {
     function setAvatarURL(string calldata _newURL) external {
         require(msg.sender == owner);
         avatarURL = _newURL;
+    }
+
+    function setMetadataURL(string calldata _url) external {
+        require(msg.sender == owner);
+        metadataURL = _url;
     }
 }

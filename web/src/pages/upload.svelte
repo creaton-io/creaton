@@ -26,7 +26,17 @@
   async function upload(){
     const file = uploader.files[0];
     const encFile = await textile.uploadFile(file);
-    console.log(encFile.encryptedFile.cid, encFile.encryptedFile.path);
+    console.log(encFile.encryptedFile.ipfsPath, encFile.encryptedFile.bucketPath);
+    const metadata = {
+      name: encFile.encryptedFile.name,
+      description: 'A creaton content',
+      image: 'Not found',
+      date: encFile.encryptedFile.date,
+      content: encFile.encryptedFile.ipfsPath,
+    }
+
+    const buf = Buffer.from(JSON.stringify(metadata));
+    const url = await textile.uploadJSONBuffer(buf);
   }
 
   async function sendKeys(){
