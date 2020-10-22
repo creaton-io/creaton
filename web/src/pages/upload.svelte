@@ -101,13 +101,13 @@
 </style>
 
 <section class="py-8 px-4 text-center">
-<button on:click={deployTextile}> Setup </button>
+<Button on:click={deployTextile}> Setup </Button>
 <br>
 <label for="avatar">Upload a file (picture for now):</label>
 <label>
   <slot name="content">
   </slot>
-  <input 
+  <Input 
 			 bind:this={uploader}
 			 type="file" 
 			 class="visually-hidden"
@@ -124,12 +124,12 @@
   <label for="pubkey-url">pubkey</label>
   <Input id="pubkey-url" type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
 </div>
-<button on:click={sendKeys}> Send Keys </button>
+<Button on:click={sendKeys}> Send Keys </Button>
 
 <br>
 <div class="field-row">
   <label for="dpath-url">download path</label>
   <Input id="dpath-url" type="text" placeholder="Dpath" className="field" bind:value={downloadPath} />
 </div>
-<button on:click={download}> Download </button>
+<Button on:click={download}> Download </Button>
 </section>

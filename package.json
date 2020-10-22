@@ -88,6 +88,6 @@
     "start": "npm-run-all -l externals:down contracts:clean --parallel common:dev web:build:serve externals subgraph:setup contracts subgraph seed:build",
     "dev": "npm-run-all -l contracts:clean --parallel common:dev web:build:serve subgraph:setup contracts subgraph seed:build",
     "shell:start": "npm-run-all -l externals:down --parallel shell:common shell:web shell:externals --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed",
-    "shell:dev": "npm-run-all -l --parallel shell:common shell:web --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed"
+    "shell:dev": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed shell:web"
   }
 }
