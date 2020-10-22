@@ -1,15 +1,26 @@
 <script>
-  import Dropzone from "svelte-dropzone";
-  const addedfile = file => console.log(file);
-  const drop = event => console.log(event.target);
-  const init = () => console.log("dropzone init ! 😍");
+  import FileUpload from 'sveltefileuploadcomponent';
+  
+  function handleFile(files) {
+    //do something with files
+  }
 </script>
+<style>
+  .wrapper {
+    background: #eee;
+    margin: 0 auto;
+    max-width: 600px;
+    padding: 0 20px;
+    height: 300px;
+    border-radius: 10px;
+  }
 
-<Dropzone
-  dropzoneClass="dropzoneClass"
-  hooveringClass="hooveringClass"
-  id="id"
-  dropzoneEvents={{ addedfile, drop, init }}
-  options={{ clickable: true, acceptedFiles: 'text/javascript', maxFilesize: 256, init }}>
-  <p>Drop files here to upload</p>
-</Dropzone>
+    .dragging .someClass{
+    color: red;
+  }
+</style>
+<div class="wrapper">
+  <FileUpload on:input={handleFile}>
+    <div class="someClass">Whatever you want here.</div>
+  </FileUpload>
+</div>

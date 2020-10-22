@@ -2,7 +2,7 @@
   import Button from '../components/Button.svelte';
   import CreatorCard from '../components/CreatorCard.svelte';
   import {creators} from '../stores/queries';
-  const name = 'Creaton';
+  const name = 'CREATON';
 
   creators.fetch();
 
@@ -10,7 +10,7 @@
 
 <section class="py-8 px-4 text-center">
   <div class="max-w-auto md:max-w-lg mx-auto mt-4 mb-10">
-    <h1 class="text-6xl mb-2 font-heading">{name}</h1>
+    <h1 class="text-indigo-600 font-bold text-6xl mb-2 font-heading">{name}</h1>
   </div>
   <div class="py-4 dark:bg-black bg-white">
     <div class="max-w-xl mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">

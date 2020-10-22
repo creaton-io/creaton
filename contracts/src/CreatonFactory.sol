@@ -12,7 +12,12 @@ contract CreatonFactory is Proxied {
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address user, address creatorContract, string title, uint256 subscriptionPrice);
+    event CreatorDeployed(
+        address user, 
+        address creatorContract, 
+        string title, 
+        string avatarURL, 
+        uint256 subscriptionPrice);
 
     // -----------------------------------------
     // Storage
@@ -43,6 +48,11 @@ contract CreatonFactory is Proxied {
             subscriptionPrice);
         creatorContracts[msg.sender] = creatorContractAddr;
 
-        emit CreatorDeployed(msg.sender, creatorContractAddr, title, subscriptionPrice);
+        emit CreatorDeployed(
+            msg.sender, 
+            creatorContractAddr, 
+            title, 
+            avatarURL,
+            subscriptionPrice);
     }
 }

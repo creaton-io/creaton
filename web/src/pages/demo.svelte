@@ -44,22 +44,22 @@
   @media (prefers-color-scheme: dark) {
     ::-webkit-input-placeholder {
       /* Chrome/Opera/Safari */
-      color: pink;
+      color: indigo;
       opacity: 0.5;
     }
     ::-moz-placeholder {
       /* Firefox 19+ */
-      color: pink;
+      color: indigo;
       opacity: 0.5;
     }
     :-ms-input-placeholder {
       /* IE 10+ */
-      color: pink;
+      color: indigo;
       opacity: 0.5;
     }
     :-moz-placeholder {
       /* Firefox 18- */
-      color: pink;
+      color: indigo;
       opacity: 0.5;
     }
   }
@@ -91,7 +91,7 @@
   </section>
 
   <form class="w-full max-w-sm">
-    <div class="flex items-center border-b border-pink-600 py-2">
+    <div class="flex items-center border-b border-indigo-600 py-2">
       <input
         class="appearance-none bg-transparent border-none w-full text-gray-700 dark:text-gray-300 mr-3 py-1 px-2
         leading-tight focus:outline-none"
@@ -102,7 +102,7 @@
       <button
         disabled={!message || message === ''}
         on:click={setMessage}
-        class="flex-shrink-0 bg-pink-600 hover:bg-pink-700 border-pink-600 hover:border-pink-700 text-sm border-4
+        class="flex-shrink-0 bg-indigo-600 hover:bg-indigo-700 border-indigo-600 hover:border-indigo-700 text-sm border-4
         text-white py-1 px-2 rounded disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed"
         type="button">
         Say It!

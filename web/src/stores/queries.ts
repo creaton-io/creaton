@@ -17,6 +17,7 @@ query {
     creatorContract
     title
     subscriptionPrice
+    avatarURL
     timestamp
   }
 }`,
