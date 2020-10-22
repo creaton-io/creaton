@@ -1,7 +1,7 @@
 import {hookup} from 'named-logs-console';
 import './service-worker-handler';
 import App from './App.svelte';
-import 'tailwindcss/tailwind.css';
+import './styles.css';
 
 hookup();
 

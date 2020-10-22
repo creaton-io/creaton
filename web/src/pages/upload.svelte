@@ -1,16 +1,10 @@
 <script lang="ts">
-  import WalletAccess from '../templates/WalletAccess.svelte';
-  import Button from '../components/Button.svelte';
-  import Input from '../components/Input.svelte';
-  import Blockie from '../components/Blockie.svelte';
-  import {test} from 'creaton-common';
-  import {logs} from 'named-logs';
-  import {wallet, balance, flow, chain} from '../stores/wallet';
-  import {identity} from 'svelte/internal';
-  //import {TextileStore} from '../stores/textileStore';
+  // import {wallet, balance, flow, chain} from '../stores/wallet';
+  // import {identity} from 'svelte/internal';
+  // import {TextileStore} from '../stores/textileStore';
 
-  //const textile: TextileStore = new TextileStore();
-  import Buffer from 'buffer/';
+  // const textile: TextileStore = new TextileStore();
+  // import Buffer from 'buffer/';
   let contentName: string = '';
   let contentDescription: string = '';
   //let ERC1155address where to mint the content NFT in
@@ -67,13 +61,6 @@
     //TODO: mint NFT token in ERC1155address with metadata json link as uri
   }
 
-  async function deployCreator() {
-    await flow.execute(async (contracts) => {
-      const receipt = await contracts.CreatonFactory.deployCreator(this.creatorName, this.subscriptionPrice);
-      console.log(receipt);
-      return receipt;
-    });
-  }
 </script>
 
 <style>
@@ -97,17 +84,6 @@
     color: black;
     opacity: 0.5;
   }
-  .field-row {
-    @apply mt-3 flex items-center;
-  }
-  label {
-    @apply mr-3;
-  }
-  button {
-    @apply flex-shrink-0 bg-pink-600 hover:bg-pink-700 border-pink-600 hover:border-pink-700 text-sm border-4
-          text-white py-1 px-2 rounded disabled:bg-gray-400 disabled:border-gray-400 disabled:cursor-not-allowed;
-  }
 </style>
-
-<label for="avatar">Upload a file (picture for now):</label>
-<input accept="image/png, image/jpeg" bind:files id="content" name="content" type="file" />
+<label for="content">Upload a file (picture for now):</label>
+<input id="content" accept="image/png, image/jpeg" bind:files name="content" type="file" />
