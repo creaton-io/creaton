@@ -14,6 +14,7 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   entity.creatorContract = event.params.creatorContract;
   entity.title = event.params.title;
   entity.subscriptionPrice = event.params.subscriptionPrice;
+  entity.avatarURL = event.params.avatarURL;
   entity.timestamp = event.block.timestamp;
   entity.save();
 }

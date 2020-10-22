@@ -107,7 +107,7 @@
             {#each func.inputs as input}
               <span class="">
                 <label for={input.elemId}>{input.name}:</label>
-                <input class="border-pink-600 border-2" id={input.elemId} />
+                <input class="border-indigo-600 border-2" id={input.elemId} />
               </span>
             {/each}
             <span>)</span>

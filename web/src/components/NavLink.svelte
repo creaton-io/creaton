@@ -18,8 +18,8 @@
 {#if active}
   <li class="-mb-px mr-1">
     <Link
-      class="bg-white dark:bg-black inline-block border-l border-t border-r rounded-t py-2 px-4 border-pink-600
-        text-pink-600 font-semibold"
+      class="bg-white dark:bg-black inline-block border-l border-t border-r rounded-t py-2 px-4 border-indigo-600
+        text-indigo-600 font-semibold"
       {name}
       {params}>
       <slot />
@@ -28,7 +28,7 @@
 {:else}
   <li class="-mb-px mr-1">
     <Link
-      class="bg-white dark:bg-black inline-block py-2 px-4 border-pink-600 text-pink-600 font-semibold"
+      class="bg-white dark:bg-black inline-block py-2 px-4 border-indigo-600 text-indigo-600 font-semibold"
       {name}
       {params}>
       <slot />

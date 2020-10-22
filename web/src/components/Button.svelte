@@ -64,15 +64,15 @@
     disabledClasses = 'opacity-50 ' + (waitOnDisabled ? 'cursor-wait ' : '');
 
     if (primary) {
-      colorClasses = `text-white bg-pink-600`;
-      hoverClasses += `hover:bg-pink-500`;
-      focusClasses += `focus-not-active:bg-pink-500`;
-      activeClasses += `active:bg-pink-600 active:border-pink-500`;
-      activatedClasses += `bg-pink-600 border-pink-500`;
+      colorClasses = `text-white bg-indigo-600`;
+      hoverClasses += `hover:bg-indigo-500`;
+      focusClasses += `focus-not-active:bg-indigo-500`;
+      activeClasses += `active:bg-indigo-600 active:border-indigo-500`;
+      activatedClasses += `bg-indigo-600 border-indigo-500`;
     } else if (secondary) {
       colorClasses = `
-                text-pink-600 bg-gray-100
-                dark:text-pink-500 dark:bg-gray-900
+                text-indigo-600 bg-gray-100
+                dark:text-indigo-500 dark:bg-gray-900
             `;
       hoverClasses += `
                 hover:bg-gray-50
@@ -118,11 +118,11 @@
       activeClasses += `active:bg-red-100`;
       activatedClasses += `bg-red-100`;
     } else if (white) {
-      colorClasses = `text-pink-600 bg-white`;
-      hoverClasses += `hover:text-pink-500`;
-      focusClasses += `focus-not-active:text-pink-500`;
-      activeClasses += `active:text-pink-600`;
-      activatedClasses += `text-pink-600`;
+      colorClasses = `text-indigo-600 bg-white`;
+      hoverClasses += `hover:text-indigo-500`;
+      focusClasses += `focus-not-active:text-indigo-500`;
+      activeClasses += `active:text-indigo-600`;
+      activatedClasses += `text-indigo-600`;
     }
   }
 
