@@ -85,8 +85,8 @@
     "production": "run-s production:contracts production:subgraph web:generate common:build production:web:rebuild production:web:deploy",
     "// START : local development setup": "This setup external service, setup subgraph and deploy it on the local graph-node, deploy the contracts and seed it",
     "setup": "npm-run-all -l externals:down --parallel externals",
-    "start": "npm-run-all -l externals:down contracts:clean --parallel common:dev web externals subgraph:setup contracts subgraph seed:build",
-    "dev": "npm-run-all -l contracts:clean --parallel common:dev web subgraph:setup contracts subgraph seed:build",
+    "start": "npm-run-all -l externals:down contracts:clean --parallel common:dev web:build:serve externals subgraph:setup contracts subgraph seed:build",
+    "dev": "npm-run-all -l contracts:clean --parallel common:dev web:build:serve subgraph:setup contracts subgraph seed:build",
     "shell:start": "npm-run-all -l externals:down --parallel shell:common shell:web shell:externals --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed",
     "shell:dev": "npm-run-all -l --parallel shell:common shell:web --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed"
   }
