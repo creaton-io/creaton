@@ -1,12 +1,7 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
-  import Button from '../components/Button.svelte';
   import Input from '../components/Input.svelte';
-  import Blockie from '../components/Blockie.svelte';
-  import {test} from 'creaton-common';
-  import {logs} from 'named-logs';
   import {wallet, flow, chain} from '../stores/wallet';
-  import {Contract} from '@ethersproject/contracts';
 
   let creatorName: string = '';
   let avatarURL: string = '';
@@ -15,8 +10,8 @@
   async function deployCreator() {
     await flow.execute(async (contracts) => {
       avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
+      
       const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
-      // const creatorContract = await Contract(contracts.Creator, )
       return receipt;
     });
   }

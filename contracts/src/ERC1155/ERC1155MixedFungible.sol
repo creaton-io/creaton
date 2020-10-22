@@ -1,8 +1,8 @@
 pragma solidity >0.5.0;
 
 import "./ERC1155.sol";
-import "./SafeMath.sol";
-import "./Address.sol";
+import "./../utils/SafeMath.sol";
+import "./../utils/Address.sol";
 
 /**
     @dev Extension to ERC1155 for Mixed Fungible and Non-Fungible Items support

@@ -2,15 +2,17 @@
 pragma solidity 0.7.1;
 
 import "buidler-deploy/solc_0.7/proxy/Proxied.sol";
+import "./utils/SafeMath.sol";
 import "@nomiclabs/buidler/console.sol";
 import "./Creator.sol";
 
 contract CreatonFactory is Proxied {
+    using SafeMath for uint256;
     // -----------------------------------------
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address user, address creatorContract, string title);
+    event CreatorDeployed(address user, address creatorContract, string title, uint256 subscriptionPrice);
 
     // -----------------------------------------
     // Storage
@@ -41,6 +43,6 @@ contract CreatonFactory is Proxied {
             subscriptionPrice);
         creatorContracts[msg.sender] = creatorContractAddr;
 
-        emit CreatorDeployed(msg.sender, creatorContractAddr, title);
+        emit CreatorDeployed(msg.sender, creatorContractAddr, title, subscriptionPrice);
     }
 }

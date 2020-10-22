@@ -54,7 +54,7 @@
     "subgraph:deploy": "wait-on web/src/contracts.json && dotenv -- npm --prefix subgraph run local:deploy ../contracts/deployments/localhost",
     "// web : build and serve the web app": "",
     "web": "dotenv -- npm --prefix web run dev",
-    "shell:web": "newsh \"npm run web:build:serve\"",
+    "shell:web": "newsh \"npm run web\"",
     "web:build": "run-s web:generate contracts:export web:rebuild",
     "web:rebuild": "dotenv -- npm --prefix web run build",
     "web:serve": "dotenv -- npm --prefix web run serve --",

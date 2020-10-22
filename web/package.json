@@ -23,7 +23,7 @@
     "svelte-hmr": "0.10.3",
     "svelte-dropzone": "^1.0.6",
     "svelte-routing": "^1.4.2",
-    "web3w": "^0.2.36",
+    "web3w": "0.2.32",
     "web3w-portis-loader": "^0.2.0",
     "web3w-torus-loader": "^0.2.4",
     "web3w-walletconnect-loader": "^0.2.0",

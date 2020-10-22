@@ -3,5 +3,6 @@ type Creator @entity {
   user: Bytes!
   creatorContract: Bytes!
   title: String!
+  subscriptionPrice: BigInt!
   timestamp: BigInt!
 }

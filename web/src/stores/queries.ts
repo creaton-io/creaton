@@ -16,6 +16,7 @@ query {
     user
     creatorContract
     title
+    subscriptionPrice
     timestamp
   }
 }`,

@@ -1,8 +1,8 @@
 pragma solidity >0.5.0;
 
 import "./ERC1155MixedFungible.sol";
-import "./SafeMath.sol";
-import "./Address.sol";
+import "./../utils/SafeMath.sol";
+import "./../utils/Address.sol";
 
 /**
     @dev Mintable form of ERC1155
