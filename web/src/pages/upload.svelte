@@ -98,38 +98,48 @@
     color: black;
     opacity: 0.5;
   }
+
+  .field-row {
+    @apply mt-3 flex items-center;
+  }
+    label {
+    @apply mr-3;
+  }
+  
 </style>
 
 <section class="py-8 px-4 text-center">
-<Button on:click={deployTextile}> Setup </Button>
-<br>
-<label for="avatar">Upload a file (picture for now):</label>
-<label>
-  <slot name="content">
-  </slot>
-  <Input 
-			 bind:this={uploader}
-			 type="file" 
-			 class="visually-hidden"
-			 on:change={upload} 
-			/>
-</label>
+  <form class="content flex flex-col max-w-lg mx-auto">
+    <Button class="mb-10" on:click={deployTextile}> Initial Setup </Button>
+    <br>
+    <label for="avatar">Upload a file (picture for now):</label>
+    <label>
+      <slot name="content">
+      </slot>
+      <Input 
+          bind:this={uploader}
+          type="file" 
+          class="visually-hidden"
+          on:change={upload} 
+          />
+    </label>
 
-<br>
-<div class="field-row">
-  <label for="path-url">path</label>
-  <Input id="path-url" type="text" placeholder="Path" className="field" bind:value={path} />
-</div>
-<div class="field-row">
-  <label for="pubkey-url">pubkey</label>
-  <Input id="pubkey-url" type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
-</div>
-<Button on:click={sendKeys}> Send Keys </Button>
+    <br>
+    <div class="field-row">
+      <label for="path-url">Path: </label>
+      <Input id="path-url" type="text" placeholder="Path" className="field" bind:value={path} />
+    </div>
+    <div class="field-row">
+      <label for="pubkey-url">Pubkey: </label>
+      <Input id="pubkey-url" type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
+    </div>
+    <Button class="mt-3" on:click={sendKeys}> Send Keys </Button>
 
-<br>
-<div class="field-row">
-  <label for="dpath-url">download path</label>
-  <Input id="dpath-url" type="text" placeholder="Dpath" className="field" bind:value={downloadPath} />
-</div>
-<Button on:click={download}> Download </Button>
+    <br>
+    <div class="field-row">
+      <label for="dpath-url">Download path</label>
+      <Input id="dpath-url" type="text" placeholder="Download path" className="field" bind:value={downloadPath} />
+    </div>
+    <Button class="mt-3" on:click={download}> Download </Button>
+  </form>
 </section>

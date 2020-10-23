@@ -53,6 +53,7 @@ contract CreatonFactory is Proxied {
             creatorContractAddr, 
             title, 
             avatarURL,
-            subscriptionPrice);
+            subscriptionPrice
+        );
     }
 }
