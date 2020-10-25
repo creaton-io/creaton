@@ -13,8 +13,8 @@
     <h1 class="text-indigo-600 font-bold text-6xl mb-2 font-heading">{name}</h1>
   </div>
   <div class="py-4 dark:bg-black bg-white">
-    <div class="max-w-xl mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {#if !$creators.state}
             <div>creators not loaded</div>
           {:else if $creators.error}
@@ -23,7 +23,7 @@
             <div>Loading creators...</div>
           {:else}
             {#each $creators.data as creator, index}
-              <CreatorCard creator={creator}>{creator.user}</CreatorCard>
+              <CreatorCard creator={creator}>{creator.creatorContract}</CreatorCard>
             {/each}
           {/if}
       </div>

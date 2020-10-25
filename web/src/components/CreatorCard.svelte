@@ -17,7 +17,7 @@
   }
 </style>
 
-<Link id={creator.user} params={{id: creator.user}} name="Creator" class="block px-4 py-8 border rounded overflow-hidden">
+<Link id={creator.creatorContract} params={{id: creator.creatorContract}} name="Creator" class="block px-4 py-8 border rounded overflow-hidden">
   <h3 class="text-4xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{creator.title}</h3>
   <img class="avatar" src={creator.avatarURL} alt={creator.title}/>
   <h3 class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">Monthly fee: ${creator.subscriptionPrice}</h3>
