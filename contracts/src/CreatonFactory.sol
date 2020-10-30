@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.1;
 
-import "buidler-deploy/solc_0.7/proxy/Proxied.sol";
+import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./utils/SafeMath.sol";
-import "@nomiclabs/buidler/console.sol";
+import "hardhat/console.sol";
 import "./Creator.sol";
 
 contract CreatonFactory is Proxied {

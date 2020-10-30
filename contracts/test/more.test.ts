@@ -1,5 +1,5 @@
 import {expect} from './chai-setup';
-import {getUnnamedAccounts} from '@nomiclabs/buidler';
+import {getUnnamedAccounts} from 'hardhat';
 import {test} from 'creaton-common';
 
 describe('CommonLib', function () {

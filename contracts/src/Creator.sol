@@ -2,14 +2,16 @@
 pragma solidity 0.7.1;
 pragma experimental ABIEncoderV2;
 
-import "buidler-deploy/solc_0.7/proxy/Proxied.sol";
+import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./utils/SafeMath.sol";
-import "@nomiclabs/buidler/console.sol";
-import "./ERC1155/ERC1155MixedFungibleMintable.sol";
+import "hardhat/console.sol";
+
+// commenting this import out for now because its causing compilation errors
+// import "./ERC1155/ERC1155MixedFungibleMintable.sol";
 
 //import "openzeppelin-solidity/contracts/presets/ERC1155PresetMinterPauser.sol";
 
-contract Creator is Proxied, ERC1155MixedFungibleMintable {
+contract Creator is Proxied {
     using SafeMath for uint256;
     // -----------------------------------------
     // Events
@@ -20,7 +22,7 @@ contract Creator is Proxied, ERC1155MixedFungibleMintable {
     // -----------------------------------------
 
     string[] public metadataURL;
-    address public owner ;
+    address public creator ;
     string public avatarURL;
     string public creatorTitle;
     uint256 public subscriptionPrice;
@@ -34,7 +36,7 @@ contract Creator is Proxied, ERC1155MixedFungibleMintable {
         string calldata _creatorTitle,
         uint256 _subscriptionPrice
     ) public {
-        owner = msg.sender;
+        creator = msg.sender;
         avatarURL = _avatarURL;
         creatorTitle = _creatorTitle;
         subscriptionPrice = _subscriptionPrice;
@@ -45,12 +47,12 @@ contract Creator is Proxied, ERC1155MixedFungibleMintable {
     // -----------------------------------------
 
     function setAvatarURL(string calldata _newURL) external {
-        require(msg.sender == owner);
+        require(msg.sender == creator);
         avatarURL = _newURL;
     }
 
     function setMetadataURL(string calldata _url) external {
-        require(msg.sender == owner);
+        require(msg.sender == creator);
         metadataURL.push(_url);
     }
 

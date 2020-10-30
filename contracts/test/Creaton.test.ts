@@ -1,5 +1,5 @@
 import {expect} from './chai-setup';
-import {ethers, deployments, getUnnamedAccounts} from '@nomiclabs/buidler';
+import {ethers, deployments, getUnnamedAccounts} from 'hardhat';
 
 const mockCreator = ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'ETHGlobal', 5];
 

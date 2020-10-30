@@ -1,43 +1,44 @@
-import 'dotenv';
-import {Wallet} from '@ethersproject/wallet';
-import {usePlugin, BuidlerConfig} from '@nomiclabs/buidler/config';
-usePlugin('buidler-ethers-v5');
-usePlugin('buidler-deploy');
-usePlugin('solidity-coverage');
+require('dotenv');
+require('hardhat/config');
+require('hardhat-deploy');
+// require('solidity-coverage');
+const { Wallet } = require('@ethersproject/wallet');
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
-let buidlerEvmAccounts;
+let hardhatAccounts;
 if (mnemonic) {
   accounts = {
     mnemonic,
   };
-  buidlerEvmAccounts = [];
+  hardhatAccounts = [];
   for (let i = 0; i < 10; i++) {
     const wallet = Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/" + i);
-    buidlerEvmAccounts.push({
+    hardhatAccounts.push({
       privateKey: wallet.privateKey,
       balance: '1000000000000000000000',
     });
   }
 } else {
-  buidlerEvmAccounts = [];
+  hardhatAccounts = [];
   for (let i = 0; i < 10; i++) {
     const wallet = Wallet.createRandom();
-    buidlerEvmAccounts.push({
+    hardhatAccounts.push({
       privateKey: wallet.privateKey,
       balance: '1000000000000000000000',
     });
   }
 }
 
-const config: BuidlerConfig = {
-  solc: {
-    version: '0.7.1',
-    optimizer: {
-      enabled: true,
-      runs: 2000,
-    },
+const config = {
+  solidity: {
+    version: "0.7.1",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 2000
+      }
+    }
   },
   namedAccounts: {
     deployer: {
@@ -48,8 +49,8 @@ const config: BuidlerConfig = {
     coverage: {
       url: 'http://localhost:5458',
     },
-    buidlerevm: {
-      accounts: buidlerEvmAccounts,
+    hardhat: {
+      accounts: hardhatAccounts,
     },
     localhost: {
       url: 'http://localhost:8545',
@@ -81,4 +82,4 @@ const config: BuidlerConfig = {
   },
 };
 
-export default config;
+module.exports = config

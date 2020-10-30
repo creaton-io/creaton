@@ -1,4 +1,4 @@
-import {getUnnamedAccounts, ethers} from '@nomiclabs/buidler';
+import {getUnnamedAccounts, ethers} from 'hardhat';
 
 const mockCreators = [
   ['https://briano88.files.wordpress.com/2015/03/danny-devio-as-frank-reynolds_small.jpg', 'Frank', 4],
