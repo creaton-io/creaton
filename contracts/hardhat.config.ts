@@ -1,8 +1,10 @@
-require('dotenv');
-require('hardhat/config');
-require('hardhat-deploy');
+import 'dotenv';
+import 'hardhat/config';
+import 'hardhat-deploy';
+import 'hardhat-deploy-ethers';
 // require('solidity-coverage');
-const { Wallet } = require('@ethersproject/wallet');
+
+const {Wallet} = require('@ethersproject/wallet');
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
@@ -32,13 +34,13 @@ if (mnemonic) {
 
 const config = {
   solidity: {
-    version: "0.7.1",
+    version: '0.7.1',
     settings: {
       optimizer: {
         enabled: true,
-        runs: 2000
-      }
-    }
+        runs: 2000,
+      },
+    },
   },
   namedAccounts: {
     deployer: {
@@ -82,4 +84,4 @@ const config = {
   },
 };
 
-module.exports = config
+module.exports = config;
