@@ -1,7 +1,7 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
   import Input from '../components/Input.svelte';
-  import {wallet, flow, chain} from '../stores/wallet';
+  import { flow} from '../stores/wallet';
 
   let creatorName: string = '';
   let avatarURL: string = '';

@@ -1,12 +1,12 @@
 const func = async function (bre) {
-  let { deployer } = await bre.getNamedAccounts();
+  let { creator } = await bre.getNamedAccounts();
   const { deploy } = bre.deployments;
   const useProxy = !bre.network.live;
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   await deploy('Creator', {
-    from: deployer,
+    from: creator,
     proxy: useProxy,
     args: [],
     log: true,

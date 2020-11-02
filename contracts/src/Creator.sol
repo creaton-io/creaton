@@ -17,15 +17,24 @@ contract Creator is Proxied {
     // Events
     // -----------------------------------------
 
+    event NewSubscriber(
+        address user, 
+        uint256 amount);
+
     // -----------------------------------------
     // Storage
     // -----------------------------------------
 
+    struct Balance {
+        uint256 amount;
+        bool isSubscribed;
+    }
     string[] public metadataURL;
     address public creator ;
     string public avatarURL;
     string public creatorTitle;
     uint256 public subscriptionPrice;
+    mapping(address => Balance) public currentBalance;
 
     // -----------------------------------------
     // Constructor
@@ -46,13 +55,25 @@ contract Creator is Proxied {
     // External Functions
     // -----------------------------------------
 
-    function setAvatarURL(string calldata _newURL) external {
-        require(msg.sender == creator);
+    modifier onlyCreator(){
+        require(msg.sender == creator, 'You are not the creator');
+        _;
+    }
+
+    function subscribe(uint256 _amount) external returns (bool) {
+        require(_amount != 0, "Missing subscription amount");
+        require(msg.sender != creator, "Creators can't subscribe to themselves");
+        require(currentBalance[msg.sender].isSubscribed == false, "Already subscribed");
+        currentBalance[msg.sender] = Balance({amount: _amount, isSubscribed: true});  
+        emit NewSubscriber(msg.sender, _amount);
+        return true;
+    }
+
+    function setAvatarURL(string calldata _newURL) external onlyCreator {
         avatarURL = _newURL;
     }
 
-    function setMetadataURL(string calldata _url) external {
-        require(msg.sender == creator);
+    function setMetadataURL(string calldata _url) external onlyCreator {
         metadataURL.push(_url);
     }
 

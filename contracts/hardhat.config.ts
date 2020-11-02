@@ -43,8 +43,11 @@ const config = {
     },
   },
   namedAccounts: {
-    deployer: {
+    creator: {
       default: 0,
+    },
+    subscriber: {
+      default: 1,
     },
   },
   networks: {
