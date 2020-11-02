@@ -31,6 +31,7 @@
     "test": "hardhat compile && mocha --recursive test",
     "coverage": "hardhat --network coverage coverage",
     "dev": "hardhat node --reset --watch --export contractsInfo.json",
+    "goerlidev": "hardhat node --fork https://goerli.infura.io/v3/ea98b8959bfd4455860005fe6d22c35a --watch --reset --export contractsInfo.json",
     "compile": "hardhat compile",
     "local:dev": "hardhat --network localhost deploy --watch",
     "local:deploy": "hardhat --network localhost deploy",
