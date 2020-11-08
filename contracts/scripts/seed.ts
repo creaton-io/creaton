@@ -1,4 +1,4 @@
-import {hre, getUnnamedAccounts, ethers} from 'hardhat';
+import {network, getUnnamedAccounts, ethers} from 'hardhat';
 
 const mockCreators = [
   ['https://briano88.files.wordpress.com/2015/03/danny-devio-as-frank-reynolds_small.jpg', 'Frank', 4],
@@ -21,10 +21,12 @@ function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {
 async function main() {
   const others = await getUnnamedAccounts();
 
-  await hre.network.provider.request({
-    method: 'hardhat_impersonateAccount',
-    params: ['0x8b24Eb4E6aAe906058242D83e51fB077370c4720'],
-  });
+  if (process.env.HARDHAT_NETWORK === 'goerli') {
+    await network.provider.request({
+      method: 'hardhat_impersonateAccount',
+      params: ['0x8b24Eb4E6aAe906058242D83e51fB077370c4720'],
+    });
+  }
 
   for (let i = 0; i < mockCreators.length; i++) {
     const sender = others[i];

@@ -56,6 +56,10 @@ const config = {
     },
     hardhat: {
       accounts: hardhatAccounts,
+      forking: {
+        url: 'https://goerli.infura.io/v3/ea98b8959bfd4455860005fe6d22c35a',
+        blockNumber: 2504202, // April 11, 2020 (guessing this is before the superfluid contracts were deployed)
+      },
     },
     localhost: {
       url: 'http://localhost:8545',

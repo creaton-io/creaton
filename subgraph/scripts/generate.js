@@ -7,6 +7,10 @@ const args = process.argv.slice(2);
 const pathArg = args[0];
 const chainName = args[1];
 
+console.log('######################')
+console.log(pathArg, chainName)
+console.log('######################')
+
 if (!pathArg) {
   console.error(`please provide the path to contracts info, either a directory of deployemnt or a single export file`);
 }
@@ -21,7 +25,7 @@ if (stat.isDirectory()) {
     contracts: {},
     chainName,
   };
-  const files = fs.readdirSync(pathArg, {withFileTypes: true});
+  const files = fs.readdirSync(pathArg, { withFileTypes: true });
   for (const file of files) {
     if (!file.isDirectory() && file.name.substr(file.name.length - 5) === '.json') {
       const contractName = file.name.substr(0, file.name.length - 5);

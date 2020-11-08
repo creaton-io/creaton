@@ -5,7 +5,7 @@ artifacts/
 
 node_modules/
 .env
-contractsInfo.json
+contracts.json
 deployments/hardhat/
 deployments/localhost/
 
