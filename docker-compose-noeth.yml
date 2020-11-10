@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.18.0
+    image: graphprotocol/graph-node:v0.19.2
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -11,23 +11,24 @@ services:
     depends_on:
       - ipfs
       - postgres
+      - hardhat
     environment:
       postgres_host: postgres:5432
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:http://ethereum:8545'
+      ethereum: 'mainnet:http://0.0.0.0:9545'
       # RUST_LOG: info
-      # RUST_BACKTRACE: full
+      RUST_BACKTRACE: full
   ipfs:
-    image: ipfs/go-ipfs:v0.4.23
+    image: ipfs/go-ipfs:master-latest
     ports:
       - '5001:5001'
     environment:
       IPFS_PATH: /tmp
   postgres:
-    image: postgres:9.6.17
+    image: postgres:9.6.19
     ports:
       - '5432:5432'
     command: ['postgres', '-cshared_preload_libraries=pg_stat_statements']
@@ -36,3 +37,9 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
       PGDATA: /tmp
+  hardhat:
+    image: ethereumoptimism/hardhat:latest
+    ports:
+      - 9545:9545
+    env_file:
+      - docker-compose.env

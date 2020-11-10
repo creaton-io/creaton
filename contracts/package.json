@@ -37,7 +37,7 @@
     "local:deploy": "hardhat --network localhost deploy",
     "local:run": "cross-env HARDHAT_NETWORK=localhost ts-node --files",
     "local:seed": "cross-env HARDHAT_NETWORK=localhost ts-node --files scripts/seed.ts",
-    "local:export": "hardhat --network localhost export",
+    "local:export": "hardhat export",
     "void:deploy": "hardhat deploy",
     "staging:deploy": "hardhat --network staging deploy --show-stack-traces",
     "staging:export": "hardhat --network staging export",
