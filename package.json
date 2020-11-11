@@ -32,7 +32,7 @@
     "// externals : Setup external services locally (ethereum node, thegraph)": "",
     "stop": "run-s externals:down",
     "externals:down": "docker-compose down -v",
-    "externalsnoeth:down": "docker-compose  -f docker-compose-noeth.yml down -v",
+    "externalsnoeth:down": "docker-compose -f docker-compose-noeth.yml down -v",
     "externals": "dotenv -e .env -e contracts/.env -- docker-compose up",
     "shell:externals": "newsh \"npm run externals\"",
     "externalsnoeth": "dotenv -e .env -e contracts/.env -- docker-compose -f docker-compose-noeth.yml up",
