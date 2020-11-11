@@ -22,6 +22,7 @@
     "hardhat-deploy": "^0.7.0-beta.28",
     "hardhat-deploy-ethers": "^0.3.0-beta.5",
     "mocha": "^8.1.1",
+    "@openzeppelin/contracts": "^3.2.2-solc-0.7",
     "solidity-coverage": "^0.7.10",
     "ts-node": "^9.0.0",
     "typescript": "^3.8.3"
@@ -37,7 +38,7 @@
     "local:deploy": "hardhat --network localhost deploy",
     "local:run": "cross-env HARDHAT_NETWORK=localhost ts-node --files",
     "local:seed": "cross-env HARDHAT_NETWORK=localhost ts-node --files scripts/seed.ts",
-    "local:export": "hardhat --network localhost export",
+    "local:export": "hardhat export",
     "void:deploy": "hardhat deploy",
     "staging:deploy": "hardhat --network staging deploy --show-stack-traces",
     "staging:export": "hardhat --network staging export",
