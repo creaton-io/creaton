@@ -57,8 +57,7 @@ const config = {
     hardhat: {
       accounts: hardhatAccounts,
       forking: {
-        url: 'https://goerli.infura.io/v3/ea98b8959bfd4455860005fe6d22c35a',
-        blockNumber: 2504202, // April 11, 2020 (guessing this is before the superfluid contracts were deployed)
+        url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
       },
     },
     localhost: {
@@ -66,7 +65,7 @@ const config = {
       accounts,
     },
     staging: {
-      url: 'https://goerli.infura.io/v3/' + process.env.INFURA_TOKEN,
+      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
       accounts,
     },
     rinkeby: {
@@ -78,7 +77,7 @@ const config = {
       accounts,
     },
     goerli: {
-      url: 'https://goerli.infura.io/v3/' + process.env.INFURA_TOKEN,
+      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.INFURA_TOKEN,
       accounts,
     },
     mainnet: {

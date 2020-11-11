@@ -2,6 +2,10 @@
   "build": {
     "image": "node:12",
     "command": "npm install --ignore-scripts && npm run prepare && cd web && npm run prepare && cd .. && npm run staging:web:build",
-    "publicDir": "web/dist"
+    "publicDir": "web/dist",
+    "environment": {
+      "VITE_CHAIN_ID": "5",
+      "VITE_THE_GRAPH_HTTP": "https://api.thegraph.com/subgraphs/name/creaton-io/creaton"
+    }
   }
  }

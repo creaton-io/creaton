@@ -13,14 +13,14 @@ services:
       - postgres
       - hardhat
     environment:
-      postgres_host: postgres:5432
+      postgres_host: postgres
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:http://0.0.0.0:8545'
+      ethereum: 'localhost:http://0.0.0.0:9545'
       # RUST_LOG: info
-      RUST_BACKTRACE: full
+      # RUST_BACKTRACE: full
   ipfs:
     image: ipfs/go-ipfs:master-latest
     ports:
@@ -40,6 +40,6 @@ services:
   hardhat:
     image: ethereumoptimism/hardhat:latest
     ports:
-      - 8545:8545
+      - 9545:9545
     env_file:
       - docker-compose.env
