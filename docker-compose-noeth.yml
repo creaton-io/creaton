@@ -18,7 +18,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'localhost:http://0.0.0.0:9545'
+      ethereum: 'mainnet:http://0.0.0.0:9545'
       # RUST_LOG: info
       # RUST_BACKTRACE: full
   ipfs:
