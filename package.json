@@ -62,7 +62,7 @@
     "// web : build and serve the web app": "",
     "web": "dotenv -- npm --prefix web run dev",
     "shell:web": "newsh \"npm run web\"",
-    "web:build": "run-s web:generate contracts:export web:rebuild",
+    "web:build": "run-s web:generate  web:rebuild",
     "web:rebuild": "dotenv -- npm --prefix web run build",
     "web:serve": "dotenv -- npm --prefix web run serve --",
     "web:build:serve": "run-s web:build web:serve",
