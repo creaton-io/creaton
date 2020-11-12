@@ -36,8 +36,8 @@
     "externals:down": "docker-compose down -v",
     "externalsnoeth:down": "docker-compose -f docker-compose-noeth.yml down -v",
     "externals": "dotenv -e .env -e contracts/.env -- docker-compose up",
-    "shell:externals": "newsh \"npm run externals\"",
     "externalsnoeth": "dotenv -e .env -e contracts/.env -- docker-compose -f docker-compose-noeth.yml up",
+    "shell:externals": "newsh \"npm run externals\"",
     "shell:externalsnoeth": "newsh \"npm run externalsnoeth\"",
     "// common lib: ensure it is compiled": "",
     "common:dev": "npm --prefix common-lib run dev",
@@ -97,10 +97,9 @@
     "startgoerli": "npm-run-all -l externals:down contracts:clean --parallel common:dev web:build:serve externalsnoeth subgraph:setup contracts subgraph seed:build",
     "dev": "npm-run-all -l contracts:clean --parallel common:dev web:build:serve subgraph:setup contracts subgraph seed:build",
     "devgoerli": "npm-run-all -l --parallel shell:common --sequential common:build contracts:clean shell:contractsgoerli subgraph:setup shell:subgraph seed",
-    "hardhat": "npm-run-all -l contracts:clean --parallel contractsgoerli",
-    "shell:start": "npm-run-all -l externals:down --parallel shell:common shell:web shell:externals --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed",
-    "shell:startgoerli": "npm-run-all -l externals:down --parallel shell:common shell:web shell:externalsnoeth --sequential common:build subgraph:setup contracts:clean shell:contractsgoerli shell:subgraph seed",
     "shell:dev": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed shell:web",
+    "shell:start": "npm-run-all -l externals:down --parallel shell:common shell:web shell:externals --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed",
+    "shell:startgoerli": "npm-run-all -l --parallel shell:common shell:web shell:externalsnoeth --sequential common:build subgraph:setup contracts:clean shell:contractsgoerli shell:subgraph seed",
     "shell:devgoerli": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contractsgoerli shell:subgraph seed shell:web"
   },
   "dependencies": {}

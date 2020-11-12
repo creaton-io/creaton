@@ -49,7 +49,7 @@ const func = async function (hre) {
 
   const version = process.env.RELEASE_VERSION || '0.1.2-preview-20201014';
   console.log('release version:', version);
-  console.log('chaaaain id', network.config.chainId);
+  console.log('chain id', network.config.chainId);
 
   const sf = new SuperfluidSDK.Framework({
     chainId: 5,
