@@ -18,6 +18,8 @@
     "prettier-plugin-solidity": "^1.0.0-alpha.59",
     "prettier-plugin-svelte": "^1.4.1",
     "rimraf": "^3.0.2",
+    "rollup-plugin-node-builtins": "^2.1.2",
+    "rollup-plugin-node-globals": "^1.4.0",
     "svelte": "^3.29.6",
     "typescript": "3.9.7",
     "wait-on": "^5.1.0",
@@ -100,5 +102,6 @@
     "shell:startgoerli": "npm-run-all -l externals:down --parallel shell:common shell:web shell:externalsnoeth --sequential common:build subgraph:setup contracts:clean shell:contractsgoerli shell:subgraph seed",
     "shell:dev": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed shell:web",
     "shell:devgoerli": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contractsgoerli shell:subgraph seed shell:web"
-  }
+  },
+  "dependencies": {}
 }
