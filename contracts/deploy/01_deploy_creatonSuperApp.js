@@ -7,10 +7,11 @@ const func = async function (hre) {
   const ethUtils = require('ethereumjs-util');
 
   const SuperfluidSDK = require('@superfluid-finance/ethereum-contracts');
-
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
+  //1820 contract not necesarry on goerli
+  /*
   console.log('Static erc1820 deployment initiated');
   const rawTx = {
     nonce: 0,
@@ -24,7 +25,8 @@ const func = async function (hre) {
   };
 
   console.log('test');
-  const tx = new Transaction(rawTx);
+  //const tx = new Transaction(rawTx);
+
 
   const signer = await ethers.getSigners();
   const res = {
@@ -43,7 +45,7 @@ const func = async function (hre) {
   console.log('erc1820 target address funded');
   const tx2 = await ethers.provider.sendTransaction(res.rawTx);
   await tx2.wait();
-  console.log('successful erc1820 deploy!');
+  console.log('successful erc1820 deploy!');*/
 
   const version = process.env.RELEASE_VERSION || '0.1.2-preview-20201014';
   console.log('release version:', version);
@@ -72,3 +74,5 @@ const func = async function (hre) {
 };
 
 module.exports = func;
+func.id = '01_deploy_creatonSuperApp'; // id required to prevent reexecution
+func.tags = ['CreatonSuperApp'];

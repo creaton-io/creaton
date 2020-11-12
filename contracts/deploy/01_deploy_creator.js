@@ -1,6 +1,6 @@
 const func = async function (hre) {
-  let { creator } = await hre.getNamedAccounts();
-  const { deploy } = hre.deployments;
+  let {creator} = await hre.getNamedAccounts();
+  const {deploy} = hre.deployments;
   const useProxy = !hre.network.live;
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
@@ -16,3 +16,5 @@ const func = async function (hre) {
 };
 
 module.exports = func;
+func.id = '01_deploy_creator'; // id required to prevent reexecution
+func.tags = ['Creator'];
