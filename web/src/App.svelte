@@ -7,7 +7,7 @@
 </script>
 
 <Router {pages} globalQueryStrings={['subgraph', 'debug', 'log', 'trace']}>
-  <Navbar links={['Home', 'Sign up', 'Upload']} />
+  <Navbar links={['Home', 'Sign up', 'Upload', 'Wallet']} />
   <CurrentPage>
     <Loading />
     Loading...

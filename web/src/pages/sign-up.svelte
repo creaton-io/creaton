@@ -1,16 +1,34 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
   import Input from '../components/Input.svelte';
-  import { flow} from '../stores/wallet';
+  import {wallet, flow} from '../stores/wallet';
+  import {Contract} from '@ethersproject/contracts';
+  import {contracts} from '../contracts.json';
+  import {onMount} from 'svelte';
 
   let creatorName: string = '';
   let avatarURL: string = '';
   let subscriptionPrice: number;
+  let creatorContract;
+
+  onMount(async () => {
+    creatorContract = await new Contract(
+      contracts.CreatonFactory.address,
+      contracts.CreatonFactory.abi,
+      wallet.provider.getSigner()
+    );
+
+    creatorContract.on('CreatorDeployed', (...response) => {
+      const [sender, contractaddr] = response;
+      console.log('creator contract address', contractaddr);
+    });
+  });
 
   async function deployCreator() {
     await flow.execute(async (contracts) => {
       avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
       const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
+      console.log(receipt);
       return receipt;
     });
   }
@@ -67,7 +85,12 @@
       </div>
       <div class="field-row">
         <label for="subscription-price">Subscription Price: $</label>
-        <Input id="subscription-price" type="number" placeholder="Cost per month" className="field" bind:value={subscriptionPrice} />
+        <Input
+          id="subscription-price"
+          type="number"
+          placeholder="Cost per month"
+          className="field"
+          bind:value={subscriptionPrice} />
       </div>
       <button class="mt-6" type="button" on:click={deployCreator}>Create!</button>
     </form>
