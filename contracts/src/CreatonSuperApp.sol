@@ -119,13 +119,11 @@ contract CreatonSuperApp is ISuperApp {
         return _streamCollateral(streamer, ctx);
     }
 
-    /// @dev Play the game
+    /// @dev Quit supporting
     function _quit(bytes calldata ctx) private returns (bytes memory newCtx) {
         (, , address supporter, , ) = _host.decodeCtx(ctx);
 
         _supportersSet.remove(supporter);
-
-        //return _draw(player, ctx);
     }
 
     function _streamCollateral(address streamer, bytes calldata ctx) private returns (bytes memory newCtx) {
