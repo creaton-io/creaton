@@ -13,7 +13,6 @@ import {
 
 export interface FileMetadata {
   ipfsPath: string;
-  bucketPath: string;
   name: string;
   type: string;
   date: string;
@@ -187,8 +186,6 @@ export class TextileStore {
       key: this.arrayBufferToBase64(encKey.buffer),
     };
 
-    console.log(this.arrayBufferToBase64(encMetadata.key));
-
     await this.client.create(this.threadID, 'creator', [pair]);
 
     return {
@@ -196,21 +193,20 @@ export class TextileStore {
         ipfsPath: rawFile.path.path.toString(),
         name: fileName,
         type: file.type,
-        bucketPath: fileLocation,
         date: now.toString(),
       },
     };
   }
 
-  public async uploadJSONBuffer(buf: Buffer): Promise<string> {
-    const now = new Date().getTime();
-    const uploadName = `${now}_metadata.json`;
-    const fileLocation = `contents/${uploadName}`;
+  // public async uploadJSONBuffer(buf: Buffer): Promise<string> {
+  //   const now = new Date().getTime();
+  //   const uploadName = `${now}_metadata.json`;
+  //   const fileLocation = `contents/${uploadName}`;
 
-    const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, buf);
+  //   const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, buf);
 
-    return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
-  }
+  //   return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
+  // }
 
   // public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
   //   const now = new Date().getTime();
@@ -271,17 +267,17 @@ export class TextileStore {
    */
   public async decryptFile(path: string): Promise<ArrayBuffer> {
     //get content from path on ipfs
-    const metadata = await this.bucketInfo.bucket.pullIpfsPath(path);
+    const file = await this.bucketInfo.bucket.pullIpfsPath(path);
     let binary = '';
-    for await (const value of metadata) {
+    for await (const value of file) {
       const len = value.byteLength;
-      console.log(len);
+      // console.log(len);
       for (let i = 0; i < len; i++) {
         binary += String.fromCharCode(value[i]);
       }
     }
 
-    console.log(binary);
+    // console.log(binary);
     const content = this.base64ToArrayBuffer(binary);
 
     // TODO get key if subscriber has been given, has to handle error when no key is available
@@ -292,7 +288,7 @@ export class TextileStore {
     const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
     const decryptKey = await this.importKey(keyBuffer.buffer);
 
-    await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
+    // await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
     return await window.crypto.subtle.decrypt(
       {
         name: 'AES-CTR',

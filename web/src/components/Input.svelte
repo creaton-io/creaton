@@ -14,4 +14,4 @@
   }
 </style>
 
-<input {type} class={className} {placeholder} {value} on:input={onInput} />
+<input {type} class={className} {placeholder} {value} on:input={onInput}/>
