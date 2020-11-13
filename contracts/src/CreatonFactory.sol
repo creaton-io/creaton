@@ -43,6 +43,7 @@ contract CreatonFactory is Proxied {
         Creator creatorContract = new Creator();
         address creatorContractAddr = address(creatorContract);
         creatorContract.init(
+            msg.sender,
             avatarURL,
             title, 
             subscriptionPrice);

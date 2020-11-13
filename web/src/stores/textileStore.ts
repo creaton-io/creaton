@@ -81,7 +81,7 @@ export class TextileStore {
   public async authenticate(): Promise<void> {
     this.identity = await this.getIdentity();
     await this.initialize();
-    console.log(this.identity.public.toString());
+    // console.log(this.identity.public.toString());
   }
 
   private async getIdentity(): Promise<PrivateKey> {

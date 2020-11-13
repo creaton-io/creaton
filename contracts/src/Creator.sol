@@ -41,11 +41,12 @@ contract Creator is Proxied {
     // -----------------------------------------
 
     function init(
+        address owner,
         string calldata _avatarURL,
         string calldata _creatorTitle,
         uint256 _subscriptionPrice
     ) public {
-        creator = msg.sender;
+        creator = owner;
         avatarURL = _avatarURL;
         creatorTitle = _creatorTitle;
         subscriptionPrice = _subscriptionPrice;
