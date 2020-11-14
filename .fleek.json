@@ -1,11 +1,13 @@
 {
   "build": {
     "image": "node:12",
-    "command": "npm install --ignore-scripts && npm run prepare && cd web && npm run prepare && cd .. && npm run staging",
+    "command": "npm install --ignore-scripts && npm run prepare && cd web && npm run prepare && cd .. && npm run staging:web:build",
     "publicDir": "web/dist",
     "environment": {
       "VITE_CHAIN_ID": "5",
-      "VITE_THE_GRAPH_HTTP": "https://api.thegraph.com/subgraphs/name/creaton-io/creaton"
+      "VITE_THE_GRAPH_HTTP": "https://api.thegraph.com/subgraphs/name/creaton-io/creaton",
+      "THEGRAPH_TOKEN": "2ff9c5bb004b4e7e9f1c256049b8623a",
+      "ALCHEMY_TOKEN": "IUpvNP1pJQSpTDx7buvmQTFD6L9aYvUi"
     }
   }
  }
