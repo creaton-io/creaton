@@ -1,7 +1,9 @@
 <!--   -->
 # Creaton
 
-Creaton is a decentralized content sharing platform. Powered by Ethereum, IPFS, Superfluid and Textile, Creaton allows a streaming based subscription system where subscribers support their favorite creators with stablecoins in real-time. Utilizing a p2p encryption system, Creaton makes sure of exclusive permission-less content delivery to subscribers and eliminates the need for unnecessary middlemen or centralized services.
+Creaton is a decentralized content sharing platform. Powered by Ethereum, IPFS, Superfluid and Textile, Creaton allows a streaming based subscription system where subscribers support their favorite creators with stablecoins in real-time. Utilizing a p2p encryption system, Creaton makes sure of exclusive permission-less content delivery to subscribers and eliminates the need for unnecessary middlemen or centralized services. Check out our DApp here:
+
+[Creaton](https://creaton.on.fleek.co/)
 
 # Setup
 
