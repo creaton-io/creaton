@@ -1,0 +1,287 @@
+{
+  "contractName": "TestGovernance",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "rewardAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "liquidationPeriod",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "isOwner",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "getRewardAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "rewardAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "rewardAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setRewardAddress",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "getLiquidationPeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "period",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "addAgreement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "isAgreementListed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "yes",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bitmap",
+          "type": "uint256"
+        }
+      ],
+      "name": "mapAgreements",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "agreementClasses",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bitmap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "maskAgreementBit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "newBitmap",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bitmap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "unmaskAgreementBit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "newBitmap",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"liquidationPeriod\",\"type\":\"uint256\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"addAgreement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"getLiquidationPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"period\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"name\":\"getRewardAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"isAgreementListed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"yes\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"isOwner\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"bitmap\",\"type\":\"uint256\"}],\"name\":\"mapAgreements\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"agreementClasses\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"bitmap\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"maskAgreementBit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"newBitmap\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"}],\"name\":\"setRewardAddress\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"bitmap\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"unmaskAgreementBit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"newBitmap\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{\"addAgreement(address)\":{\"details\":\"Add an agreement to the whitelist\"},\"isAgreementListed(address)\":{\"details\":\"Check if the agreement is whitelisted\"},\"isOwner()\":{\"details\":\"Returns true if the caller is the current owner.\"},\"mapAgreements(uint256)\":{\"details\":\"Map list of the agreements using a bitmap\",\"params\":{\"bitmap\":\"Agreement class ID based bitmap\"}},\"maskAgreementBit(uint256,address)\":{\"details\":\"Create a new bitmask by adding agreement class to it.\"},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. > Note: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner.\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"},\"unmaskAgreementBit(uint256,address)\":{\"details\":\"Create a new bitmask by removing agreement class from it.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/test/TestGovernance.sol\":\"TestGovernance\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/access/Ownable.sol\":{\"keccak256\":\"0x1d809d0906b35e446a3ff62841888d90011a1d267c91b5d107add35f4ad73636\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://5fb17f9578022bea0deec865ee11eaa0a281baac2a644467c8c4c458e991ca91\",\"dweb:/ipfs/Qmf6dNUciHJaMYoAJxtP6JGL6KjPgbCVKHUJdqhZ1fs9Dx\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperAgreement.sol\":{\"keccak256\":\"0x1515ee00700f5ae5cece8dda6d62e0c12056176dc2c41933487ba11b8aaa743b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f0840cdf8e3c6545b76b60c205c03abc011b8ede8256c5d5a65476de4584a5f5\",\"dweb:/ipfs/Qmf6JcWedy2BxmzN5xFJ86SwfxGEX81Ac3Rza8NdqWj19H\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperApp.sol\":{\"keccak256\":\"0x8a71d633e698727749295ee6abaf6c37fa42f1b77b2d222d1a4eaffa208c8c49\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://47a2af58bed4fbffc85650b99d913105ca8988962ace76153dedd00d4bc3ca8a\",\"dweb:/ipfs/QmPZ5vHgUaUADJFVN6LnFzQgh28UzK1Lt7F6cFDTcWBE8W\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperToken.sol\":{\"keccak256\":\"0xd30f1588320e14a4834520749d9a625f3593aadddd0d1724ab6365915003ccf3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://92077b3a9d6ab82c64f672bb33b95a92e699069f4b1955fb0fab6104364789a5\",\"dweb:/ipfs/QmZ49sPQpxn9LKj3i2w8VEcc1oBfUUu656QuB1SY6mo5NF\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluid.sol\":{\"keccak256\":\"0xf42f2e194f917c020c2e4d099bae76697957cd7f68e27afd1dcde0c87c0bf6d2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c0f785af02fb3950ae45171dd3eb729c0674f6bb451696e0786b481da5b844e2\",\"dweb:/ipfs/QmR9EgrVS9VZhB67zfpub8CMxbYQvhn7JTnjRYWEciMKPe\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluidGovernance.sol\":{\"keccak256\":\"0xf1fc334274dc956d0508ab5d3037979de789e9e858ecc346b87cdec472d7261b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://950a5fd2942ee58611ea24bbe23d0e6cbb83f6e5c32384134c85f179c373dbb1\",\"dweb:/ipfs/QmdcZkqVuxTu5C5NhpbSXYunUDkZbcs8NMxBW1EYtThAtY\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/SuperAppDefinitions.sol\":{\"keccak256\":\"0x1a5356278b5f0f2100e7d3db525a9c20d303cc0de571e53123cb7fd9485e9bfb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4bee42a2ce61d07d84b18c36e1683d1f0a713883caa41698282aa3d64a876ae2\",\"dweb:/ipfs/QmXmnuEpXunMGYBZhraHa2bLit4dNqhnhfD6cQ1w6zucmB\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/tokens/TokenInfo.sol\":{\"keccak256\":\"0xa60ff361f5c525b21081288ebee8ed4d68f8b5b8e86d8138198d046141fba35c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7e3239450da65109f576d28fc11cb0df7ce7aa8a41566a5f0ef97a7c8a1f3a55\",\"dweb:/ipfs/QmQcjb6dNQELxPWq12x21Cd18TbYszPNxFMXxYpXGC1Wi8\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/test/TestGovernance.sol\":{\"keccak256\":\"0xcbb8a553bd0e479ae071d9c629254ae978a57d938cf16a8aa482bfb7d7a1a22e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://08f1e0513e2c530ab5dab351a7816376f3ae1ec98e502e52cf57cddc04a709ad\",\"dweb:/ipfs/QmUhmwTWvBuczYNFaGNZj6Zes1YoWHNqTFGH55eKgMBdDa\"]},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xbd74f587ab9b9711801baf667db1426e4a03fd2d7f15af33e0e0d0394e7cef76\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2d0913dfbfce90d170df0d496ad7596c0778518e5fa7aba6c32562522546f66b\",\"dweb:/ipfs/QmR6B8nLj2PJf5e1JWD9Nk7ErkAwkqUwadCnvE82FJr1RU\"]},\"@openzeppelin/contracts/token/ERC777/IERC777.sol\":{\"keccak256\":\"0x66622d89fb8f57aa1c09f69b1088d242aa92ceba96462854396ddb724e71849f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://abb0340421d8a39de72aa4679351f2eba6eee62f4ccfaa649852431f5d361165\",\"dweb:/ipfs/QmULDf3ot52Qd1s5LDjD11bGFCM8f212KTmazvvaT64Uk4\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516108f23803806108f28339818101604052604081101561003357600080fd5b508051602090910151600080546001600160a01b03199081163317909155600180546001600160a01b0390941693909116929092179091556002556108758061007d6000396000f3fe608060405234801561001057600080fd5b50600436106100b45760003560e01c80638da5cb5b116100715780638da5cb5b146101bb5780638f32d59b146101c3578063bebb6f2f146101df578063bf9149f21461024c578063f2fde38b14610272578063f9029be514610298576100b4565b806309fa423e146100b95780630e327ee8146100e15780632444d97e146101235780632765f6b7146101615780635e00e6791461018d578063715018a6146101b3575b600080fd5b6100df600480360360208110156100cf57600080fd5b50356001600160a01b03166102be565b005b610107600480360360208110156100f757600080fd5b50356001600160a01b03166103a6565b604080516001600160a01b039092168252519081900360200190f35b61014f6004803603604081101561013957600080fd5b50803590602001356001600160a01b03166103b6565b60408051918252519081900360200190f35b61014f6004803603604081101561017757600080fd5b50803590602001356001600160a01b0316610430565b6100df600480360360208110156101a357600080fd5b50356001600160a01b03166104ab565b6100df610514565b6101076105a5565b6101cb6105b4565b604080519115158252519081900360200190f35b6101fc600480360360208110156101f557600080fd5b50356105c5565b60408051602080825283518183015283519192839290830191858101910280838360005b83811015610238578181015183820152602001610220565b505050509050019250505060405180910390f35b61014f6004803603602081101561026257600080fd5b50356001600160a01b031661069b565b6100df6004803603602081101561028857600080fd5b50356001600160a01b03166106a2565b6101cb600480360360208110156102ae57600080fd5b50356001600160a01b03166106f5565b6102c66105b4565b610305576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b6001600160a01b03811661034a5760405162461bcd60e51b81526004018080602001828103825260238152602001806107d76023913960400191505060405180910390fd5b600380546001810182557fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b0180546001600160a01b039093166001600160a01b0319909316831790555460009182526004602052604090912055565b506001546001600160a01b031690565b6001600160a01b03811660009081526004602052604081205461040a5760405162461bcd60e51b81526004018080602001828103825260248152602001806107b36024913960400191505060405180910390fd5b506001600160a01b031660009081526004602052604090205460016000199091011b1790565b6001600160a01b0381166000908152600460205260408120546104845760405162461bcd60e51b81526004018080602001828103825260248152602001806107b36024913960400191505060405180910390fd5b506001600160a01b031660009081526004602052604090205460016000199091011b191690565b6104b36105b4565b6104f2576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b600180546001600160a01b0319166001600160a01b0392909216919091179055565b61051c6105b4565b61055b576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a3600080546001600160a01b0319169055565b6000546001600160a01b031690565b6000546001600160a01b0316331490565b606060008060038054905067ffffffffffffffff811180156105e657600080fd5b50604051908082528060200260200182016040528015610610578160200160208202803683370190505b50925060009050600091505b600354821015610693576001821b841615610688576003828154811061063e57fe5b600091825260209091200154835160018301926001600160a01b03909216918591811061066757fe5b60200260200101906001600160a01b031690816001600160a01b0316815250505b81600101915061061c565b825250919050565b5060025490565b6106aa6105b4565b6106e9576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b6106f281610712565b50565b6001600160a01b0316600090815260046020526040902054151590565b6001600160a01b0381166107575760405162461bcd60e51b81526004018080602001828103825260268152602001806107fa6026913960400191505060405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b039290921691909117905556fe54657374476f7665726e616e63653a2041677265656d656e74206e6f74206c697374656454657374476f7665726e616e63653a20307820616464726573732064657465637465644f776e61626c653a206e6577206f776e657220697320746865207a65726f20616464726573734f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572a264697066735822122055eb27fef2a5b289cb66bb8b5d3aacc2edeaba21451593b48d7c3d6b03b272c664736f6c63430007010033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b50600436106100b45760003560e01c80638da5cb5b116100715780638da5cb5b146101bb5780638f32d59b146101c3578063bebb6f2f146101df578063bf9149f21461024c578063f2fde38b14610272578063f9029be514610298576100b4565b806309fa423e146100b95780630e327ee8146100e15780632444d97e146101235780632765f6b7146101615780635e00e6791461018d578063715018a6146101b3575b600080fd5b6100df600480360360208110156100cf57600080fd5b50356001600160a01b03166102be565b005b610107600480360360208110156100f757600080fd5b50356001600160a01b03166103a6565b604080516001600160a01b039092168252519081900360200190f35b61014f6004803603604081101561013957600080fd5b50803590602001356001600160a01b03166103b6565b60408051918252519081900360200190f35b61014f6004803603604081101561017757600080fd5b50803590602001356001600160a01b0316610430565b6100df600480360360208110156101a357600080fd5b50356001600160a01b03166104ab565b6100df610514565b6101076105a5565b6101cb6105b4565b604080519115158252519081900360200190f35b6101fc600480360360208110156101f557600080fd5b50356105c5565b60408051602080825283518183015283519192839290830191858101910280838360005b83811015610238578181015183820152602001610220565b505050509050019250505060405180910390f35b61014f6004803603602081101561026257600080fd5b50356001600160a01b031661069b565b6100df6004803603602081101561028857600080fd5b50356001600160a01b03166106a2565b6101cb600480360360208110156102ae57600080fd5b50356001600160a01b03166106f5565b6102c66105b4565b610305576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b6001600160a01b03811661034a5760405162461bcd60e51b81526004018080602001828103825260238152602001806107d76023913960400191505060405180910390fd5b600380546001810182557fc2575a0e9e593c00f959f8c92f12db2869c3395a3b0502d05e2516446f71f85b0180546001600160a01b039093166001600160a01b0319909316831790555460009182526004602052604090912055565b506001546001600160a01b031690565b6001600160a01b03811660009081526004602052604081205461040a5760405162461bcd60e51b81526004018080602001828103825260248152602001806107b36024913960400191505060405180910390fd5b506001600160a01b031660009081526004602052604090205460016000199091011b1790565b6001600160a01b0381166000908152600460205260408120546104845760405162461bcd60e51b81526004018080602001828103825260248152602001806107b36024913960400191505060405180910390fd5b506001600160a01b031660009081526004602052604090205460016000199091011b191690565b6104b36105b4565b6104f2576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b600180546001600160a01b0319166001600160a01b0392909216919091179055565b61051c6105b4565b61055b576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b600080546040516001600160a01b03909116907f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0908390a3600080546001600160a01b0319169055565b6000546001600160a01b031690565b6000546001600160a01b0316331490565b606060008060038054905067ffffffffffffffff811180156105e657600080fd5b50604051908082528060200260200182016040528015610610578160200160208202803683370190505b50925060009050600091505b600354821015610693576001821b841615610688576003828154811061063e57fe5b600091825260209091200154835160018301926001600160a01b03909216918591811061066757fe5b60200260200101906001600160a01b031690816001600160a01b0316815250505b81600101915061061c565b825250919050565b5060025490565b6106aa6105b4565b6106e9576040805162461bcd60e51b81526020600482018190526024820152600080516020610820833981519152604482015290519081900360640190fd5b6106f281610712565b50565b6001600160a01b0316600090815260046020526040902054151590565b6001600160a01b0381166107575760405162461bcd60e51b81526004018080602001828103825260268152602001806107fa6026913960400191505060405180910390fd5b600080546040516001600160a01b03808516939216917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e091a3600080546001600160a01b0319166001600160a01b039290921691909117905556fe54657374476f7665726e616e63653a2041677265656d656e74206e6f74206c697374656454657374476f7665726e616e63653a20307820616464726573732064657465637465644f776e61626c653a206e6577206f776e657220697320746865207a65726f20616464726573734f776e61626c653a2063616c6c6572206973206e6f7420746865206f776e6572a264697066735822122055eb27fef2a5b289cb66bb8b5d3aacc2edeaba21451593b48d7c3d6b03b272c664736f6c63430007010033",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {
+      "addAgreement(address)": {
+        "details": "Add an agreement to the whitelist"
+      },
+      "isAgreementListed(address)": {
+        "details": "Check if the agreement is whitelisted"
+      },
+      "isOwner()": {
+        "details": "Returns true if the caller is the current owner."
+      },
+      "mapAgreements(uint256)": {
+        "details": "Map list of the agreements using a bitmap",
+        "params": {
+          "bitmap": "Agreement class ID based bitmap"
+        }
+      },
+      "maskAgreementBit(uint256,address)": {
+        "details": "Create a new bitmask by adding agreement class to it."
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions anymore. Can only be called by the current owner. > Note: Renouncing ownership will leave the contract without an owner, thereby removing any functionality that is only available to the owner."
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      },
+      "unmaskAgreementBit(uint256,address)": {
+        "details": "Create a new bitmask by removing agreement class from it."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

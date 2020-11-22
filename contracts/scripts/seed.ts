@@ -16,7 +16,12 @@ async function main() {
     const sender = others[i];
     if (sender) {
       const creatonContract = await ethers.getContract('CreatonFactory', sender);
-      await waitFor(creatonContract.deployCreator(...mockCreators[i]));
+      waitFor(creatonContract.deployCreator(...mockCreators[i]));
+
+      await creatonContract.on('CreatorDeployed', (...response) => {
+        const [sender, contractaddr] = response;
+        console.log('creator contract address', contractaddr);
+      });
     }
   }
 }

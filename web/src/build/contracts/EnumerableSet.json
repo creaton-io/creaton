@@ -1,0 +1,25 @@
+{
+  "contractName": "EnumerableSet",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"details\":\"Library for managing https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive types. Sets have the following properties: - Elements are added, removed, and checked for existence in constant time (O(1)). - Elements are enumerated in O(n). No guarantees are made on the ordering. ``` contract Example {     // Add the library methods     using EnumerableSet for EnumerableSet.AddressSet;     // Declare a set state variable     EnumerableSet.AddressSet private mySet; } ``` As of v3.0.0, only sets of type `address` (`AddressSet`) and `uint256` (`UintSet`) are supported.\",\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"@openzeppelin/contracts/utils/EnumerableSet.sol\":\"EnumerableSet\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/utils/EnumerableSet.sol\":{\"keccak256\":\"0x5420cb92cf72960b0be9dacec46b15a5558f89688d846cc6e53ec1c2d807f673\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f6dd826d43bc5d033e6197236f8b55e56dfdda6d1a364f5ddfa79c134a664875\",\"dweb:/ipfs/Qmcztt4dk38dzvUtDQoJrnWNvafotNRttyah1zRVmsNyB6\"]}},\"version\":1}",
+  "bytecode": "0x60566023600b82828239805160001a607314601657fe5b30600052607381538281f3fe73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212202b274918fad4788323bd761d54c5b2d4381873ad93e523c7e02f63ac063c6f2564736f6c63430007010033",
+  "deployedBytecode": "0x73000000000000000000000000000000000000000030146080604052600080fdfea26469706673582212202b274918fad4788323bd761d54c5b2d4381873ad93e523c7e02f63ac063c6f2564736f6c63430007010033",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "details": "Library for managing https://en.wikipedia.org/wiki/Set_(abstract_data_type)[sets] of primitive types. Sets have the following properties: - Elements are added, removed, and checked for existence in constant time (O(1)). - Elements are enumerated in O(n). No guarantees are made on the ordering. ``` contract Example {     // Add the library methods     using EnumerableSet for EnumerableSet.AddressSet;     // Declare a set state variable     EnumerableSet.AddressSet private mySet; } ``` As of v3.0.0, only sets of type `address` (`AddressSet`) and `uint256` (`UintSet`) are supported.",
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

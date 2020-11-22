@@ -1,0 +1,24 @@
+{
+  "contractName": "Context",
+  "abi": [],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"@openzeppelin/contracts/GSN/Context.sol\":\"Context\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts/GSN/Context.sol\":{\"keccak256\":\"0x910a2e625b71168563edf9eeef55a50d6d699acfe27ceba3921f291829a8f938\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://248246ac66e6479dce1ad7d4945ec5540c98ceb09881e93c93f7c48d5772925c\",\"dweb:/ipfs/QmXr8tmUiZgEYid6ixeeBRmTdUnASWjKzhP3KRxMPy8fRt\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
