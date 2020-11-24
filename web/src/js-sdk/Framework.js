@@ -87,7 +87,7 @@ export class SuperfluidSDK {
     console.log('testtoken symbol:', `${tokenInfoSymbol}x`);
     console.log('host', this.host);
     const wrapper = await this.host.getERC20Wrapper(tokenInfo.address, `${tokenInfoSymbol}x`);
-    console.log('wrapper contract:', wrapper.address);
+    console.log('wrapper contract data:', wrapper.data);
     return await wrapper;
   }
 

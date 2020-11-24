@@ -213,8 +213,8 @@
           {:else}Subscription balance: ${currentBalance}{/if}
         </p>
       {/if}
-      <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">dai balance: ${daiBalance}</p>
-      <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">approved dai balance: ${daiApproved}</p>
+      <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">DAI Balance: ${daiBalance}</p>
+      <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Approved DAI Balance: ${daiApproved}</p>
       <Button class="mt-3" on:click={mintDAI}>mint 100 dai</Button>
       <Button class="mt-3" on:click={approveDAI}>approve a lot of dai</Button>
     {/if}

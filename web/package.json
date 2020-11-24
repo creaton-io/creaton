@@ -69,6 +69,7 @@
     "build:dev": "svite build -ts --mode development && npm run spa2static",
     "serve": "ipfs-emulator --only -d dist -p 8080",
     "build:serve": "npm run build && npm run serve",
+    "builddev:serve": "npm run build:dev && npm run serve",
     "generate": "ts-node --project _build/tsconfig.json _build/generate.ts",
     "spa2static": "node _build/fixPages.js && ts-node --project _build/tsconfig.json -r tsconfig-paths/register -r svelte/register _build/spa2static.ts",
     "deploy": "ipfs-deploy -p pinata -s {{=_.paramCase(it.name)}} dist"
