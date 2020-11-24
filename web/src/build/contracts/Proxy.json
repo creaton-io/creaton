@@ -1,0 +1,55 @@
+{
+  "contractName": "Proxy",
+  "abi": [
+    {
+      "stateMutability": "payable",
+      "type": "fallback"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "initialAddress",
+          "type": "address"
+        }
+      ],
+      "name": "initializeProxy",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"stateMutability\":\"payable\",\"type\":\"fallback\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"initialAddress\",\"type\":\"address\"}],\"name\":\"initializeProxy\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\"Implements delegation of calls to other contracts, with proper forwarding of return values and bubbling of failures. It defines a fallback function that delegates all calls to the implementation.\",\"kind\":\"dev\",\"methods\":{\"initializeProxy(address)\":{\"details\":\"Proxy initialization function.      This should only be called once and it is permission-less.\",\"params\":{\"initialAddress\":\"Initial logic contract code address to be used.\"}}},\"title\":\"Proxy\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/upgradability/Proxy.sol\":\"Proxy\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/upgradability/Proxy.sol\":{\"keccak256\":\"0xf9dbe1f9395d4346826ac3eb5e8fe19839de7056b27ae642521856b8225a7b7e\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://98afb08f2457daaed853ee5ddead49690f1d74a748065476f075526dac345141\",\"dweb:/ipfs/QmevKozaDcvtsDqhq7qFrtN2wkhWnQLuvdxMHTFENdGrHR\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/upgradability/ProxyUtils.sol\":{\"keccak256\":\"0x34c692cb060d21fe40af5d6c6ddb2b4b9e52ffb6e44340195c7b91cbf664feca\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://6e2df14a12f9d4dfb780f75942e5ee5aa727e08b0f32f2950eb8816868f0c915\",\"dweb:/ipfs/QmdWakruAjcgqMkQBrJF9EffMnjaByCfygtDRrs3XnzSfA\"]}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b50610236806100206000396000f3fe6080604052600436106100225760003560e01c80634a0687ef1461008657610076565b36610076576040805162461bcd60e51b815260206004820152601860248201527f50726f78793a20524543454956455f464f5242494444454e0000000000000000604482015290519081900360640190fd5b005b6100746100816100b9565b6100de565b34801561009257600080fd5b50610074600480360360208110156100a957600080fd5b50356001600160a01b0316610102565b7f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e8080156100fd573d6000f35b3d6000fd5b6001600160a01b0381166101475760405162461bcd60e51b81526004018080602001828103825260248152602001806101dd6024913960400191505060405180910390fd5b60006101516100b9565b6001600160a01b0316146101ac576040805162461bcd60e51b815260206004820152601a60248201527f50726f78793a20414c52454144595f494e495449414c495a4544000000000000604482015290519081900360640190fd5b6101b5816101b8565b50565b7f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5556fe50726f78793a20494e495449414c495a45445f574954485f5a45524f5f41444452455353a26469706673582212202e6d810b41384f7a7e8d90556356920fc289d3180a840445d85ebb4bec39b84864736f6c63430007010033",
+  "deployedBytecode": "0x6080604052600436106100225760003560e01c80634a0687ef1461008657610076565b36610076576040805162461bcd60e51b815260206004820152601860248201527f50726f78793a20524543454956455f464f5242494444454e0000000000000000604482015290519081900360640190fd5b005b6100746100816100b9565b6100de565b34801561009257600080fd5b50610074600480360360208110156100a957600080fd5b50356001600160a01b0316610102565b7f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5490565b3660008037600080366000845af43d6000803e8080156100fd573d6000f35b3d6000fd5b6001600160a01b0381166101475760405162461bcd60e51b81526004018080602001828103825260248152602001806101dd6024913960400191505060405180910390fd5b60006101516100b9565b6001600160a01b0316146101ac576040805162461bcd60e51b815260206004820152601a60248201527f50726f78793a20414c52454144595f494e495449414c495a4544000000000000604482015290519081900360640190fd5b6101b5816101b8565b50565b7f360894a13ba1a3210667c828492db98dca3e2076cc3735a920a3ca505d382bbc5556fe50726f78793a20494e495449414c495a45445f574954485f5a45524f5f41444452455353a26469706673582212202e6d810b41384f7a7e8d90556356920fc289d3180a840445d85ebb4bec39b84864736f6c63430007010033",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "details": "Implements delegation of calls to other contracts, with proper forwarding of return values and bubbling of failures. It defines a fallback function that delegates all calls to the implementation.",
+    "kind": "dev",
+    "methods": {
+      "initializeProxy(address)": {
+        "details": "Proxy initialization function.      This should only be called once and it is permission-less.",
+        "params": {
+          "initialAddress": "Initial logic contract code address to be used."
+        }
+      }
+    },
+    "title": "Proxy",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

@@ -1,0 +1,322 @@
+{
+  "contractName": "ISuperApp",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "agreementId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "beforeAgreementCreated",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "agreementId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "name": "afterAgreementCreated",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "agreementId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "beforeAgreementUpdated",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "agreementId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "name": "afterAgreementUpdated",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "agreementId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "beforeAgreementTerminated",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "agreementId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "name": "afterAgreementTerminated",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"agreementId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"name\":\"afterAgreementCreated\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"agreementId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"name\":\"afterAgreementTerminated\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"agreementId\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"name\":\"afterAgreementUpdated\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"agreementId\",\"type\":\"bytes32\"}],\"name\":\"beforeAgreementCreated\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"agreementId\",\"type\":\"bytes32\"}],\"name\":\"beforeAgreementTerminated\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes32\",\"name\":\"agreementId\",\"type\":\"bytes32\"}],\"name\":\"beforeAgreementUpdated\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Superfluid\",\"kind\":\"dev\",\"methods\":{\"afterAgreementCreated(address,bytes,address,bytes32,bytes)\":{\"details\":\"Callback after a new agreement is created.\",\"params\":{\"agreementClass\":\"The agreement class address.\",\"agreementId\":\"The agreementId\",\"cbdata\":\"The data returned from the before-hook callback.\",\"ctx\":\"The context data.\",\"superToken\":\"The super token used for the agreement.\"},\"returns\":{\"newCtx\":\"The current context of the transaction. NOTE: - State changes is permitted. - Only revert with a \\\"reason\\\" is permitted.\"}},\"afterAgreementTerminated(address,bytes,address,bytes32,bytes)\":{\"details\":\"Callback after a new agreement is terminated.\",\"params\":{\"agreementClass\":\"The agreement class address.\",\"agreementId\":\"The agreementId\",\"cbdata\":\"The data returned from the before-hook callback.\",\"ctx\":\"The context data.\",\"superToken\":\"The super token used for the agreement.\"},\"returns\":{\"newCtx\":\"The current context of the transaction. NOTE: - State changes is permitted. - Revert is not permitted.\"}},\"afterAgreementUpdated(address,bytes,address,bytes32,bytes)\":{\"details\":\"Callback after a new agreement is updated.\",\"params\":{\"agreementClass\":\"The agreement class address.\",\"agreementId\":\"The agreementId\",\"cbdata\":\"The data returned from the before-hook callback.\",\"ctx\":\"The context data.\",\"superToken\":\"The super token used for the agreement.\"},\"returns\":{\"newCtx\":\"The current context of the transaction. NOTE: - State changes is permitted. - Only revert with a \\\"reason\\\" is permitted.\"}},\"beforeAgreementCreated(address,bytes,address,bytes32)\":{\"details\":\"Callback before a new agreement is created.\",\"params\":{\"agreementClass\":\"The agreement class address.\",\"agreementId\":\"The agreementId\",\"ctx\":\"The context data.\",\"superToken\":\"The super token used for the agreement.\"},\"returns\":{\"cbdata\":\"A free format in memory data the app can use to pass          arbitary information to the after-hook callback. NOTE: - It will be invoked with `staticcall`, no state changes are permitted. - Only revert with a \\\"reason\\\" is permitted.\"}},\"beforeAgreementTerminated(address,bytes,address,bytes32)\":{\"details\":\"Callback before a new agreement is terminated.\",\"params\":{\"agreementClass\":\"The agreement class address.\",\"agreementId\":\"The agreementId\",\"ctx\":\"The context data.\",\"superToken\":\"The super token used for the agreement.\"},\"returns\":{\"cbdata\":\"A free format in memory data the app can use to pass          arbitary information to the after-hook callback. NOTE: - It will be invoked with `staticcall`, no state changes are permitted. - Revert is not permitted.\"}},\"beforeAgreementUpdated(address,bytes,address,bytes32)\":{\"details\":\"Callback before a new agreement is updated.\",\"params\":{\"agreementClass\":\"The agreement class address.\",\"agreementId\":\"The agreementId\",\"ctx\":\"The context data.\",\"superToken\":\"The super token used for the agreement.\"},\"returns\":{\"cbdata\":\"A free format in memory data the app can use to pass          arbitary information to the after-hook callback. NOTE: - It will be invoked with `staticcall`, no state changes are permitted. - Only revert with a \\\"reason\\\" is permitted.\"}}},\"title\":\"Superfluid's app interface. NOTE: - Be fearful of the app jail, when the word permitted is used.\",\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperApp.sol\":\"ISuperApp\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperApp.sol\":{\"keccak256\":\"0x8a71d633e698727749295ee6abaf6c37fa42f1b77b2d222d1a4eaffa208c8c49\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://47a2af58bed4fbffc85650b99d913105ca8988962ace76153dedd00d4bc3ca8a\",\"dweb:/ipfs/QmPZ5vHgUaUADJFVN6LnFzQgh28UzK1Lt7F6cFDTcWBE8W\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperToken.sol\":{\"keccak256\":\"0xd30f1588320e14a4834520749d9a625f3593aadddd0d1724ab6365915003ccf3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://92077b3a9d6ab82c64f672bb33b95a92e699069f4b1955fb0fab6104364789a5\",\"dweb:/ipfs/QmZ49sPQpxn9LKj3i2w8VEcc1oBfUUu656QuB1SY6mo5NF\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/tokens/TokenInfo.sol\":{\"keccak256\":\"0xa60ff361f5c525b21081288ebee8ed4d68f8b5b8e86d8138198d046141fba35c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7e3239450da65109f576d28fc11cb0df7ce7aa8a41566a5f0ef97a7c8a1f3a55\",\"dweb:/ipfs/QmQcjb6dNQELxPWq12x21Cd18TbYszPNxFMXxYpXGC1Wi8\"]},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xbd74f587ab9b9711801baf667db1426e4a03fd2d7f15af33e0e0d0394e7cef76\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2d0913dfbfce90d170df0d496ad7596c0778518e5fa7aba6c32562522546f66b\",\"dweb:/ipfs/QmR6B8nLj2PJf5e1JWD9Nk7ErkAwkqUwadCnvE82FJr1RU\"]},\"@openzeppelin/contracts/token/ERC777/IERC777.sol\":{\"keccak256\":\"0x66622d89fb8f57aa1c09f69b1088d242aa92ceba96462854396ddb724e71849f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://abb0340421d8a39de72aa4679351f2eba6eee62f4ccfaa649852431f5d361165\",\"dweb:/ipfs/QmULDf3ot52Qd1s5LDjD11bGFCM8f212KTmazvvaT64Uk4\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "author": "Superfluid",
+    "kind": "dev",
+    "methods": {
+      "afterAgreementCreated(address,bytes,address,bytes32,bytes)": {
+        "details": "Callback after a new agreement is created.",
+        "params": {
+          "agreementClass": "The agreement class address.",
+          "agreementId": "The agreementId",
+          "cbdata": "The data returned from the before-hook callback.",
+          "ctx": "The context data.",
+          "superToken": "The super token used for the agreement."
+        },
+        "returns": {
+          "newCtx": "The current context of the transaction. NOTE: - State changes is permitted. - Only revert with a \"reason\" is permitted."
+        }
+      },
+      "afterAgreementTerminated(address,bytes,address,bytes32,bytes)": {
+        "details": "Callback after a new agreement is terminated.",
+        "params": {
+          "agreementClass": "The agreement class address.",
+          "agreementId": "The agreementId",
+          "cbdata": "The data returned from the before-hook callback.",
+          "ctx": "The context data.",
+          "superToken": "The super token used for the agreement."
+        },
+        "returns": {
+          "newCtx": "The current context of the transaction. NOTE: - State changes is permitted. - Revert is not permitted."
+        }
+      },
+      "afterAgreementUpdated(address,bytes,address,bytes32,bytes)": {
+        "details": "Callback after a new agreement is updated.",
+        "params": {
+          "agreementClass": "The agreement class address.",
+          "agreementId": "The agreementId",
+          "cbdata": "The data returned from the before-hook callback.",
+          "ctx": "The context data.",
+          "superToken": "The super token used for the agreement."
+        },
+        "returns": {
+          "newCtx": "The current context of the transaction. NOTE: - State changes is permitted. - Only revert with a \"reason\" is permitted."
+        }
+      },
+      "beforeAgreementCreated(address,bytes,address,bytes32)": {
+        "details": "Callback before a new agreement is created.",
+        "params": {
+          "agreementClass": "The agreement class address.",
+          "agreementId": "The agreementId",
+          "ctx": "The context data.",
+          "superToken": "The super token used for the agreement."
+        },
+        "returns": {
+          "cbdata": "A free format in memory data the app can use to pass          arbitary information to the after-hook callback. NOTE: - It will be invoked with `staticcall`, no state changes are permitted. - Only revert with a \"reason\" is permitted."
+        }
+      },
+      "beforeAgreementTerminated(address,bytes,address,bytes32)": {
+        "details": "Callback before a new agreement is terminated.",
+        "params": {
+          "agreementClass": "The agreement class address.",
+          "agreementId": "The agreementId",
+          "ctx": "The context data.",
+          "superToken": "The super token used for the agreement."
+        },
+        "returns": {
+          "cbdata": "A free format in memory data the app can use to pass          arbitary information to the after-hook callback. NOTE: - It will be invoked with `staticcall`, no state changes are permitted. - Revert is not permitted."
+        }
+      },
+      "beforeAgreementUpdated(address,bytes,address,bytes32)": {
+        "details": "Callback before a new agreement is updated.",
+        "params": {
+          "agreementClass": "The agreement class address.",
+          "agreementId": "The agreementId",
+          "ctx": "The context data.",
+          "superToken": "The super token used for the agreement."
+        },
+        "returns": {
+          "cbdata": "A free format in memory data the app can use to pass          arbitary information to the after-hook callback. NOTE: - It will be invoked with `staticcall`, no state changes are permitted. - Only revert with a \"reason\" is permitted."
+        }
+      }
+    },
+    "title": "Superfluid's app interface. NOTE: - Be fearful of the app jail, when the word permitted is used.",
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

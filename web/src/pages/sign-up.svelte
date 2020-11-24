@@ -12,6 +12,32 @@
   let creatorContract;
 
   onMount(async () => {
+    console.log('test1');
+    if (wallet.provider) {
+      loadCreatorData();
+      console.log('test2');
+    } else {
+      flow.execute(async (contracts) => {
+        loadCreatorData();
+        console.log('test3');
+        //console.log('creatonfactory contracts:', await contracts.CreatonFactory.creatorContracts());
+      });
+    }
+  });
+
+  async function deployCreator() {
+    await flow.execute(async (contracts) => {
+      avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
+      creatorName = creatorName || 'creaotorname';
+      subscriptionPrice = subscriptionPrice || 10;
+      const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
+      console.log(receipt);
+      return receipt;
+    });
+  }
+
+  async function loadCreatorData() {
+    console.log('test');
     creatorContract = await new Contract(
       contracts.CreatonFactory.address,
       contracts.CreatonFactory.abi,
@@ -21,15 +47,6 @@
     creatorContract.on('CreatorDeployed', (...response) => {
       const [sender, contractaddr] = response;
       console.log('creator contract address', contractaddr);
-    });
-  });
-
-  async function deployCreator() {
-    await flow.execute(async (contracts) => {
-      avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
-      const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
-      console.log(receipt);
-      return receipt;
     });
   }
 </script>
@@ -77,20 +94,15 @@
     <form class="content flex flex-col max-w-lg mx-auto">
       <div class="field-row">
         <label for="name">Name:</label>
-        <Input id="name" type="text" placeholder="Name / title" className="field" bind:value={creatorName} />
+        <Input type="text" placeholder="Name / title" className="field" bind:value={creatorName} />
       </div>
       <div class="field-row">
         <label for="avatar-url">Profile Image URL:</label>
-        <Input id="avatar-url" type="text" placeholder="Profile image URL" className="field" bind:value={avatarURL} />
+        <Input type="text" placeholder="Profile image URL" className="field" bind:value={avatarURL} />
       </div>
       <div class="field-row">
         <label for="subscription-price">Subscription Price: $</label>
-        <Input
-          id="subscription-price"
-          type="number"
-          placeholder="Cost per month"
-          className="field"
-          bind:value={subscriptionPrice} />
+        <Input type="number" placeholder="Cost per month" className="field" bind:value={subscriptionPrice} />
       </div>
       <button class="mt-6" type="button" on:click={deployCreator}>Create!</button>
     </form>

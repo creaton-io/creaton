@@ -5,11 +5,13 @@
     "@curi/interactions": "^2.0.3",
     "@curi/router": "^2.1.2",
     "@curi/svelte": "^2.0.0-beta.6",
+    "@ethersproject/abi": "^5.0.7",
     "@ethersproject/bignumber": "^5.0.8",
     "@ethersproject/bytes": "^5.0.5",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.13",
     "@ethersproject/solidity": "^5.0.5",
+    "@ethersproject/units": "^5.0.6",
     "@hickory/browser": "^2.1.0",
     "@textile/hub": "^1.1.1",
     "@urql/core": "^1.12.3",
@@ -33,9 +35,7 @@
     "ws": "^7.3.1"
   },
   "devDependencies": {
-    "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix5",
     "@tailwindcss/ui": "^0.5.0",
-    "@truffle/contract": "^4.2.29",
     "@tsconfig/svelte": "^1.0.8",
     "@types/favicons": "^5.5.0",
     "@types/fs-extra": "^9.0.2",
@@ -56,18 +56,22 @@
     "ts-node": "^9.0.0",
     "tsconfig-paths": "^3.9.0",
     "tslib": "^2.0.3",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.2",
+    "vite": "^1.0.0-rc.8"
   },
   "scripts": {
-    "prepare": "npm link ../common-lib && node use_ethers_browser_modules.js && npm run generate",
+    "ethers-module": "node use_ethers_browser_modules.js",
+    "fix_VITE_ENV": "node _build/fix_VITE_ENV.js",
+    "prepare": "node use_ethers_browser_modules.js && npm run generate",
     "validate": "svelte-check && tsc --noEmit",
     "dev": "svite -ts",
     "build": "svite build -ts && npm run spa2static",
     "build:dev": "svite build -ts --mode development && npm run spa2static",
     "serve": "ipfs-emulator --only -d dist -p 8080",
     "build:serve": "npm run build && npm run serve",
+    "builddev:serve": "npm run build:dev && npm run serve",
     "generate": "ts-node --project _build/tsconfig.json _build/generate.ts",
     "spa2static": "node _build/fixPages.js && ts-node --project _build/tsconfig.json -r tsconfig-paths/register -r svelte/register _build/spa2static.ts",
-    "deploy": "ipfs-deploy -p infura -s creaton dist"
+    "deploy": "ipfs-deploy -p pinata -s {{=_.paramCase(it.name)}} dist"
   }
 }

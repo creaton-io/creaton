@@ -1,0 +1,195 @@
+{
+  "contractName": "ISuperfluidGovernance",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "superToken",
+          "type": "address"
+        }
+      ],
+      "name": "getRewardAddress",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "rewardAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "superToken",
+          "type": "address"
+        }
+      ],
+      "name": "getLiquidationPeriod",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "period",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "addAgreement",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "isAgreementListed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "yes",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bitmap",
+          "type": "uint256"
+        }
+      ],
+      "name": "mapAgreements",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "agreementClasses",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bitmap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "maskAgreementBit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "newBitmap",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "bitmap",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address",
+          "name": "agreementClass",
+          "type": "address"
+        }
+      ],
+      "name": "unmaskAgreementBit",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "newBitmap",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"addAgreement\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"superToken\",\"type\":\"address\"}],\"name\":\"getLiquidationPeriod\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"period\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"superToken\",\"type\":\"address\"}],\"name\":\"getRewardAddress\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"rewardAddress\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"isAgreementListed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"yes\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"bitmap\",\"type\":\"uint256\"}],\"name\":\"mapAgreements\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"agreementClasses\",\"type\":\"address[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"bitmap\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"maskAgreementBit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"newBitmap\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"bitmap\",\"type\":\"uint256\"},{\"internalType\":\"address\",\"name\":\"agreementClass\",\"type\":\"address\"}],\"name\":\"unmaskAgreementBit\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"newBitmap\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Superfluid\",\"details\":\"Superfluid's Governance interface\",\"kind\":\"dev\",\"methods\":{\"addAgreement(address)\":{\"details\":\"Add an agreement to the whitelist\"},\"getLiquidationPeriod(address)\":{\"details\":\"Get the Period that is allowed to perform a liquidation\",\"params\":{\"superToken\":\"Super token address.\"}},\"getRewardAddress(address)\":{\"details\":\"Get the Reward address that receives the liquidation fees.\",\"params\":{\"superToken\":\"Super token address.\"}},\"isAgreementListed(address)\":{\"details\":\"Check if the agreement is whitelisted\"},\"mapAgreements(uint256)\":{\"details\":\"Map list of the agreements using a bitmap\",\"params\":{\"bitmap\":\"Agreement class ID based bitmap\"}},\"maskAgreementBit(uint256,address)\":{\"details\":\"Create a new bitmask by adding agreement class to it.\"},\"unmaskAgreementBit(uint256,address)\":{\"details\":\"Create a new bitmask by removing agreement class from it.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluidGovernance.sol\":\"ISuperfluidGovernance\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluidGovernance.sol\":{\"keccak256\":\"0xf1fc334274dc956d0508ab5d3037979de789e9e858ecc346b87cdec472d7261b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://950a5fd2942ee58611ea24bbe23d0e6cbb83f6e5c32384134c85f179c373dbb1\",\"dweb:/ipfs/QmdcZkqVuxTu5C5NhpbSXYunUDkZbcs8NMxBW1EYtThAtY\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "author": "Superfluid",
+    "details": "Superfluid's Governance interface",
+    "kind": "dev",
+    "methods": {
+      "addAgreement(address)": {
+        "details": "Add an agreement to the whitelist"
+      },
+      "getLiquidationPeriod(address)": {
+        "details": "Get the Period that is allowed to perform a liquidation",
+        "params": {
+          "superToken": "Super token address."
+        }
+      },
+      "getRewardAddress(address)": {
+        "details": "Get the Reward address that receives the liquidation fees.",
+        "params": {
+          "superToken": "Super token address."
+        }
+      },
+      "isAgreementListed(address)": {
+        "details": "Check if the agreement is whitelisted"
+      },
+      "mapAgreements(uint256)": {
+        "details": "Map list of the agreements using a bitmap",
+        "params": {
+          "bitmap": "Agreement class ID based bitmap"
+        }
+      },
+      "maskAgreementBit(uint256,address)": {
+        "details": "Create a new bitmask by adding agreement class to it."
+      },
+      "unmaskAgreementBit(uint256,address)": {
+        "details": "Create a new bitmask by removing agreement class from it."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

@@ -33,6 +33,11 @@ export default [
     asyncComponent: (): Promise<ComponentModule> => import('./pages/notfound.svelte'),
   },
   {
+    name: 'Creator Search',
+    path: 'creator',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/creatorsearch.svelte'),
+  },
+  {
     name: 'Upload',
     path: 'upload',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/my-contracts.svelte'),

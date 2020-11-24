@@ -1,0 +1,646 @@
+{
+  "contractName": "ISuperfluid",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "info",
+          "type": "uint256"
+        }
+      ],
+      "name": "Jail",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "getGovernance",
+      "outputs": [
+        {
+          "internalType": "contract ISuperfluidGovernance",
+          "name": "governance",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSuperTokenLogic",
+      "outputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        }
+      ],
+      "name": "getERC20Wrapper",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "wrapperAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "created",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract IERC20",
+          "name": "underlyingToken",
+          "type": "address"
+        },
+        {
+          "internalType": "uint8",
+          "name": "underlyingDecimals",
+          "type": "uint8"
+        },
+        {
+          "internalType": "string",
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "symbol",
+          "type": "string"
+        }
+      ],
+      "name": "createERC20Wrapper",
+      "outputs": [
+        {
+          "internalType": "contract ISuperToken",
+          "name": "superToken",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "configWord",
+          "type": "uint256"
+        }
+      ],
+      "name": "registerApp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        }
+      ],
+      "name": "isApp",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        }
+      ],
+      "name": "getAppLevel",
+      "outputs": [
+        {
+          "internalType": "uint8",
+          "name": "appLevel",
+          "type": "uint8"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        }
+      ],
+      "name": "getAppManifest",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "exist",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "configWord",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        }
+      ],
+      "name": "isAppJailed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isJail",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "targetApp",
+          "type": "address"
+        }
+      ],
+      "name": "allowCompositeApp",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        },
+        {
+          "internalType": "contract ISuperApp",
+          "name": "targetApp",
+          "type": "address"
+        }
+      ],
+      "name": "isCompositeAppAllowed",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isAppAllowed",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bool",
+          "name": "isTermination",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        }
+      ],
+      "name": "callAppBeforeCallback",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "cbdata",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bool",
+          "name": "isTermination",
+          "type": "bool"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        }
+      ],
+      "name": "callAppAfterCallback",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint8",
+          "name": "appLevel",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowanceUsed",
+          "type": "uint256"
+        }
+      ],
+      "name": "ctxUpdate",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperAgreement",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "callAgreement",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "returnedData",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        }
+      ],
+      "name": "callAppAction",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "returnedData",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "enum ISuperfluid.OperationType",
+              "name": "opType",
+              "type": "uint8"
+            },
+            {
+              "internalType": "address",
+              "name": "target",
+              "type": "address"
+            },
+            {
+              "internalType": "bytes",
+              "name": "data",
+              "type": "bytes"
+            }
+          ],
+          "internalType": "struct ISuperfluid.Operation[]",
+          "name": "operations",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "batchCall",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperAgreement",
+          "name": "agreementClass",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        }
+      ],
+      "name": "callAgreementWithContext",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "returnedData",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "contract ISuperApp",
+          "name": "app",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "data",
+          "type": "bytes"
+        },
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        }
+      ],
+      "name": "callAppActionWithContext",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        },
+        {
+          "internalType": "uint256",
+          "name": "fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "chargeGasFee",
+      "outputs": [
+        {
+          "internalType": "bytes",
+          "name": "newCtx",
+          "type": "bytes"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes",
+          "name": "ctx",
+          "type": "bytes"
+        }
+      ],
+      "name": "decodeCtx",
+      "outputs": [
+        {
+          "internalType": "bytes4",
+          "name": "agreementSelector",
+          "type": "bytes4"
+        },
+        {
+          "internalType": "uint8",
+          "name": "appLevel",
+          "type": "uint8"
+        },
+        {
+          "internalType": "address",
+          "name": "msgSender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowance",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "allowanceUsed",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.1+commit.f4a555be\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"info\",\"type\":\"uint256\"}],\"name\":\"Jail\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"targetApp\",\"type\":\"address\"}],\"name\":\"allowCompositeApp\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"enum ISuperfluid.OperationType\",\"name\":\"opType\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"target\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"internalType\":\"struct ISuperfluid.Operation[]\",\"name\":\"operations\",\"type\":\"tuple[]\"}],\"name\":\"batchCall\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperAgreement\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"callAgreement\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"returnedData\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperAgreement\",\"name\":\"agreementClass\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"}],\"name\":\"callAgreementWithContext\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"returnedData\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"}],\"name\":\"callAppAction\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"returnedData\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"}],\"name\":\"callAppActionWithContext\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"bool\",\"name\":\"isTermination\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"}],\"name\":\"callAppAfterCallback\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"data\",\"type\":\"bytes\"},{\"internalType\":\"bool\",\"name\":\"isTermination\",\"type\":\"bool\"},{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"}],\"name\":\"callAppBeforeCallback\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"},{\"internalType\":\"bytes\",\"name\":\"cbdata\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"uint256\",\"name\":\"fee\",\"type\":\"uint256\"}],\"name\":\"chargeGasFee\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"underlyingToken\",\"type\":\"address\"},{\"internalType\":\"uint8\",\"name\":\"underlyingDecimals\",\"type\":\"uint8\"},{\"internalType\":\"string\",\"name\":\"name\",\"type\":\"string\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"name\":\"createERC20Wrapper\",\"outputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"},{\"internalType\":\"uint8\",\"name\":\"appLevel\",\"type\":\"uint8\"},{\"internalType\":\"uint256\",\"name\":\"allowance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"allowanceUsed\",\"type\":\"uint256\"}],\"name\":\"ctxUpdate\",\"outputs\":[{\"internalType\":\"bytes\",\"name\":\"newCtx\",\"type\":\"bytes\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes\",\"name\":\"ctx\",\"type\":\"bytes\"}],\"name\":\"decodeCtx\",\"outputs\":[{\"internalType\":\"bytes4\",\"name\":\"agreementSelector\",\"type\":\"bytes4\"},{\"internalType\":\"uint8\",\"name\":\"appLevel\",\"type\":\"uint8\"},{\"internalType\":\"address\",\"name\":\"msgSender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"allowance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"allowanceUsed\",\"type\":\"uint256\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"}],\"name\":\"getAppLevel\",\"outputs\":[{\"internalType\":\"uint8\",\"name\":\"appLevel\",\"type\":\"uint8\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"}],\"name\":\"getAppManifest\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"exist\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"configWord\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract IERC20\",\"name\":\"underlyingToken\",\"type\":\"address\"},{\"internalType\":\"string\",\"name\":\"symbol\",\"type\":\"string\"}],\"name\":\"getERC20Wrapper\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"wrapperAddress\",\"type\":\"address\"},{\"internalType\":\"bool\",\"name\":\"created\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getGovernance\",\"outputs\":[{\"internalType\":\"contract ISuperfluidGovernance\",\"name\":\"governance\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"getSuperTokenLogic\",\"outputs\":[{\"internalType\":\"contract ISuperToken\",\"name\":\"superToken\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"}],\"name\":\"isApp\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"}],\"name\":\"isAppJailed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isJail\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"contract ISuperApp\",\"name\":\"app\",\"type\":\"address\"},{\"internalType\":\"contract ISuperApp\",\"name\":\"targetApp\",\"type\":\"address\"}],\"name\":\"isCompositeAppAllowed\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isAppAllowed\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"configWord\",\"type\":\"uint256\"}],\"name\":\"registerApp\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"author\":\"Superfluid\",\"details\":\"Superfluid host interface. It is the central contract of the system where super agreement, super app and super token features are connected together. The superfluid host contract is also the entry point for the protocol users, where batch call and meta transaction are provided for UX improvements.\",\"kind\":\"dev\",\"methods\":{\"allowCompositeApp(address)\":{\"details\":\"White-list the target app for app composition for the source app (msg.sender)\",\"params\":{\"targetApp\":\"The taget super app address\"}},\"batchCall((uint8,address,bytes)[])\":{\"details\":\"Batch call function.\",\"params\":{\"operations\":\"Array of batch operations.\"}},\"callAgreement(address,bytes)\":{\"details\":\"Call agreement function\",\"params\":{\"data\":\"The contextual call data. NOTE: The contextual call data should be generated using abi.encodeWithSelector. The context parameter should be set to \\\"0x\\\", an empty bytes array as a placeholder to be replaced by the host contract.\"}},\"callAppAction(address,bytes)\":{\"details\":\"Call agreement function\",\"params\":{\"data\":\"The contextual call data. NOTE: See callAgreement about contextual call data.\"}},\"getAppLevel(address)\":{\"details\":\"Query app level\",\"params\":{\"app\":\"Super app address\"}},\"getAppManifest(address)\":{\"details\":\"Get the manifest of the super app\",\"params\":{\"app\":\"Super app address\"}},\"getERC20Wrapper(address,string)\":{\"details\":\"Query the token wrapper.\",\"params\":{\"symbol\":\"The super token symbol. NOTE: Deterministic address is generated based on the input.\",\"underlyingToken\":\"The underlrying token to wrap.\"}},\"isApp(address)\":{\"details\":\"Query if the app is registered\",\"params\":{\"app\":\"Super app address\"}},\"isAppJailed(address)\":{\"details\":\"Query if the app has been jailed\",\"params\":{\"app\":\"Super app address\"}},\"isCompositeAppAllowed(address,address)\":{\"details\":\"Query if source app  is allowed to call the target app as downstream app.\",\"params\":{\"app\":\"Super app address\",\"targetApp\":\"The taget super app address\"}},\"registerApp(uint256)\":{\"details\":\"Message sender declares it as a super app\",\"params\":{\"configWord\":\"The super app manifest configuration, flags are defined in                   `SuperAppDefinitions`\"}}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluid.sol\":\"ISuperfluid\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperAgreement.sol\":{\"keccak256\":\"0x1515ee00700f5ae5cece8dda6d62e0c12056176dc2c41933487ba11b8aaa743b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://f0840cdf8e3c6545b76b60c205c03abc011b8ede8256c5d5a65476de4584a5f5\",\"dweb:/ipfs/Qmf6JcWedy2BxmzN5xFJ86SwfxGEX81Ac3Rza8NdqWj19H\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperApp.sol\":{\"keccak256\":\"0x8a71d633e698727749295ee6abaf6c37fa42f1b77b2d222d1a4eaffa208c8c49\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://47a2af58bed4fbffc85650b99d913105ca8988962ace76153dedd00d4bc3ca8a\",\"dweb:/ipfs/QmPZ5vHgUaUADJFVN6LnFzQgh28UzK1Lt7F6cFDTcWBE8W\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperToken.sol\":{\"keccak256\":\"0xd30f1588320e14a4834520749d9a625f3593aadddd0d1724ab6365915003ccf3\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://92077b3a9d6ab82c64f672bb33b95a92e699069f4b1955fb0fab6104364789a5\",\"dweb:/ipfs/QmZ49sPQpxn9LKj3i2w8VEcc1oBfUUu656QuB1SY6mo5NF\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluid.sol\":{\"keccak256\":\"0xf42f2e194f917c020c2e4d099bae76697957cd7f68e27afd1dcde0c87c0bf6d2\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://c0f785af02fb3950ae45171dd3eb729c0674f6bb451696e0786b481da5b844e2\",\"dweb:/ipfs/QmR9EgrVS9VZhB67zfpub8CMxbYQvhn7JTnjRYWEciMKPe\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/ISuperfluidGovernance.sol\":{\"keccak256\":\"0xf1fc334274dc956d0508ab5d3037979de789e9e858ecc346b87cdec472d7261b\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://950a5fd2942ee58611ea24bbe23d0e6cbb83f6e5c32384134c85f179c373dbb1\",\"dweb:/ipfs/QmdcZkqVuxTu5C5NhpbSXYunUDkZbcs8NMxBW1EYtThAtY\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/superfluid/SuperAppDefinitions.sol\":{\"keccak256\":\"0x1a5356278b5f0f2100e7d3db525a9c20d303cc0de571e53123cb7fd9485e9bfb\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://4bee42a2ce61d07d84b18c36e1683d1f0a713883caa41698282aa3d64a876ae2\",\"dweb:/ipfs/QmXmnuEpXunMGYBZhraHa2bLit4dNqhnhfD6cQ1w6zucmB\"]},\"/home/hellwolf/Projects/superfluid/superfluid-protocol-preview/ethereum-contracts-v0.1/contracts/interfaces/tokens/TokenInfo.sol\":{\"keccak256\":\"0xa60ff361f5c525b21081288ebee8ed4d68f8b5b8e86d8138198d046141fba35c\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://7e3239450da65109f576d28fc11cb0df7ce7aa8a41566a5f0ef97a7c8a1f3a55\",\"dweb:/ipfs/QmQcjb6dNQELxPWq12x21Cd18TbYszPNxFMXxYpXGC1Wi8\"]},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"keccak256\":\"0xbd74f587ab9b9711801baf667db1426e4a03fd2d7f15af33e0e0d0394e7cef76\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2d0913dfbfce90d170df0d496ad7596c0778518e5fa7aba6c32562522546f66b\",\"dweb:/ipfs/QmR6B8nLj2PJf5e1JWD9Nk7ErkAwkqUwadCnvE82FJr1RU\"]},\"@openzeppelin/contracts/token/ERC777/IERC777.sol\":{\"keccak256\":\"0x66622d89fb8f57aa1c09f69b1088d242aa92ceba96462854396ddb724e71849f\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://abb0340421d8a39de72aa4679351f2eba6eee62f4ccfaa649852431f5d361165\",\"dweb:/ipfs/QmULDf3ot52Qd1s5LDjD11bGFCM8f212KTmazvvaT64Uk4\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.1+commit.f4a555be.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.2.5",
+  "devdoc": {
+    "author": "Superfluid",
+    "details": "Superfluid host interface. It is the central contract of the system where super agreement, super app and super token features are connected together. The superfluid host contract is also the entry point for the protocol users, where batch call and meta transaction are provided for UX improvements.",
+    "kind": "dev",
+    "methods": {
+      "allowCompositeApp(address)": {
+        "details": "White-list the target app for app composition for the source app (msg.sender)",
+        "params": {
+          "targetApp": "The taget super app address"
+        }
+      },
+      "batchCall((uint8,address,bytes)[])": {
+        "details": "Batch call function.",
+        "params": {
+          "operations": "Array of batch operations."
+        }
+      },
+      "callAgreement(address,bytes)": {
+        "details": "Call agreement function",
+        "params": {
+          "data": "The contextual call data. NOTE: The contextual call data should be generated using abi.encodeWithSelector. The context parameter should be set to \"0x\", an empty bytes array as a placeholder to be replaced by the host contract."
+        }
+      },
+      "callAppAction(address,bytes)": {
+        "details": "Call agreement function",
+        "params": {
+          "data": "The contextual call data. NOTE: See callAgreement about contextual call data."
+        }
+      },
+      "getAppLevel(address)": {
+        "details": "Query app level",
+        "params": {
+          "app": "Super app address"
+        }
+      },
+      "getAppManifest(address)": {
+        "details": "Get the manifest of the super app",
+        "params": {
+          "app": "Super app address"
+        }
+      },
+      "getERC20Wrapper(address,string)": {
+        "details": "Query the token wrapper.",
+        "params": {
+          "symbol": "The super token symbol. NOTE: Deterministic address is generated based on the input.",
+          "underlyingToken": "The underlrying token to wrap."
+        }
+      },
+      "isApp(address)": {
+        "details": "Query if the app is registered",
+        "params": {
+          "app": "Super app address"
+        }
+      },
+      "isAppJailed(address)": {
+        "details": "Query if the app has been jailed",
+        "params": {
+          "app": "Super app address"
+        }
+      },
+      "isCompositeAppAllowed(address,address)": {
+        "details": "Query if source app  is allowed to call the target app as downstream app.",
+        "params": {
+          "app": "Super app address",
+          "targetApp": "The taget super app address"
+        }
+      },
+      "registerApp(uint256)": {
+        "details": "Message sender declares it as a super app",
+        "params": {
+          "configWord": "The super app manifest configuration, flags are defined in                   `SuperAppDefinitions`"
+        }
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
