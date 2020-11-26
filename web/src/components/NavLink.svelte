@@ -17,18 +17,14 @@
 
 {#if active}
   <li class="-mb-px mr-1">
-    <Link
-      class="bg-white dark:bg-black inline-block border-l border-t border-r rounded-t py-2 px-4 border-indigo-600
-        text-indigo-600 font-semibold"
-      {name}
-      {params}>
+    <Link class="px-4 py-2 rounded-md inline-block text-sm font-medium text-white bg-gray-900" {name} {params}>
       <slot />
     </Link>
   </li>
 {:else}
   <li class="-mb-px mr-1">
     <Link
-      class="bg-white dark:bg-black inline-block py-2 px-4 border-indigo-600 text-indigo-600 font-semibold"
+      class="px-4 py-2 inline-block rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700"
       {name}
       {params}>
       <slot />

@@ -6,13 +6,14 @@
 </script>
 
 <nav class="top-0 fixed z-50 w-full flex flex-wrap items-center justify-between navbar-expand-lg bg-white shadow">
-  <ul class="flex m-1 border-b border-indigo-600">
+  <ul class="flex m-2">
     {#each links as link}
       <NavLink name={typeof link === 'string' ? link : link.name}>
         {typeof link === 'string' ? link : link.title}
       </NavLink>
     {/each}
   </ul>
+
   <ul class="flex flex-col lg:flex-row list-none lg:ml-auto">
     <li class="flex items-center">
       <a
@@ -20,7 +21,6 @@
         href="https://twitter.com/creaton_io"
         target="_blank">
         <i class="text-gray-500 fab fa-twitter text-lg leading-lg" />
-        <span class="lg:hidden inline-block ml-2">Twitter</span>
       </a>
     </li>
 
@@ -30,7 +30,6 @@
         href="https://github.com/creaton-io/creaton?ref=homepage"
         target="_blank">
         <i class="text-gray-500 fab fa-github text-lg leading-lg" />
-        <span class="lg:hidden inline-block ml-2">Github</span>
       </a>
     </li>
 
@@ -40,7 +39,6 @@
         href="https://medium.com/creaton"
         target="_blank">
         <i class="text-gray-500 fab fa-medium-m text-lg leading-lg" />
-        <span class="lg:hidden inline-block ml-2">Blog</span>
       </a>
     </li>
 
@@ -50,7 +48,6 @@
         href="https://creaton.on.fleek.co"
         target="_blank">
         <i class="text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
-        <span class="lg:hidden inline-block ml-2">Telegram</span>
       </a>
     </li>
 
@@ -62,12 +59,5 @@
         Connect Wallet
       </button>
     </li>
-    <Button
-      class="w-max-content m-4"
-      label="connect via builtin wallet"
-      disabled={!$builtin.available || $wallet.connecting}
-      on:click={() => flow.connect('builtin')}>
-      builtin
-    </Button>
   </ul>
 </nav>
