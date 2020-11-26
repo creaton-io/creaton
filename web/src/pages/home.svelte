@@ -49,13 +49,13 @@
     <section class="pb-20 bg-gradient-to-r from-indigo-200 to-indigo-100 -mt-24">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
-          <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-l-full">
+          <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
+            <div
+              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-l-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-red-400">
-                  ▶️
-                  <i class="fas fa-award" />
+                  <i class="fas fa-play" />
                 </div>
                 <h6 class="text-xl font-semibold">Support Creators</h6>
                 <p class="mt-2 mb-4 text-gray-600">
@@ -66,12 +66,12 @@
           </div>
 
           <div class="w-full md:w-4/12 px-4 text-center">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-full">
+            <div
+              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-t-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-green-400">
-                  💵
-                  <i class="fas fa-retweet" />
+                  <i class="fas fa-dollar-sign" />
                 </div>
                 <h6 class="text-xl font-semibold">Fund Your Creating</h6>
                 <p class="mt-2 mb-4 text-gray-600">
@@ -79,20 +79,31 @@
                 </p>
               </div>
             </div>
+            <div
+              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-b-3xl border-indigo-500 border-2">
+              <div class="px-4 py-5 flex-auto">
+                <div
+                  class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-green-400">
+                  <i class="fas fa-tractor" />
+                </div>
+                <h6 class="text-xl font-semibold">Farm CREATE</h6>
+                <p class="mt-2 mb-4 text-gray-600">Earn rewards for farming CREATE token, our burning utility token</p>
+              </div>
+            </div>
           </div>
 
-          <div class="pt-6 w-full md:w-4/12 px-4 text-center">
-            <div class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-r-full">
+          <div class="pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
+            <div
+              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-r-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-blue-400">
-                  📈
-                  <i class="fas fa-fingerprint" />
+                  <i class="fas fa-hands-helping" />
                 </div>
                 <h6 class="text-xl font-semibold">Invest In Creators</h6>
                 <p class="mt-2 mb-4 text-gray-600">
-                  Kickstart creator careers by investing in creator tokens, receive a % of the profit with the % of
-                  tokens you own
+                  Kickstart creator careers by investing in creatonks (creator tokens), receive a % of the profit with
+                  the % of creatonks you farm
                 </p>
               </div>
             </div>
