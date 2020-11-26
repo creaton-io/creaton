@@ -24,7 +24,7 @@
 {:else}
   <li class="-mb-px mr-1">
     <Link
-      class="px-4 py-2 inline-block rounded-md text-sm font-medium text-gray-300 hover:text-white hover:bg-gray-700"
+      class="px-4 py-2 inline-block rounded-md text-sm font-medium text-gray-700 hover:text-white hover:bg-gray-700"
       {name}
       {params}>
       <slot />
