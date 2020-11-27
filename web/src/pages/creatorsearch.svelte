@@ -13,7 +13,7 @@
 
   let creatorContract;
   let superAppContract;
-  let contractAddress;
+  let contractAddress = ''; //TODO make this work with input
   let creator;
   let title;
   let avatarURL;
@@ -34,16 +34,14 @@
   //TODO: try this with hardhat
   //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
 
-  //if (typeof window !== 'undefined') {
-  //  contractAddress = window.location.pathname.split('/')[2];
-  //}
+  if (typeof window !== 'undefined') {
+    contractAddress = window.location.pathname.split('/')[2];
+    console.log('contractaddress', contractAddress);
+  }
 
   onMount(async () => {
     if (wallet.provider) {
-      console.log('does creator work');
       loadCreatorData();
-      console.log('does superfluid work');
-      loadSuperFluid();
     } else {
       flow.execute(async () => {
         loadCreatorData();
@@ -88,12 +86,12 @@
         [
           0, // approve collateral fee
           daix.address,
-          sf.interface._encodeParams(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
         ],
         [
           5, // callAppAction to collateral
           app.address,
-          sf.interface.encodeFunctionData('collateral', ['0x']),
+          sf.interfaceCollateral.encodeFunctionData('collateral', ['0x']),
         ],
         [
           4, // create constant flow (10/mo)
@@ -119,12 +117,9 @@
     await sf.initialize();
 
     const daiAddress = await sf.resolver.get('tokens.fDAI');
-    console.log('fDAI address', daiAddress);
     dai = new Contract(daiAddress, SuperfluidABI.TestToken, wallet.provider.getSigner());
     const daixWrapper = await sf.getERC20Wrapper(dai);
-    //this.host = new Contract(superfluidAddress, SuperfluidABI.ISuperfluid, wallet.provider.getSigner());
-    console.log('daixwrapper address', daixWrapper);
-    daix = new Contract(daixWrapper.wrapperAddress, SuperfluidABI.ISuperToken, wallet.provider.getSigner());
+    daix = daixWrapper;
     app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
   }
 
@@ -177,9 +172,7 @@
 
   async function searchCreator() {
     if (wallet.provider) {
-      console.log('does creator work');
       loadCreatorData();
-      console.log('does superfluid work');
       loadSuperFluid();
     } else {
       flow.execute(async () => {
