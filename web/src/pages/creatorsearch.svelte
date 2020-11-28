@@ -10,6 +10,7 @@
   import {SuperfluidSDK} from '../js-sdk/Framework';
   import {parseEther} from '@ethersproject/units';
   import {JsonRpcSigner} from '@ethersproject/providers';
+  import SearchBackground from '../components/SearchBackground.svelte';
 
   let creatorContract;
   let superAppContract;
@@ -33,6 +34,14 @@
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
   //TODO: try this with hardhat
   //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
+
+  const FetchState = Object.freeze({
+    idle: 1,
+    loading: 2,
+    succeeded: 3,
+    failed: 4,
+  });
+  let fetchStatus = FetchState.idle;
 
   if (typeof window !== 'undefined') {
     contractAddress = window.location.pathname.split('/')[2];
@@ -157,6 +166,7 @@
     } else {
       subscriptionStatus = 'UNSUBSCRIBED';
     }
+    fetchStatus = FetchState.succeeded;
   }
 
   async function handleSubscribe() {
@@ -172,6 +182,7 @@
 
   async function searchCreator() {
     if (wallet.provider) {
+      fetchStatus = FetchState.loading;
       loadCreatorData();
       loadSuperFluid();
     } else {
@@ -183,33 +194,41 @@
 </script>
 
 <WalletAccess>
-  <section class="py-8 px-4 text-center max-w-md mx-auto">
-    <form class="content flex flex-col max-w-lg mx-auto" on:submit|preventDefault={searchCreator}>
-      <div class="field-row">
-        <label for="name">search:</label>
-        <Input type="text" placeholder="Search Address" className="field" bind:value={contractAddress} />
-      </div>
-      <button class="mt-6" type="submit">Search!</button>
-    </form>
-    {#if !creator || !title || !avatarURL || !subscriptionPrice}
-      <div>Fetching creator...</div>
-    {:else}
-      <h3 class="text-4xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{title}</h3>
-      <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
-      <img class="w-full" src={avatarURL} alt={title} />
-      {#if subscriptionStatus === 'UNSUBSCRIBED'}
-        <Button class="mt-3" on:click={support}>Subscribe - ${subscriptionPrice}</Button>
-      {:else}
-        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">
-          {#if subscriptionStatus === 'PENDING'}
-            Subscription pending...
-          {:else}Subscription balance: ${currentBalance}{/if}
-        </p>
-      {/if}
-      <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">DAI Balance: ${daiBalance}</p>
-      <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Approved DAI Balance: ${daiApproved}</p>
-      <Button class="mt-3" on:click={mintDAI}>mint 100 dai</Button>
-      <Button class="mt-3" on:click={approveDAI}>approve a lot of dai</Button>
+  <form class="content flex mx-auto my-5 flex justify-center" on:submit|preventDefault={searchCreator}>
+    <div class="field-row">
+      <Input type="text" placeholder="Search Address" className="field" bind:value={contractAddress} />
+    </div>
+    <div class="ml-5 p-1 bg-indigo-600 text-white rounded-md px-3"><button type="submit">Search!</button></div>
+  </form>
+  <SearchBackground>
+    {#if fetchStatus == FetchState.loading}
+      <section class="relative bottom-40 bg-white rounded-lg shadow mb-6 mx-auto">
+        <div class="py-8 px-4 text-center max-w-md mx-auto z-10">Fetching creator...</div>
+      </section>
+    {:else if fetchStatus == FetchState.succeeded}
+      <section class="relative bottom-40 bg-white rounded-lg shadow mb-6 mx-auto">
+        <div class="py-8 px-4 text-center max-w-md mx-auto z-10">
+          <div class="relative bottom-20">
+            <img class="rounded-full h-24 mx-auto mb-4" src={avatarURL} alt={title} />
+            <h5 class="text-2xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{title}</h5>
+            <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
+
+            {#if subscriptionStatus === 'UNSUBSCRIBED'}
+              <Button class="mt-3" on:click={support}>Subscribe - ${subscriptionPrice}</Button>
+            {:else}
+              <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">
+                {#if subscriptionStatus === 'PENDING'}
+                  Subscription pending...
+                {:else}Subscription balance: ${currentBalance}{/if}
+              </p>
+            {/if}
+            <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">DAI Balance: ${daiBalance}</p>
+            <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Approved DAI Balance: ${daiApproved}</p>
+            <Button class="mt-3" on:click={mintDAI}>mint 100 dai</Button>
+            <Button class="mt-3" on:click={approveDAI}>approve a lot of dai</Button>
+          </div>
+        </div>
+      </section>
     {/if}
-  </section>
+  </SearchBackground>
 </WalletAccess>

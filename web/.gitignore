@@ -12,3 +12,5 @@ src/contracts.json
 index.html
 public/pwa/
 public/robots.txt
+
+*.swp
