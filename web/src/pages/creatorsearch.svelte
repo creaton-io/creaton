@@ -184,12 +184,12 @@
 
 <WalletAccess>
   <section class="py-8 px-4 text-center max-w-md mx-auto">
-    <form class="content flex flex-col max-w-lg mx-auto">
+    <form class="content flex flex-col max-w-lg mx-auto" on:submit|preventDefault={searchCreator}>
       <div class="field-row">
         <label for="name">search:</label>
         <Input type="text" placeholder="Search Address" className="field" bind:value={contractAddress} />
       </div>
-      <button class="mt-6" type="button" on:click={searchCreator}>Search!</button>
+      <button class="mt-6" type="submit">Search!</button>
     </form>
     {#if !creator || !title || !avatarURL || !subscriptionPrice}
       <div>Fetching creator...</div>
