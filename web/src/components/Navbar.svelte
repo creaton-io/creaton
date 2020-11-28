@@ -16,6 +16,12 @@
   </ul>
 
   <ul class="flex flex-row list-none lg:ml-auto">
+    <li class="-mb-px mr-1">
+      <a
+        class="px-4 py-3 inline-block rounded-md text-sm font-medium text-gray-700 hover:text-white hover:bg-gray-700"
+        href="/pitchdeck/"><i class="text-gray-500 fas fa-file-powerpoint text-lg leading-lg mr-2" />Pitch Deck
+      </a>
+    </li>
     <li class="flex items-center">
       <a
         class="hover:text-gray-600 text-gray-800 px-3 py-2 flex items-center text-xs uppercase font-bold"

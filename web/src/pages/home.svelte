@@ -80,7 +80,7 @@
                 alt="..."
                 src="https://i.imgur.com/cHC8Uqs.png"
                 class="shadow-xl rounded-l-full  max-w-150-px text-white text-sm font-bold leading-relaxed inline-block whitespace-no-wrap uppercase" />
-              <p class="mt-4 text-lg text-gray-300">Decentralized Content Sharing Platform</p>
+              <p class="mt-4 text-lg dark:text-gray-300 text-gray-300">Decentralized Content Sharing Platform</p>
             </div>
           </div>
         </div>
@@ -101,19 +101,19 @@
       </div>
     </div>
 
-    <section class="pb-20 bg-gradient-to-r from-indigo-200 to-indigo-100 -mt-24">
+    <section class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-r light:from-indigo-200 light:to-indigo-100 -mt-24">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
             <div
-              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-l-3xl border-indigo-500 border-2">
+              class="relative flex flex-col min-w-0 break-words dark:bg-cool-gray-900 bg-white w-full mb-8 shadow-lg rounded-l-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-red-400">
                   <i class="fas fa-play" />
                 </div>
                 <h6 class="text-xl font-semibold">Support Creators</h6>
-                <p class="mt-2 mb-4 text-gray-600">
+                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
                   Get exclusive content from creators through a stablecoin streaming subscription
                 </p>
               </div>
@@ -122,41 +122,43 @@
 
           <div class="w-full md:w-4/12 px-4 text-center">
             <div
-              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-t-3xl border-indigo-500 border-2">
+              class="relative flex flex-col min-w-0 break-words dark:bg-cool-gray-900 bg-white w-full mb-8 shadow-lg rounded-t-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-green-400">
                   <i class="fas fa-dollar-sign" />
                 </div>
                 <h6 class="text-xl font-semibold">Fund Your Creating</h6>
-                <p class="mt-2 mb-4 text-gray-600">
+                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
                   Earn money by creating content for subscribers, with investors betting on your success
                 </p>
               </div>
             </div>
             <div
-              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-b-3xl border-indigo-500 border-2">
+              class="relative flex flex-col min-w-0 break-words dark:bg-cool-gray-900 bg-white w-full mb-8 shadow-lg rounded-b-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-green-400">
                   <i class="fas fa-tractor" />
                 </div>
                 <h6 class="text-xl font-semibold">Farm CREATE</h6>
-                <p class="mt-2 mb-4 text-gray-600">Earn rewards for farming CREATE token, our burning utility token</p>
+                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
+                  Earn rewards for farming CREATE token, our burning utility token
+                </p>
               </div>
             </div>
           </div>
 
           <div class="pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
             <div
-              class="relative flex flex-col min-w-0 break-words bg-white w-full mb-8 shadow-lg rounded-r-3xl border-indigo-500 border-2">
+              class="relative flex flex-col min-w-0 break-words dark:bg-cool-gray-900 bg-white w-full mb-8 shadow-lg rounded-r-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
                 <div
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-blue-400">
                   <i class="fas fa-hands-helping" />
                 </div>
                 <h6 class="text-xl font-semibold">Invest In Creators</h6>
-                <p class="mt-2 mb-4 text-gray-600">
+                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
                   Kickstart creator careers by investing in creatonks (creator tokens), receive a % of the profit with
                   the % of creatonks you farm
                 </p>
@@ -178,11 +180,11 @@
   </main>
 </div>
 
-<section class="py-8 px-4 text-center">
+<section class="py-8 px-4 text-center dark:bg-cool-gray-900">
   <div class="max-w-auto md:max-w-lg mx-auto mt-4 mb-10">
     <h1 class="text-indigo-600 font-bold text-6xl mb-2 font-heading">{name}</h1>
   </div>
-  <div class="py-4 dark:bg-black bg-white">
+  <div class="py-4 dark:bg-cool-gray-900 bg-white">
     <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {#if !$creators.state}
@@ -201,37 +203,37 @@
   </div>
 </section>
 
-<section class="pt-20 pb-48">
+<section class="pt-20 pb-10">
   <div class="container mx-auto px-4">
     <div class="flex flex-wrap text-center">
       <div class="w-full px-4">
         <h4 class="text-3xl font-semibold">Keep updated on our progress!</h4>
         <SignUp />
-        <h5 class="text-lg mt-0 mb-2 text-gray-700">Find us on any of these platforms.</h5>
+        <h5 class="text-lg mt-0 mb-2 dark:text-gray-300 text-gray-700">Find us on any of these platforms.</h5>
         <div class="mt-6 lg:mb-0 mb-6">
           <a
             class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
             href="https://twitter.com/creaton_io"
             target="_blank">
-            <i class="text-gray-500 fab fa-twitter text-lg leading-lg" />
+            <i class="dark:text-gray-300 text-gray-500 fab fa-twitter text-lg leading-lg" />
           </a>
           <a
             class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
             href="https://github.com/creaton-io/creaton?ref=homepage"
             target="_blank">
-            <i class="text-gray-500 fab fa-github text-lg leading-lg" />
+            <i class="dark:text-gray-300 text-gray-500 fab fa-github text-lg leading-lg" />
           </a>
           <a
             class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
             href="https://medium.com/creaton"
             target="_blank">
-            <i class="text-gray-500 fab fa-medium-m text-lg leading-lg" />
+            <i class="dark:text-gray-300 text-gray-500 fab fa-medium-m text-lg leading-lg" />
           </a>
           <a
             class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
             href="https://creaton.on.fleek.co"
             target="_blank">
-            <i class="text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
+            <i class="dark:text-gray-300 text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
           </a>
         </div>
       </div>

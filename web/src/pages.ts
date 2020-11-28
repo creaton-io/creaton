@@ -28,14 +28,14 @@ export default [
     asyncComponent: (): Promise<ComponentModule> => import('./pages/upload.svelte'),
   },
   {
-    name: 'NotFound',
-    path: '.*',
-    asyncComponent: (): Promise<ComponentModule> => import('./pages/notfound.svelte'),
-  },
-  {
     name: 'Creator Search',
     path: 'creator',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/creatorsearch.svelte'),
+  },
+  {
+    name: 'Pitch Deck',
+    path: 'pitchdeck',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/pitchdeck.svelte'),
   },
   {
     name: 'Creator Search Link',
@@ -46,5 +46,10 @@ export default [
     name: 'Upload',
     path: 'upload',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/my-contracts.svelte'),
+  },
+  {
+    name: 'NotFound',
+    path: '.*',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/notfound.svelte'),
   },
 ];
