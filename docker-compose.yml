@@ -1,7 +1,7 @@
 version: '3'
 services:
   graph-node:
-    image: graphprotocol/graph-node:v0.18.0
+    image: graphprotocol/graph-node:latest
     ports:
       - '8000:8000'
       - '8001:8001'
@@ -38,7 +38,7 @@ services:
       POSTGRES_DB: graph-node
       PGDATA: /tmp
   ethereum:
-    image: trufflesuite/ganache-cli:v6.9.1
+    image: trufflesuite/ganache-cli:v6.12.1
     ports:
       - '8545:8545'
     entrypoint:

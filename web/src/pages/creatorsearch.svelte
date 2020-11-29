@@ -100,7 +100,7 @@
         [
           5, // callAppAction to collateral
           app.address,
-          sf.interfaceCollateral.encodeFunctionData('collateral', ['0x']),
+          sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']),
         ],
         [
           4, // create constant flow (10/mo)

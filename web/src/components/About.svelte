@@ -14,9 +14,7 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-xl font-bold">Alexander Klus</h5>
-            <p class="mt-1 text-sm dark:text-gray-100 text-gray-500 uppercase font-semibold">
-              Founder and Blockchain Developer
-            </p>
+            <p class="mt-1 text-sm dark:text-gray-100 text-gray-500 uppercase font-semibold">Blockchain Dev</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
@@ -67,7 +65,7 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-xl font-bold">Steven Le</h5>
-            <p class="mt-1 text-sm dark:text-gray-100 text-gray-500 uppercase font-semibold">Full-stack developer</p>
+            <p class="mt-1 text-sm dark:text-gray-100 text-gray-500 uppercase font-semibold">Full-stack Dev</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
@@ -82,7 +80,7 @@
         </div>
       </div>
     </div>
-    <div class="flex flex-wrap justify-center text-center mb-6 mt-12">
+    <div class="flex flex-wrap justify-center text-center mb-6 mt-12 border-t">
       <div class="w-full lg:w-6/12 px-4">
         <h2 class="text-4xl font-semibold">Advisors</h2>
       </div>
