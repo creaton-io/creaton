@@ -135,51 +135,6 @@
   creators.fetch();
 </script>
 
-<style>
-  path {
-    fill: white;
-    opacity: 1;
-  }
-
-  label {
-    position: absolute;
-    top: 1em;
-    left: 1em;
-  }
-
-  .centered {
-    font-size: 20vw;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Overpass';
-    letter-spacing: 0.12em;
-    color: #676778;
-    font-weight: 400;
-  }
-
-  .centered span {
-    will-change: filter;
-  }
-
-  canvas {
-    display: block;
-    vertical-align: bottom;
-  }
-  /* ---- tsparticles container ---- */
-  #tsparticles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-color: #323031;
-    background-image: url('');
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: 50% 50%;
-  }
-</style>
-
 <div class="bg-indigo-600">
   <div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between flex-wrap">
@@ -219,7 +174,7 @@
           <span class="sr-only">Dismiss</span>
           <!-- Heroicon name: x -->
           <svg
-            class="h-6 w-6 text-white"
+            class="h-6 w-6 text-red"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
@@ -287,7 +242,8 @@
       </div>
     </div>
 
-    <section class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-r light:from-indigo-200 light:to-indigo-100 -mt-24">
+    <section
+      class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-b light:from-green-300 light:via-indigo-200 light:to-yellow-100 -mt-24">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
@@ -298,10 +254,8 @@
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-red-400">
                   <i class="fas fa-play" />
                 </div>
-                <h6 class="text-xl font-semibold">Support Creators</h6>
-                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
-                  Get exclusive content from creators through a stablecoin streaming subscription
-                </p>
+                <h6 class="text-xl font-semibold">Get rewarded for farming</h6>
+                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">By</p>
               </div>
             </div>
           </div>
@@ -358,18 +312,17 @@
             <img alt="..." src="https://i.imgur.com/IM7pQmM.jpg" class="w-full align-middle rounded-lg" />
           </div>
         </div>
-
-        <About />
       </div>
     </section>
+    <About />
   </main>
 </div>
 
-<section class="py-8 px-4 text-center dark:bg-cool-gray-900">
+<section class="py-8 px-4 text-center bg-gradient-to-t from-teal-100 to-green-100">
   <div class="max-w-auto md:max-w-lg mx-auto mt-4 mb-10">
     <h1 class="text-indigo-600 font-bold text-6xl mb-2 font-heading">{name}</h1>
   </div>
-  <div class="py-4 dark:bg-cool-gray-900 bg-white">
+  <div class="py-4">
     <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
         {#if !$creators.state}
@@ -389,6 +342,28 @@
 </section>
 
 <section class="pt-20 pb-10">
+  <div class="container px-4 mx-auto w-3/6 mb-24">
+    <h2 class="text-5xl font-semibold text-center">Technologies</h2>
+    <div class="flex flex-wrap items-center">
+      <div class="w-full px-4 flex-1">
+        <div class="w-full px-8 flex-1"><img alt="..." src="/images/nucypher.png" /></div>
+      </div>
+      <div class="w-full px-4 flex-1">
+        <div class="w-full px-8 flex-1 align-middle"><img alt="..." src="/images/ethereum.png" /></div>
+      </div>
+      <div class="w-full px-4 flex-1">
+        <div class="w-full px-8 flex-1"><img alt="..." src="/images/filecoin.png" /></div>
+      </div>
+    </div>
+    <div class="flex flex-wrap mt-12 items-center">
+      <div class="w-full px-4 flex-1">
+        <div class="w-full px-4 flex-1"><img alt="..." src="/images/superfluid.png" /></div>
+      </div>
+      <div class="w-full px-4 flex-1">
+        <div class="w-full px-4 flex-1"><img alt="..." src="/images/textile.png" /></div>
+      </div>
+    </div>
+  </div>
   <div class="container mx-auto px-4">
     <div class="flex flex-wrap text-center">
       <div class="w-full px-4">
