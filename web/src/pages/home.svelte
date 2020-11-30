@@ -7,11 +7,12 @@
   import {quintOut} from 'svelte/easing';
   import {fade, draw, fly} from 'svelte/transition';
   import {expand} from '../utils/custom-transitions.js';
+  import {onMount} from 'svelte';
   import 'pathseg';
 
   import Particles from 'svelte-particles';
 
-  let visible = true;
+  let visible = false;
 
   const inner = `M99.95 1.57L2.05 1.57L2.05 99.48L99.95 99.48L84.49 83.65L17.51 83.65L17.51 17.4L84.49 17.4L99.95 1.57Z`;
   const outer = `M31.33 64.18L56 77.86L80.68 64.18L80.68 36.83L56 23.16L31.33 36.83L31.33 64.18Z`;
@@ -117,6 +118,10 @@
       data: `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 636 636" xml:space="preserve"><defs><clipPath id="_clipPath_ufUKWNh03Q0ow8cg9bS2G9dNbT4C2wP3"><rect width="636" height="636"/></clipPath></defs><g><path d="M99.95 1.57L2.05 1.57L2.05 99.48L99.95 99.48L84.49 83.65L17.51 83.65L17.51 17.4L84.49 17.4L99.95 1.57Z M31.33 64.18L56 77.86L80.68 64.18L80.68 36.83L56 23.16L31.33 36.83L31.33 64.18Z M31.33 64.18L80.68 64.18L56 23.16 Z M31.33 36.83L80.68 36.83L56 77.86 Z M56 23.16L 56 77.86 M 31.33 64.18L80.68 36.83 M31.33 36.83L80.68 64.18 M99.95 1.57L17.51 17.4 M2.05 1.57L84.49 17.4 M17.51 83.65L2.05 99.48L84.49 83.65 M2.05 1.57L17.51 17.4 M17.51 83.65L99.95 99.48 M17.51 17.4L2.05 20.36L17.51 83.65L2.05 80.69L17.51 17.4"/></g></svg>`,
     },
   };
+
+  onMount(() => {
+    visible = true;
+  });
 
   let onParticlesLoaded = (event) => {
     const particlesContainer = event.detail.particles;
@@ -230,7 +235,7 @@
 
 <div>
   <main>
-    <Particles class="" options={particlesConfig} on:particlesLoaded={onParticlesLoaded} />
+    <!--<Particles class="hidden" options={particlesConfig} on:particlesLoaded={onParticlesLoaded} />-->
     <div class="relative pt-16 pb-32 flex content-center items-center justify-center min-h-screen-75">
       <div
         class="absolute top-0 w-full h-full bg-center bg-cover"
@@ -280,11 +285,10 @@
       </div>
     </div>
 
-    <section class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-r light:from-indigo-200 light:to-indigo-100 -mt-24s">
+    <section class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-r light:from-indigo-200 light:to-indigo-100 -mt-24">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
-            <label> <input type="checkbox" bind:checked={visible} /> toggle me </label>
             <div
               class="relative flex flex-col min-w-0 break-words dark:bg-cool-gray-900 bg-white w-full mb-8 shadow-lg rounded-l-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
