@@ -214,13 +214,11 @@
                   </g>
                 </svg>
                 <div
-                  class="-mt-10 lg:-mt-20 text-5xl lg:text-8xl dark:text-gray-300 text-green-400 text-center"
+                  class="-mt-8 lg:-mt-20 text-4xl lg:text-8xl text-green-400 text-center"
                   out:fly={{y: -20, duration: 800}}>
                   {#each 'Creaton' as char, i}<span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>{/each}
                 </div>
-                <div
-                  class="mt-8 mb-6 text-sm lg:text-xl dark:text-gray-300 text-gray-300"
-                  out:fly={{y: -20, duration: 800}}>
+                <div class="mt-8 mb-6 text-sm lg:text-xl text-gray-300" out:fly={{y: -20, duration: 800}}>
                   {#each 'Decentralized Content Sharing Platform' as char, i}
                     <span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>
                   {/each}
