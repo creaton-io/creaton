@@ -253,15 +253,17 @@
                   <g out:fade={{duration: 200}} opacity="1">
                     <path in:expand={{duration: 400, delay: 1000, easing: quintOut}} style="fill: #43e296;" d={outer} />
                     <path
-                      in:draw={{duration: 1000}}
+                      in:draw={{duration: 2000}}
                       style="stroke:#000000; stroke-width: 1.5; fill: #43e296;"
                       d={inner} />
                   </g>
                 </svg>
 
-                <div class="text-white text-3xl" out:fly={{y: -20, duration: 800}}>
-                  {#each 'Creaton' as char, i}
-                    <span in:fade={{delay: 1000 + i * 150, duration: 800}}>{char}</span>
+                <div
+                  class="mt-4 mb-4 w-80 ml-auto mr-auto text-3xl dark:text-gray-300 text-gray-300"
+                  out:fly={{y: -20, duration: 800}}>
+                  {#each 'Decentralized Content Sharing Platform' as char, i}
+                    <span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>
                   {/each}
                 </div>
               {/if}
