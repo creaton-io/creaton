@@ -343,59 +343,47 @@
 </section>
 
 <section class="pt-20 pb-10">
-  <div class="container px-4 mx-auto w-3/6 mb-24">
+  <div class="container px-4 mx-auto w-5/6 lg:w-3/6 mb-24">
     <h2 class="text-5xl font-semibold text-center">Technologies</h2>
-    <div class="flex flex-wrap items-center">
-      <div class="w-full px-4 flex-1">
-        <div class="w-full px-8 flex-1"><img alt="..." src="/images/nucypher.png" /></div>
-      </div>
-      <div class="w-full px-4 flex-1">
-        <div class="w-full px-8 flex-1 align-middle"><img alt="..." src="/images/ethereum.png" /></div>
-      </div>
-      <div class="w-full px-4 flex-1">
-        <div class="w-full px-8 flex-1"><img alt="..." src="/images/filecoin.png" /></div>
-      </div>
+    <div class="grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-4 lg:gap-20 items-center align-middle">
+      <img alt="..." src="/images/nucypher.png" />
+      <img alt="..." src="/images/ethereum.png" />
+      <img alt="..." src="/images/filecoin.png" />
+      <img alt="..." src="/images/superfluid.png" />
+      <img alt="..." src="/images/textile.png" />
     </div>
-    <div class="flex flex-wrap mt-12 items-center">
-      <div class="w-full px-4 flex-1">
-        <div class="w-full px-4 flex-1"><img alt="..." src="/images/superfluid.png" /></div>
-      </div>
-      <div class="w-full px-4 flex-1">
-        <div class="w-full px-4 flex-1"><img alt="..." src="/images/textile.png" /></div>
-      </div>
-    </div>
-  </div>
-  <div class="container mx-auto px-4">
-    <div class="flex flex-wrap text-center">
-      <div class="w-full px-4">
-        <h4 class="text-3xl font-semibold">Keep updated on our progress!</h4>
-        <SignUp />
-        <h5 class="text-lg mt-0 mb-2 text-gray-700">Find us on any of these platforms.</h5>
-        <div class="mt-6 lg:mb-0 mb-6">
-          <a
-            class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
-            href="https://twitter.com/creaton_io"
-            target="_blank">
-            <i class="text-gray-500 fab fa-twitter text-lg leading-lg" />
-          </a>
-          <a
-            class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
-            href="https://github.com/creaton-io/creaton?ref=homepage"
-            target="_blank">
-            <i class="text-gray-500 fab fa-github text-lg leading-lg" />
-          </a>
-          <a
-            class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
-            href="https://medium.com/creaton"
-            target="_blank">
-            <i class="text-gray-500 fab fa-medium-m text-lg leading-lg" />
-          </a>
-          <a
-            class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
-            href="https://creaton.on.fleek.co"
-            target="_blank">
-            <i class="text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
-          </a>
+    <div class="container mx-auto px-4">
+      <div class="flex flex-wrap text-center">
+        <div class="w-full px-4">
+          <h4 class="text-3xl font-semibold">Keep updated on our progress!</h4>
+          <SignUp />
+          <h5 class="text-lg mt-0 mb-2 text-gray-700">Find us on any of these platforms.</h5>
+          <div class="mt-6 lg:mb-0 mb-6">
+            <a
+              class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
+              href="https://twitter.com/creaton_io"
+              target="_blank">
+              <i class="text-gray-500 fab fa-twitter text-lg leading-lg" />
+            </a>
+            <a
+              class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
+              href="https://github.com/creaton-io/creaton?ref=homepage"
+              target="_blank">
+              <i class="text-gray-500 fab fa-github text-lg leading-lg" />
+            </a>
+            <a
+              class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
+              href="https://medium.com/creaton"
+              target="_blank">
+              <i class="text-gray-500 fab fa-medium-m text-lg leading-lg" />
+            </a>
+            <a
+              class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
+              href="https://creaton.on.fleek.co"
+              target="_blank">
+              <i class="text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
+            </a>
+          </div>
         </div>
       </div>
     </div>
