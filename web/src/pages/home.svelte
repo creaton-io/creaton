@@ -4,10 +4,176 @@
   import {creators} from '../stores/queries';
   import SignUp from '../components/SignUp.svelte';
   import About from '../components/About.svelte';
+  import {quintOut} from 'svelte/easing';
+  import {fade, draw, fly} from 'svelte/transition';
+  import {expand} from '../utils/custom-transitions.js';
+  import 'pathseg';
+
+  import Particles from 'svelte-particles';
+
+  let visible = true;
+
+  const inner = `M99.95 1.57L2.05 1.57L2.05 99.48L99.95 99.48L84.49 83.65L17.51 83.65L17.51 17.4L84.49 17.4L99.95 1.57Z`;
+  const outer = `M31.33 64.18L56 77.86L80.68 64.18L80.68 36.83L56 23.16L31.33 36.83L31.33 64.18Z`;
+
+  let particlesConfig = {
+    detectRetina: false,
+    fpsLimit: 60,
+    interactivity: {
+      detectsOn: 'canvas',
+      events: {
+        onHover: {
+          enable: true,
+          mode: 'bubble',
+        },
+        resize: true,
+      },
+      modes: {
+        bubble: {
+          distance: 60,
+          duration: 10,
+          opacity: 1,
+          size: 10,
+        },
+      },
+    },
+    particles: {
+      color: {
+        value: '#30DAAC',
+      },
+      links: {
+        blink: false,
+        color: '#18CFCD',
+        consent: false,
+        distance: 50,
+        enable: true,
+        opacity: 0.9,
+        width: 2.5,
+      },
+      move: {
+        attract: {
+          enable: false,
+          rotate: {
+            x: 300,
+            y: 600,
+          },
+        },
+        bounce: false,
+        direction: 'none',
+        enable: true,
+        outMode: 'bounce',
+        random: true,
+        speed: 0.7,
+        straight: false,
+      },
+      number: {
+        density: {
+          enable: false,
+          area: 1000,
+        },
+        limit: 0,
+        value: 300,
+      },
+      opacity: {
+        animation: {
+          enable: false,
+          minimumValue: 0.05,
+          speed: 2,
+          sync: false,
+        },
+        random: false,
+        value: 0.5,
+      },
+      shape: {
+        type: 'circle',
+      },
+      size: {
+        animation: {
+          enable: false,
+          minimumValue: 0.5,
+          speed: 20,
+          sync: true,
+        },
+        random: true,
+        value: 1,
+      },
+    },
+    polygon: {
+      draw: {
+        enable: true,
+        lineColor: 'rgba(0,255,255,0.2)',
+        lineWidth: 0.5,
+      },
+      move: {
+        radius: 7,
+      },
+      position: {
+        x: 20,
+        y: 15,
+      },
+      inlineArrangement: 'equidistant',
+      scale: 5,
+      type: 'inline',
+      data: `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 636 636" xml:space="preserve"><defs><clipPath id="_clipPath_ufUKWNh03Q0ow8cg9bS2G9dNbT4C2wP3"><rect width="636" height="636"/></clipPath></defs><g><path d="M99.95 1.57L2.05 1.57L2.05 99.48L99.95 99.48L84.49 83.65L17.51 83.65L17.51 17.4L84.49 17.4L99.95 1.57Z M31.33 64.18L56 77.86L80.68 64.18L80.68 36.83L56 23.16L31.33 36.83L31.33 64.18Z M31.33 64.18L80.68 64.18L56 23.16 Z M31.33 36.83L80.68 36.83L56 77.86 Z M56 23.16L 56 77.86 M 31.33 64.18L80.68 36.83 M31.33 36.83L80.68 64.18 M99.95 1.57L17.51 17.4 M2.05 1.57L84.49 17.4 M17.51 83.65L2.05 99.48L84.49 83.65 M2.05 1.57L17.51 17.4 M17.51 83.65L99.95 99.48 M17.51 17.4L2.05 20.36L17.51 83.65L2.05 80.69L17.51 17.4"/></g></svg>`,
+    },
+  };
+
+  let onParticlesLoaded = (event) => {
+    const particlesContainer = event.detail.particles;
+    particlesContainer.play();
+    // you can use particlesContainer to call all the Container class
+    // (from the core library) methods like play, pause, refresh, start, stop
+  };
+
   const name = 'Creators spotlight';
 
   creators.fetch();
 </script>
+
+<style>
+  path {
+    fill: white;
+    opacity: 1;
+  }
+
+  label {
+    position: absolute;
+    top: 1em;
+    left: 1em;
+  }
+
+  .centered {
+    font-size: 20vw;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Overpass';
+    letter-spacing: 0.12em;
+    color: #676778;
+    font-weight: 400;
+  }
+
+  .centered span {
+    will-change: filter;
+  }
+
+  canvas {
+    display: block;
+    vertical-align: bottom;
+  }
+  /* ---- tsparticles container ---- */
+  #tsparticles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #323031;
+    background-image: url('');
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: 50% 50%;
+  }
+</style>
 
 <div class="bg-indigo-600">
   <div class="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
@@ -64,6 +230,7 @@
 
 <div>
   <main>
+    <Particles class="" options={particlesConfig} on:particlesLoaded={onParticlesLoaded} />
     <div class="relative pt-16 pb-32 flex content-center items-center justify-center min-h-screen-75">
       <div
         class="absolute top-0 w-full h-full bg-center bg-cover"
@@ -75,12 +242,24 @@
       <div class="container relative mx-auto">
         <div class="items-center flex flex-wrap">
           <div class="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
-            <div class="pr-0">
-              <img
-                alt="..."
-                src="https://i.imgur.com/cHC8Uqs.png"
-                class="shadow-xl rounded-l-full  max-w-150-px text-white text-sm font-bold leading-relaxed inline-block whitespace-no-wrap uppercase" />
-              <p class="mt-4 text-lg dark:text-gray-300 text-gray-300">Decentralized Content Sharing Platform</p>
+            <div class="relative pr-0 w-2/5 ml-auto mr-auto">
+              {#if visible}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 103 124">
+                  <g out:fade={{duration: 200}} opacity="1">
+                    <path in:expand={{duration: 400, delay: 1000, easing: quintOut}} style="fill: #43e296;" d={outer} />
+                    <path
+                      in:draw={{duration: 1000}}
+                      style="stroke:#000000; stroke-width: 1.5; fill: #43e296;"
+                      d={inner} />
+                  </g>
+                </svg>
+
+                <div class="text-white text-3xl" out:fly={{y: -20, duration: 800}}>
+                  {#each 'Creaton' as char, i}
+                    <span in:fade={{delay: 1000 + i * 150, duration: 800}}>{char}</span>
+                  {/each}
+                </div>
+              {/if}
             </div>
           </div>
         </div>
@@ -101,10 +280,11 @@
       </div>
     </div>
 
-    <section class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-r light:from-indigo-200 light:to-indigo-100 -mt-24">
+    <section class="pb-20 dark:bg-indigo-800 light:bg-gradient-to-r light:from-indigo-200 light:to-indigo-100 -mt-24s">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
+            <label> <input type="checkbox" bind:checked={visible} /> toggle me </label>
             <div
               class="relative flex flex-col min-w-0 break-words dark:bg-cool-gray-900 bg-white w-full mb-8 shadow-lg rounded-l-3xl border-indigo-500 border-2">
               <div class="px-4 py-5 flex-auto">
@@ -130,7 +310,7 @@
                 </div>
                 <h6 class="text-xl font-semibold">Fund Your Creating</h6>
                 <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
-                  Earn money by creating content for subscribers, with investors betting on your success
+                  Earn money by creating content for subscribers, with investors betting on your farming reward success
                 </p>
               </div>
             </div>
@@ -157,10 +337,9 @@
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-blue-400">
                   <i class="fas fa-hands-helping" />
                 </div>
-                <h6 class="text-xl font-semibold">Invest In Creators</h6>
+                <h6 class="text-xl font-semibold">Farm Creatonks</h6>
                 <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
-                  Kickstart creator careers by investing in creatonks (creator tokens), receive a % of the profit with
-                  the % of creatonks you farm
+                  Kickstart creator careers by buying Creatonks (creator tokens), receive rewards for farming
                 </p>
               </div>
             </div>
