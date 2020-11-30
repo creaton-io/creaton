@@ -201,7 +201,7 @@
       </div>
       <div class="container relative mx-auto">
         <div class="items-center flex flex-wrap">
-          <div class="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
+          <div class="w-full lg:w-8/12 px-4 ml-auto mr-auto text-center">
             <div class="relative pr-0 w-2/5 ml-auto mr-auto">
               {#if visible}
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 103 124">
@@ -213,10 +213,12 @@
                       d={inner} />
                   </g>
                 </svg>
-
                 <div
-                  class="mt-4 mb-4 w-80 ml-auto mr-auto text-3xl dark:text-gray-300 text-gray-300"
+                  class="-mt-12 text-6xl dark:text-gray-300 text-green-400 text-center"
                   out:fly={{y: -20, duration: 800}}>
+                  {#each 'Creaton' as char, i}<span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>{/each}
+                </div>
+                <div class="mt-4 mb-4 text-3xl dark:text-gray-300 text-gray-300" out:fly={{y: -20, duration: 800}}>
                   {#each 'Decentralized Content Sharing Platform' as char, i}
                     <span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>
                   {/each}
@@ -254,8 +256,10 @@
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-red-400">
                   <i class="fas fa-play" />
                 </div>
-                <h6 class="text-xl font-semibold">Get rewarded for farming</h6>
-                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">By</p>
+                <h6 class="text-xl font-semibold">Support Creators</h6>
+                <p class="mt-2 mb-4 dark:text-gray-300 text-gray-600">
+                  Get exclusive content from creators through a stablecoin streaming subscription
+                </p>
               </div>
             </div>
           </div>
@@ -318,7 +322,7 @@
   </main>
 </div>
 
-<section class="py-8 px-4 text-center bg-gradient-to-t from-teal-100 to-green-100">
+<section class="py-8 px-4 text-center bg-gradient-to-b from-teal-100 to-white">
   <div class="max-w-auto md:max-w-lg mx-auto mt-4 mb-10">
     <h1 class="text-indigo-600 font-bold text-6xl mb-2 font-heading">{name}</h1>
   </div>
