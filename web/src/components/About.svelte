@@ -3,7 +3,7 @@
     <div class="flex flex-wrap justify-center text-center mb-6">
       <div class="w-full lg:w-6/12 px-4">
         <h2 class="text-5xl font-semibold">Team</h2>
-        <p class="text-lg leading-relaxed m-4 dark:text-gray-100 text-gray-600">
+        <p class="text-lg leading-relaxed m-4 text-gray-600">
           A team of young professionals under the guidance of crypto veterans will make us achieve our goal of creating
           a truly decentralized creators playground.
         </p>
@@ -14,7 +14,7 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Alexander Klus</h5>
-            <p class="mt-1 text-lg dark:text-gray-100 text-gray-500 uppercase font-semibold">Blockchain Dev</p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Blockchain Dev</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
@@ -75,9 +75,7 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Danish Chaudhry</h5>
-            <p class="mt-1 text-lg dark:text-gray-100 text-gray-500 uppercase font-semibold">
-              CEO at Bitcoin.com Exchange
-            </p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">CEO at Bitcoin.com Exchange</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
@@ -95,9 +93,7 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Sascha Epp</h5>
-            <p class="mt-1 text-lg dark:text-gray-100 text-gray-500 uppercase font-semibold">
-              Interim CFO & business lead
-            </p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Interim CFO & business lead</p>
             <div class="mt-6">
               <button
                 class="bg-blue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1 hidden"
