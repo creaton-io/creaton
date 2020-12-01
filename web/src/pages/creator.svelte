@@ -217,6 +217,10 @@
     downloadURL(url, 'whatever');
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   }
+
+  function support2() {
+    subscriptionStatus = 'SUBSCRIBED';
+  }
 </script>
 
 <WalletAccess>
@@ -228,7 +232,7 @@
       <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
       <img class="w-full" src={avatarURL} alt={title} />
       {#if subscriptionStatus === 'UNSUBSCRIBED'}
-        <Button class="mt-3" on:click={support}>Subscribe - ${subscriptionPrice}</Button>
+        <Button class="mt-3" on:click={support2}>Subscribe - ${subscriptionPrice}</Button>
       {:else if subscriptionStatus === 'PENDING'}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
       {:else}
