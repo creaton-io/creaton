@@ -7,6 +7,8 @@
   import {onMount} from 'svelte';
   import {SuperfluidSDK} from '../js-sdk/Framework';
   import {parseEther} from '@ethersproject/units';
+  import {TextileStore} from '../stores/textileStore';
+  import {Buffer} from 'buffer';
 
   let creatorContract;
   let superAppContract;
@@ -26,6 +28,8 @@
   let app;
   let usdcBalance;
   let usdcApproved;
+
+  let contents = [];
 
   const APP_ADDRESS = '0x46113fF0F86A2c27151F43e7959Ff60DebC18dB1';
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
@@ -47,6 +51,7 @@
         loadCreatorData();
       });
     }
+    await deployTextile();
   });
 
   async function support() {
@@ -139,9 +144,17 @@
       .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
   }
 
+  async function getContent() {
+    let contentsString = await creatorContract.getAllMetadata();
+    contents = [];
+    for (let c of contentsString) {
+      contents.push(JSON.parse(c));
+    }
+  }
+
   async function loadCreatorData() {
     creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
-
+    await getContent();
     creatorContract.on('NewSubscriber', (...response) => {
       const [address, balance] = response;
       if (address === wallet.address) {
@@ -172,6 +185,38 @@
       console.error(err);
     }
   }
+
+  const textile: TextileStore = new TextileStore();
+
+  async function deployTextile() {
+    const setup = await textile.authenticate();
+    alert("you're good");
+  }
+
+  async function download(path) {
+    await textile.getKeysFromCreator();
+    const decrypted = await textile.decryptFile(path);
+    await downloadBlob(decrypted);
+    // let mdata = await creatorContract.getMetadataURL();
+    // console.log(mdata);
+  }
+  function downloadURL(data, fileName) {
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.style.display = 'none';
+    a.click();
+    a.remove();
+  }
+  function downloadBlob(decrypted: ArrayBuffer) {
+    const blob = new Blob([new Uint8Array(decrypted)], {
+      type: 'image/jpg',
+    });
+    const url = window.URL.createObjectURL(blob);
+    downloadURL(url, 'whatever');
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+  }
 </script>
 
 <WalletAccess>
@@ -184,17 +229,33 @@
       <img class="w-full" src={avatarURL} alt={title} />
       {#if subscriptionStatus === 'UNSUBSCRIBED'}
         <Button class="mt-3" on:click={support}>Subscribe - ${subscriptionPrice}</Button>
+      {:else if subscriptionStatus === 'PENDING'}
+        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
       {:else}
-        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">
-          {#if subscriptionStatus === 'PENDING'}
-            Subscription pending...
-          {:else}Subscription balance: ${currentBalance}{/if}
-        </p>
+        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription balance: ${currentBalance}</p>
+        <br />
+        <div class="py-4 dark:bg-black bg-white">
+          <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              {#each contents as content, index}
+                <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{index}</h3>
+                <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{content.name}</h3>
+                <h3 class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
+                  Description:
+                  {content.description}
+                </h3>
+                <h3 class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300">{content.ipfs}</h3>
+                <Button class="mt-3" on:click={() => download(content.ipfs)}>Download</Button>
+              {/each}
+            </div>
+          </div>
+        </div>
       {/if}
+      <br />
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdc balance: ${usdcBalance}</p>
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">approved usdc balance: ${usdcApproved}</p>
       <Button class="mt-3" on:click={mintUSDC}>mint 100 usdc</Button>
-      <Button class="mt-3" on:click={approveUSDC}>approve a lot os usdc</Button>
+      <Button class="mt-3" on:click={approveUSDC}>approve a lot of usdc</Button>
     {/if}
   </section>
 </WalletAccess>
