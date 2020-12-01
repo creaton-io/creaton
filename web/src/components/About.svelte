@@ -93,7 +93,9 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Danish Chaudhry</h5>
-            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">CEO at Bitcoin.com Exchange</p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold break-normal whitespace-no-wrap">
+              CEO at Bitcoin.com Exchange
+            </p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
@@ -111,13 +113,16 @@
         <div class="px-6">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Sascha Epp</h5>
-            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Interim CFO & business lead</p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">INTERIM CFO & BUSINESS LEAD</p>
             <div class="mt-6">
-              <button
-                class="bg-blue-400 text-white w-8 h-8 rounded-full outline-none focus:outline-none mr-1 mb-1 hidden"
-                type="button">
-                <i class="fab fa-linkedin" />
-              </button>
+              <li class="flex items-center">
+                <a
+                  class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
+                  href="https://www.linkedin.com/in/saschawe/"
+                  target="_blank">
+                  <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
+                </a>
+              </li>
             </div>
           </div>
         </div>
