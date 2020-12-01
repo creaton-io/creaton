@@ -64,6 +64,24 @@
           </div>
         </div>
       </div>
+      <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
+        <div class="px-6">
+          <div class="pt-6 text-center">
+            <h5 class="text-2xl font-bold">Farshad Kazemi</h5>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Backend Dev</p>
+            <div class="mt-6">
+              <li class="flex items-center">
+                <a
+                  class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
+                  href="https://www.linkedin.com/in/farshadkazemi/?originalSubdomain=ir"
+                  target="_blank">
+                  <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
+                </a>
+              </li>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="flex flex-wrap justify-center text-center mb-6 mt-12">
       <div class="w-full lg:w-6/12 px-4">

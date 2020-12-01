@@ -320,8 +320,8 @@
 </div>
 
 <section class="py-8 px-4 text-center bg-gradient-to-b from-teal-100 to-white">
-  <div class="max-w-auto md:max-w-lg mx-auto mt-4 mb-10">
-    <h1 class="text-indigo-600 font-bold text-6xl mb-2 font-heading">{name}</h1>
+  <div class="w-fill mx-auto mt-4 mb-10">
+    <h1 class="text-indigo-600 font-bold text-6xl mb-10 font-heading">{name}</h1>
   </div>
   <div class="py-4">
     <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
