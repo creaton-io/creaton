@@ -7,6 +7,7 @@
   import {onMount} from 'svelte';
   import {SuperfluidSDK} from '../js-sdk/Framework';
   import {parseEther} from '@ethersproject/units';
+  import {TextileStore} from '../stores/textileStore';
 
   let creatorContract;
   let superAppContract;
@@ -172,6 +173,42 @@
       console.error(err);
     }
   }
+
+  const textile: TextileStore = new TextileStore();
+
+  async function deployTextile() {
+    const setup = await textile.authenticate();
+    alert("you're good");
+  }
+
+  async function download(path) {
+    await textile.getKeysFromCreator();
+    const decrypted = await textile.decryptFile(path);
+    await downloadBlob(decrypted);
+    // let mdata = await creatorContract.getMetadataURL();
+    // console.log(mdata);
+  }
+  function downloadURL(data, fileName) {
+    const a = document.createElement('a');
+    a.href = data;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.style.display = 'none';
+    a.click();
+    a.remove();
+  }
+  function downloadBlob(decrypted: ArrayBuffer) {
+    const blob = new Blob([new Uint8Array(decrypted)], {
+      type: 'image/jpg',
+    });
+    const url = window.URL.createObjectURL(blob);
+    downloadURL(url, 'whatever');
+    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+  }
+
+  function support2() {
+    subscriptionStatus = 'SUBSCRIBED';
+  }
 </script>
 
 <WalletAccess>
@@ -183,7 +220,9 @@
       <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
       <img class="w-full" src={avatarURL} alt={title} />
       {#if subscriptionStatus === 'UNSUBSCRIBED'}
-        <Button class="mt-3" on:click={support}>Subscribe - ${subscriptionPrice}</Button>
+        <Button class="mt-3" on:click={support2}>Subscribe - ${subscriptionPrice}</Button>
+      {:else if subscriptionStatus === 'PENDING'}
+        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
       {:else}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">
           {#if subscriptionStatus === 'PENDING'}
