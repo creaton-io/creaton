@@ -9,6 +9,7 @@
   import {parseEther} from '@ethersproject/units';
   import {TextileStore} from '../stores/textileStore';
   import {Buffer} from 'buffer';
+  global.Buffer = Buffer;
 
   let creatorContract;
   let superAppContract;
@@ -240,11 +241,13 @@
         <br />
         <div class="py-4 dark:bg-black bg-white">
           <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
               {#each contents as content, index}
-                <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{index}</h3>
+                <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{index + 1}</h3>
                 <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{content.name}</h3>
-                <h3 class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
+                <h3
+                  alt={encodeURI(content.description)}
+                  class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
                   Description:
                   {content.description}
                 </h3>
