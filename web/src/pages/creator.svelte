@@ -222,10 +222,30 @@
   function support2() {
     subscriptionStatus = 'SUBSCRIBED';
   }
+
+  function copyToClipboard(val) {
+    // Create a "hidden" input
+    var aux = document.createElement('input');
+
+    // Assign it the value of the specified element
+    aux.setAttribute('value', val);
+
+    // Append it to the body
+    document.body.appendChild(aux);
+
+    // Highlight its content
+    aux.select();
+
+    // Copy the highlighted text
+    document.execCommand('copy');
+
+    // Remove it from the body
+    document.body.removeChild(aux);
+  }
 </script>
 
 <WalletAccess>
-  <section class="py-8 px-4 text-center max-w-md mx-auto">
+  <section class="py-8 px-4 text-center max-w-4xl mx-auto">
     {#if !creator || !title || !avatarURL || !subscriptionPrice}
       <div>Fetching creator...</div>
     {:else}
@@ -246,12 +266,17 @@
                 <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{index + 1}</h3>
                 <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{content.name}</h3>
                 <h3
-                  alt={encodeURI(content.description)}
+                  title={encodeURI(content.description)}
                   class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
                   Description:
                   {content.description}
                 </h3>
-                <h3 class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300">{content.ipfs}</h3>
+                <h3
+                  title={encodeURI(content.ipfs)}
+                  class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300 truncate">
+                  <Button class="mt-3" on:click={() => copyToClipboard(content.ipfs)}>Get</Button>
+                  {content.ipfs}
+                </h3>
                 <Button class="mt-3" on:click={() => download(content.ipfs)}>Download</Button>
               {/each}
             </div>
