@@ -87,13 +87,9 @@
 </style>
 
 <WalletAccess>
-  <section
-    class="py-40 px-4 bg-black h-full bg-cover"
-    style="
-  background-image: url(https://demos.creative-tim.com/notus-svelte/assets/img/register_bg_2.png);
-">
-    <div class="container mx-auto px-4 h-full max-w-screen-lg">
-      <div class="flex content-center justify-center h-full">
+  <section class="pt-40 px-4">
+    <div class="container mx-auto px-4 h-auto max-w-screen-lg">
+      <div class="flex content-center justify-center">
         <div class="w-full lg:w-4/12 md:w-6/12 sm:w-8/12 px-4">
           <div
             class="relative flex flex-col min-w-0 break-words w-full pb-10 pt-6 shadow-lg rounded-lg bg-gray-300 border-0">
