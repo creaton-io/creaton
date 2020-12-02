@@ -105,12 +105,12 @@
         [
           4, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interfaceCreateFlow.encodeFunctionData(
-            'createFlow',
-            [daix.address, app.address],
+          sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
+            daix.address,
+            app.address,
             MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
-          ),
+            '0x',
+          ]),
         ],
       ];
     console.log('this is the batchcall: ', call);
