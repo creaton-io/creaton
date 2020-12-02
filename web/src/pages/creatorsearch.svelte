@@ -121,7 +121,7 @@
     sf = new SuperfluidSDK({
       web3Provider: wallet,
       version: '0.1.2-preview-20201014',
-      chainId: 31337,
+      chainId: 5,
     });
     await sf.initialize();
 
