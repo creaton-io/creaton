@@ -87,7 +87,7 @@
 </style>
 
 <WalletAccess>
-  <section class="pt-40 px-4">
+  <section class="pt-10 sm:pt-40 px-4">
     <div class="container mx-auto px-4 h-auto max-w-screen-lg">
       <div class="flex content-center justify-center">
         <div class="w-full lg:w-4/12 md:w-6/12 sm:w-8/12 px-4">
