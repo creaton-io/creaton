@@ -95,7 +95,7 @@
         [
           0, // approve collateral fee
           daix.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10').toString()]),
         ],
         [
           5, // callAppAction to collateral

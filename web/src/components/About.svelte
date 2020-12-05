@@ -4,8 +4,8 @@
       <div class="w-full lg:w-6/12 px-4">
         <h2 class="text-5xl font-semibold">Team</h2>
         <p class="text-lg leading-relaxed m-4 text-gray-600">
-          A team of young professionals under the guidance of crypto veterans will make us achieve our goal of creating
-          a truly decentralized creators playground.
+          A team of young professionals guided by crypto veterans is creating a truly decentralized playground for
+          creators
         </p>
       </div>
     </div>

@@ -59,7 +59,6 @@
     </li>
     <li class="flex items-center mr-2">
       <Button
-        class="w-max-content"
         label="connect via builtin wallet"
         disabled={!$builtin.available || $wallet.connecting}
         on:click={() => flow.connect('builtin')}>
