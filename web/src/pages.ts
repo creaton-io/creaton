@@ -38,6 +38,11 @@ export default [
     asyncComponent: (): Promise<ComponentModule> => import('./pages/pitchdeck.svelte'),
   },
   {
+    name: 'Test',
+    path: 'test',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/test.svelte'),
+  },
+  {
     name: 'Creator Search Link',
     path: 'creator/*',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/creatorsearch.svelte'),
