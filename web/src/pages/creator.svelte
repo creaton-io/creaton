@@ -1,6 +1,7 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
   import Button from '../components/Button.svelte';
+  import Input from '../components/Input.svelte';
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
   import {wallet, flow, chain} from '../stores/wallet';
@@ -22,14 +23,17 @@
   let isSubscribed;
 
   let subscriptionStatus;
+  let subscriberAddress, nuPassword;
 
   let sf;
   let usdc;
   let usdcx;
   let app;
-  let usdcBalance;
-  let usdcApproved;
+  let usdcBalance=0;
+  let usdcApproved=0;
 
+
+  let subscriberPubKeySig,subscriberPubKeyEnv;
   let contents = [];
 
   const APP_ADDRESS = '0x46113fF0F86A2c27151F43e7959Ff60DebC18dB1';
@@ -52,6 +56,8 @@
         loadCreatorData();
       });
     }
+    let accounts = await wallet.provider.listAccounts();
+    subscriberAddress = accounts[0];
     await deployTextile();
   });
 
@@ -174,6 +180,7 @@
     } else {
       subscriptionStatus = 'UNSUBSCRIBED';
     }
+    
   }
 
   async function handleSubscribe() {
@@ -196,7 +203,7 @@
 
   async function download(path) {
     await textile.getKeysFromCreator();
-    const decrypted = await textile.decryptFile(path);
+    const decrypted = await textile.decryptFile(path, contractAddress, subscriberAddress, nuPassword);
     await downloadBlob(decrypted);
     // let mdata = await creatorContract.getMetadataURL();
     // console.log(mdata);
@@ -221,6 +228,28 @@
 
   function support2() {
     subscriptionStatus = 'SUBSCRIBED';
+    loadKeyPairs()
+  }
+
+  async function loadKeyPairs(){
+    let password = prompt("Please enter your password:", "password");
+    let accounts = await wallet.provider.listAccounts();
+    let address = accounts[0];
+    let data={password, address}
+    let url = new URL("http://0.0.0.0:5000/loadKeyPair");
+    Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
+
+    fetch(url.toString())
+    .then(function(response) {
+        if (response.status >= 400) {
+            throw new Error("Bad response from server");
+        }
+        return response.json();
+    })
+    .then(function(pairs) {
+        subscriberPubKeySig=pairs.pubkey_sig;
+        subscriberPubKeyEnv=pairs.pubkey_enc;
+    });
   }
 
   function copyToClipboard(val) {
@@ -258,6 +287,8 @@
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
       {:else}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription balance: ${currentBalance}</p>
+        <label for="description">NuCypher Password: </label>
+        <Input type="text" placeholder="Password" className="field" bind:value={nuPassword} />
         <br />
         <div class="py-4 dark:bg-black bg-white">
           <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
@@ -282,6 +313,13 @@
             </div>
           </div>
         </div>
+      {/if}
+      {#if subscriberPubKeySig !== null}
+        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Please relay your public keys to Creator:</p>
+        <ul>
+          <li>{subscriberPubKeySig}</li>
+          <li>{subscriberPubKeyEnv}</li>
+        </ul>
       {/if}
       <br />
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdc balance: ${usdcBalance}</p>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
+  import Web3 from "web3-utils";
   import Button from '../components/Button.svelte';
   import Input from '../components/Input.svelte';
   import {Contract} from '@ethersproject/contracts';
@@ -19,13 +20,18 @@
   const textile: TextileStore = new TextileStore();
   let creatorName: string = '';
   let subscriptionPrice: number;
-  let uploader, myContracts, contractAddress, creatorContract;
-  let path, pubkey, downloadPath, description;
+  let ethereum;
+  let contractAddress, creatorAddress, creatorContract;
+  let file, description, nuPassword;
+  let sigKey, pubKey, textilePubKey;
   let contents = [];
   let contentsShow = false;
 
   if (typeof window !== 'undefined') {
-    contractAddress = window.location.pathname.split('/')[2];
+    // contractAddress = window.location.pathname.split('/')[2];
+    // contractAddress = Web3.toChecksumAddress(contractAddress);
+    // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
+    // console.log(contractAddress)
   }
 
   async function deployTextile() {
@@ -35,31 +41,59 @@
 
   async function loadCreatorData() {
     creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
+    let accounts = await wallet.provider.listAccounts();
+    creatorAddress = accounts[0];
+    contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
+    console.log("creator address:", creatorAddress);
+    console.log("contract address:", contractAddress);
   }
 
-  // async function getContent() {
-  //   let contentsString = await creatorContract.getAllMetadata();
-  //   contents = [];
-  //   for (let c of contentsString) {
-  //     contents.push(JSON.parse(c));
-  //   }
-  //   contentsShow = !contentsShow;
-  // }
+  async function getContent() {
+    let contentsString = await creatorContract.getAllMetadata();
+    contents = [];
+    for (let c of contentsString) {
+      contents.push(JSON.parse(c));
+    }
+    contentsShow = !contentsShow;
+  }
 
   onMount(async () => {
-    await deployTextile();
     if (wallet.provider) {
-      loadCreatorData();
+      await loadCreatorData();
     } else {
       flow.execute(async () => {
-        loadCreatorData();
+        await loadCreatorData();
       });
     }
+    await deployTextile();
+    let socket = window['socket']
+      socket.on('connect', function(){ console.log('client connected!')});
+      socket.on('sign_broad_req', async function(data){
+          console.log('new request for signing!',data);
+          data = decodeURIComponent(data).replaceAll('+',' ')
+          console.log(data)
+          data = JSON.parse(data);
+          await send(data)
+          // tx=data;
+      });
+      socket.on('sign_req', async function(data){
+          console.log('new request for signing!',data);
+          data = decodeURIComponent(data).replaceAll('+',' ')
+          console.log(data)
+          data = JSON.parse(data);
+          await sign(data)
+          // msg=data;
+      });
+      socket.on('disconnect', function(){console.log('client disconnected!')});
+      setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000);
+      if (typeof window['ethereum'] !== 'undefined') {
+        ethereum = window['ethereum'];
+      }
   });
 
   async function upload() {
-    const file = await uploader.files[0];
-    const encFile = await textile.uploadFile(file);
+    const content = await file.files[0];
+    const encFile = await textile.uploadFile(content, contractAddress, creatorAddress, nuPassword);
     const metadata = {
       name: encFile.encryptedFile.name,
       type: encFile.encryptedFile.type,
@@ -67,38 +101,91 @@
       date: encFile.encryptedFile.date,
       ipfs: encFile.encryptedFile.ipfsPath,
     };
-    const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
-    console.log(receipt);
+    console.log(metadata.ipfs);
+    // const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
+    // console.log(receipt);
   }
 
-  async function sendKeys() {
-    await textile.sendKeysToSubscribers(path, pubkey);
-    alert('keys sent');
+  async function grant() {
+    const data = {subscriber_pubkeys_sig: sigKey, subscriber_pubkeys_enc: pubKey, label: contractAddress, address: creatorAddress, password: nuPassword};
+    const form_data = new FormData();
+    for (const key in data) {
+      form_data.append(key, data[key]);
+    }
+    const response = await fetch('http://0.0.0.0:5000/grant', {method: 'POST', body: form_data});
+    const tmap_string = await response.text();
+    const tmap = JSON.parse(tmap_string);
+    textile.sendTmapToSubscribers(textilePubKey, contractAddress, tmap['tmap']);
   }
-  async function download(path) {
-    await textile.getKeysFromCreator();
-    const decrypted = await textile.decryptFile(path);
-    await downloadBlob(decrypted);
-    // let mdata = await creatorContract.getMetadataURL();
-    // console.log(mdata);
-  }
-  function downloadURL(data, fileName) {
-    const a = document.createElement('a');
-    a.href = data;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.style.display = 'none';
-    a.click();
-    a.remove();
-  }
-  function downloadBlob(decrypted: ArrayBuffer) {
-    const blob = new Blob([new Uint8Array(decrypted)], {
-      type: 'image/jpg',
+
+  async function send(data: any) {
+    let params= [
+      {
+        from: data['from'],//'0x8F9A150adb245e8e460760Ed1BFd3C026a0457db',
+        to: data['to'],//'0x328BDfdD563f67a47c2757E5fD0298AD86F447c0',
+        gas: data['gas'],//, // 30400
+        gasPrice: data['gasPrice'],//, // 10000000000000
+        value: data['value'],//'0x0e9234569184e72a', // 2441406250
+        data: data['data'],
+      },
+    ];
+    ethereum.request({
+      method: 'eth_sendTransaction',
+      params,
+    })
+    .then((result) => {
+      window['socket'].emit('sign_broad_res', result);
+      console.log(result)
+    })
+    .catch((error) => {
+      // If the request fails, the Promise will reject with an error.
     });
-    const url = window.URL.createObjectURL(blob);
-    downloadURL(url, 'whatever');
-    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   }
+
+  async function sign(msg: any) {
+      let params= [
+          msg['address'],
+          msg['message']
+      ];
+      ethereum.request({
+          method: 'personal_sign',
+          params,
+      })
+      .then((result) => {
+          window['socket'].emit('sign_res', result);
+          console.log(result);
+      })
+      .catch((error) => {
+          console.log("sign error")
+          console.log(error);
+      });
+  }
+
+
+  // async function download(path) {
+  //   await textile.getKeysFromCreator();
+  //   const decrypted = await textile.decryptFile(path);
+  //   await downloadBlob(decrypted);
+  //   let mdata = await creatorContract.getMetadataURL();
+  //   console.log(mdata);
+  // }
+  // function downloadURL(data, fileName) {
+  //   const a = document.createElement('a');
+  //   a.href = data;
+  //   a.download = fileName;
+  //   document.body.appendChild(a);
+  //   a.style.display = 'none';
+  //   a.click();
+  //   a.remove();
+  // }
+  // function downloadBlob(decrypted: ArrayBuffer) {
+  //   const blob = new Blob([new Uint8Array(decrypted)], {
+  //     type: 'image/jpg',
+  //   });
+  //   const url = window.URL.createObjectURL(blob);
+  //   downloadURL(url, 'whatever');
+  //   setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+  // }
 </script>
 
 <style>
@@ -139,24 +226,36 @@
   <form class="content flex flex-col max-w-lg mx-auto">
     <div class="field-row">
       <label for="avatar">Select file:</label>
-      <input id="avatar" bind:this={uploader} type="file" placeholder="File" className="visually-hidden" />
+      <input id="avatar" bind:this={file} type="file" placeholder="File" className="visually-hidden" />
     </div>
     <div class="field-row">
       <label for="description">Description: </label>
       <Input type="text" placeholder="My recent trip to Norway!" className="field" bind:value={description} />
     </div>
+    <div class="field-row">
+      <label for="description">NuCypher Password: </label>
+      <Input type="text" placeholder="Password" className="field" bind:value={nuPassword} />
+    </div>
     <Button class="mt-3" on:click={upload}>Upload</Button>
 
     <br />
     <div class="field-row">
-      <label for="path-url">Path: </label>
-      <Input type="text" placeholder="Path" className="field" bind:value={path} />
+      <label for="path-url">Subscriber Signing Key: </label>
+      <Input type="text" placeholder="Signing Key" className="field" bind:value={sigKey} />
     </div>
     <div class="field-row">
-      <label for="pubkey-url">Pubkey: </label>
-      <Input type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
+      <label for="pubkey-url">Subscriber Public key: </label>
+      <Input type="text" placeholder="Public Key" className="field" bind:value={pubKey} />
     </div>
-    <Button class="mt-3" on:click={sendKeys}>Send Keys</Button>
+    <div class="field-row">
+      <label for="description">NuCypher Password: </label>
+      <Input type="text" placeholder="Password" className="field" bind:value={nuPassword} />
+    </div>
+    <div class="field-row">
+      <label for="description">Textile Public Key: </label>
+      <Input type="text" placeholder="Textile Key" className="field" bind:value={textilePubKey} />
+    </div>
+    <Button class="mt-3" on:click={grant}>Grant Access to Subscriber</Button>
 
     <!-- <br />
     <div class="field-row">
