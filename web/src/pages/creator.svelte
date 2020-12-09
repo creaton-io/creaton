@@ -1,6 +1,7 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
   import Button from '../components/Button.svelte';
+  import Input from '../components/Input.svelte';
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
   import {wallet, flow, chain} from '../stores/wallet';
@@ -22,6 +23,7 @@
   let isSubscribed;
 
   let subscriptionStatus;
+  let subscriberAddress, nuPassword;
 
   let sf;
   let usdc;
@@ -54,6 +56,8 @@
         loadCreatorData();
       });
     }
+    let accounts = await wallet.provider.listAccounts();
+    subscriberAddress = accounts[0];
     await deployTextile();
   });
 
@@ -199,7 +203,7 @@
 
   async function download(path) {
     await textile.getKeysFromCreator();
-    const decrypted = await textile.decryptFile(path);
+    const decrypted = await textile.decryptFile(path, contractAddress, subscriberAddress, nuPassword);
     await downloadBlob(decrypted);
     // let mdata = await creatorContract.getMetadataURL();
     // console.log(mdata);
@@ -283,6 +287,8 @@
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
       {:else}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription balance: ${currentBalance}</p>
+        <label for="description">NuCypher Password: </label>
+        <Input type="text" placeholder="Password" className="field" bind:value={nuPassword} />
         <br />
         <div class="py-4 dark:bg-black bg-white">
           <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">

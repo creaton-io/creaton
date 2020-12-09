@@ -43,6 +43,11 @@ export interface CidKey {
   key: string;
 }
 
+export interface Tmap {
+  cid: string,
+  tmap: string
+}
+
 const schema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   title: 'Keys',
@@ -290,7 +295,7 @@ export class TextileStore {
    * its cid to retrieve its corresponding keys from DB.
    * @param path The relative path in bucket
    */
-  public async decryptFile(path: string): Promise<ArrayBuffer> {
+  public async decryptFile(path: string, contractAddress: string, subscriberAddress: string, nuPassword: string): Promise<ArrayBuffer> {
     //get content from path on ipfs
     const file = await this.bucketInfo.bucket.pullIpfsPath(path);
     let binary = '';
@@ -303,26 +308,38 @@ export class TextileStore {
     }
 
     // console.log(binary);
-    const content = this.base64ToArrayBuffer(binary);
+    const encObject = JSON.parse(binary);
+    const policy_pubkey = encObject['policy_pubkey'];
+    const alice_sig_pubkey = encObject['alice_sig_pubkey'];
+    const content = encObject['enc_file_content'];
 
     // TODO get key if subscriber has been given, has to handle error when no key is available
     // i.e.when query fails
-    const query = new Where('cid').eq(path);
-    const result = await this.client.find<CidKey>(this.threadID, 'subscriber', query);
+    const query = new Where('cid').eq(contractAddress);
+    const result = await this.client.find<Tmap>(this.threadID, 'subscriber', query);
     const pair = result[0];
-    const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
-    const decryptKey = await this.importKey(keyBuffer.buffer);
+    // const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
+    // const decryptKey = await this.importKey(keyBuffer.buffer);
+    const tmap = pair.tmap;
 
+    const data = {enc_file_cotent: content, label: contractAddress, policy_pubkey: policy_pubkey, creator_pubkey: alice_sig_pubkey ,
+      address: subscriberAddress, password: nuPassword, tmap: tmap};
+    const form_data = new FormData();
+    for (const key in data) {
+      form_data.append(key, data[key]);
+    }
+    const response = await fetch('http://0.0.0.0:5000/decrypt', {method: 'POST', body: form_data});
+    return this.base64ToArrayBuffer(await response.text());
     // await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
-    return await window.crypto.subtle.decrypt(
-      {
-        name: 'AES-CTR',
-        counter: content.slice(0, 16),
-        length: 128,
-      },
-      decryptKey,
-      content.slice(16, content.byteLength)
-    );
+    // return await window.crypto.subtle.decrypt(
+    //   {
+    //     name: 'AES-CTR',
+    //     counter: content.slice(0, 16),
+    //     length: 128,
+    //   },
+    //   decryptKey,
+    //   content.slice(16, content.byteLength)
+    // );
   }
 
   private async importKey(key: ArrayBuffer): Promise<CryptoKey> {
@@ -379,6 +396,19 @@ export class TextileStore {
     return {body, from, readAt, sent: createdAt, id};
   }
 
+  public async getTmapFromCreator(contractAddress: string): Promise<void> {
+    const messages = await this.user.listInboxMessages();
+    for (const msg of messages) {
+      const decryptedInbox = await this.messageDecoder(msg);
+      const tmapPair: Tmap = JSON.parse(decryptedInbox.body);
+      const tmap: Tmap = {
+        cid: tmapPair.cid,
+        tmap: tmapPair.tmap,
+      };
+      await this.client.create(this.threadID, 'subscriber', [tmap]);
+    }
+  }
+
   public async getKeysFromCreator(): Promise<void> {
     const messages = await this.user.listInboxMessages();
     for (const msg of messages) {
@@ -397,6 +427,13 @@ export class TextileStore {
   //from contract
   public async getSubscribers(): Promise<CidKey[]> {
     return new Array({cid: 'cid', key: 'pubKey'});
+  }
+
+
+  public async sendTmapToSubscribers(textilePubKey: string, cid: string, tmap: string): Promise<void>{
+    const pubKey = PublicKey.fromString(textilePubKey);
+    const message = '{"cid": "' + cid + '", "tmap": "' + tmap + '"}';
+    await this.sendMailBox(this.identity, pubKey, message);
   }
 
   public async sendKeysToSubscribers(cid: string, key: string): Promise<void> {
