@@ -224,7 +224,7 @@ export class TextileStore {
     for (const key in data) {
       form_data.append(key, data[key]);
     }
-    const response = await fetch('http://0.0.0.0:5000/encrypt', {method: 'POST', body: form_data});
+    const response = await fetch('https://localhost:5000/encrypt', {method: 'POST', body: form_data});
     return response.text()
   }
 
@@ -328,7 +328,7 @@ export class TextileStore {
     for (const key in data) {
       form_data.append(key, data[key]);
     }
-    const response = await fetch('http://0.0.0.0:5000/decrypt', {method: 'POST', body: form_data});
+    const response = await fetch('https://localhost:5000/decrypt', {method: 'POST', body: form_data});
     return this.base64ToArrayBuffer(await response.text());
     // await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
     // return await window.crypto.subtle.decrypt(
