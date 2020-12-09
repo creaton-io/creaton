@@ -52,14 +52,14 @@ const schema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   title: 'Keys',
   type: 'object',
-  required: ['cid', 'key'],
+  required: ['cid', 'tmap'],
   properties: {
     _id: {
       type: 'string',
       description: "The instance's id.",
     },
     cid: {type: 'string'},
-    key: {type: 'string'},
+    tmap: {type: 'string'},
   },
 };
 
