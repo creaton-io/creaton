@@ -400,8 +400,11 @@ export class TextileStore {
   }
 
   public async getTmapFromCreator(contractAddress: string): Promise<void> {
+    console.log("get tmap from textile");
     const messages = await this.user.listInboxMessages();
+    console.log("inbox messages", messages);
     for (const msg of messages) {
+      console.log("textile tmap", msg);
       const decryptedInbox = await this.messageDecoder(msg);
       const tmapPair: Tmap = JSON.parse(decryptedInbox.body);
       const tmap: Tmap = {
