@@ -309,6 +309,7 @@ export class TextileStore {
 
     // console.log(binary);
     const encObject = JSON.parse(binary);
+    console.log("encObject", encObject);
     const policy_pubkey = encObject['policy_pubkey'];
     const alice_sig_pubkey = encObject['alice_sig_pubkey'];
     const content = encObject['enc_file_content'];
@@ -329,7 +330,9 @@ export class TextileStore {
       form_data.append(key, data[key]);
     }
     const response = await fetch('https://localhost:5000/decrypt', {method: 'POST', body: form_data});
-    return this.base64ToArrayBuffer(await response.text());
+    const res = await response.text();
+    console.log("enc_file", res);
+    return this.base64ToArrayBuffer(JSON.parse(res)['decrypted_content']);
     // await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
     // return await window.crypto.subtle.decrypt(
     //   {
