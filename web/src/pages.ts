@@ -50,7 +50,7 @@ export default [
   {
     name: 'Upload',
     path: 'upload',
-    asyncComponent: (): Promise<ComponentModule> => import('./pages/upload.svelte'),
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/my-contracts.svelte'),
   },
   {
     name: 'NotFound',
