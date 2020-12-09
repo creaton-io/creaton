@@ -27,9 +27,11 @@
   let usdc;
   let usdcx;
   let app;
-  let usdcBalance;
-  let usdcApproved;
+  let usdcBalance=0;
+  let usdcApproved=0;
 
+
+  let subscriberPubKeySig,subscriberPubKeyEnv;
   let contents = [];
 
   const APP_ADDRESS = '0x46113fF0F86A2c27151F43e7959Ff60DebC18dB1';
@@ -174,6 +176,7 @@
     } else {
       subscriptionStatus = 'UNSUBSCRIBED';
     }
+    
   }
 
   async function handleSubscribe() {
@@ -221,6 +224,28 @@
 
   function support2() {
     subscriptionStatus = 'SUBSCRIBED';
+    loadKeyPairs()
+  }
+
+  async function loadKeyPairs(){
+    let password = prompt("Please enter your password:", "password");
+    let accounts = await wallet.provider.listAccounts();
+    let address = accounts[0];
+    let data={password, address}
+    let url = new URL("http://0.0.0.0:5000/loadKeyPair");
+    Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
+
+    fetch(url.toString())
+    .then(function(response) {
+        if (response.status >= 400) {
+            throw new Error("Bad response from server");
+        }
+        return response.json();
+    })
+    .then(function(pairs) {
+        subscriberPubKeySig=pairs.pubkey_sig;
+        subscriberPubKeyEnv=pairs.pubkey_enc;
+    });
   }
 
   function copyToClipboard(val) {
@@ -282,6 +307,13 @@
             </div>
           </div>
         </div>
+      {/if}
+      {#if subscriberPubKeySig !== null}
+        <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Please relay your public keys to Creator:</p>
+        <ul>
+          <li>{subscriberPubKeySig}</li>
+          <li>{subscriberPubKeyEnv}</li>
+        </ul>
       {/if}
       <br />
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdc balance: ${usdcBalance}</p>
