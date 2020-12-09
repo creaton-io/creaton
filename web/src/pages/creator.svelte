@@ -51,13 +51,13 @@
       loadCreatorData();
       console.log('does superfluid work');
       loadSuperFluid();
+      let accounts = await wallet.provider.listAccounts();
+      subscriberAddress = accounts[0];
     } else {
       flow.execute(async () => {
         loadCreatorData();
       });
     }
-    let accounts = await wallet.provider.listAccounts();
-    subscriberAddress = accounts[0];
     await deployTextile();
   });
 
@@ -161,6 +161,8 @@
 
   async function loadCreatorData() {
     creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
+    let accounts = await wallet.provider.listAccounts();
+    subscriberAddress = accounts[0];
     await getContent();
     creatorContract.on('NewSubscriber', (...response) => {
       const [address, balance] = response;
