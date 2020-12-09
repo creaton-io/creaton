@@ -60,10 +60,10 @@ export class SuperfluidSDK {
       wallet.provider.getSigner()
     );
 
-    console.debug('Resolving contracts with version', this.version);
-    const superfluidAddress = await this.resolver.get(`Superfluid.${this.version}`);
-    const cfaAddress = await this.resolver.get(`ConstantFlowAgreementV1.${this.version}`);
-    const idaAddress = await this.resolver.get(`InstantDistributionAgreementV1.${this.version}`);
+    console.log('Resolving contracts with version', this.version);
+    const superfluidAddress = await this.resolver.get('Superfluid.0.1.2-preview-20201014');
+    const cfaAddress = await this.resolver.get('ConstantFlowAgreementV1.0.1.2-preview-20201014');
+    const idaAddress = await this.resolver.get('InstantDistributionAgreementV1.0.1.2-preview-20201014');
 
     console.log('Superfluid', superfluidAddress);
     console.log('ConstantFlowAgreementV1', cfaAddress);

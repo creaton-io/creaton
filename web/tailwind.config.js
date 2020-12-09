@@ -50,9 +50,9 @@ module.exports = {
         sans: ['Inter var', ...defaultTheme.fontFamily.sans],
       },
       screens: {
-        dark: {
-          raw: '(prefers-color-scheme: dark)',
-        },
+        //dark: {
+        //  raw: '(prefers-color-scheme: dark)',
+        //},
         light: {
           raw: '(prefers-color-scheme: light)',
         },

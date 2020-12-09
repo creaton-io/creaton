@@ -342,7 +342,7 @@
   </div>
 </section>
 
-<section class="pt-20 pb-10">
+<section class="pt-20">
   <div class="container px-4 mx-auto w-5/6 lg:w-3/6 mb-24">
     <h2 class="text-5xl font-semibold text-center">Technologies</h2>
     <div class="grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-4 lg:gap-20 items-center align-middle">

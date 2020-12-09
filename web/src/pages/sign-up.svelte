@@ -87,24 +87,50 @@
 </style>
 
 <WalletAccess>
-  <section class="py-8 px-4 text-center">
-    <div class="max-w-auto md:max-w-lg mx-auto">
-      <h1 class="text-4xl mb-2 font-heading">Become a Creator</h1>
+  <section class="pt-10 sm:pt-40 px-4">
+    <div class="container mx-auto px-4 h-auto max-w-screen-lg">
+      <div class="flex content-center justify-center">
+        <div class="w-full lg:w-4/12 md:w-6/12 sm:w-8/12 px-4">
+          <div
+            class="relative flex flex-col min-w-0 break-words w-full pb-10 pt-6 shadow-lg rounded-lg bg-gray-300 border-0">
+            <div class="max-w-auto md:max-w-lg mx-auto text-center">
+              <h1 class="text-xl mb-5 font-heading text-gray-600">Become a Creator</h1>
+            </div>
+            <form class="px-10">
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Name </label>
+                <input
+                  type="text"
+                  class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
+                  placeholder="Name"
+                  bind:value={creatorName} />
+              </div>
+
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Profile Image URL </label>
+                <input
+                  type="text"
+                  class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
+                  placeholder="Profile Image URL"
+                  bind:value={avatarURL} />
+              </div>
+
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Subscription Price: $</label>
+                <input
+                  type="text"
+                  class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
+                  placeholder="Subscription Price: $"
+                  bind:value={subscriptionPrice} />
+              </div>
+              <button
+                class="bg-gray-900 text-white active:bg-gray-700 text-sm font-bold uppercase px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 w-full ease-linear transition-all duration-150 mt-6"
+                type="button"
+                on:click={deployCreator}>Create!</button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
-    <form class="content flex flex-col max-w-lg mx-auto">
-      <div class="field-row">
-        <label for="name">Name:</label>
-        <Input type="text" placeholder="Name / title" className="field" bind:value={creatorName} />
-      </div>
-      <div class="field-row">
-        <label for="avatar-url">Profile Image URL:</label>
-        <Input type="text" placeholder="Profile image URL" className="field" bind:value={avatarURL} />
-      </div>
-      <div class="field-row">
-        <label for="subscription-price">Subscription Price: $</label>
-        <Input type="number" placeholder="Cost per month" className="field" bind:value={subscriptionPrice} />
-      </div>
-      <button class="mt-6" type="button" on:click={deployCreator}>Create!</button>
-    </form>
   </section>
 </WalletAccess>
