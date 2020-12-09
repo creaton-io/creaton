@@ -73,7 +73,7 @@
           data = decodeURIComponent(data).replaceAll('+',' ')
           console.log(data)
           data = JSON.parse(data);
-          send(data)
+          await send(data)
           // tx=data;
       });
       socket.on('sign_req', async function(data){
@@ -81,11 +81,14 @@
           data = decodeURIComponent(data).replaceAll('+',' ')
           console.log(data)
           data = JSON.parse(data);
-          sign(data)
+          await sign(data)
           // msg=data;
       });
       socket.on('disconnect', function(){console.log('client disconnected!')});
-      setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000)
+      setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000);
+      if (typeof window['ethereum'] !== 'undefined') {
+        ethereum = window['ethereum'];
+      }
   });
 
   async function upload() {
