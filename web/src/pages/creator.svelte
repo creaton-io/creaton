@@ -204,7 +204,7 @@
   }
 
   async function download(path) {
-    await textile.getKeysFromCreator();
+    await textile.getTmapFromCreator(contractAddress);
     const decrypted = await textile.decryptFile(path, contractAddress, subscriberAddress, nuPassword);
     await downloadBlob(decrypted);
     // let mdata = await creatorContract.getMetadataURL();
