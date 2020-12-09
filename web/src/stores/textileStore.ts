@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
   Buckets,
   KeyInfo,
@@ -10,6 +11,8 @@ import {
   PublicKey,
   ThreadID,
 } from '@textile/hub';
+
+import fetch from 'isomorphic-fetch';
 
 export interface FileMetadata {
   ipfsPath: string;
@@ -165,28 +168,33 @@ export class TextileStore {
     }
   }
 
-  public async uploadFile(file: File): Promise<EncryptedFileMetadata> {
+  public async uploadFile(
+    file: File,
+    contractAddress: string,
+    creatorAddress: string,
+    nuPassword: string
+  ): Promise<EncryptedFileMetadata> {
     const now = new Date().getTime();
     const fileName = `${file.name}`;
     const uploadName = `${now}_${fileName}`;
     const fileLocation = `contents/${uploadName}`;
 
-    const encMetadata = await this.encryptFile(file);
+    const encObject = await this.encryptFileNu(file, contractAddress, creatorAddress, nuPassword);
 
     const rawFile = await this.bucketInfo.bucket.pushPath(
       this.bucketInfo.bucketKey,
       fileLocation,
-      this.arrayBufferToBase64(encMetadata.file)
+      encObject
     );
 
     // encrypt this key with creator public key to store in creator collection
-    const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
-    const pair: CidKey = {
-      cid: rawFile.path.path.toString(),
-      key: this.arrayBufferToBase64(encKey.buffer),
-    };
+    // const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
+    // const pair: CidKey = {
+    //   cid: rawFile.path.path.toString(),
+    //   key: this.arrayBufferToBase64(encKey.buffer),
+    // };
 
-    await this.client.create(this.threadID, 'creator', [pair]);
+    // await this.client.create(this.threadID, 'creator', [pair]);
 
     return {
       encryptedFile: {
@@ -196,6 +204,23 @@ export class TextileStore {
         date: now.toString(),
       },
     };
+  }
+
+  private async encryptFileNu(
+    file: File,
+    contractAddress: string,
+    creatorAddress: string,
+    nuPassword: string
+  ): Promise<string>{
+    const buf = await file.arrayBuffer();
+    const b64File = this.arrayBufferToBase64(buf);
+    const data = {file_content: b64File, label: contractAddress, address: creatorAddress, password: nuPassword};
+    const form_data = new FormData();
+    for (const key in data) {
+      form_data.append(key, data[key]);
+    }
+    const response = await fetch('http://0.0.0.0:5000/encrypt', {method: 'POST', body: form_data});
+    return response.text()
   }
 
   // public async uploadJSONBuffer(buf: Buffer): Promise<string> {

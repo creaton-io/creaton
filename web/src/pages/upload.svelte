@@ -1,5 +1,6 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
+  import Web3 from "web3-utils";
   import Button from '../components/Button.svelte';
   import Input from '../components/Input.svelte';
   import {Contract} from '@ethersproject/contracts';
@@ -19,13 +20,19 @@
   const textile: TextileStore = new TextileStore();
   let creatorName: string = '';
   let subscriptionPrice: number;
-  let uploader, myContracts, contractAddress, creatorContract;
-  let path, pubkey, downloadPath, description;
+  let ethereum, accounts;
+  let contractAddress, creatorAddress, creatorContract;
+  let file, description, nuPassword;
+  let tx, msg;
+  let path, pubkey;
   let contents = [];
   let contentsShow = false;
 
   if (typeof window !== 'undefined') {
-    contractAddress = window.location.pathname.split('/')[2];
+    // contractAddress = window.location.pathname.split('/')[2];
+    // contractAddress = Web3.toChecksumAddress(contractAddress);
+    // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
+    // console.log(contractAddress)
   }
 
   async function deployTextile() {
@@ -35,31 +42,56 @@
 
   async function loadCreatorData() {
     creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
+    let accounts = await wallet.provider.listAccounts();
+    creatorAddress = accounts[0];
+    contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
+    console.log("creator address:", creatorAddress);
+    console.log("contract address:", contractAddress);
   }
 
-  // async function getContent() {
-  //   let contentsString = await creatorContract.getAllMetadata();
-  //   contents = [];
-  //   for (let c of contentsString) {
-  //     contents.push(JSON.parse(c));
-  //   }
-  //   contentsShow = !contentsShow;
-  // }
+  async function getContent() {
+    let contentsString = await creatorContract.getAllMetadata();
+    contents = [];
+    for (let c of contentsString) {
+      contents.push(JSON.parse(c));
+    }
+    contentsShow = !contentsShow;
+  }
 
   onMount(async () => {
-    await deployTextile();
     if (wallet.provider) {
-      loadCreatorData();
+      await loadCreatorData();
     } else {
       flow.execute(async () => {
-        loadCreatorData();
+        await loadCreatorData();
       });
     }
+    await deployTextile();
+    let socket = window['socket']
+      socket.on('connect', function(){ console.log('client connected!')});
+      socket.on('sign_broad_req', function(data){
+          console.log('new request for signing!',data);
+          data = decodeURIComponent(data).replaceAll('+',' ')
+          console.log(data)
+          data = JSON.parse(data);
+          // send(data)
+          tx=data;
+      });
+      socket.on('sign_req', function(data){
+          console.log('new request for signing!',data);
+          data = decodeURIComponent(data).replaceAll('+',' ')
+          console.log(data)
+          data = JSON.parse(data);
+          // send(data)
+          msg=data;
+      });
+      socket.on('disconnect', function(){console.log('client disconnected!')});
+      setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000)
   });
 
   async function upload() {
-    const file = await uploader.files[0];
-    const encFile = await textile.uploadFile(file);
+    const content = await file.files[0];
+    const encFile = await textile.uploadFile(content, contractAddress, creatorAddress, nuPassword);
     const metadata = {
       name: encFile.encryptedFile.name,
       type: encFile.encryptedFile.type,
@@ -67,8 +99,9 @@
       date: encFile.encryptedFile.date,
       ipfs: encFile.encryptedFile.ipfsPath,
     };
-    const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
-    console.log(receipt);
+    console.log(metadata.ipfs);
+    // const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
+    // console.log(receipt);
   }
 
   async function sendKeys() {
@@ -79,8 +112,8 @@
     await textile.getKeysFromCreator();
     const decrypted = await textile.decryptFile(path);
     await downloadBlob(decrypted);
-    // let mdata = await creatorContract.getMetadataURL();
-    // console.log(mdata);
+    let mdata = await creatorContract.getMetadataURL();
+    console.log(mdata);
   }
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
@@ -139,15 +172,19 @@
   <form class="content flex flex-col max-w-lg mx-auto">
     <div class="field-row">
       <label for="avatar">Select file:</label>
-      <input id="avatar" bind:this={uploader} type="file" placeholder="File" className="visually-hidden" />
+      <input id="avatar" bind:this={file} type="file" placeholder="File" className="visually-hidden" />
     </div>
     <div class="field-row">
       <label for="description">Description: </label>
       <Input type="text" placeholder="My recent trip to Norway!" className="field" bind:value={description} />
     </div>
+    <div class="field-row">
+      <label for="description">NuCypher Password: </label>
+      <Input type="text" placeholder="My recent trip to Norway!" className="field" bind:value={nuPassword} />
+    </div>
     <Button class="mt-3" on:click={upload}>Upload</Button>
 
-    <br />
+    <!-- <br />
     <div class="field-row">
       <label for="path-url">Path: </label>
       <Input type="text" placeholder="Path" className="field" bind:value={path} />
@@ -156,7 +193,7 @@
       <label for="pubkey-url">Pubkey: </label>
       <Input type="text" placeholder="Pubkey" className="field" bind:value={pubkey} />
     </div>
-    <Button class="mt-3" on:click={sendKeys}>Send Keys</Button>
+    <Button class="mt-3" on:click={sendKeys}>Send Keys</Button> -->
 
     <!-- <br />
     <div class="field-row">

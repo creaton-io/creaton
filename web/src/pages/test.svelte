@@ -10,50 +10,52 @@
   let tx;
   let msg;
   onMount(async () => {
-      let socket = window['socket']
-      socket.on('connect', function(){ console.log('client connected!')});
-      socket.on('sign_broad_req', function(data){
-          console.log('new request for signing!',data);
-          data = decodeURIComponent(data).replaceAll('+',' ')
-          console.log(data)
-          data = JSON.parse(data);
-          // send(data)
-          tx=data;
-      });
-      socket.on('sign_req', function(data){
-          console.log('new request for signing!',data);
-          data = decodeURIComponent(data).replaceAll('+',' ')
-          console.log(data)
-          data = JSON.parse(data);
-          // send(data)
-          msg=data;
-      });
-      socket.on('disconnect', function(){console.log('client disconnected!')});
-      setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000)
-      fetch('http://0.0.0.0:5000/test')
-      .then(function(response) {
-          if (response.status >= 400) {
-              throw new Error("Bad response from server");
-          }
-          return response.json();
-      })
-      .then(function(stories) {
-          console.log(stories);
-      });
-      if (wallet.provider) {
-      } else {
-        flow.execute(async (contracts) => {
-        });
-      }
-      if (typeof window['ethereum'] !== 'undefined') {
-        ethereum = window['ethereum'];
-        accounts = ethereum.request({ method: 'eth_requestAccounts' }).then(
-                          result => {console.log(result)}).catch (
-                            (error) => {
-  
-                            }
-                          );
-                        }
+      // let socket = window['socket']
+      // socket.on('connect', function(){ console.log('client connected!')});
+      // socket.on('sign_broad_req', function(data){
+      //     console.log('new request for signing!',data);
+      //     data = decodeURIComponent(data).replaceAll('+',' ')
+      //     console.log(data)
+      //     data = JSON.parse(data);
+      //     // send(data)
+      //     tx=data;
+      // });
+      // socket.on('sign_req', function(data){
+      //     console.log('new request for signing!',data);
+      //     data = decodeURIComponent(data).replaceAll('+',' ')
+      //     console.log(data)
+      //     data = JSON.parse(data);
+      //     // send(data)
+      //     msg=data;
+      // });
+      // socket.on('disconnect', function(){console.log('client disconnected!')});
+      // setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000)
+      // fetch('http://0.0.0.0:5000/test')
+      // .then(function(response) {
+      //     if (response.status >= 400) {
+      //         throw new Error("Bad response from server");
+      //     }
+      //     return response.json();
+      // })
+      // .then(function(stories) {
+      //     console.log(stories);
+      // });
+      // if (wallet.provider) {
+      // } else {
+      //   flow.execute(async (contracts) => {
+      //   });
+      // }
+      // if (typeof window['ethereum'] !== 'undefined') {
+      //   ethereum = window['ethereum'];
+      //   accounts = ethereum.request({ method: 'eth_requestAccounts' }).then(
+      //                     result => {console.log(result)}).catch (
+      //                       (error) => {
+      //                         console.log("ethereum accounts error")
+      //                       }
+      //                     );
+      //                   }
+      let accounts = await wallet.provider.listAccounts();
+      console.log("accounts:", accounts[0]);
       });
   
   async function getAccounts() {
