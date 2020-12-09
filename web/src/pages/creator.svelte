@@ -273,6 +273,8 @@
   }
 </script>
 
+<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+
 <WalletAccess>
   <section class="py-8 px-4 text-center max-w-4xl mx-auto">
     {#if !creator || !title || !avatarURL || !subscriptionPrice}
