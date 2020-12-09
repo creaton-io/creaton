@@ -95,7 +95,7 @@
         [
           0, // approve collateral fee
           daix.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10').toString()]),
         ],
         [
           5, // callAppAction to collateral
@@ -105,12 +105,12 @@
         [
           4, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interfaceCreateFlow.encodeFunctionData(
-            'createFlow',
-            [daix.address, app.address],
+          sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
+            daix.address,
+            app.address,
             MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
-          ),
+            '0x',
+          ]),
         ],
       ];
     console.log('this is the batchcall: ', call);
@@ -121,7 +121,7 @@
     sf = new SuperfluidSDK({
       web3Provider: wallet,
       version: '0.1.2-preview-20201014',
-      chainId: 31337,
+      chainId: 5,
     });
     await sf.initialize();
 
