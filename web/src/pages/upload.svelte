@@ -28,8 +28,8 @@
   let contentsShow = false;
 
   if (typeof window !== 'undefined') {
-    // contractAddress = window.location.pathname.split('/')[2];
-    // contractAddress = Web3.toChecksumAddress(contractAddress);
+    contractAddress = window.location.pathname.split('/')[2];
+    contractAddress = Web3.toChecksumAddress(contractAddress);
     // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
     // console.log(contractAddress)
   }
@@ -43,9 +43,9 @@
     creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
     let accounts = await wallet.provider.listAccounts();
     creatorAddress = accounts[0];
-    contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
+    // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
     console.log("creator address:", creatorAddress);
-    console.log("contract address:", contractAddress);
+    // console.log("contract address:", contractAddress);
   }
 
   async function getContent() {
@@ -102,8 +102,8 @@
       ipfs: encFile.encryptedFile.ipfsPath,
     };
     console.log(metadata.ipfs);
-    // const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
-    // console.log(receipt);
+    const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
+    console.log(receipt);
   }
 
   async function grant() {
