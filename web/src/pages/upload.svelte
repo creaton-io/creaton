@@ -221,8 +221,6 @@
   }
 </style>
 
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-
 <WalletAccess />
 <section class="py-8 px-4 text-center">
   <form class="content flex flex-col max-w-lg mx-auto">

@@ -273,9 +273,8 @@
   }
 </script>
 
-<meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
 
-<WalletAccess>
+<WalletAccess />
   <section class="py-8 px-4 text-center max-w-4xl mx-auto">
     {#if !creator || !title || !avatarURL || !subscriptionPrice}
       <div>Fetching creator...</div>
@@ -330,4 +329,3 @@
       <Button class="mt-3" on:click={approveUSDC}>approve a lot of usdc</Button>
     {/if}
   </section>
-</WalletAccess>
