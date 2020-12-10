@@ -439,6 +439,7 @@ export class TextileStore {
   public async sendTmapToSubscribers(textilePubKey: string, cid: string, tmap: string): Promise<void>{
     const pubKey = PublicKey.fromString(textilePubKey);
     const message = '{"cid": "' + cid + '", "tmap": "' + tmap + '"}';
+    console.log(message);
     await this.sendMailBox(this.identity, pubKey, message);
   }
 

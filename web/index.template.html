@@ -8,7 +8,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
     <script>
        window['socket'] = io.connect('https://localhost:3010',{
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            
+            reconnection: true,
+            forceNew: true
         });
     </script>
 
