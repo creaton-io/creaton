@@ -1,5 +1,6 @@
 <script lang="ts">
   import WalletAccess from '../templates/WalletAccess.svelte';
+  import Web3 from "web3-utils";
   import Button from '../components/Button.svelte';
   import Input from '../components/Input.svelte';
   import {Contract} from '@ethersproject/contracts';
@@ -43,6 +44,7 @@
 
   if (typeof window !== 'undefined') {
     contractAddress = window.location.pathname.split('/')[2];
+    contractAddress = Web3.toChecksumAddress(contractAddress);
   }
 
   onMount(async () => {
