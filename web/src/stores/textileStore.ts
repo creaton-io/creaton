@@ -318,7 +318,9 @@ export class TextileStore {
     // i.e.when query fails
     const query = new Where('cid').eq(contractAddress);
     const result = await this.client.find<Tmap>(this.threadID, 'subscriber', query);
+    console.log("result query", result);
     const pair = result[0];
+    console.log("first query result", pair);
     // const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
     // const decryptKey = await this.importKey(keyBuffer.buffer);
     const tmap = pair.tmap;
@@ -411,6 +413,7 @@ export class TextileStore {
         cid: tmapPair.cid,
         tmap: tmapPair.tmap,
       };
+      console.log(tmap);
       await this.client.create(this.threadID, 'subscriber', [tmap]);
     }
   }
