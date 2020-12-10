@@ -79,7 +79,7 @@ export class TextileStore {
 
   constructor() {
     this.keyInfo = {
-      key: 'b7hbuhcxdpmvnqzo3rxnr2lpqjq',
+      key: 'b5d3fve3faiiyy6w6jtedbzpkk4',
     };
     this.keyInfoOptions = {
       debug: true,
