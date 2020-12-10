@@ -325,7 +325,7 @@ export class TextileStore {
     // const decryptKey = await this.importKey(keyBuffer.buffer);
     const tmap = pair.tmap;
 
-    const data = {enc_file_cotent: content, label: contractAddress, policy_pubkey: policy_pubkey, creator_pubkey: alice_sig_pubkey ,
+    const data = {enc_file_content: content, label: contractAddress, policy_pubkey: policy_pubkey, creator_pubkey: alice_sig_pubkey ,
       address: subscriberAddress, password: nuPassword, tmap: tmap};
     const form_data = new FormData();
     for (const key in data) {
