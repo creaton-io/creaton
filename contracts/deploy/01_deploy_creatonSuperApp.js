@@ -63,11 +63,21 @@ const func = async function (hre) {
   const usdcxWrapper = await sf.getERC20Wrapper(usdc);
   const usdcx = await sf.contracts.ISuperToken.at(usdcxWrapper.wrapperAddress);
 
-  await deploy('CreatonSuperApp', {
+  const creatonSuperApp = await deploy('CreatonSuperApp', {
     from: creator,
     proxy: useProxy,
     args: [sf.host.address, sf.agreements.cfa.address, usdcx.address],
     log: true,
+  });
+
+  await hre.tenderly.push({
+    name: 'CreatonSuperApp',
+    address: creatonSuperApp.address,
+  });
+
+  await hre.tenderly.push({
+    name: 'CreatonSuperApp',
+    address: creatonSuperApp.address,
   });
 
   return !useProxy; // when live network, record the script as executed to prevent rexecution

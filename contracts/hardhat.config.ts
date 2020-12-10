@@ -3,6 +3,7 @@ import '@nomiclabs/hardhat-web3';
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
+import '@tenderly/hardhat-tenderly';
 // require('solidity-coverage');
 
 const {Wallet} = require('@ethersproject/wallet');
@@ -10,6 +11,7 @@ const {Wallet} = require('@ethersproject/wallet');
 const mnemonic = process.env.MNEMONIC;
 let accounts;
 let hardhatAccounts;
+
 if (mnemonic) {
   accounts = {
     mnemonic,
@@ -78,7 +80,7 @@ const config = {
       accounts,
     },
     goerli: {
-      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.INFURA_TOKEN,
+      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
       accounts,
     },
     mainnet: {
@@ -88,6 +90,10 @@ const config = {
   },
   paths: {
     sources: 'src',
+  },
+  tenderly: {
+    project: 'creaton',
+    username: 'aeroxander',
   },
 };
 

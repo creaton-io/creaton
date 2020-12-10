@@ -97,7 +97,7 @@ contract CreatonSuperApp is ISuperApp {
 
         //check if streamer is going to support the membership they payed collateral for
         require(collateralMembership == collateralMembership, _ERR_STR_UNFINISHED_SUPPORT); //TODO: actually check it
-        cbdata = abi.encode(sender);
+        cbdata = abi.encode(sender, collateralMembership);
     }
 
     /// @dev Support the creator
@@ -133,8 +133,8 @@ contract CreatonSuperApp is ISuperApp {
             abi.encodeWithSelector(
                 _cfa.createFlow.selector,
                 _acceptedToken,
-                streamer,
-                _cfa.getNetFlow(_acceptedToken, membership),
+                membership,
+                _cfa.getNetFlow(_acceptedToken, streamer),
                 new bytes(0)
             ),
             newCtx
