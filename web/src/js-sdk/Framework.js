@@ -72,12 +72,8 @@ export class SuperfluidSDK {
     //this.host = await this.contracts.ISuperfluid.at(superfluidAddress);
     this.host = new Contract(superfluidAddress, SuperfluidABI.ISuperfluid, wallet.provider.getSigner());
     this.agreements = {
-      cfa: await new Contract(superfluidAddress, SuperfluidABI.IConstantFlowAgreementV1, wallet.provider.getSigner()),
-      ida: await new Contract(
-        superfluidAddress,
-        SuperfluidABI.IInstantDistributionAgreementV1,
-        wallet.provider.getSigner()
-      ),
+      cfa: await new Contract(cfaAddress, SuperfluidABI.IConstantFlowAgreementV1, wallet.provider.getSigner()),
+      ida: await new Contract(idaAddress, SuperfluidABI.IInstantDistributionAgreementV1, wallet.provider.getSigner()),
     };
   }
 

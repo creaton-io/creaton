@@ -9,7 +9,7 @@ const PORTIS_DAPP_ID = '00d1d879-a8bb-432d-bbbc-d913da388c1f';
 const chainId = import.meta.env.VITE_CHAIN_ID;
 let nodeUrl: string | undefined;
 if (chainId === '1337' || chainId === '31337') {
-  nodeUrl = 'http://localhost:8545';
+  nodeUrl = 'http://127.0.0.1:8545';
 }
 
 const walletStores = WalletStores({
