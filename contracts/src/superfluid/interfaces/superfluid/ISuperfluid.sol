@@ -1,17 +1,16 @@
 // SPDX-License-Identifier: MIT
-pragma solidity >= 0.7.0;
+pragma solidity >=0.7.0;
 pragma experimental ABIEncoderV2;
 
-import { ISuperfluidGovernance } from "./ISuperfluidGovernance.sol";
-import { ISuperToken } from "./ISuperToken.sol";
-import { ISuperfluid } from "./ISuperfluid.sol";
-import { ISuperAgreement } from "./ISuperAgreement.sol";
-import { ISuperApp } from "./ISuperApp.sol";
-import { SuperAppDefinitions } from "./SuperAppDefinitions.sol";
-import { TokenInfo } from "../tokens/TokenInfo.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import { IERC777 } from "@openzeppelin/contracts/token/ERC777/IERC777.sol";
-
+import {ISuperfluidGovernance} from "./ISuperfluidGovernance.sol";
+import {ISuperToken} from "./ISuperToken.sol";
+import {ISuperfluid} from "./ISuperfluid.sol";
+import {ISuperAgreement} from "./ISuperAgreement.sol";
+import {ISuperApp} from "./ISuperApp.sol";
+import {SuperAppDefinitions} from "./SuperAppDefinitions.sol";
+import {TokenInfo} from "../tokens/TokenInfo.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {IERC777} from "@openzeppelin/contracts/token/ERC777/IERC777.sol";
 
 /**
  * @dev Superfluid host interface.
@@ -25,11 +24,10 @@ import { IERC777 } from "@openzeppelin/contracts/token/ERC777/IERC777.sol";
  * @author Superfluid
  */
 interface ISuperfluid {
-
     /**************************************************************************
      * Governance
      *************************************************************************/
-    function getGovernance() external view returns(ISuperfluidGovernance governance);
+    function getGovernance() external view returns (ISuperfluidGovernance governance);
 
     /**************************************************************************
      * Token Registry
@@ -43,11 +41,9 @@ interface ISuperfluid {
      *
      * NOTE: Deterministic address is generated based on the input.
      */
-    function getERC20Wrapper(
-        IERC20 underlyingToken,
-        string calldata symbol
-    )
+    function getERC20Wrapper(IERC20 underlyingToken, string calldata symbol)
         external
+        view
         returns (address wrapperAddress, bool created);
 
     function createERC20Wrapper(
@@ -55,9 +51,7 @@ interface ISuperfluid {
         uint8 underlyingDecimals,
         string calldata name,
         string calldata symbol
-    )
-        external
-        returns (ISuperToken superToken);
+    ) external returns (ISuperToken superToken);
 
     /**************************************************************************
      * App Registry
@@ -73,26 +67,19 @@ interface ISuperfluid {
      * @dev Query if the app is registered
      * @param app Super app address
      */
-    function isApp(ISuperApp app) external view returns(bool);
+    function isApp(ISuperApp app) external view returns (bool);
 
     /**
      * @dev Query app level
      * @param app Super app address
      */
-    function getAppLevel(ISuperApp app) external view returns(uint8 appLevel);
+    function getAppLevel(ISuperApp app) external view returns (uint8 appLevel);
 
     /**
      * @dev Get the manifest of the super app
      * @param app Super app address
      */
-    function getAppManifest(
-        ISuperApp app
-    )
-        external view
-        returns (
-            bool exist,
-            uint256 configWord
-        );
+    function getAppManifest(ISuperApp app) external view returns (bool exist, uint256 configWord);
 
     /**
      * @dev Query if the app has been jailed
@@ -111,12 +98,7 @@ interface ISuperfluid {
      * @param app Super app address
      * @param targetApp The taget super app address
      */
-    function isCompositeAppAllowed(
-        ISuperApp app,
-        ISuperApp targetApp
-    )
-        external view
-        returns (bool isAppAllowed);
+    function isCompositeAppAllowed(ISuperApp app, ISuperApp targetApp) external view returns (bool isAppAllowed);
 
     event Jail(ISuperApp app, uint256 info);
 
@@ -132,9 +114,12 @@ interface ISuperfluid {
         bytes calldata ctx
     )
         external
-        // onlyAgreement
-        // isAppActive(app)
-        returns(bytes memory newCtx, bytes memory cbdata);
+        returns (
+            // onlyAgreement
+            // isAppActive(app)
+            bytes memory newCtx,
+            bytes memory cbdata
+        );
 
     function callAppAfterCallback(
         ISuperApp app,
@@ -143,9 +128,11 @@ interface ISuperfluid {
         bytes calldata ctx
     )
         external
-        // onlyAgreement
-        // isAppActive(app)
-        returns(bytes memory newCtx);
+        returns (
+            // onlyAgreement
+            // isAppActive(app)
+            bytes memory newCtx
+        );
 
     function ctxUpdate(
         bytes calldata ctx,
@@ -154,8 +141,10 @@ interface ISuperfluid {
         uint256 allowanceUsed
     )
         external
-        // onlyAgreement
-        returns (bytes memory newCtx);
+        returns (
+            // onlyAgreement
+            bytes memory newCtx
+        );
 
     /**************************************************************************
      * Non-app Call Proxy
@@ -166,22 +155,21 @@ interface ISuperfluid {
      * If the app use these entry points while having an active context, the
      * violating app will be jailed.
      *************************************************************************/
-     /**
-      * @dev Call agreement function
-      * @param data The contextual call data.
-      *
-      * NOTE: The contextual call data should be generated using
-      * abi.encodeWithSelector. The context parameter should be set to "0x",
-      * an empty bytes array as a placeholder to be replaced by the host
-      * contract.
-      */
-     function callAgreement(
-         ISuperAgreement agreementClass,
-         bytes calldata data
-     )
+    /**
+     * @dev Call agreement function
+     * @param data The contextual call data.
+     *
+     * NOTE: The contextual call data should be generated using
+     * abi.encodeWithSelector. The context parameter should be set to "0x",
+     * an empty bytes array as a placeholder to be replaced by the host
+     * contract.
+     */
+    function callAgreement(ISuperAgreement agreementClass, bytes calldata data)
         external
-        //cleanCtx
-        returns(bytes memory returnedData);
+        returns (
+            //cleanCtx
+            bytes memory returnedData
+        );
 
     /**
      * @dev Call agreement function
@@ -189,26 +177,24 @@ interface ISuperfluid {
      *
      * NOTE: See callAgreement about contextual call data.
      */
-    function callAppAction(
-        ISuperApp app,
-        bytes calldata data
-    )
+    function callAppAction(ISuperApp app, bytes calldata data)
         external
-        //cleanCtx
-        //isAppActive(app)
-        returns(bytes memory returnedData);
-
+        returns (
+            //cleanCtx
+            //isAppActive(app)
+            bytes memory returnedData
+        );
 
     /**
      * @dev Operation type for batch operations
      */
     enum OperationType {
-        Approve,          // 0
-        TransferFrom,     // 1
-        Upgrade,          // 2
-        Downgrade,        // 3
-        CallAgreement,    // 4
-        CallApp           // 5
+        Approve, // 0
+        TransferFrom, // 1
+        Upgrade, // 2
+        Downgrade, // 3
+        CallAgreement, // 4
+        CallApp // 5
     }
 
     /**
@@ -245,9 +231,12 @@ interface ISuperfluid {
         bytes calldata ctx
     )
         external
-        // validCtx(ctx)
-        // onlyAgreement(agreementClass)
-        returns (bytes memory newCtx, bytes memory returnedData);
+        returns (
+            // validCtx(ctx)
+            // onlyAgreement(agreementClass)
+            bytes memory newCtx,
+            bytes memory returnedData
+        );
 
     function callAppActionWithContext(
         ISuperApp app,
@@ -255,20 +244,22 @@ interface ISuperfluid {
         bytes calldata ctx
     )
         external
-        // validCtx(ctx)
-        // isAppActive(app)
-        returns (bytes memory newCtx);
+        returns (
+            // validCtx(ctx)
+            // isAppActive(app)
+            bytes memory newCtx
+        );
 
-    function chargeGasFee(
-        bytes calldata ctx,
-        uint fee
-    )
+    function chargeGasFee(bytes calldata ctx, uint256 fee)
         external
-        // validCtx(ctx)
-        returns (bytes memory newCtx);
+        returns (
+            // validCtx(ctx)
+            bytes memory newCtx
+        );
 
     function decodeCtx(bytes calldata ctx)
-        external pure
+        external
+        pure
         returns (
             bytes4 agreementSelector,
             uint8 appLevel,
@@ -285,7 +276,7 @@ interface ISuperfluid {
      *
      * TODO: turning these off because solidity-coverage don't like it
      *************************************************************************/
-     /* /// @dev The current superfluid context is clean.
+    /* /// @dev The current superfluid context is clean.
      modifier cleanCtx() virtual;
 
      /// @dev The superfluid context is valid.

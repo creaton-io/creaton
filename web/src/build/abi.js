@@ -376,7 +376,7 @@ let abi = {
         {internalType: 'address', name: 'wrapperAddress', type: 'address'},
         {internalType: 'bool', name: 'created', type: 'bool'},
       ],
-      stateMutability: 'nonpayable',
+      stateMutability: 'view',
       type: 'function',
     },
     {

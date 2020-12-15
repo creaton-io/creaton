@@ -12,7 +12,7 @@
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@nomiclabs/hardhat-web3": "^2.0.0",
     "@openzeppelin/contracts": "^3.3.0",
-    "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix5",
+    "@superfluid-finance/ethereum-contracts": "^0.1.2-preview-20201014-fix6",
     "@tenderly/hardhat-tenderly": "^1.0.6",
     "@truffle/contract": "^4.3.1",
     "@types/chai": "^4.2.11",

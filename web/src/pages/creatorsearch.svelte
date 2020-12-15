@@ -105,7 +105,13 @@
         [
           4, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, app.address, app.address]),
+          sf.interfaceCreateFlow.encodeFunctionData(
+            'createFlow',
+            usdcx.address,
+            app.address,
+            MINIMUM_GAME_FLOW_RATE.toString(),
+            '0x'
+          ),
         ],
       ];
   }
@@ -122,6 +128,7 @@
     usdc = new Contract(usdcAddress, SuperfluidABI.TestToken, wallet.provider.getSigner());
     const usdcxWrapper = await sf.getERC20Wrapper(usdc);
     usdcx = usdcxWrapper;
+    console.log('usdcx address', usdcx);
     app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
   }
 
