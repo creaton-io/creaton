@@ -26,11 +26,13 @@
   let sf;
   let usdc;
   let usdcx;
+  let usdcxSet;
   let app;
   let usdcBalance;
   let usdcApproved;
+  let usdcxBalance;
 
-  const APP_ADDRESS = '0xb21e3101467A0f9f5b17e129810824825313434c';
+  const APP_ADDRESS = '0x25f8A5560074422D369a3b7c40467d5E06504347';
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
   //TODO: try this with hardhat
   //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
@@ -44,7 +46,7 @@
   let fetchStatus = FetchState.idle;
 
   if (typeof window !== 'undefined') {
-    contractAddress = window.location.pathname.split('/')[2];
+    //contractAddress = '0x9314977248132C815c657441BBe9bFc6C57502dC'; // window.location.pathname.split('/')[2];
     console.log('contractaddress', contractAddress);
   }
 
@@ -60,9 +62,13 @@
 
   async function support() {
     usdcBalance = await usdc.balanceOf($wallet.address);
-    usdcApproved = await usdcx.balanceOf($wallet.address);
+    usdcxBalance = await usdcx.balanceOf($wallet.address);
+
+    console.log('test', usdcx.address);
+    console.log('test2', app.address);
+
     var call;
-    if (usdcApproved < 2)
+    if (usdcxBalance < 2)
       call = [
         [
           2, // upgrade 100 usdcx to play the game
@@ -72,22 +78,22 @@
         [
           0, // approve collateral fee
           usdcx.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10').toString()]),
         ],
         [
           5, // callAppAction to collateral
           app.address,
-          sf.interface.encodeFunctionData('collateral', ['0x']), //TODO: have to
+          sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']), //TODO: have to
         ],
         [
           4, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interfaceCreateFlow.encodeFunctionData(
-            'createFlow',
-            [usdcx.address, app.address],
+          sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
+            usdcx.address,
+            app.address,
             MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
-          ),
+            '0x',
+          ]),
         ],
       ];
     else
@@ -105,15 +111,17 @@
         [
           4, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interfaceCreateFlow.encodeFunctionData(
-            'createFlow',
+          sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
             usdcx.address,
             app.address,
             MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
-          ),
+            '0x',
+          ]),
         ],
       ];
+
+    console.log('this is the batchcall: ', call);
+    await sf.host.batchCall(call, {from: $wallet.address});
   }
 
   async function loadSuperFluid() {
@@ -127,21 +135,25 @@
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');
     usdc = new Contract(usdcAddress, SuperfluidABI.TestToken, wallet.provider.getSigner());
     const usdcxWrapper = await sf.getERC20Wrapper(usdc);
+    const usdcxSetWrapper = await sf.setERC20Wrapper(usdc);
     usdcx = usdcxWrapper;
+    usdcxSet = usdcxSetWrapper;
     console.log('usdcx address', usdcx);
-    app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
+    app = await new Contract(APP_ADDRESS, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
   }
 
   async function mintUSDC() {
     //mint some usdc here!  100 default amount
-    await usdc.mint($wallet.address, parseEther('100'));
+    await usdc.mint($wallet.address, parseEther('100'), {from: $wallet.address});
     usdcBalance = await usdc.balanceOf($wallet.address);
   }
 
   async function approveUSDC() {
     //approve unlimited please
     await usdc
-      .approve(usdcx.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935')
+      .approve(usdcx.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
+        from: $wallet.address,
+      })
       .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
   }
 
@@ -193,9 +205,10 @@
   }
 
   function testStream() {
+    usdcxSet.upgrade(parseEther('100').toString(), {from: $wallet.address});
     sf.host.callAgreement(
       sf.agreements.cfa.address,
-      sf.agreements.cfa.encodeFunctionData('createFlow', [usdcx.address, '385802469135802', '0x']),
+      sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, app.address, '385802469135802', '0x']),
       {from: $wallet.address}
     );
   }
@@ -243,6 +256,7 @@
             {/if}
             <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdc Balance: ${usdcBalance}</p>
             <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Approved usdc Balance: ${usdcApproved}</p>
+            <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdcx Balance: ${usdcxBalance}</p>
             <Button class="mt-3" on:click={mintUSDC}>mint 100 usdc</Button>
             <Button class="mt-3" on:click={approveUSDC}>approve a lot of usdc</Button>
             <Button class="mt-3" on:click={testStream}>Directly stream test</Button>
