@@ -354,10 +354,6 @@
       <img alt="..." src="/images/superfluid.png" />
       <img alt="..." src="/images/textile.png" />
     </div>
-    <h2 class="text-5xl font-semibold text-center pb-6">Incubator</h2>
-    <div class="grid grid-flow-row-dense grid-cols-1 grid-rows-1 gap-2 lg:gap-12 items-center align-middle pb-24">
-      <img class="rounded-md" alt="..." src="/images/btselab.png" />
-    </div>
     <div class="container mx-auto px-4">
       <div class="flex flex-wrap text-center">
         <div class="w-full px-4">
