@@ -1,9 +1,9 @@
-<section class="pt-20 bg-gradient-to-t from-green-100 to-yellow-100">
+<section class="pt-20 bg-gradient-to-t from-green-300 via-green-400 to-teal-400">
   <div class="container mx-auto px-4">
     <div class="flex flex-wrap justify-center text-center mb-6">
       <div class="w-full lg:w-6/12 px-4">
-        <h2 class="text-5xl font-semibold">Team</h2>
-        <p class="text-lg leading-relaxed m-4 text-gray-600">
+        <h2 class="text-5xl font-semibold text-white">Team</h2>
+        <p class="text-lg leading-relaxed m-4 text-white">
           A team of young professionals guided by crypto veterans is creating a truly decentralized playground for
           creators
         </p>
@@ -11,7 +11,7 @@
     </div>
     <div class="flex flex-wrap justify-center">
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="px-6">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Alexander Klus</h5>
             <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Blockchain Dev</p>
@@ -29,7 +29,7 @@
         </div>
       </div>
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="px-6">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Sina Faraji</h5>
             <p class="mt-1 text-lg dark:text-gray-100 text-gray-500 uppercase font-semibold">Cryptographer</p>
@@ -47,7 +47,7 @@
         </div>
       </div>
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="px-6">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Steven Le</h5>
             <p class="mt-1 text-lg dark:text-gray-100 text-gray-500 uppercase font-semibold">Full-stack Dev</p>
@@ -65,7 +65,7 @@
         </div>
       </div>
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="px-6">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Farshad Kazemi</h5>
             <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Backend Dev</p>
@@ -85,12 +85,12 @@
     </div>
     <div class="flex flex-wrap justify-center text-center mb-6 mt-12">
       <div class="w-full lg:w-6/12 px-4">
-        <h2 class="text-5xl font-semibold">Advisors</h2>
+        <h2 class="text-5xl font-semibold text-white">Advisors</h2>
       </div>
     </div>
     <div class="flex flex-wrap justify-center pb-12 border-b">
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="px-6">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Danish Chaudhry</h5>
             <p class="mt-1 text-lg text-gray-500 uppercase font-semibold break-normal whitespace-no-wrap">
@@ -110,7 +110,7 @@
         </div>
       </div>
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="px-6">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Sascha Epp</h5>
             <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">INTERIM CFO & BUSINESS LEAD</p>
@@ -121,6 +121,24 @@
                   href="https://www.linkedin.com/in/saschawe/"
                   target="_blank">
                   <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
+                </a>
+              </li>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
+          <div class="pt-6 text-center">
+            <h5 class="text-2xl font-bold">BTSE Labs</h5>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Incubator</p>
+            <div class="mt-6">
+              <li class="flex items-center">
+                <a
+                  class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
+                  href="https://www.btse.com/"
+                  target="_blank">
+                  <i class="text-white fas fa-link text-lg leading-lg align-bottom" />
                 </a>
               </li>
             </div>

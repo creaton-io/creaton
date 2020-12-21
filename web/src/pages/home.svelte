@@ -201,7 +201,7 @@
       </div>
       <div class="container relative mx-auto">
         <div class="items-center flex flex-wrap">
-          <div class="w-full lg:w-8/12 px-4 ml-auto mr-auto text-center">
+          <div class="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
             <div class="relative pr-0 w-2/5 ml-auto mr-auto">
               {#if visible}
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 103 124">
@@ -213,18 +213,27 @@
                       d={inner} />
                   </g>
                 </svg>
-                <div
-                  class="-mt-8 lg:-mt-20 text-4xl lg:text-8xl text-green-400 text-center"
-                  out:fly={{y: -20, duration: 800}}>
+                <div class="-mt-12 text-6xl text-green-400 text-center" out:fly={{y: -20, duration: 800}}>
                   {#each 'Creaton' as char, i}<span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>{/each}
                 </div>
-                <div class="mt-8 mb-6 text-sm lg:text-xl text-gray-300" out:fly={{y: -20, duration: 800}}>
-                  {#each 'Decentralized Content Sharing Platform' as char, i}
+                <div
+                  class="mt-8 mb-6 text-md lg:text-xl text-gray-300 whitespace-nowrap"
+                  out:fly={{y: -20, duration: 800}}>
+                  {#each 'Create & Earn as Creator.' as char, i}
+                    <span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>
+                  {/each}
+                  <br />
+                  {#each 'Subscribe & Invest as Fan.' as char, i}
                     <span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>
                   {/each}
                 </div>
               {/if}
             </div>
+            <button
+              type="button"
+              class="bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 text-white font-semibold px-6 py-3 rounded-md">
+              Join the Creator Economy
+            </button>
           </div>
         </div>
       </div>
@@ -244,7 +253,7 @@
       </div>
     </div>
 
-    <section class="pb-20 bg-gradient-to-b from-green-300 via-indigo-200 to-yellow-100 -mt-24">
+    <section class="pb-20 bg-gradient-to-b from-green-400 via-green-400 to-teal-400 -mt-24">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
@@ -298,19 +307,12 @@
                   class="text-white p-3 text-center inline-flex items-center justify-center w-12 h-12 mb-5 shadow-lg rounded-full bg-blue-400">
                   <i class="fas fa-hands-helping" />
                 </div>
-                <h6 class="text-xl font-semibold">Farm Creatonks</h6>
+                <h6 class="text-xl font-semibold">Farm CreaTokens</h6>
                 <p class="mt-2 mb-4 text-gray-600">
-                  Kickstart creator careers by buying Creatonks (creator tokens), receive rewards for farming
+                  Kickstart creator careers by buying CreaTokens, receive rewards for farming
                 </p>
               </div>
             </div>
-          </div>
-        </div>
-
-        <div class="container mx-auto px-4 w-full md:w-10/12">
-          <div class="items-center flex flex-wrap">
-            <div class="w-full md:w-4/12 ml-auto mr-auto px-4" />
-            <img alt="..." src="https://i.imgur.com/IM7pQmM.jpg" class="w-full align-middle rounded-lg" />
           </div>
         </div>
       </div>
@@ -319,7 +321,7 @@
   </main>
 </div>
 
-<section class="py-8 px-4 text-center bg-gradient-to-b from-teal-100 to-white">
+<section class="py-8 px-4 text-center bg-gradient-to-b from-green-300 to-white">
   <div class="w-fill mx-auto mt-4 mb-10">
     <h1 class="text-indigo-600 font-bold text-6xl mb-10 font-heading">{name}</h1>
   </div>
@@ -346,11 +348,15 @@
   <div class="container px-4 mx-auto w-5/6 lg:w-3/6 mb-24">
     <h2 class="text-5xl font-semibold text-center">Technologies</h2>
     <div class="grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-4 lg:gap-20 items-center align-middle">
-      <img alt="..." src="/images/nucypher.png" />
       <img alt="..." src="/images/ethereum.png" />
+      <img alt="..." src="/images/nucypher.png" />
       <img alt="..." src="/images/filecoin.png" />
       <img alt="..." src="/images/superfluid.png" />
       <img alt="..." src="/images/textile.png" />
+    </div>
+    <h2 class="text-5xl font-semibold text-center pb-6">Incubator</h2>
+    <div class="grid grid-flow-row-dense grid-cols-1 grid-rows-1 gap-2 lg:gap-12 items-center align-middle pb-24">
+      <img class="rounded-md" alt="..." src="/images/btselab.png" />
     </div>
     <div class="container mx-auto px-4">
       <div class="flex flex-wrap text-center">

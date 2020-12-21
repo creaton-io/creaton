@@ -51,13 +51,17 @@
   }
 
   onMount(async () => {
-    if (wallet.provider) {
-      loadCreatorData();
-    } else {
-      flow.execute(async () => {
-        loadCreatorData();
-      });
-    }
+    /*
+      if (wallet.provider) {
+        //loadCreatorData();
+        loadSuperFluid();
+      } else {
+        flow.execute(async () => {
+          //loadCreatorData();
+          loadSuperFluid();
+        });
+      }
+      */
   });
 
   async function support() {
@@ -140,6 +144,10 @@
     usdcxSet = usdcxSetWrapper;
     console.log('usdcx address', usdcx);
     app = await new Contract(APP_ADDRESS, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
+
+    usdcBalance = await usdc.balanceOf($wallet.address);
+    usdcxBalance = await usdcxSetWrapper.balanceOf($wallet.address);
+    usdcApproved = await usdc.allowance($wallet.address, usdc.address);
   }
 
   async function mintUSDC() {
@@ -151,10 +159,10 @@
   async function approveUSDC() {
     //approve unlimited please
     await usdc
-      .approve(usdcx.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
+      .approve(usdc.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
         from: $wallet.address,
       })
-      .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
+      .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdc.address)));
   }
 
   async function loadCreatorData() {
@@ -205,12 +213,15 @@
   }
 
   function testStream() {
-    usdcxSet.upgrade(parseEther('100').toString(), {from: $wallet.address});
+    console.log('wallet address', $wallet.address);
+    usdcxSet.upgrade(parseEther('100'));
+    /*
     sf.host.callAgreement(
       sf.agreements.cfa.address,
-      sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, app.address, '385802469135802', '0x']),
+      sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, app.address, '1', '0x']),
       {from: $wallet.address}
     );
+    */
   }
 
   async function getStreams() {

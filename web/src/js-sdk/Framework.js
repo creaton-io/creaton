@@ -88,9 +88,9 @@ export class SuperfluidSDK {
 
   async setERC20Wrapper(tokenInfo) {
     const tokenInfoSymbol = await tokenInfo.symbol();
-    console.log('testtoken address:', tokenInfo.address);
-    console.log('testtoken symbol:', `${tokenInfoSymbol}x`);
-    console.log('host', this.host);
+    console.log('set testtoken address:', tokenInfo.address);
+    console.log('set testtoken symbol:', `${tokenInfoSymbol}x`);
+    console.log('sethost', this.host);
     const wrapper = await this.host.getERC20Wrapper(tokenInfo.address, `${tokenInfoSymbol}x`);
     return new Contract(wrapper.wrapperAddress, SuperfluidABI.ISuperToken, wallet.provider.getSigner());
   }
