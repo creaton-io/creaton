@@ -67,13 +67,13 @@
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
         <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
-            <h5 class="text-2xl font-bold">Farshad Kazemi</h5>
-            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Backend Dev</p>
+            <h5 class="text-2xl font-bold">Amin K. Moghaddam</h5>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">IOI Gold Medalist</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
                   class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
-                  href="https://www.linkedin.com/in/farshadkazemi/?originalSubdomain=ir"
+                  href="https://www.linkedin.com/in/m30m/?originalSubdomain=ch"
                   target="_blank">
                   <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
                 </a>

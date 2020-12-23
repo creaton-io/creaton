@@ -353,6 +353,7 @@
       <img alt="..." src="/images/filecoin.png" />
       <img alt="..." src="/images/superfluid.png" />
       <img alt="..." src="/images/textile.png" />
+      <img alt="..." src="/images/thegraph.png" />
     </div>
     <div class="container mx-auto px-4">
       <div class="flex flex-wrap text-center">

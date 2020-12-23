@@ -8,7 +8,7 @@
   import {wallet, flow, chain} from '../stores/wallet';
   import {onMount} from 'svelte';
   import {SuperfluidSDK} from '../js-sdk/Framework';
-  import {parseEther} from '@ethersproject/units';
+  import {parseEther, formatEther} from '@ethersproject/units';
   import {JsonRpcSigner} from '@ethersproject/providers';
   import SearchBackground from '../components/SearchBackground.svelte';
 
@@ -65,8 +65,8 @@
   });
 
   async function support() {
-    usdcBalance = await usdc.balanceOf($wallet.address);
-    usdcxBalance = await usdcx.balanceOf($wallet.address);
+    usdcBalance = await formatEther(usdc.balanceOf($wallet.address));
+    usdcxBalance = await formatEther(usdcx.balanceOf($wallet.address));
 
     console.log('test', usdcx.address);
     console.log('test2', app.address);
@@ -77,12 +77,12 @@
         [
           2, // upgrade 100 usdcx to play the game
           usdcx.address,
-          sf.interfaceCoder.encode(['uint256'], [parseEther('100').toString()]),
+          sf.interfaceCoder.encode(['uint256'], [parseEther('100')]),
         ],
         [
           0, // approve collateral fee
           usdcx.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10').toString()]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10')]),
         ],
         [
           5, // callAppAction to collateral
@@ -105,7 +105,7 @@
         [
           0, // approve collateral fee
           usdcx.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10').toString()]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10')]),
         ],
         [
           5, // callAppAction to collateral
@@ -138,31 +138,27 @@
 
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');
     usdc = new Contract(usdcAddress, SuperfluidABI.TestToken, wallet.provider.getSigner());
-    const usdcxWrapper = await sf.getERC20Wrapper(usdc);
-    const usdcxSetWrapper = await sf.setERC20Wrapper(usdc);
-    usdcx = usdcxWrapper;
-    usdcxSet = usdcxSetWrapper;
-    console.log('usdcx address', usdcx);
+    usdcx = await sf.getERC20Wrapper(usdc);
     app = await new Contract(APP_ADDRESS, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
 
-    usdcBalance = await usdc.balanceOf($wallet.address);
-    usdcxBalance = await usdcxSetWrapper.balanceOf($wallet.address);
-    usdcApproved = await usdc.allowance($wallet.address, usdc.address);
+    usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
+    usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
+    usdcApproved = formatEther(await usdc.allowance($wallet.address, usdc.address));
   }
 
   async function mintUSDC() {
     //mint some usdc here!  100 default amount
     await usdc.mint($wallet.address, parseEther('100'), {from: $wallet.address});
-    usdcBalance = await usdc.balanceOf($wallet.address);
+    usdcBalance = await formatEther(usdc.balanceOf($wallet.address));
   }
 
   async function approveUSDC() {
     //approve unlimited please
     await usdc
-      .approve(usdc.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
+      .approve(usdcx.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
         from: $wallet.address,
       })
-      .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdc.address)));
+      .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
   }
 
   async function loadCreatorData() {
@@ -208,20 +204,19 @@
     } else {
       flow.execute(async () => {
         loadCreatorData();
+        loadSuperFluid();
       });
     }
   }
 
   function testStream() {
     console.log('wallet address', $wallet.address);
-    usdcxSet.upgrade(parseEther('100'));
-    /*
+    usdcx.upgrade(parseEther('100'));
     sf.host.callAgreement(
       sf.agreements.cfa.address,
       sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, app.address, '1', '0x']),
       {from: $wallet.address}
     );
-    */
   }
 
   async function getStreams() {
