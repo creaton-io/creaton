@@ -68,7 +68,8 @@
         <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Amin K. Moghaddam</h5>
-            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">IOI Gold Medalist</p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold -mb-1">Full-stack Dev</p>
+            <p class="mt-1 text-sm text-gray-500 font-semibold -mb-5">IOI Gold Medalist</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a

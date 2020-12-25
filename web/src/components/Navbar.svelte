@@ -52,7 +52,7 @@
     <li class="flex items-center">
       <a
         class="hover:text-gray-600 text-gray-800 px-3 py-2 flex items-center text-xs uppercase font-bold"
-        href="https://creaton.on.fleek.co"
+        href="https://t.me/creaton_io"
         target="_blank">
         <i class="text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
       </a>

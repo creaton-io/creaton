@@ -19,8 +19,8 @@ import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 contract CreatonSuperApp is ISuperApp {
     string private constant _ERR_STR_NO_STREAMER = "CreatonSuperApp: need to stream to become supporter";
     string private constant _ERR_STR_LOW_FLOW_RATE = "CreatonSuperApp: flow rate too low";
-    string
-        private constant _ERR_STR_UNFINISHED_SUPPORT = "CreatonSuperApp: support the membership you payed collateral for first";
+    string private constant _ERR_STR_UNFINISHED_SUPPORT =
+        "CreatonSuperApp: support the membership you payed collateral for first";
 
     ISuperfluid private _host; // host
     IConstantFlowAgreementV1 private _cfa; // the stored constant flow agreement class address
@@ -82,6 +82,7 @@ contract CreatonSuperApp is ISuperApp {
     /// @dev Take collateral fee from the potential supporter and add them acceptable streamers
     function collateral(address membership, bytes calldata ctx) external {
         // msg sender is encoded in the Context
+        console.log("col");
         (, , address sender, , ) = _host.decodeCtx(ctx);
 
         uint256 collateralFee = membershipPrice[membership];
@@ -91,6 +92,7 @@ contract CreatonSuperApp is ISuperApp {
 
     /// @dev Check requirements before letting the streamer become a supporter
     function _beforeSupport(bytes calldata ctx) private view returns (bytes memory cbdata) {
+        console.log("bs");
         (, , address sender, , ) = _host.decodeCtx(ctx);
         address collateralMembership = streamers[sender]; //membership the streamer has payed collateral for
         //require(streamers[sender] > 0, _ERR_STR_NO_STREAMER);
@@ -107,16 +109,21 @@ contract CreatonSuperApp is ISuperApp {
         bytes32 agreementId,
         bytes calldata cbdata
     ) private returns (bytes memory newCtx) {
+        console.log("s");
         (address streamer, address membership) = abi.decode(cbdata, (address, address));
+        console.log("streamer address:", streamer);
+        console.log("membership address:", membership);
+        console.log("agreementclass:", agreementClass);
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         //int96 subscriptionPrice = membershipPrice[streamer];
         //require(flowRate >= int96(uint256(5e18) / uint256(3600 * 24 * 30)), _ERR_STR_LOW_FLOW_RATE); //TODO: make dynamic subscriptionPrice + e18
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
+        console.log("afterrequire");
         delete streamers[streamer];
         //make streamer a supporter
         _supportersSet.add(streamer); //not doing anything with this for now, delete it if not needed
-
-        return _streamCollateral(streamer, ctx);
+        console.log("afterstreamer");
+        //return _streamCollateral(streamer, ctx);
     }
 
     /// @dev Quit supporting
@@ -127,6 +134,7 @@ contract CreatonSuperApp is ISuperApp {
     }
 
     function _streamCollateral(address streamer, bytes calldata ctx) private returns (bytes memory newCtx) {
+        console.log("sc");
         address membership = streamers[streamer];
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,

@@ -32,7 +32,7 @@
   let usdcApproved;
   let usdcxBalance;
 
-  const APP_ADDRESS = '0x25f8A5560074422D369a3b7c40467d5E06504347';
+  const APP_ADDRESS = '0x67F54fDa2F8A44Fed595B254a0570bfc3Dd8c9B8';
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
   //TODO: try this with hardhat
   //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
@@ -65,8 +65,8 @@
   });
 
   async function support() {
-    usdcBalance = await formatEther(usdc.balanceOf($wallet.address));
-    usdcxBalance = await formatEther(usdcx.balanceOf($wallet.address));
+    usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
+    usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
 
     console.log('test', usdcx.address);
     console.log('test2', app.address);
@@ -149,7 +149,7 @@
   async function mintUSDC() {
     //mint some usdc here!  100 default amount
     await usdc.mint($wallet.address, parseEther('100'), {from: $wallet.address});
-    usdcBalance = await formatEther(usdc.balanceOf($wallet.address));
+    usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
   }
 
   async function approveUSDC() {

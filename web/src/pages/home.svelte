@@ -253,7 +253,7 @@
       </div>
     </div>
 
-    <section class="pb-20 bg-gradient-to-b from-green-400 via-green-400 to-teal-400 -mt-24">
+    <section class="bg-gradient-to-b from-green-400 via-green-400 to-teal-400 -mt-24">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
@@ -382,7 +382,7 @@
             </a>
             <a
               class="hover:text-gray-600 text-gray-800 px-3 py-2 items-center justify-center align-center text-xs uppercase font-bold"
-              href="https://creaton.on.fleek.co"
+              href="https://t.me/creaton_io"
               target="_blank">
               <i class="text-gray-500 fab fa-telegram-plane text-lg leading-lg" />
             </a>
