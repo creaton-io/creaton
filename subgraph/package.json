@@ -22,7 +22,7 @@
     "generate": "node scripts/generate.js",
     "watch": "node scripts/watch.js",
     "dev": "npm-run-all \"local:deploy -- {1}\" \"watch -- {1}\" --",
-    "local:redeploy": "graph codegen && wait-on http://127.0.0.1:5001/api/v0/version http-get://127.0.0.1:8000 && npm run local:redeploy:1",
+    "local:redeploy": "graph codegen && wait-on http-get://127.0.0.1:8000 && npm run local:redeploy:1",
     "local:redeploy:1": "dotenv -- cross-var graph deploy $SUBGRAPH_NAME --ipfs http://localhost:5001 --node http://127.0.0.1:8020 --debug",
     "local:deploy": "npm-run-all \"generate -- {1} mainnet\" local:redeploy --",
     "mainnet:redeploy": "dotenv -- cross-var graph deploy --access-token $THEGRAPH_TOKEN $SUBGRAPH_NAME --ipfs https://api.thegraph.com/ipfs/ --node https://api.thegraph.com/deploy/ --debug",

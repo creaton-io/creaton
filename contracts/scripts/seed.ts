@@ -1,11 +1,11 @@
-import {network, getUnnamedAccounts, ethers} from 'hardhat';
+import {network, getUnnamedAccounts, ethers, getChainId} from 'hardhat';
 
 const mockCreators = [
   ['https://briano88.files.wordpress.com/2015/03/danny-devio-as-frank-reynolds_small.jpg', 'Frank', 4],
   ['https://photo1.allfamous.org/public/people/headshots/greg-kinnear-19630617-allfamous.org-2.jpg', 'Greg', 2],
 ];
 
-function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {
+async function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {
   return p.then((tx) => tx.wait());
 }
 
@@ -16,8 +16,7 @@ async function main() {
     const sender = others[i];
     if (sender) {
       const creatonContract = await ethers.getContract('CreatonFactory', sender);
-      waitFor(creatonContract.deployCreator(...mockCreators[i]));
-
+      const tx = await waitFor(creatonContract.deployCreator(...mockCreators[i]));
       await creatonContract.on('CreatorDeployed', (...response) => {
         const [sender, contractaddr] = response;
         console.log('creator contract address', contractaddr);

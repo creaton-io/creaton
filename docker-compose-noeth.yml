@@ -17,7 +17,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:http://host.docker.internal:8545'      
+      ethereum: 'mainnet:http://host.docker.internal:8545'
       # RUST_LOG: info
       # RUST_BACKTRACE: full
   ipfs:
@@ -36,3 +36,4 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
       PGDATA: /tmp
+
