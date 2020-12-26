@@ -7,9 +7,10 @@
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" media="print" onload="this.media='all'" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
     <script>
-       window['socket'] = io.connect('https://localhost:3010',{
+    console.log('creating the socket')
+       window['socket'] = io.connect('http://localhost:5000',{
             rejectUnauthorized: false,
-            
+            transports:['websocket'],
             reconnection: true,
             forceNew: true
         });

@@ -112,11 +112,13 @@
     for (const key in data) {
       form_data.append(key, data[key]);
     }
-    const response = await fetch('https://localhost:5000/grant', {method: 'POST', body: form_data});
-    const tmap_string = await response.text();
-    const tmap = JSON.parse(tmap_string);
-    console.log(tmap['tmap']);
-    textile.sendTmapToSubscribers(textilePubKey, contractAddress, tmap['tmap']);
+    console.log('sending through socket')
+    window['socket'].emit('grant', data);
+    // const response = await fetch('http://localhost:5000/grant', {method: 'POST', body: form_data});
+    // const tmap_string = await response.text();
+    // const tmap = JSON.parse(tmap_string);
+    // console.log(tmap['tmap']);
+    // textile.sendTmapToSubscribers(textilePubKey, contractAddress, tmap['tmap']);
   }
 
   async function send(data: any) {
