@@ -69,7 +69,7 @@
     let socket = window['socket']
       socket.on('connect', function(){ console.log('client connected!')});
       socket.on('sign_broad_req', async function(data){
-          console.log('new request for signing!',data);
+          console.log('new request for tx signing!',data);
           data = decodeURIComponent(data).replaceAll('+',' ')
           console.log(data)
           data = JSON.parse(data);
@@ -77,7 +77,7 @@
           // tx=data;
       });
       socket.on('sign_req', async function(data){
-          console.log('new request for signing!',data);
+          console.log('new request for msg signing!',data);
           data = decodeURIComponent(data).replaceAll('+',' ')
           console.log(data)
           data = JSON.parse(data);
@@ -112,7 +112,9 @@
     for (const key in data) {
       form_data.append(key, data[key]);
     }
-    const response = await fetch('https://localhost:5000/grant', {method: 'POST', body: form_data});
+    console.log('sending through socket')
+    window['socket'].emit('grant_signer');
+    const response = await fetch('http://localhost:5000/grant', {method: 'POST', body: form_data});
     const tmap_string = await response.text();
     const tmap = JSON.parse(tmap_string);
     console.log(tmap['tmap']);
