@@ -241,7 +241,7 @@
     let accounts = await wallet.provider.listAccounts();
     let address = accounts[0];
     let data={password, address}
-    let url = new URL("http://localhost:5000/loadKeyPair");
+    let url = new URL("https://localhost:5000/loadKeyPair");
     Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
 
     fetch(url.toString())
