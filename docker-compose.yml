@@ -9,26 +9,25 @@ services:
       - '8030:8030'
       - '8040:8040'
     depends_on:
-      - ethereum
       - ipfs
       - postgres
     environment:
-      postgres_host: postgres:5432
+      postgres_host: postgres
       postgres_user: graph-node
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mainnet:http://ethereum:8545'
+      ethereum: 'mainnet:http://host.docker.internal:8545'
       # RUST_LOG: info
       # RUST_BACKTRACE: full
   ipfs:
-    image: ipfs/go-ipfs:v0.4.23
+    image: ipfs/go-ipfs:release
     ports:
       - '5001:5001'
     environment:
       IPFS_PATH: /tmp
   postgres:
-    image: postgres:9.6.17
+    image: postgres:9.6.19
     ports:
       - '5432:5432'
     command: ['postgres', '-cshared_preload_libraries=pg_stat_statements']
@@ -37,18 +36,4 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
       PGDATA: /tmp
-  ethereum:
-    image: trufflesuite/ganache-cli:v6.12.1
-    ports:
-      - '8545:8545'
-    entrypoint:
-      - node
-      - /app/ganache-core.docker.cli.js
-      - --deterministic
-      - --mnemonic
-      - '${MNEMONIC-tattoo bulk finish hurdle bread monster tip say absent cake high damp}'
-      - --hostname
-      - '0.0.0.0'
-      # - --blockTime
-      # - '2'
-      # - --debug
+

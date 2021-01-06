@@ -1,9 +1,9 @@
-<section class="pt-20 bg-gradient-to-t from-green-300 via-green-400 to-teal-400">
+<section class="pt-20 bg-gradient-to-b from-green-400 via-green-400 to-teal-400">
   <div class="container mx-auto px-4">
     <div class="flex flex-wrap justify-center text-center mb-6">
       <div class="w-full lg:w-6/12 px-4">
-        <h2 class="text-5xl font-semibold text-white">Team</h2>
-        <p class="text-lg leading-relaxed m-4 text-white">
+        <h2 class="text-5xl font-semibold text-blue-800">Team</h2>
+        <p class="text-lg leading-relaxed m-4 text-grey-800">
           A team of young professionals guided by crypto veterans is creating a truly decentralized playground for
           creators
         </p>
@@ -86,7 +86,7 @@
     </div>
     <div class="flex flex-wrap justify-center text-center mb-6 mt-12">
       <div class="w-full lg:w-6/12 px-4">
-        <h2 class="text-5xl font-semibold text-white">Advisors</h2>
+        <h2 class="text-5xl font-semibold text-blue-800">Advisors</h2>
       </div>
     </div>
     <div class="flex flex-wrap justify-center pb-12 border-b">

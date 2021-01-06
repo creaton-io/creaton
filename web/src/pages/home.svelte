@@ -253,7 +253,7 @@
       </div>
     </div>
 
-    <section class="bg-gradient-to-b from-green-400 via-green-400 to-teal-400 -mt-24">
+    <section class="bg-gradient-to-b from-green-400 via-green-400 to-green-400 -mt-24 hidden">
       <div class="container mx-auto px-4">
         <div class="flex flex-wrap">
           <div class="lg:pt-12 pt-6 w-full md:w-4/12 px-4 text-center md:mt-16">
@@ -317,11 +317,159 @@
         </div>
       </div>
     </section>
+
+    <section class="bg-gradient-to-b from-blue-600 via-teal-400 to-teal-400 text-gray-700 body-font">
+      <div class="container flex flex-col items-center px-5 py-16 mx-auto lg:px-20 lg:py-24 md:flex-row">
+        <div class="w-5/6 lg:w-75 md:w-1/2 md:hidden">
+          <img class="object-cover object-center rounded-lg" alt="hero" src="images/creatorcommunity.png" />
+        </div>
+        <div
+          class="flex flex-col items-center w-full pt-0 mb-16 text-left lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 md:items-start md:text-left md:mb-0 lg:text-center">
+          <h1
+            class="mb-8 text-2xl font-bold tracking-tighter text-center text-blue-800 lg:text-left lg:text-5xl title-font">
+            Create exclusive content for subscribers.
+          </h1>
+          <div class="flex flex-wrap -mx-4 -mt-4 -mb-10 sm:-m-4 ">
+            <div class="flex flex-col items-center p-4 mb-6 text-center md:w-1/2 md:mb-0 lg:text-left lg:items-start">
+              <div
+                class="inline-flex items-center justify-center flex-shrink-0 w-12 h-12 mb-5 text-blue-800 bg-gray-200 rounded-full">
+                <i class="fab fa-ethereum" />
+              </div>
+              <div class="flex-grow">
+                <h2 class="mb-3 text-lg font-medium tracking-tighter text-gray-800 title-font">Earn Crypto Income</h2>
+                <p class="text-base leading-relaxed">Earn subscription income for <br /> creating exclusive content</p>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <a
+                  class="inline-flex items-center font-semibold text-blue-700 md:mb-2 lg:mb-0 hover:text-blue-400 hidden">
+                  Learn More
+                  <svg
+                    class="w-4 h-4 ml-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div class="flex flex-col items-center p-4 mb-6 text-center md:w-1/2 md:mb-0 lg:text-left lg:items-start">
+              <div
+                class="inline-flex items-center justify-center flex-shrink-0 w-12 h-12 mb-5 text-blue-800 bg-gray-200 rounded-full">
+                <i class="fas fa-coins" />
+              </div>
+              <div class="flex-grow">
+                <h2 class="mb-3 text-lg font-medium tracking-tighter text-gray-800 title-font">Tokenize your career</h2>
+                <p class="text-base leading-relaxed">Launch your own Creator Token</p>
+                <!-- svelte-ignore a11y-missing-attribute -->
+                <a
+                  class="inline-flex items-center font-semibold text-blue-700 md:mb-2 lg:mb-0 hover:text-blue-400 hidden">
+                  Learn More
+                  <svg
+                    class="w-4 h-4 ml-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="w-5/6 lg:w-75 md:w-1/2">
+          <img
+            class="object-cover object-center rounded-lg hidden md:block"
+            alt="hero"
+            src="images/creatorcommunity.png" />
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-gradient-to-b from-teal-400 via-teal-400 to-green-400 text-gray-700 body-font">
+      <div class="container flex flex-col items-center px-5 py-16 mx-auto lg:px-20 lg:py-24 md:flex-row">
+        <div class="w-5/6 lg:w-75 md:w-1/2 md:-mr-10">
+          <img class="object-cover object-center rounded-lg" alt="hero" src="images/supporter.png" />
+        </div>
+        <div
+          class="flex flex-col items-center w-full pt-0 mb-16 text-left lg:flex-grow md:w-1/2 lg:pl-24 md:pl-16 md:items-start md:text-left md:mb-0 lg:text-center">
+          <h2 class="mb-1 text-xs font-medium tracking-widest text-blue-500 title-font">Support</h2>
+          <h1
+            class="mb-8 text-2xl font-bold tracking-tighter text-center text-blue-800 lg:text-left lg:text-5xl title-font">
+            Join the community of your favorite creator.
+          </h1>
+          <div class="flex flex-wrap -mx-4 -mt-4 -mb-10 sm:-m-4 ">
+            <div class="flex flex-col items-center p-4 mb-6 text-center md:w-1/2 md:mb-0 lg:text-left lg:items-start">
+              <div
+                class="inline-flex items-center justify-center flex-shrink-0 w-12 h-12 mb-5 text-blue-800 bg-gray-200 rounded-full">
+                <i class="fas fa-play" />
+              </div>
+              <div class="flex-grow">
+                <h2 class="mb-3 text-lg font-medium tracking-tighter text-gray-800 title-font">
+                  Watch exclusive content
+                </h2>
+                <p class="text-base leading-relaxed">Unlock exclusive content from your favorite creators</p>
+                <a
+                  href="#"
+                  class="inline-flex items-center font-semibold text-blue-700 md:mb-2 lg:mb-0 hover:text-blue-400 hidden">
+                  Learn More
+                  <svg
+                    class="w-4 h-4 ml-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+            <div class="flex flex-col items-center p-4 mb-6 text-center md:w-1/2 md:mb-0 lg:text-left lg:items-start">
+              <div
+                class="inline-flex items-center justify-center flex-shrink-0 w-12 h-12 mb-5 text-blue-800 bg-gray-200 rounded-full">
+                <i class="fas fa-chart-line" />
+              </div>
+              <div class="flex-grow">
+                <h2 class="mb-3 text-lg font-medium tracking-tighter text-gray-800 title-font">
+                  Get rewarded for supporting
+                </h2>
+                <p class="text-base leading-relaxed">
+                  Get rewarded in personal creator tokens for being an early subscriber
+                </p>
+                <a
+                  href="#"
+                  class="inline-flex items-center font-semibold text-blue-700 md:mb-2 lg:mb-0 hover:text-blue-400 hidden">
+                  Learn More
+                  <svg
+                    class="w-4 h-4 ml-2"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    width="20"
+                    height="20"
+                    fill="currentColor">
+                    <path fill="none" d="M0 0h24v24H0z" />
+                    <path d="M16.172 11l-5.364-5.364 1.414-1.414L20 12l-7.778 7.778-1.414-1.414L16.172 13H4v-2z" />
+                  </svg>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <About />
   </main>
 </div>
 
-<section class="py-8 px-4 text-center bg-gradient-to-b from-green-300 to-white">
+<section class="py-8 px-4 text-center bg-gradient-to-b from-teal-400 to-white">
   <div class="w-fill mx-auto mt-4 mb-10">
     <h1 class="text-indigo-600 font-bold text-6xl mb-10 font-heading">{name}</h1>
   </div>
