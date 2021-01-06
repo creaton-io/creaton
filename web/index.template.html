@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.3/socket.io.js"></script>
     <script>
     console.log('creating the socket')
-       window['socket'] = io.connect('https://localhost:5000',{
+       window['socket'] = io.connect('http://127.0.0.1:5000',{
             rejectUnauthorized: false,
             transports:['websocket'],
             reconnection: true,
