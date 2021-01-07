@@ -32,7 +32,7 @@
   let usdcApproved;
   let usdcxBalance;
 
-  const APP_ADDRESS = '0x67F54fDa2F8A44Fed595B254a0570bfc3Dd8c9B8';
+  const APP_ADDRESS = contracts.CreatonSuperApp_Implementation.address;
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
   //TODO: try this with hardhat
   //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));

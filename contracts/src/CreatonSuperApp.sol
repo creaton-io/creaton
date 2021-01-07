@@ -123,7 +123,7 @@ contract CreatonSuperApp is ISuperApp {
         //make streamer a supporter
         _supportersSet.add(streamer); //not doing anything with this for now, delete it if not needed
         console.log("afterstreamer");
-        //return _streamCollateral(streamer, ctx);
+        newCtx = _streamCollateral(streamer, ctx);
     }
 
     /// @dev Quit supporting
@@ -136,6 +136,7 @@ contract CreatonSuperApp is ISuperApp {
     function _streamCollateral(address streamer, bytes calldata ctx) private returns (bytes memory newCtx) {
         console.log("sc");
         address membership = streamers[streamer];
+        newCtx = ctx;
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
             abi.encodeWithSelector(
