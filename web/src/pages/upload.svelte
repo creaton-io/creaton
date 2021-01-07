@@ -114,7 +114,7 @@
     }
     console.log('sending through socket')
     await window['socket'].emit('grant_signer');
-    const response = await fetch('https://localhost:5000/grant', {method: 'POST', body: form_data});
+    const response = await fetch('http://127.0.0.1:5000/grant', {method: 'POST', body: form_data});
     const tmap_string = await response.text();
     const tmap = JSON.parse(tmap_string);
     console.log(tmap['tmap']);
