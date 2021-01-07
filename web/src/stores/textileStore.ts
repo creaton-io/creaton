@@ -224,7 +224,7 @@ export class TextileStore {
     for (const key in data) {
       form_data.append(key, data[key]);
     }
-    const response = await fetch('https://localhost:5000/encrypt', {method: 'POST', body: form_data});
+    const response = await fetch('http://127.0.0.1:5000/encrypt', {method: 'POST', body: form_data});
     return response.text()
   }
 
@@ -331,7 +331,7 @@ export class TextileStore {
     for (const key in data) {
       form_data.append(key, data[key]);
     }
-    const response = await fetch('https://localhost:5000/decrypt', {method: 'POST', body: form_data});
+    const response = await fetch('http://127.0.0.1:5000/decrypt', {method: 'POST', body: form_data});
     const res = await response.text();
     console.log("enc_file", res);
     return this.base64ToArrayBuffer(JSON.parse(res)['decrypted_content']);
