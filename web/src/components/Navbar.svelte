@@ -4,6 +4,25 @@
   import NavLink from './NavLink.svelte';
   import {wallet, builtin, chain, flow} from '../stores/wallet';
   import Button from '../components/Button.svelte';
+  import {contracts} from '../contracts.json';
+  import {Contract} from '@ethersproject/contracts';
+  import Link from '../_routing/curi/Link.svelte';
+
+  let creatorAddress = null;
+
+  // fetch creator data for conditional rendering
+  async function getCreatorData() {
+    if ($wallet.address) {
+      const creatorFactory = await new Contract(
+        contracts.CreatonFactory.address,
+        contracts.CreatonFactory.abi,
+        wallet.provider.getSigner()
+      );
+      creatorAddress = await creatorFactory.creatorContracts($wallet.address);
+    }
+  }
+
+  $: $wallet.address && getCreatorData();
 </script>
 
 <nav class="top-0 z-50 w-full flex flex-wrap items-center justify-between navbar-expand-lg bg-white shadow">
@@ -58,13 +77,20 @@
       </a>
     </li>
     <li class="flex items-center mr-2">
-      <Button
-        label="connect via builtin wallet"
-        disabled={!$builtin.available || $wallet.connecting}
-        on:click={() => flow.connect('builtin')}>
-        <i class="fas fa-sign-in-alt mr-2" />
-        Connect Wallet
-      </Button>
+      <!-- creatorAddress == 0x0 means that the user does not have a creator contract -->
+      {#if $wallet.address && creatorAddress == 0x0}
+        <Button label="create a tier">Create Tier</Button>
+      {:else if $wallet.address && creatorAddress && creatorAddress != 0x0}
+        <Button label="upload content">Upload</Button>
+      {:else}
+        <Button
+          label="connect via builtin wallet"
+          disabled={!$builtin.available || $wallet.connecting}
+          on:click={() => flow.connect('builtin')}>
+          <i class="fas fa-sign-in-alt mr-2" />
+          Connect Wallet
+        </Button>
+      {/if}
     </li>
   </ul>
 </nav>
