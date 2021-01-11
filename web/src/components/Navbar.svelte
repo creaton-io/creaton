@@ -79,9 +79,13 @@
     <li class="flex items-center mr-2">
       <!-- creatorAddress == 0x0 means that the user does not have a creator contract -->
       {#if $wallet.address && creatorAddress == 0x0}
-        <Button label="create a tier">Create Tier</Button>
+        <Link name="Sign up">
+          <Button label="create a tier">Create Tier</Button>
+        </Link>
       {:else if $wallet.address && creatorAddress && creatorAddress != 0x0}
-        <Button label="upload content">Upload</Button>
+        <Link name="Upload">
+          <Button label="upload content">Upload</Button>
+        </Link>
       {:else}
         <Button
           label="connect via builtin wallet"
