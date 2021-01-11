@@ -5,6 +5,7 @@
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
   import {onMount} from 'svelte';
+  import {creatorAddress} from '../stores/creatorAddress';
 
   let creatorName: string = '';
   let avatarURL: string = '';
@@ -32,6 +33,8 @@
       subscriptionPrice = subscriptionPrice || 10;
       const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
       console.log(receipt);
+
+      $creatorAddress = await contracts.CreatonFactory.creatorContracts($wallet.address);
       return receipt;
     });
   }
