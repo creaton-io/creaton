@@ -15,15 +15,17 @@
   import {onMount} from 'svelte';
   import CreatorCard from '../components/CreatorCard.svelte';
   import {creators} from '../stores/queries';
+  import "@metamask/legacy-web3";
+
   global.Buffer = Buffer;
 
   const textile: TextileStore = new TextileStore();
   let creatorName: string = '';
   let subscriptionPrice: number;
-  let ethereum;
+  let ethereum, web3;
   let contractAddress, creatorAddress, creatorContract;
   let file, description, nuPassword;
-  let sigKey, pubKey, textilePubKey;
+  let sigKey, pubKey, textilePubKey, sigKey2, pubKey2, textilePubKey2;
   let contents = [];
   let contentsShow = false;
 
@@ -69,25 +71,24 @@
     let socket = window['socket']
       socket.on('connect', function(){ console.log('client connected!')});
       socket.on('sign_broad_req', async function(data){
-          console.log('new request for tx signing!',data);
-          data = decodeURIComponent(data).replaceAll('+',' ')
-          console.log(data)
+          data = decodeURIComponent(data).replaceAll('+',' ');
           data = JSON.parse(data);
+          console.log('new request for tx signing!');
+          console.log(data);
           await send(data)
-          // tx=data;
       });
       socket.on('sign_req', async function(data){
-          console.log('new request for msg signing!',data);
-          data = decodeURIComponent(data).replaceAll('+',' ')
-          console.log(data)
+          data = decodeURIComponent(data).replaceAll('+',' ');
           data = JSON.parse(data);
+          console.log('new request for msg signing!');
+          console.log(data);
           await sign(data)
-          // msg=data;
       });
       socket.on('disconnect', function(){console.log('client disconnected!')});
       setTimeout(()=>{console.log("here we are!!!");window['socket'].emit('event', 'sample!');},1000);
       if (typeof window['ethereum'] !== 'undefined') {
         ethereum = window['ethereum'];
+        web3 = window['web3'];
       }
   });
 
@@ -107,7 +108,9 @@
   }
 
   async function grant() {
-    const data = {subscriber_pubkeys_sig: sigKey, subscriber_pubkeys_enc: pubKey, label: contractAddress, address: creatorAddress, password: nuPassword};
+    let pubkeys_sig = JSON.stringify([sigKey, sigKey2]);
+    let pubkeys_enc = JSON.stringify([pubKey, pubKey2]);
+    const data = {subscriber_pubkeys_sig: pubkeys_sig, subscriber_pubkeys_enc: pubkeys_enc, label: contractAddress, address: creatorAddress, password: nuPassword};
     const form_data = new FormData();
     for (const key in data) {
       form_data.append(key, data[key]);
@@ -122,46 +125,80 @@
   }
 
   async function send(data: any) {
-    let params= [
-      {
-        from: data['from'],//'0x8F9A150adb245e8e460760Ed1BFd3C026a0457db',
-        to: data['to'],//'0x328BDfdD563f67a47c2757E5fD0298AD86F447c0',
-        gas: data['gas'],//, // 30400
-        gasPrice: data['gasPrice'],//, // 10000000000000
-        value: data['value'],//'0x0e9234569184e72a', // 2441406250
-        data: data['data'],
-      },
-    ];
-    ethereum.request({
-      method: 'eth_sendTransaction',
-      params,
-    })
-    .then((result) => {
-      window['socket'].emit('sign_broad_res', result);
-      console.log(result)
-    })
-    .catch((error) => {
-      // If the request fails, the Promise will reject with an error.
+    console.log(data);
+    let batch = web3.createBatch();
+    // let hash: {[data: string]: string;} = {};
+    let hash = [];
+    data.forEach(element => {
+      element = JSON.parse(element);
+      console.log(element['data']);
+      let tx = web3.eth.sendTransaction.request({
+        from: element['from'],
+        to: element['to'],
+        gas: element['gas'],
+        gasPrice: element['gasPrice'],
+        value: element['value'],
+        data: element['data'],
+      }, (err, res) => {
+        if (err == null){
+          window['socket'].emit('sign_broad_res', JSON.stringify({data: element['data'], txHash: res}));
+        }
+      });
+      batch.add(tx);
     });
+    batch.execute();
+    console.log('resulting hashes');
+    console.log(hash);
+    // let params= [
+    //   {
+    //     from: data['from'],//'0x8F9A150adb245e8e460760Ed1BFd3C026a0457db',
+    //     to: data['to'],//'0x328BDfdD563f67a47c2757E5fD0298AD86F447c0',
+    //     gas: data['gas'],//, // 30400
+    //     gasPrice: data['gasPrice'],//, // 10000000000000
+    //     value: data['value'],//'0x0e9234569184e72a', // 2441406250
+    //     data: data['data'],
+    //   },
+    //   {
+    //     from: '0xcDde21d9eE3deC9e00da930ce40e5BEceDE46799',
+    //     to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
+    //     value: '0x29a2241af62c0000',
+    //     gasPrice: '0x09184e72a000',
+    //     gas: '0x2710',
+    //   },
+    // ];
+    // ethereum.request({
+    //   method: 'eth_sendTransaction',
+    //   params,
+    // })
+    // .then((result) => {
+    //   console.log(result)
+    //   window['socket'].emit('sign_broad_res', result);
+    //   console.log(result)
+    // })
+    // .catch((error) => {
+    //   // If the request fails, the Promise will reject with an error.
+    // });
   }
 
   async function sign(msg: any) {
-      let params= [
-          msg['address'],
-          msg['message']
-      ];
-      ethereum.request({
-          method: 'personal_sign',
-          params,
-      })
-      .then((result) => {
-          window['socket'].emit('sign_res', result);
-          console.log(result);
-      })
-      .catch((error) => {
-          console.log("sign error")
-          console.log(error);
-      });
+    console.log('batch signing request ... ')
+    console.log(msg);
+      // let params= [
+      //     msg['address'],
+      //     msg['message']
+      // ];
+      // ethereum.request({
+      //     method: 'personal_sign',
+      //     params,
+      // })
+      // .then((result) => {
+      //     window['socket'].emit('sign_res', result);
+      //     console.log(result);
+      // })
+      // .catch((error) => {
+      //     console.log("sign error")
+      //     console.log(error);
+      // });
   }
 
 
@@ -245,10 +282,14 @@
     <div class="field-row">
       <label for="path-url">Subscriber Signing Key: </label>
       <Input type="text" placeholder="Signing Key" className="field" bind:value={sigKey} />
+      <br/>
+      <Input type="text" placeholder="Signing Key" className="field" bind:value={sigKey2} />
     </div>
     <div class="field-row">
       <label for="pubkey-url">Subscriber Public key: </label>
       <Input type="text" placeholder="Public Key" className="field" bind:value={pubKey} />
+      <br/>
+      <Input type="text" placeholder="Signing Key" className="field" bind:value={pubKey2} />
     </div>
     <div class="field-row">
       <label for="description">NuCypher Password: </label>
@@ -257,6 +298,8 @@
     <div class="field-row">
       <label for="description">Textile Public Key: </label>
       <Input type="text" placeholder="Textile Key" className="field" bind:value={textilePubKey} />
+      <br/>
+      <Input type="text" placeholder="Textile Key" className="field" bind:value={textilePubKey2} />
     </div>
     <Button class="mt-3" on:click={grant}>Grant Access to Subscriber</Button>
 
