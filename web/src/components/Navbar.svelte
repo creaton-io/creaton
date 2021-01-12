@@ -81,7 +81,7 @@
         <Link name="Sign up">
           <Button label="create a tier">Create Tier</Button>
         </Link>
-      {:else if $wallet.address && parseInt($creatorAddress) !== 0}
+      {:else if $wallet.address && $creatorAddress && parseInt($creatorAddress) !== 0}
         <Link name="Upload">
           <Button label="upload content">Upload</Button>
         </Link>

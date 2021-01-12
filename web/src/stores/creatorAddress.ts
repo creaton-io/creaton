@@ -1,4 +1,5 @@
 import {writable} from 'svelte/store';
 
-
-export const creatorAddress = writable('0x0')
+// set address to null instead of '0x0' to prevent UI flickering
+// while fetching creator address
+export const creatorAddress = writable(null)
