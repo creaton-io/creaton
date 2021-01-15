@@ -33,8 +33,6 @@
       subscriptionPrice = subscriptionPrice || 10;
       const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
       console.log(receipt);
-
-      $creatorAddress = await contracts.CreatonFactory.creatorContracts($wallet.address);
       return receipt;
     });
   }
@@ -49,6 +47,10 @@
 
     creatorContract.on('CreatorDeployed', (...response) => {
       const [sender, contractaddr] = response;
+
+      if (sender === $wallet.address) {
+        creatorAddress.set(contractaddr);
+      }
       console.log('creator contract address', contractaddr);
     });
   }

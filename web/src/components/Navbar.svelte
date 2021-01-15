@@ -3,25 +3,12 @@
   export let links: LinkInfo[];
   import NavLink from './NavLink.svelte';
   import {wallet, builtin, chain, flow} from '../stores/wallet';
-  import {creatorAddress} from '../stores/creatorAddress';
+  import {creatorAddress, creatorStatus, Status} from '../stores/creatorAddress';
   import Button from '../components/Button.svelte';
-  import {contracts} from '../contracts.json';
-  import {Contract} from '@ethersproject/contracts';
   import Link from '../_routing/curi/Link.svelte';
 
   // fetch creator data for conditional rendering
-  async function getCreatorData() {
-    if ($wallet.address) {
-      const creatorFactory = await new Contract(
-        contracts.CreatonFactory.address,
-        contracts.CreatonFactory.abi,
-        wallet.provider.getSigner()
-      );
-      $creatorAddress = await creatorFactory.creatorContracts($wallet.address);
-    }
-  }
-
-  $: $wallet.address && getCreatorData();
+  $: $wallet.address && creatorAddress.fetch($wallet.address);
 </script>
 
 <nav class="top-0 z-50 w-full flex flex-wrap items-center justify-between navbar-expand-lg bg-white shadow">
@@ -76,12 +63,11 @@
       </a>
     </li>
     <li class="flex items-center mr-2">
-      <!-- creatorAddress === 0 means that the user does not have a creator contract -->
-      {#if $wallet.address && parseInt($creatorAddress) === 0}
+      {#if $creatorStatus === Status.IsNotCreator}
         <Link name="Sign up">
           <Button label="create a tier">Create Tier</Button>
         </Link>
-      {:else if $wallet.address && $creatorAddress && parseInt($creatorAddress) !== 0}
+      {:else if $creatorStatus === Status.IsCreator}
         <Link name="Upload">
           <Button label="upload content">Upload</Button>
         </Link>
