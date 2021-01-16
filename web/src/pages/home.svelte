@@ -202,20 +202,10 @@
       <div class="container relative mx-auto">
         <div class="items-center flex flex-wrap">
           <div class="w-full lg:w-6/12 px-4 ml-auto mr-auto text-center">
-            <div class="relative pr-0 w-2/5 ml-auto mr-auto">
+            <div class="relative pr-0 w-4/5 ml-auto mr-auto">
               {#if visible}
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 103 124">
-                  <g out:fade={{duration: 200}} opacity="1">
-                    <path in:expand={{duration: 400, delay: 1000, easing: quintOut}} style="fill: #43e296;" d={outer} />
-                    <path
-                      in:draw={{duration: 2000}}
-                      style="stroke:#000000; stroke-width: 1.5; fill: #43e296;"
-                      d={inner} />
-                  </g>
-                </svg>
-                <div class="-mt-12 text-6xl text-green-400 text-center" out:fly={{y: -20, duration: 800}}>
-                  {#each 'Creaton' as char, i}<span in:fade={{delay: 1000 + i * 15, duration: 800}}>{char}</span>{/each}
-                </div>
+                <!-- add logo here-->
+                <img class="m-auto" alt="..." src="/images/logo-04.svg" />
                 <div
                   class="mt-8 mb-6 text-md lg:text-xl text-gray-300 whitespace-nowrap"
                   out:fly={{y: -20, duration: 800}}>
