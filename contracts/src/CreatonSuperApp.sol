@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.7.1;
+pragma experimental ABIEncoderV2;
 
 import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "hardhat/console.sol";
@@ -7,16 +8,20 @@ import "hardhat/console.sol";
 import {
     ISuperfluid,
     ISuperToken,
-    ISuperAgreement,
     ISuperApp,
+    ISuperAgreement,
     SuperAppDefinitions
-} from "./superfluid/interfaces/superfluid/ISuperfluid.sol";
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol"; //"@superfluid-finance/ethereum-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
-import {IConstantFlowAgreementV1} from "./superfluid/interfaces/agreements/IConstantFlowAgreementV1.sol";
+import {
+    IConstantFlowAgreementV1
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
+
+import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
-contract CreatonSuperApp is ISuperApp {
+contract CreatonSuperApp is Proxied, ISuperApp, SuperAppBase {
     string private constant _ERR_STR_NO_STREAMER = "CreatonSuperApp: need to stream to become supporter";
     string private constant _ERR_STR_LOW_FLOW_RATE = "CreatonSuperApp: flow rate too low";
     string private constant _ERR_STR_UNFINISHED_SUPPORT =
@@ -35,16 +40,24 @@ contract CreatonSuperApp is ISuperApp {
     // Events
     // -----------------------------------------
 
+    event NewSubscriber(address user, uint256 amount);
+
     // -----------------------------------------
     // Storage
     // -----------------------------------------
 
     /// @dev Minimum flow rate to participate (hardcoded to $5 / mo)
-    int96 private constant _MINIMUM_FLOW_RATE = int96(uint256(5e18) / uint256(3600 * 24 * 30));
+    int96 private _MINIMUM_FLOW_RATE = int96(uint256(subscriptionPrice << 18) / uint256(3600 * 24 * 30));
 
     /// @dev Streamers (that are a)
     mapping(address => address) public streamers;
     mapping(address => uint256) public membershipPrice;
+    address public creator;
+
+    string public metadataURL;
+    address[] public subscribers;
+
+    uint256 public subscriptionPrice;
 
     // -----------------------------------------
     // Constructor
@@ -54,6 +67,16 @@ contract CreatonSuperApp is ISuperApp {
     //    creatorTitle = _creatorTitle;
     //    subscriptionPrice = _subscriptionPrice;
     //}
+
+    function init(
+        address owner,
+        string calldata _metadataURL,
+        uint256 _subscriptionPrice
+    ) public {
+        creator = owner;
+        metadataURL = _metadataURL;
+        subscriptionPrice = _subscriptionPrice;
+    }
 
     // function postUpgrade(uint256 id) public proxied {}
 
@@ -70,7 +93,11 @@ contract CreatonSuperApp is ISuperApp {
         _cfa = cfa;
         _acceptedToken = acceptedToken;
 
-        uint256 configWord = SuperAppDefinitions.TYPE_APP_FINAL;
+        uint256 configWord =
+            SuperAppDefinitions.APP_LEVEL_FINAL |
+                SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
+                SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
+                SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
 
         _host.registerApp(configWord);
     }
@@ -83,7 +110,7 @@ contract CreatonSuperApp is ISuperApp {
     function collateral(address membership, bytes calldata ctx) external {
         // msg sender is encoded in the Context
         console.log("col");
-        (, , address sender, , ) = _host.decodeCtx(ctx);
+        address sender = _host.decodeCtx(ctx).msgSender;
 
         uint256 collateralFee = membershipPrice[membership];
         _acceptedToken.transferFrom(sender, membership, collateralFee);
@@ -93,7 +120,7 @@ contract CreatonSuperApp is ISuperApp {
     /// @dev Check requirements before letting the streamer become a supporter
     function _beforeSupport(bytes calldata ctx) private view returns (bytes memory cbdata) {
         console.log("bs");
-        (, , address sender, , ) = _host.decodeCtx(ctx);
+        address sender = _host.decodeCtx(ctx).msgSender;
         address collateralMembership = streamers[sender]; //membership the streamer has payed collateral for
         //require(streamers[sender] > 0, _ERR_STR_NO_STREAMER);
 
@@ -121,14 +148,15 @@ contract CreatonSuperApp is ISuperApp {
         console.log("afterrequire");
         delete streamers[streamer];
         //make streamer a supporter
-        _supportersSet.add(streamer); //not doing anything with this for now, delete it if not needed
+        _supportersSet.add(streamer);
+        subscribers.push(streamer);
         console.log("afterstreamer");
-        newCtx = _streamCollateral(streamer, ctx);
+        newCtx = ctx;
     }
 
     /// @dev Quit supporting
     function _quit(bytes calldata ctx) private returns (bytes memory newCtx) {
-        (, , address supporter, , ) = _host.decodeCtx(ctx);
+        address supporter = _host.decodeCtx(ctx).msgSender;
 
         _supportersSet.remove(supporter);
     }
@@ -146,6 +174,7 @@ contract CreatonSuperApp is ISuperApp {
                 _cfa.getNetFlow(_acceptedToken, streamer),
                 new bytes(0)
             ),
+            "0x",
             newCtx
         );
     }
@@ -159,85 +188,43 @@ contract CreatonSuperApp is ISuperApp {
         membershipPrice[msg.sender] = price;
     }
 
+    function setMetadataURL(string calldata _url) external onlyCreator {
+        metadataURL = _url;
+    }
+
     /**************************************************************************
-     * SuperApp callbacks
+     * Getters
      *************************************************************************/
 
-    function beforeAgreementCreated(
-        ISuperToken superToken,
-        bytes calldata ctx,
-        address agreementClass,
-        bytes32 /*agreementId*/
-    ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
-        cbdata = _beforeSupport(ctx);
+    function getMetadata() public view returns (string memory) {
+        return metadataURL;
     }
 
-    function afterAgreementCreated(
-        ISuperToken, /* superToken */
-        bytes calldata ctx,
-        address agreementClass,
-        bytes32 agreementId,
-        bytes calldata cbdata
-    ) external override onlyHost returns (bytes memory newCtx) {
-        return _support(ctx, agreementClass, agreementId, cbdata);
-    }
-
-    function beforeAgreementUpdated(
-        ISuperToken superToken,
-        bytes calldata ctx,
-        address agreementClass,
-        bytes32 /*agreementId*/
-    ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
-        cbdata = _beforeSupport(ctx);
-    }
-
-    function afterAgreementUpdated(
-        ISuperToken, /* superToken */
-        bytes calldata ctx,
-        address agreementClass,
-        bytes32 agreementId,
-        bytes calldata cbdata
-    ) external override onlyHost returns (bytes memory newCtx) {
-        return _support(ctx, agreementClass, agreementId, cbdata);
-    }
-
-    function beforeAgreementTerminated(
-        ISuperToken superToken,
-        bytes calldata, /*ctx*/
-        address agreementClass,
-        bytes32 /*agreementId*/
-    ) external view override onlyHost returns (bytes memory cbdata) {
-        // According to the app basic law, we should never revert in a termination callback
-        if (!_isSameToken(superToken) || !_isCFAv1(agreementClass)) return abi.encode(true);
-        return abi.encode(false);
-    }
-
-    ///
-    function afterAgreementTerminated(
-        ISuperToken, /* superToken */
-        bytes calldata ctx,
-        address, /* agreementClass */
-        bytes32, /* agreementId */
-        bytes calldata cbdata
-    ) external override onlyHost returns (bytes memory newCtx) {
-        // According to the app basic law, we should never revert in a termination callback
-        bool shouldIgnore = abi.decode(cbdata, (bool));
-        if (shouldIgnore) return ctx;
-        return _quit(ctx);
+    function getAllSubscribers() public view returns (address[] memory) {
+        return subscribers;
     }
 
     function _isSameToken(ISuperToken superToken) private view returns (bool) {
         return address(superToken) == address(_acceptedToken);
     }
 
-    function _isCFAv1(address agreementClass) private pure returns (bool) {
+    function _isCFAv1(address agreementClass) private view returns (bool) {
         return
             ISuperAgreement(agreementClass).agreementType() ==
             keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
     }
 
+    /**************************************************************************
+     * Requires
+     *************************************************************************/
+
     modifier onlyHost() {
         require(msg.sender == address(_host), "CreatonSuperApp: support only one host");
+        _;
+    }
+
+    modifier onlyCreator() {
+        require(msg.sender == creator, "You are not the creator");
         _;
     }
 

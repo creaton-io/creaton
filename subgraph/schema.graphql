@@ -2,8 +2,7 @@ type Creator @entity {
   id: ID!
   user: Bytes!
   creatorContract: Bytes!
-  title: String!
   subscriptionPrice: BigInt!
-  avatarURL: String!
+  metadataURL: String!
   timestamp: BigInt!
 }

@@ -1,4 +1,5 @@
-/* eslint-disable prettier/prettier */
+global.Buffer = Buffer;
+import {title} from '@curi/router';
 import {
   Buckets,
   KeyInfo,
@@ -11,6 +12,7 @@ import {
   PublicKey,
   ThreadID,
 } from '@textile/hub';
+import {Buffer} from 'buffer';
 
 import fetch from 'isomorphic-fetch';
 
@@ -44,8 +46,8 @@ export interface CidKey {
 }
 
 export interface Tmap {
-  cid: string,
-  tmap: string
+  cid: string;
+  tmap: string;
 }
 
 const schema = {
@@ -186,11 +188,7 @@ export class TextileStore {
 
     const encObject = await this.encryptFileNu(file, contractAddress, creatorAddress, nuPassword);
 
-    const rawFile = await this.bucketInfo.bucket.pushPath(
-      this.bucketInfo.bucketKey,
-      fileLocation,
-      encObject
-    );
+    const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, encObject);
 
     // encrypt this key with creator public key to store in creator collection
     // const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
@@ -216,7 +214,7 @@ export class TextileStore {
     contractAddress: string,
     creatorAddress: string,
     nuPassword: string
-  ): Promise<string>{
+  ): Promise<string> {
     const buf = await file.arrayBuffer();
     const b64File = this.arrayBufferToBase64(buf);
     const data = {file_content: b64File, label: contractAddress, address: creatorAddress, password: nuPassword};
@@ -225,44 +223,46 @@ export class TextileStore {
       form_data.append(key, data[key]);
     }
     const response = await fetch('http://127.0.0.1:5000/encrypt', {method: 'POST', body: form_data});
-    return response.text()
+    return response.text();
   }
 
-  // public async uploadJSONBuffer(buf: Buffer): Promise<string> {
-  //   const now = new Date().getTime();
-  //   const uploadName = `${now}_metadata.json`;
-  //   const fileLocation = `contents/${uploadName}`;
+  public async uploadTier(tier: any, imageFile: File): Promise<string> {
+    const now = new Date().getTime();
+    const uploadName = `${tier.name}_${now}_metadata.json`;
+    const uploadImageName = `${now}_${imageFile.name}`;
 
-  //   const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, buf);
+    const fileLocation = `tier/${uploadName}`;
+    const imageLocation = `image/${uploadImageName}`;
 
-  //   return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
-  // }
+    const rawImage = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, imageLocation, imageFile);
 
-  // public async uploadJSONFile(file: File): Promise<EncryptedFileMetadata> {
-  //   const now = new Date().getTime();
-  //   const fileName = `${file.name}`;
-  //   const uploadName = `${now}_metadata.json`;
-  //   const fileLocation = `contents/${uploadName}`;
+    const jsonTier = {
+      title: 'Creaton Tier Metadata',
+      type: 'object',
+      properties: {
+        name: {
+          type: 'string',
+          description: tier.name,
+        },
+        description: {
+          type: 'string',
+          description: tier.description,
+        },
+        image: {
+          type: 'string',
+          description: `${this.ipfsGateway}/ipfs/${rawImage.path.cid.toString()}`,
+        },
+      },
+    };
 
-  //   const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, file);
+    const rawFile = await this.bucketInfo.bucket.pushPath(
+      this.bucketInfo.bucketKey,
+      fileLocation,
+      Buffer.from(JSON.stringify(jsonTier))
+    );
 
-  //   // encrypt this key with creator public key to store in creator collection
-  //   const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
-  //   const pair: CidKey = {
-  //     ipfsPath: rawFile.path.cid.toString(),
-  //     key: this.arrayBufferToBase64(encKey.buffer),
-  //   };
-
-  //   await this.client.create(this.threadID, 'creator', [pair]);
-
-  //   return {
-  //     JSONFile: {
-  //       name: fileName,
-  //       path: fileLocation,
-  //       date: now.toString(),
-  //     },
-  //   };
-  // }
+    return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
+  }
 
   public async encryptFile(file: File): Promise<EncryptedMetadata> {
     const buf = await file.arrayBuffer();
@@ -295,7 +295,12 @@ export class TextileStore {
    * its cid to retrieve its corresponding keys from DB.
    * @param path The relative path in bucket
    */
-  public async decryptFile(path: string, contractAddress: string, subscriberAddress: string, nuPassword: string): Promise<ArrayBuffer> {
+  public async decryptFile(
+    path: string,
+    contractAddress: string,
+    subscriberAddress: string,
+    nuPassword: string
+  ): Promise<ArrayBuffer> {
     //get content from path on ipfs
     const file = await this.bucketInfo.bucket.pullIpfsPath(path);
     let binary = '';
@@ -309,7 +314,7 @@ export class TextileStore {
 
     // console.log(binary);
     const encObject = JSON.parse(binary);
-    console.log("encObject", encObject);
+    console.log('encObject', encObject);
     const policy_pubkey = encObject['policy_pubkey'];
     const alice_sig_pubkey = encObject['alice_sig_pubkey'];
     const content = encObject['enc_file_content'];
@@ -318,22 +323,29 @@ export class TextileStore {
     // i.e.when query fails
     const query = new Where('cid').eq(contractAddress);
     const result = await this.client.find<Tmap>(this.threadID, 'subscriber', query);
-    console.log("result query", result);
+    console.log('result query', result);
     const pair = result[0];
-    console.log("first query result", pair);
+    console.log('first query result', pair);
     // const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
     // const decryptKey = await this.importKey(keyBuffer.buffer);
     const tmap = pair.tmap;
 
-    const data = {enc_file_content: content, label: contractAddress, policy_pubkey: policy_pubkey, creator_pubkey: alice_sig_pubkey ,
-      address: subscriberAddress, password: nuPassword, tmap: tmap};
+    const data = {
+      enc_file_content: content,
+      label: contractAddress,
+      policy_pubkey: policy_pubkey,
+      creator_pubkey: alice_sig_pubkey,
+      address: subscriberAddress,
+      password: nuPassword,
+      tmap: tmap,
+    };
     const form_data = new FormData();
     for (const key in data) {
       form_data.append(key, data[key]);
     }
     const response = await fetch('http://127.0.0.1:5000/decrypt', {method: 'POST', body: form_data});
     const res = await response.text();
-    console.log("enc_file", res);
+    console.log('enc_file', res);
     return this.base64ToArrayBuffer(JSON.parse(res)['decrypted_content']);
     // await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
     // return await window.crypto.subtle.decrypt(
@@ -402,11 +414,11 @@ export class TextileStore {
   }
 
   public async getTmapFromCreator(contractAddress: string): Promise<void> {
-    console.log("get tmap from textile");
+    console.log('get tmap from textile');
     const messages = await this.user.listInboxMessages();
-    console.log("inbox messages", messages);
+    console.log('inbox messages', messages);
     for (const msg of messages) {
-      console.log("textile tmap", msg);
+      console.log('textile tmap', msg);
       const decryptedInbox = await this.messageDecoder(msg);
       const tmapPair: Tmap = JSON.parse(decryptedInbox.body);
       const tmap: Tmap = {
@@ -438,8 +450,7 @@ export class TextileStore {
     return new Array({cid: 'cid', key: 'pubKey'});
   }
 
-
-  public async sendTmapToSubscribers(textilePubKey: string, cid: string, tmap: string): Promise<void>{
+  public async sendTmapToSubscribers(textilePubKey: string, cid: string, tmap: string): Promise<void> {
     const pubKey = PublicKey.fromString(textilePubKey);
     const message = '{"cid": "' + cid + '", "tmap": "' + tmap + '"}';
     console.log(message);

@@ -5,7 +5,7 @@ export const creators = queryStore<
     id: string;
     user: string;
     creatorContract: string;
-    title: string;
+    metadataURL: string;
     timestamp: string;
   }[]
 >(
@@ -15,9 +15,8 @@ query {
     id
     user
     creatorContract
-    title
     subscriptionPrice
-    avatarURL
+    metadataURL
     timestamp
   }
 }`,

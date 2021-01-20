@@ -47,37 +47,11 @@ const func = async function (hre) {
   await tx2.wait();
   console.log('successful erc1820 deploy!');*/
 
-  const version = process.env.RELEASE_VERSION || '0.1.2-preview-20201014';
-  console.log('release version:', version);
-  console.log('chain id', network.config.chainId);
-
-  const sf = new SuperfluidSDK.Framework({
-    chainId: 5,
-    version: version,
-    web3Provider: await hre.web3.currentProvider,
-  });
-  await sf.initialize();
-
-  const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-  const usdc = await sf.contracts.TestToken.at(usdcAddress);
-  const usdcxWrapper = await sf.getERC20Wrapper(usdc);
-  const usdcx = await sf.contracts.ISuperToken.at(usdcxWrapper.wrapperAddress);
-
-  const creatonSuperApp = await deploy('CreatonSuperApp', {
+  await deploy('CreatonSuperApp', {
     from: creator,
     proxy: useProxy,
-    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address],
+    args: [],
     log: true,
-  });
-
-  await hre.tenderly.push({
-    name: 'CreatonSuperApp',
-    address: creatonSuperApp.address,
-  });
-
-  await hre.tenderly.push({
-    name: 'CreatonSuperApp',
-    address: creatonSuperApp.address,
   });
 
   return !useProxy; // when live network, record the script as executed to prevent rexecution

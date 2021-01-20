@@ -5,14 +5,19 @@
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
   import {onMount} from 'svelte';
+  import {TextileStore} from '../stores/textileStore';
 
-  let creatorName: string = '';
-  let avatarURL: string = '';
+  const textile: TextileStore = new TextileStore();
+
+  let profileImage;
+  let tierName: string = '';
+  let tierDescription: string = '';
   let subscriptionPrice: number;
   let creatorContract;
 
   onMount(async () => {
     console.log('test1');
+    await deployTextile();
     if (wallet.provider) {
       loadCreatorData();
       console.log('test2');
@@ -25,12 +30,24 @@
     }
   });
 
+  async function deployTextile() {
+    const setup = await textile.authenticate();
+  }
+
   async function deployCreator() {
     await flow.execute(async (contracts) => {
-      avatarURL = avatarURL || 'https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg';
-      creatorName = creatorName || 'creaotorname';
-      subscriptionPrice = subscriptionPrice || 10;
-      const receipt = await contracts.CreatonFactory.deployCreator(avatarURL, creatorName, subscriptionPrice);
+      const tier = {
+        profileImage: profileImage,
+        name: tierName,
+        description: tierDescription,
+      };
+
+      const profileImagefile = await profileImage.files[0];
+
+      const metadataURL = await textile.uploadTier(tier, profileImagefile);
+
+      subscriptionPrice = subscriptionPrice;
+      const receipt = await contracts.CreatonFactory.deployCreator(metadataURL, subscriptionPrice);
       console.log(receipt);
       return receipt;
     });
@@ -98,21 +115,30 @@
             </div>
             <form class="px-10">
               <div class="relative w-full mb-3">
-                <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Name </label>
+                <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Tier Name </label>
                 <input
                   type="text"
                   class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
                   placeholder="Name"
-                  bind:value={creatorName} />
+                  bind:value={tierName} />
+              </div>
+
+              <div class="relative w-full mb-3">
+                <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Description </label>
+                <input
+                  type="text"
+                  class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
+                  placeholder="Name"
+                  bind:value={tierDescription} />
               </div>
 
               <div class="relative w-full mb-3">
                 <label class="block uppercase text-gray-700 text-xs font-bold mb-2"> Profile Image URL </label>
                 <input
-                  type="text"
+                  bind:this={profileImage}
+                  type="file"
                   class="px-3 py-3 placeholder-gray-400 text-gray-700 bg-white rounded text-sm shadow focus:outline-none focus:shadow-outline w-full ease-linear transition-all duration-150"
-                  placeholder="Profile Image URL"
-                  bind:value={avatarURL} />
+                  placeholder="Profile Image" />
               </div>
 
               <div class="relative w-full mb-3">

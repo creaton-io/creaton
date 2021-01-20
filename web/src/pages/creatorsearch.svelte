@@ -17,7 +17,7 @@
   let contractAddress = ''; //TODO make this work with input
   let creator;
   let title;
-  let avatarURL;
+  let metadataURL;
   let subscriptionPrice;
   let currentBalance;
   let isSubscribed;
@@ -32,7 +32,7 @@
   let usdcApproved;
   let usdcxBalance;
 
-  const APP_ADDRESS = contracts.CreatonSuperApp_Implementation.address;
+  const APP_ADDRESS = contractAddress;
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
   //TODO: try this with hardhat
   //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
@@ -68,9 +68,6 @@
     usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
     usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
 
-    console.log('test', usdcx.address);
-    console.log('test2', app.address);
-
     var call;
     if (usdcxBalance < 2)
       call = [
@@ -82,11 +79,11 @@
         [
           0, // approve collateral fee
           usdcx.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10')]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
         ],
         [
           5, // callAppAction to collateral
-          app.address,
+          contractAddress,
           sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']), //TODO: have to
         ],
         [
@@ -94,7 +91,7 @@
           sf.agreements.cfa.address,
           sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
             usdcx.address,
-            app.address,
+            contractAddress,
             MINIMUM_GAME_FLOW_RATE.toString(),
             '0x',
           ]),
@@ -105,11 +102,11 @@
         [
           0, // approve collateral fee
           usdcx.address,
-          sf.interfaceCoder.encode(['address', 'uint256'], [APP_ADDRESS, parseEther('10')]),
+          sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
         ],
         [
           5, // callAppAction to collateral
-          app.address,
+          contractAddress,
           sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']),
         ],
         [
@@ -117,7 +114,7 @@
           sf.agreements.cfa.address,
           sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
             usdcx.address,
-            app.address,
+            contractAddress,
             MINIMUM_GAME_FLOW_RATE.toString(),
             '0x',
           ]),
@@ -139,7 +136,7 @@
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');
     usdc = new Contract(usdcAddress, SuperfluidABI.TestToken, wallet.provider.getSigner());
     usdcx = await sf.getERC20Wrapper(usdc);
-    app = await new Contract(APP_ADDRESS, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
+    app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
 
     usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
     usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
@@ -162,19 +159,18 @@
   }
 
   async function loadCreatorData() {
-    creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
+    creatorContract = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
 
     creatorContract.on('NewSubscriber', (...response) => {
       const [address, balance] = response;
       if (address === wallet.address) {
         subscriptionStatus = 'SUBSCRIBED';
-        currentBalance = balance.toNumber();
+        currentBalance = 11; //TODO: replace with native token balance get balance.toNumber();
       }
     });
-
+    console.log('subscribers: ', await creatorContract.getAllSubscribers());
     creator = await creatorContract.creator();
-    title = await creatorContract.creatorTitle();
-    avatarURL = await creatorContract.avatarURL();
+    metadataURL = await creatorContract.metadataURL();
     subscriptionPrice = await creatorContract.subscriptionPrice();
     [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
     if (isSubscribed) {
@@ -212,15 +208,15 @@
   function testStream() {
     console.log('wallet address', $wallet.address);
     usdcx.upgrade(parseEther('100'));
-    sf.host.callAgreement(
-      sf.agreements.cfa.address,
-      sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, app.address, '1', '0x']),
-      {from: $wallet.address}
-    );
+    //sf.host.callAgreement(
+    //  sf.agreements.cfa.address,
+    //  sf.interfaceCreateFlow.encodeFunctionData('createFlow', [usdcx.address, contractAddress, '1', '0x']),
+    //  {from: $wallet.address}
+    //);
   }
 
   async function getStreams() {
-    console.log('app flow', (await usdcx.balanceOf(app.address)).toString() / 1e18);
+    console.log('app flow', (await usdcx.balanceOf(contractAddress)).toString() / 1e18);
 
     console.log('single own flow', (await usdcx.balanceOf($wallet.address)).toString() / 1e18);
 
@@ -247,8 +243,10 @@
       <section class="relative bottom-40 bg-white rounded-lg shadow mb-6 mx-auto">
         <div class="py-8 px-4 text-center max-w-md mx-auto z-10">
           <div class="relative bottom-20">
-            <img class="rounded-full h-24 mx-auto mb-4" src={avatarURL} alt={title} />
-            <h5 class="text-2xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{title}</h5>
+            <img class="rounded-full h-24 mx-auto mb-4" src={metadataURL} alt="title placeholder" />
+            <h5 class="text-2xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
+              "title placeholder"
+            </h5>
             <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
 
             {#if subscriptionStatus === 'UNSUBSCRIBED'}

@@ -8,127 +8,25 @@
   import {fade, draw, fly} from 'svelte/transition';
   import {expand} from '../utils/custom-transitions.js';
   import {onMount} from 'svelte';
-  import 'pathseg';
-
-  import Particles from 'svelte-particles';
 
   let visible = false;
 
   const inner = `M99.95 1.57L2.05 1.57L2.05 99.48L99.95 99.48L84.49 83.65L17.51 83.65L17.51 17.4L84.49 17.4L99.95 1.57Z`;
   const outer = `M31.33 64.18L56 77.86L80.68 64.18L80.68 36.83L56 23.16L31.33 36.83L31.33 64.18Z`;
 
-  let particlesConfig = {
-    detectRetina: false,
-    fpsLimit: 60,
-    interactivity: {
-      detectsOn: 'canvas',
-      events: {
-        onHover: {
-          enable: true,
-          mode: 'bubble',
-        },
-        resize: true,
-      },
-      modes: {
-        bubble: {
-          distance: 60,
-          duration: 10,
-          opacity: 1,
-          size: 10,
-        },
-      },
-    },
-    particles: {
-      color: {
-        value: '#30DAAC',
-      },
-      links: {
-        blink: false,
-        color: '#18CFCD',
-        consent: false,
-        distance: 50,
-        enable: true,
-        opacity: 0.9,
-        width: 2.5,
-      },
-      move: {
-        attract: {
-          enable: false,
-          rotate: {
-            x: 300,
-            y: 600,
-          },
-        },
-        bounce: false,
-        direction: 'none',
-        enable: true,
-        outMode: 'bounce',
-        random: true,
-        speed: 0.7,
-        straight: false,
-      },
-      number: {
-        density: {
-          enable: false,
-          area: 1000,
-        },
-        limit: 0,
-        value: 300,
-      },
-      opacity: {
-        animation: {
-          enable: false,
-          minimumValue: 0.05,
-          speed: 2,
-          sync: false,
-        },
-        random: false,
-        value: 0.5,
-      },
-      shape: {
-        type: 'circle',
-      },
-      size: {
-        animation: {
-          enable: false,
-          minimumValue: 0.5,
-          speed: 20,
-          sync: true,
-        },
-        random: true,
-        value: 1,
-      },
-    },
-    polygon: {
-      draw: {
-        enable: true,
-        lineColor: 'rgba(0,255,255,0.2)',
-        lineWidth: 0.5,
-      },
-      move: {
-        radius: 7,
-      },
-      position: {
-        x: 20,
-        y: 15,
-      },
-      inlineArrangement: 'equidistant',
-      scale: 5,
-      type: 'inline',
-      data: `<svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 636 636" xml:space="preserve"><defs><clipPath id="_clipPath_ufUKWNh03Q0ow8cg9bS2G9dNbT4C2wP3"><rect width="636" height="636"/></clipPath></defs><g><path d="M99.95 1.57L2.05 1.57L2.05 99.48L99.95 99.48L84.49 83.65L17.51 83.65L17.51 17.4L84.49 17.4L99.95 1.57Z M31.33 64.18L56 77.86L80.68 64.18L80.68 36.83L56 23.16L31.33 36.83L31.33 64.18Z M31.33 64.18L80.68 64.18L56 23.16 Z M31.33 36.83L80.68 36.83L56 77.86 Z M56 23.16L 56 77.86 M 31.33 64.18L80.68 36.83 M31.33 36.83L80.68 64.18 M99.95 1.57L17.51 17.4 M2.05 1.57L84.49 17.4 M17.51 83.65L2.05 99.48L84.49 83.65 M2.05 1.57L17.51 17.4 M17.51 83.65L99.95 99.48 M17.51 17.4L2.05 20.36L17.51 83.65L2.05 80.69L17.51 17.4"/></g></svg>`,
-    },
-  };
-
   onMount(() => {
     visible = true;
-  });
 
-  let onParticlesLoaded = (event) => {
-    const particlesContainer = event.detail.particles;
-    particlesContainer.play();
-    // you can use particlesContainer to call all the Container class
-    // (from the core library) methods like play, pause, refresh, start, stop
-  };
+    /*
+    lottie.loadAnimation({
+      container: document.getElementById('lottie'), // the dom element that will contain the animation
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'images/Creaton_Animation_bodymovin2.json', // the path to the animation json
+    });
+    */
+  });
 
   const name = 'Creators spotlight';
 
@@ -317,7 +215,7 @@
         </div>
       </div>
     </section>
-
+    <!--
     <section class="bg-gradient-to-b from-blue-600 via-teal-400 to-teal-400 text-gray-700 body-font">
       <div class="container flex flex-col items-center px-5 py-16 mx-auto lg:px-20 lg:py-24 md:flex-row">
         <div class="w-5/6 lg:w-75 md:w-1/2 md:hidden">
@@ -339,6 +237,7 @@
                 <h2 class="mb-3 text-lg font-medium tracking-tighter text-gray-800 title-font">Earn Crypto Income</h2>
                 <p class="text-base leading-relaxed">Earn subscription income for <br /> creating exclusive content</p>
                 <!-- svelte-ignore a11y-missing-attribute -->
+    <!--
                 <a
                   class="inline-flex items-center font-semibold text-blue-700 md:mb-2 lg:mb-0 hover:text-blue-400 hidden">
                   Learn More
@@ -364,6 +263,7 @@
                 <h2 class="mb-3 text-lg font-medium tracking-tighter text-gray-800 title-font">Tokenize your career</h2>
                 <p class="text-base leading-relaxed">Launch your own Creator Token</p>
                 <!-- svelte-ignore a11y-missing-attribute -->
+    <!--
                 <a
                   class="inline-flex items-center font-semibold text-blue-700 md:mb-2 lg:mb-0 hover:text-blue-400 hidden">
                   Learn More
@@ -388,12 +288,13 @@
             alt="hero"
             src="images/creatorcommunity.png" />
         </div>
+        </div>
       </div>
-    </section>
+    </section>-->
 
     <section class="bg-gradient-to-b from-teal-400 via-teal-400 to-green-400 text-gray-700 body-font">
       <div class="container flex flex-col items-center px-5 py-16 mx-auto lg:px-20 lg:py-24 md:flex-row">
-        <div class="w-5/6 lg:w-75 md:w-1/2 md:-mr-10">
+        <div class="w-5/6 lg:w-50 md:w-1/2">
           <img class="object-cover object-center rounded-lg" alt="hero" src="images/supporter.png" />
         </div>
         <div
