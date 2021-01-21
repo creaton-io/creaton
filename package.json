@@ -41,7 +41,7 @@
     "shell:common": "newsh \"npm run common:dev\"",
     "common:build": "npm --prefix common-lib run build",
     "// contracts : deploy smart contracts on local ethereum node": "",
-    "contracts:test": "npm --prefix contracts test",
+    "contracts:test": "dotenv -e .env -e contracts/.env -- npm --prefix contracts test",
     "contracts:clean": "rimraf contracts/deployments/localhost && rimraf web/src/contracts.json",
     "contracts": "dotenv -e .env -e contracts/.env -- npm --prefix contracts run dev -- --export ../web/src/contracts.json",
     "contractsgoerli": "dotenv -e .env -e contracts/.env -- npm --prefix contracts run goerlidev -- --export ../web/src/contracts.json",
