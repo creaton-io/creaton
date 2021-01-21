@@ -3,7 +3,7 @@ const func = async function (hre) {
   const {deploy} = hre.deployments;
   const useProxy = !hre.network.live;
 
-  const SuperfluidSDK = require('ethereum-contracts');
+  const SuperfluidSDK = require('@superfluid-finance/ethereum-contracts');
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
