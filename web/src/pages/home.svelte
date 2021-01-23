@@ -156,13 +156,13 @@
           </svg>
         </span>
         <p class="ml-3 font-medium text-white truncate">
-          <span class="md:hidden"> We won the ETHOnline Textile hackathon prize! </span>
-          <span class="hidden md:inline"> Big news! We won the ETHOnline Textile hackathon prize! </span>
+          <span class="md:hidden"> Announcement: Partnership with NuCypher for Development & Scaling </span>
+          <span class="hidden md:inline"> Announcement: Partnership with NuCypher for Development & Scaling </span>
         </p>
       </div>
       <div class="order-3 mt-2 flex-shrink-0 sm:order-2 sm:mt-0 sm:w-auto">
         <a
-          href="https://blog.textile.io/creaton-ethonline-winner/"
+          href="https://medium.com/creaton/creaton-partners-with-nucypher-for-development-and-scaling-33bbe1b82111"
           class="flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-indigo-600 bg-white hover:bg-indigo-50">
           Blog post
         </a>
@@ -221,7 +221,7 @@
             </div>
             <button
               type="button"
-              class="bg-gradient-to-r from-green-400 to-blue-500 hover:from-pink-500 hover:to-yellow-500 text-white font-semibold px-6 py-3 rounded-md">
+              class="bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold px-6 py-3 rounded-md">
               Join the Creator Economy
             </button>
           </div>
@@ -455,34 +455,44 @@
       </div>
     </section>
 
+    <section class="py-8 px-4 text-center bg-gradient-to-b from-green-400 via-green-400 to-teal-400">
+      <div class="w-fill mx-auto mt-4 mb-10">
+        <h1 class="text-blue-800 font-bold text-6xl mb-10 font-heading">{name}</h1>
+      </div>
+      <div class="py-4">
+        <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {#if !$creators.state}
+              <div>creators not loaded</div>
+            {:else if $creators.error}
+              <div>Error: {$creators.error}</div>
+            {:else if $creators.state === 'Fetching'}
+              <div>Loading creators...</div>
+            {:else}
+              {#each $creators.data as creator, index}
+                <CreatorCard {creator}>{creator.creatorContract}</CreatorCard>
+              {/each}
+            {/if}
+          </div>
+        </div>
+      </div>
+    </section>
+
     <About />
   </main>
 </div>
 
-<section class="py-8 px-4 text-center bg-gradient-to-b from-teal-400 to-white">
-  <div class="w-fill mx-auto mt-4 mb-10">
-    <h1 class="text-indigo-600 font-bold text-6xl mb-10 font-heading">{name}</h1>
-  </div>
-  <div class="py-4">
-    <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {#if !$creators.state}
-          <div>creators not loaded</div>
-        {:else if $creators.error}
-          <div>Error: {$creators.error}</div>
-        {:else if $creators.state === 'Fetching'}
-          <div>Loading creators...</div>
-        {:else}
-          {#each $creators.data as creator, index}
-            <CreatorCard {creator}>{creator.creatorContract}</CreatorCard>
-          {/each}
-        {/if}
-      </div>
+<section class="pt-20">
+  <div class="container px-4 mx-auto w-4/6 lg:w-2/6 mb-12">
+    <h2 class="text-5xl font-semibold text-center mb-6">Partners & Investors</h2>
+    <div class="grid grid-flow-row-dense grid-cols-1 grid-rows-2 gap-4 lg:gap-10">
+      <img class="justify-self-center" alt="..." src="/images/nucypher.png" />
+      <img alt="..." src="/images/btselab.png" />
     </div>
   </div>
 </section>
 
-<section class="pt-20">
+<section>
   <div class="container px-4 mx-auto w-5/6 lg:w-3/6 mb-24">
     <h2 class="text-5xl font-semibold text-center">Technologies</h2>
     <div class="grid grid-flow-row-dense grid-cols-3 grid-rows-2 gap-4 lg:gap-20 items-center align-middle">
