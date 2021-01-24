@@ -3,7 +3,12 @@
   export let links: LinkInfo[];
   import NavLink from './NavLink.svelte';
   import {wallet, builtin, chain, flow} from '../stores/wallet';
+  import {creatorAddress, creatorStatus, Status} from '../stores/creatorAddress';
   import Button from '../components/Button.svelte';
+  import Link from '../_routing/curi/Link.svelte';
+
+  // fetch creator data for conditional rendering
+  $: $wallet.address && creatorAddress.fetch($wallet.address);
 </script>
 
 <nav class="top-0 z-50 w-full flex flex-wrap items-center justify-between navbar-expand-lg bg-white shadow">
@@ -58,13 +63,23 @@
       </a>
     </li>
     <li class="flex items-center mr-2">
-      <Button
-        label="connect via builtin wallet"
-        disabled={!$builtin.available || $wallet.connecting}
-        on:click={() => flow.connect('builtin')}>
-        <i class="fas fa-sign-in-alt mr-2" />
-        Connect Wallet
-      </Button>
+      {#if $creatorStatus === Status.IsNotCreator}
+        <Link name="Sign up">
+          <Button label="create a tier">Create Tier</Button>
+        </Link>
+      {:else if $creatorStatus === Status.IsCreator}
+        <Link name="Upload">
+          <Button label="upload content">Upload</Button>
+        </Link>
+      {:else}
+        <Button
+          label="connect via builtin wallet"
+          disabled={!$builtin.available || $wallet.connecting}
+          on:click={() => flow.connect('builtin')}>
+          <i class="fas fa-sign-in-alt mr-2" />
+          Connect Wallet
+        </Button>
+      {/if}
     </li>
   </ul>
 </nav>

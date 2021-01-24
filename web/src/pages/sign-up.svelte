@@ -5,6 +5,7 @@
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
   import {onMount} from 'svelte';
+  import {creatorAddress} from '../stores/creatorAddress';
 
   let creatorName: string = '';
   let avatarURL: string = '';
@@ -46,6 +47,10 @@
 
     creatorContract.on('CreatorDeployed', (...response) => {
       const [sender, contractaddr] = response;
+
+      if (sender === $wallet.address) {
+        creatorAddress.set(contractaddr);
+      }
       console.log('creator contract address', contractaddr);
     });
   }
