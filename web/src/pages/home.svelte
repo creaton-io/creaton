@@ -381,7 +381,7 @@
       </div>
     </section>
 
-    <section class="bg-gradient-to-b from-teal-400 via-teal-400 to-green-400 text-gray-700 body-font">
+    <section class="bg-gradient-to-b from-teal-400 via-teal-400 to-gray-100 text-gray-700 body-font">
       <div class="container flex flex-col items-center px-5 py-16 mx-auto lg:px-20 lg:py-24 md:flex-row">
         <div class="w-5/6 lg:w-75 md:w-1/2 md:-mr-10">
           <img class="object-cover object-center rounded-lg" alt="hero" src="images/supporter.png" />
@@ -455,7 +455,7 @@
       </div>
     </section>
 
-    <section class="py-8 px-4 text-center bg-gradient-to-b from-green-400 via-green-400 to-teal-400">
+    <section class="pt-4 pb-16 px-4 text-center bg-gray-100">
       <div class="w-fill mx-auto mt-4 mb-10">
         <h1 class="text-blue-800 font-bold text-6xl mb-10 font-heading">{name}</h1>
       </div>
@@ -470,7 +470,7 @@
               <div>Loading creators...</div>
             {:else}
               {#each $creators.data as creator, index}
-                <CreatorCard {creator}>{creator.creatorContract}</CreatorCard>
+                <CreatorCard {creator} />
               {/each}
             {/if}
           </div>
@@ -482,7 +482,7 @@
   </main>
 </div>
 
-<section class="pt-20">
+<section class="pt-20 bg-gradient-to-b from-teal-400 to-white">
   <div class="container px-4 mx-auto w-4/6 lg:w-2/6 mb-12">
     <h2 class="text-5xl font-semibold text-center mb-6">Partners & Investors</h2>
     <div class="grid grid-flow-row-dense grid-cols-1 grid-rows-2 gap-4 lg:gap-10">

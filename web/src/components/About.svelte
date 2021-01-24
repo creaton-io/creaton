@@ -1,4 +1,4 @@
-<section class="pt-20  bg-gradient-to-b from-teal-400 to-white">
+<section class="pt-20  bg-gradient-to-b from-gray-100 to-teal-400">
   <div class="container mx-auto px-4">
     <div class="flex flex-wrap justify-center text-center mb-6">
       <div class="w-full lg:w-6/12 px-4">

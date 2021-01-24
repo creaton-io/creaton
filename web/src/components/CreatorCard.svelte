@@ -22,13 +22,10 @@
   id={creator.creatorContract}
   params={{id: creator.creatorContract}}
   name="Creator"
-  class="block px-4 py-8 border rounded overflow-hidden">
-  <h3 class="text-4xl leading-normal font-medium text-gray-900 truncate">{creator.title}</h3>
+  class="block border rounded overflow-hidden p border-gray-300 shadow-2xl">
+  <div class="flex justify-between pt-4 pb-5 px-3 bg-white">
+    <h3 class="text-2xl leading-normal font-medium text-gray-900 truncate text-left">{creator.title}</h3>
+    <button class="bg-blue-800 py-2 px-5 rounded text-white">SUBSCRIBE FOR ${creator.subscriptionPrice}</button>
+  </div>
   <img class="avatar" src={creator.avatarURL} alt={creator.title} />
-  <h3 class="text-1xl mt-3 leading-normal font-medium text-gray-900 truncate">
-    Monthly fee: ${creator.subscriptionPrice}
-  </h3>
-  <p class="mt-2 text-base leading-6 text-gray-500 truncate mx-10">
-    <slot />
-  </p>
 </Link>
