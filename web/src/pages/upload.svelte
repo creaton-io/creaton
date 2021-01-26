@@ -15,7 +15,7 @@
   import {onMount} from 'svelte';
   import CreatorCard from '../components/CreatorCard.svelte';
   import {creators} from '../stores/queries';
-  import '@metamask/legacy-web3';
+  // import '@metamask/legacy-web3';
 
   global.Buffer = Buffer;
 
@@ -137,109 +137,78 @@
   }
 
   async function send(data: any) {
+    console.log('sending tx request ...');
     console.log(data);
-    let batch = web3.createBatch();
-    // let hash: {[data: string]: string;} = {};
-    let hash = [];
-    data.forEach((element) => {
-      element = JSON.parse(element);
-      console.log(element['data']);
-      let tx = web3.eth.sendTransaction.request(
-        {
-          from: element['from'],
-          to: element['to'],
-          gas: element['gas'],
-          gasPrice: element['gasPrice'],
-          value: element['value'],
-          data: element['data'],
-        },
-        (err, res) => {
-          if (err == null) {
-            window['socket'].emit('sign_broad_res', JSON.stringify({data: element['data'], txHash: res}));
-          }
-        }
-      );
-      batch.add(tx);
-    });
-    batch.execute();
-    console.log('resulting hashes');
-    console.log(hash);
-    // let params= [
-    //   {
-    //     from: data['from'],//'0x8F9A150adb245e8e460760Ed1BFd3C026a0457db',
-    //     to: data['to'],//'0x328BDfdD563f67a47c2757E5fD0298AD86F447c0',
-    //     gas: data['gas'],//, // 30400
-    //     gasPrice: data['gasPrice'],//, // 10000000000000
-    //     value: data['value'],//'0x0e9234569184e72a', // 2441406250
-    //     data: data['data'],
-    //   },
-    //   {
-    //     from: '0xcDde21d9eE3deC9e00da930ce40e5BEceDE46799',
-    //     to: '0x2f318C334780961FB129D2a6c30D0763d9a5C970',
-    //     value: '0x29a2241af62c0000',
-    //     gasPrice: '0x09184e72a000',
-    //     gas: '0x2710',
-    //   },
-    // ];
-    // ethereum.request({
-    //   method: 'eth_sendTransaction',
-    //   params,
-    // })
-    // .then((result) => {
-    //   console.log(result)
-    //   window['socket'].emit('sign_broad_res', result);
-    //   console.log(result)
-    // })
-    // .catch((error) => {
-    //   // If the request fails, the Promise will reject with an error.
+    // let batch = web3.createBatch();
+    // // let hash: {[data: string]: string;} = {};
+    // let hash = [];
+    // data.forEach((element) => {
+    //   element = JSON.parse(element);
+    //   console.log(element['data']);
+    //   let tx = web3.eth.sendTransaction.request(
+    //     {
+    //       from: element['from'],
+    //       to: element['to'],
+    //       gas: element['gas'],
+    //       gasPrice: element['gasPrice'],
+    //       value: element['value'],
+    //       data: element['data'],
+    //     },
+    //     (err, res) => {
+    //       if (err == null) {
+    //         window['socket'].emit('sign_broad_res', JSON.stringify({data: element['data'], txHash: res}));
+    //       }
+    //     }
+    //   );
+    //   batch.add(tx);
     // });
+    // batch.execute();
+    // console.log('resulting hashes');
+    // console.log(hash);
+    let params= [
+      {
+        from: data['from'],
+        to: data['to'],
+        gas: data['gas'],
+        gasPrice: data['gasPrice'],
+        value: data['value'],
+        data: data['data'],
+      }
+    ];
+    ethereum.request({
+      method: 'eth_sendTransaction',
+      params,
+    })
+    .then((result) => {
+      console.log(result)
+      window['socket'].emit('sign_broad_res', result);
+      console.log(result)
+    })
+    .catch((error) => {
+      // If the request fails, the Promise will reject with an error.
+    });
   }
 
   async function sign(msg: any) {
-    console.log('batch signing request ... ');
+    console.log('signing request ... ');
     console.log(msg);
-    // let params= [
-    //     msg['address'],
-    //     msg['message']
-    // ];
-    // ethereum.request({
-    //     method: 'personal_sign',
-    //     params,
-    // })
-    // .then((result) => {
-    //     window['socket'].emit('sign_res', result);
-    //     console.log(result);
-    // })
-    // .catch((error) => {
-    //     console.log("sign error")
-    //     console.log(error);
-    // });
+    let params= [
+        msg['address'],
+        msg['message']
+    ];
+    ethereum.request({
+        method: 'personal_sign',
+        params,
+    })
+    .then((result) => {
+        window['socket'].emit('sign_res', result);
+        console.log(result);
+    })
+    .catch((error) => {
+        console.log("sign error")
+        console.log(error);
+    });
   }
-
-  // async function download(path) {
-  //   await textile.getKeysFromCreator();
-  //   const decrypted = await textile.decryptFile(path);
-  //   await downloadBlob(decrypted);
-  //   let mdata = await creatorContract.getMetadataURL();
-  //   console.log(mdata);
-  // }
-  // function downloadURL(data, fileName) {
-  //   const a = document.createElement('a');
-  //   a.href = data;
-  //   a.download = fileName;
-  //   document.body.appendChild(a);
-  //   a.style.display = 'none';
-  //   a.click();
-  //   a.remove();
-  // }
-  // function downloadBlob(decrypted: ArrayBuffer) {
-  //   const blob = new Blob([new Uint8Array(decrypted)], {
-  //     type: 'image/jpg',
-  //   });
-  //   const url = window.URL.createObjectURL(blob);
-  //   downloadURL(url, 'whatever');
-  //   setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-  // }
 </script>
 
 <style>

@@ -126,11 +126,7 @@
   }
 
   async function loadSuperFluid() {
-    sf = new SuperfluidSDK({
-      web3Provider: wallet,
-      version: '0.1.2-preview-20201014',
-      chainId: 5,
-    });
+    sf = new SuperfluidSDK(wallet, 'v1', '5', ['fUSDC']);
     await sf.initialize();
 
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');

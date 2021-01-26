@@ -6,11 +6,6 @@ import {contracts} from '../contracts.json';
 import {defaultAbiCoder, Interface} from '@ethersproject/abi';
 import {wallet} from '../stores/wallet';
 
-const getConfig = require('./getConfig');
-const {getErrorResponse} = require('./utils/error');
-const {validateAddress} = require('./utils/general');
-const User = require('./User');
-
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
 export class SuperfluidSDK {
@@ -20,13 +15,12 @@ export class SuperfluidSDK {
    * @param {boolean} isTruffle if the framework is used within truffle environment
    * @param {string} version protocol contract version
    * @param {string} chainId force chainId, instead relying on web3.eth.net.getId
-   * @param {string} resolverAddress force resolver address
    * @param {string[]} tokens the tokens to be loaded, each element is an alias for the underlying token
    * @return {Framework} The Framework object
    *
    * NOTE: You should call async function Framework.initialize to initialize the object.
    */
-  constructor(web3Provider, version, chainId, resolverAddress, tokens) {
+  constructor(web3Provider, version, chainId, tokens) {
     /*
     const walletStores = WalletStores({
       chainConfigs: SuperfluidABI,
