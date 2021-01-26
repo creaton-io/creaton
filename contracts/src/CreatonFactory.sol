@@ -56,7 +56,12 @@ contract CreatonFactory is Proxied {
 
     function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external {
         console.log("pre construct");
-        CreatonSuperApp creatorContract = new CreatonSuperApp(_host, _cfa, _acceptedToken); //can just add the metadataurl and subscriptiionprice extra here now and in the sol lol
+        CreatonSuperApp creatorContract =
+            new CreatonSuperApp(
+                ISuperfluid(0x22ff293e14F1EC3A09B137e9e06084AFd63adDF9),
+                IConstantFlowAgreementV1(0xEd6BcbF6907D4feEEe8a8875543249bEa9D308E8),
+                ISuperToken(0x8aE68021f6170E5a766bE613cEA0d75236ECCa9a)
+            ); //can just add the metadataurl and subscriptiionprice extra here now and in the sol lol
         console.log("post construct");
         address creatorContractAddr = address(creatorContract);
         //0x8EA403f69173CB3271DBBa1916DD99d8E294B46f
