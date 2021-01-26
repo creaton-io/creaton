@@ -190,15 +190,6 @@ export class TextileStore {
 
     const rawFile = await this.bucketInfo.bucket.pushPath(this.bucketInfo.bucketKey, fileLocation, encObject);
 
-    // encrypt this key with creator public key to store in creator collection
-    // const encKey = await this.identity.public.encrypt(new Uint8Array(encMetadata.key));
-    // const pair: CidKey = {
-    //   cid: rawFile.path.path.toString(),
-    //   key: this.arrayBufferToBase64(encKey.buffer),
-    // };
-
-    // await this.client.create(this.threadID, 'creator', [pair]);
-
     return {
       encryptedFile: {
         ipfsPath: rawFile.path.path.toString(),
@@ -264,32 +255,6 @@ export class TextileStore {
     return `${this.ipfsGateway}/ipfs/${rawFile.path.cid.toString()}`;
   }
 
-  public async encryptFile(file: File): Promise<EncryptedMetadata> {
-    const buf = await file.arrayBuffer();
-    const key = await this.generateKey();
-    const counter = window.crypto.getRandomValues(new Uint8Array(16));
-
-    const encryptedFile = await window.crypto.subtle.encrypt(
-      {
-        name: 'AES-CTR',
-        counter: counter,
-        length: 128,
-      },
-      key,
-      buf
-    );
-
-    const tmp = new Uint8Array(counter.byteLength + encryptedFile.byteLength);
-    tmp.set(counter, 0);
-    tmp.set(new Uint8Array(encryptedFile), counter.byteLength);
-    const exportedKey = await window.crypto.subtle.exportKey('raw', key);
-
-    return {
-      file: tmp.buffer,
-      key: exportedKey,
-    };
-  }
-
   /**
    * Decrypts a file given the relative bucket path and
    * its cid to retrieve its corresponding keys from DB.
@@ -347,39 +312,6 @@ export class TextileStore {
     const res = await response.text();
     console.log('enc_file', res);
     return this.base64ToArrayBuffer(JSON.parse(res)['decrypted_content']);
-    // await console.log(this.arrayBufferToBase64(keyBuffer.buffer));
-    // return await window.crypto.subtle.decrypt(
-    //   {
-    //     name: 'AES-CTR',
-    //     counter: content.slice(0, 16),
-    //     length: 128,
-    //   },
-    //   decryptKey,
-    //   content.slice(16, content.byteLength)
-    // );
-  }
-
-  private async importKey(key: ArrayBuffer): Promise<CryptoKey> {
-    return await window.crypto.subtle.importKey(
-      'raw',
-      key,
-      {
-        name: 'AES-CTR',
-      },
-      false,
-      ['encrypt', 'decrypt']
-    );
-  }
-
-  private async generateKey() {
-    return await window.crypto.subtle.generateKey(
-      {
-        name: 'AES-CTR',
-        length: 256,
-      },
-      true,
-      ['encrypt', 'decrypt']
-    );
   }
 
   private arrayBufferToBase64(buffer: ArrayBuffer) {
@@ -430,46 +362,11 @@ export class TextileStore {
     }
   }
 
-  public async getKeysFromCreator(): Promise<void> {
-    const messages = await this.user.listInboxMessages();
-    for (const msg of messages) {
-      const decryptedInbox = await this.messageDecoder(msg);
-      const keyPair: CidKey = JSON.parse(decryptedInbox.body);
-      //encrypt key and store
-      const encKey = await this.identity.public.encrypt(new Uint8Array(this.base64ToArrayBuffer(keyPair.key)));
-      const pair: CidKey = {
-        cid: keyPair.cid,
-        key: this.arrayBufferToBase64(encKey.buffer),
-      };
-      await this.client.create(this.threadID, 'subscriber', [pair]);
-    }
-  }
-
-  //from contract
-  public async getSubscribers(): Promise<CidKey[]> {
-    return new Array({cid: 'cid', key: 'pubKey'});
-  }
-
   public async sendTmapToSubscribers(textilePubKey: string, cid: string, tmap: string): Promise<void> {
     const pubKey = PublicKey.fromString(textilePubKey);
     const message = '{"cid": "' + cid + '", "tmap": "' + tmap + '"}';
     console.log(message);
     await this.sendMailBox(this.identity, pubKey, message);
-  }
-
-  public async sendKeysToSubscribers(cid: string, key: string): Promise<void> {
-    const subscribers = new Array({cid: cid, key: key});
-
-    for (const sub of subscribers) {
-      const query = new Where('cid').eq(sub.cid);
-      const result = await this.client.find<CidKey>(this.threadID, 'creator', query);
-      const pair = result[0];
-      const keyBuffer = await this.identity.decrypt(new Uint8Array(this.base64ToArrayBuffer(pair.key)));
-
-      const message = '{"cid": "' + sub.cid + '", "key": "' + this.arrayBufferToBase64(keyBuffer) + '"}';
-      const pubKey = PublicKey.fromString(sub.key);
-      await this.sendMailBox(this.identity, pubKey, message);
-    }
   }
 
   public async sendMailBox(from: PrivateKey, to: PublicKey, message: string): Promise<UserMessage> {
