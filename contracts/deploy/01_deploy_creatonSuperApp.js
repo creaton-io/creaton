@@ -3,10 +3,10 @@ const func = async function (hre) {
   const {deploy} = hre.deployments;
   const useProxy = !hre.network.live;
 
-  const Transaction = require('ethereumjs-tx').Transaction;
-  const ethUtils = require('ethereumjs-util');
+  //const Transaction = require('ethereumjs-tx').Transaction;
+  //const ethUtils = require('ethereumjs-util');
 
-  const SuperfluidSDK = require('@superfluid-finance/ethereum-contracts');
+  const SuperfluidSDK = require('@superfluid-finance/js-sdk');
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
@@ -47,10 +47,22 @@ const func = async function (hre) {
   await tx2.wait();
   console.log('successful erc1820 deploy!');*/
 
+  const version = process.env.RELEASE_VERSION || 'v1';
+
+  const sf = new SuperfluidSDK.Framework({
+    chainId: 5,
+    version: version,
+    web3Provider: await hre.web3.currentProvider,
+    tokens: ['fUSDC'],
+  });
+  await sf.initialize();
+
+  const usdcx = sf.tokens.fUSDCx;
+
   await deploy('CreatonSuperApp', {
     from: creator,
     proxy: useProxy,
-    args: [],
+    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address],
     log: true,
   });
 

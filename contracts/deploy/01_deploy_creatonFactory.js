@@ -3,7 +3,7 @@ const func = async function (hre) {
   const {deploy} = hre.deployments;
   const useProxy = !hre.network.live;
 
-  const SuperfluidSDK = require('@superfluid-finance/ethereum-contracts');
+  const SuperfluidSDK = require('@superfluid-finance/js-sdk');
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
@@ -56,9 +56,10 @@ const func = async function (hre) {
   });
   await sf.initialize();
 
-  const usdc = sf.tokens.fUSDC.address;
-  const usdcxWrapper = await sf.getERC20Wrapper(usdc);
-  const usdcx = await sf.contracts.ISuperToken.at(usdcxWrapper.wrapperAddress);
+  const usdcx = sf.tokens.fUSDCx;
+  //console.log('usdc', sf.tokens.fUSDC.address);
+  //console.log('usdcx', usdc.address);
+  //const usdcx = await sf.contracts.ISuperToken.at(sf.tokens.fUSDC);
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
