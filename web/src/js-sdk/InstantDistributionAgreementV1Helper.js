@@ -1,7 +1,7 @@
 /**
  * @dev Instant distribution agreement v1 helper class
  */
-module.exports = class InstantDistributionAgreementV1Helper {
+class InstantDistributionAgreementV1Helper {
   /**
    * @dev Create new helper class
    * @param {Framework} sf Superfluid Framework object
@@ -146,4 +146,4 @@ module.exports = class InstantDistributionAgreementV1Helper {
       unitsList: unitsList.map((units) => units.toString()),
     };
   }
-};
+}

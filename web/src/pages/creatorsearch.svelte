@@ -3,8 +3,8 @@
   import Input from '../components/Input.svelte';
   import Button from '../components/Button.svelte';
   import {Contract} from '@ethersproject/contracts';
+  import Superfluid from '../build/abi';
   import {contracts} from '../contracts.json';
-  import SuperfluidABI from '../build/abi';
   import {wallet, flow, chain} from '../stores/wallet';
   import {onMount} from 'svelte';
   import {SuperfluidSDK} from '../js-sdk/Framework';
@@ -72,22 +72,22 @@
     if (usdcxBalance < 2)
       call = [
         [
-          2, // upgrade 100 usdcx to play the game
+          101, // upgrade 100 usdcx to play the game
           usdcx.address,
           sf.interfaceCoder.encode(['uint256'], [parseEther('100')]),
         ],
         [
-          0, // approve collateral fee
+          1, // approve collateral fee
           usdcx.address,
           sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
         ],
         [
-          5, // callAppAction to collateral
+          202, // callAppAction to collateral
           contractAddress,
           sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']), //TODO: have to
         ],
         [
-          4, // create constant flow (10/mo)
+          201, // create constant flow (10/mo)
           sf.agreements.cfa.address,
           sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
             usdcx.address,
@@ -95,22 +95,24 @@
             MINIMUM_GAME_FLOW_RATE.toString(),
             '0x',
           ]),
+          'test,',
+          '0x',
         ],
       ];
     else
       call = [
         [
-          0, // approve collateral fee
+          1, // approve collateral fee
           usdcx.address,
           sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
         ],
         [
-          5, // callAppAction to collateral
+          202, // callAppAction to collateral
           contractAddress,
           sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']),
         ],
         [
-          4, // create constant flow (10/mo)
+          201, // create constant flow (10/mo)
           sf.agreements.cfa.address,
           sf.interfaceCreateFlow.encodeFunctionData('createFlow', [
             usdcx.address,
@@ -130,9 +132,13 @@
     await sf.initialize();
 
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-    usdc = new Contract(usdcAddress, SuperfluidABI.TestToken, wallet.provider.getSigner());
-    usdcx = await sf.getERC20Wrapper(usdc);
-    app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
+    usdc = new Contract(await sf.tokens.fUSDC.address, Superfluid.ABI.TestToken, wallet.provider.getSigner());
+    usdcx = new Contract(await sf.tokens.fUSDCx.address, Superfluid.ABI.ISuperToken, wallet.provider.getSigner());
+
+    //usdcx = await sf.createERC20Wrapper(usdc);
+    //think I just need to use the address still so I can still get the ethers contract
+    console.log('usdc address', usdc.address);
+    app = new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
 
     usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
     usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
@@ -168,7 +174,6 @@
     creator = await creatorContract.creator();
     metadataURL = await creatorContract.metadataURL();
     subscriptionPrice = await creatorContract.subscriptionPrice();
-    [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
     if (isSubscribed) {
       subscriptionStatus = 'SUBSCRIBED';
     } else {
@@ -248,11 +253,7 @@
             {#if subscriptionStatus === 'UNSUBSCRIBED'}
               <Button class="mt-3" on:click={support}>Subscribe - ${subscriptionPrice}</Button>
             {:else}
-              <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">
-                {#if subscriptionStatus === 'PENDING'}
-                  Subscription pending...
-                {:else}Subscription balance: ${currentBalance}{/if}
-              </p>
+              <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center" />
             {/if}
             <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdc Balance: ${usdcBalance}</p>
             <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Approved usdc Balance: ${usdcApproved}</p>

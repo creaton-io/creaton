@@ -1,7 +1,7 @@
 /**
  * @dev Constant flow agreement v1 helper class
  */
-module.exports = class ConstantFlowAgreementV1Helper {
+class ConstantFlowAgreementV1Helper {
   /**
    * @dev Create new helper class
    * @param {Framework} sf Superfluid Framework object
@@ -235,4 +235,4 @@ module.exports = class ConstantFlowAgreementV1Helper {
     }
     return result;
   }
-};
+}

@@ -1,7 +1,7 @@
 /**
  * @dev Utility class
  */
-module.exports = class Utils {
+class Utils {
   constructor(sf) {
     this._sf = sf;
   }
@@ -17,4 +17,4 @@ module.exports = class Utils {
   normalizeFlowRateParam(param) {
     return param;
   }
-};
+}

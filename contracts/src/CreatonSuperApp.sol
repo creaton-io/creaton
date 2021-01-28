@@ -17,11 +17,9 @@ import {
     IConstantFlowAgreementV1
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 
-import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
-
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
-contract CreatonSuperApp is Proxied, ISuperApp, SuperAppBase {
+contract CreatonSuperApp is Proxied, ISuperApp {
     string private constant _ERR_STR_NO_STREAMER = "CreatonSuperApp: need to stream to become supporter";
     string private constant _ERR_STR_LOW_FLOW_RATE = "CreatonSuperApp: flow rate too low";
     string private constant _ERR_STR_UNFINISHED_SUPPORT =
@@ -212,6 +210,79 @@ contract CreatonSuperApp is Proxied, ISuperApp, SuperAppBase {
         return
             ISuperAgreement(agreementClass).agreementType() ==
             keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
+    }
+
+    /**************************************************************************
+     * SuperApp callbacks
+     *************************************************************************/
+
+    function beforeAgreementCreated(
+        ISuperToken superToken,
+        address agreementClass,
+        bytes32 agreementId,
+        bytes calldata agreementData,
+        bytes calldata ctx
+    ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
+        cbdata = _beforeSupport(ctx);
+    }
+
+    function afterAgreementCreated(
+        ISuperToken superToken,
+        address agreementClass,
+        bytes32 agreementId,
+        bytes calldata agreementData,
+        bytes calldata cbdata,
+        bytes calldata ctx
+    ) external override onlyHost returns (bytes memory newCtx) {
+        return _support(ctx, agreementClass, agreementId, cbdata);
+    }
+
+    function beforeAgreementUpdated(
+        ISuperToken superToken,
+        address agreementClass,
+        bytes32 agreementId,
+        bytes calldata agreementData,
+        bytes calldata ctx
+    ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
+        cbdata = _beforeSupport(ctx);
+    }
+
+    function afterAgreementUpdated(
+        ISuperToken superToken,
+        address agreementClass,
+        bytes32 agreementId,
+        bytes calldata agreementData,
+        bytes calldata cbdata,
+        bytes calldata ctx
+    ) external override onlyHost returns (bytes memory newCtx) {
+        return _support(ctx, agreementClass, agreementId, cbdata);
+    }
+
+    function beforeAgreementTerminated(
+        ISuperToken superToken,
+        address agreementClass,
+        bytes32 agreementId,
+        bytes calldata agreementData,
+        bytes calldata ctx
+    ) external view override onlyHost returns (bytes memory cbdata) {
+        // According to the app basic law, we should never revert in a termination callback
+        if (!_isSameToken(superToken) || !_isCFAv1(agreementClass)) return abi.encode(true);
+        return abi.encode(false);
+    }
+
+    ///
+    function afterAgreementTerminated(
+        ISuperToken superToken,
+        address agreementClass,
+        bytes32 agreementId,
+        bytes calldata agreementData,
+        bytes calldata cbdata,
+        bytes calldata ctx
+    ) external override onlyHost returns (bytes memory newCtx) {
+        // According to the app basic law, we should never revert in a termination callback
+        bool shouldIgnore = abi.decode(cbdata, (bool));
+        if (shouldIgnore) return ctx;
+        return _quit(ctx);
     }
 
     /**************************************************************************
