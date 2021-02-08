@@ -3,23 +3,30 @@ pragma solidity 0.7.1;
 pragma experimental ABIEncoderV2;
 
 import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
+import "./utils/SafeMath.sol";
 import "hardhat/console.sol";
+
+// commenting this import out for now because its causing compilation errors
+// import "./ERC1155/ERC1155MixedFungibleMintable.sol";
+
+//import "openzeppelin-solidity/contracts/presets/ERC1155PresetMinterPauser.sol";
+
+//NOTE: THIS SMART CONTRACT WILL BE REMOVED
 
 import {
     ISuperfluid,
     ISuperToken,
-    ISuperApp,
     ISuperAgreement,
+    ISuperApp,
     SuperAppDefinitions
-} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol"; //"@superfluid-finance/ethereum-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+} from "./superfluid/interfaces/superfluid/ISuperfluid.sol";
 
-import {
-    IConstantFlowAgreementV1
-} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
-
+import {IConstantFlowAgreementV1} from "./superfluid/interfaces/agreements/IConstantFlowAgreementV1.sol";
 import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
-contract CreatonSuperApp is Proxied, ISuperApp {
+contract Creator is Proxied, ISuperApp {
+    using SafeMath for uint256;
+
     string private constant _ERR_STR_NO_STREAMER = "CreatonSuperApp: need to stream to become supporter";
     string private constant _ERR_STR_LOW_FLOW_RATE = "CreatonSuperApp: flow rate too low";
     string private constant _ERR_STR_UNFINISHED_SUPPORT =
@@ -44,45 +51,41 @@ contract CreatonSuperApp is Proxied, ISuperApp {
     // Storage
     // -----------------------------------------
 
+    struct Balance {
+        uint256 amount;
+        bool isSubscribed;
+    }
+    string[] public metadataURL;
+    address public creator;
+    string public avatarURL;
+    string public creatorTitle;
+    uint256 public subscriptionPrice;
+    mapping(address => Balance) public currentBalance; //no need to check balance as there will be tokens that you can track the balance of anyway lol
+
     /// @dev Minimum flow rate to participate (hardcoded to $5 / mo)
-    int96 private _MINIMUM_FLOW_RATE = int96(uint256(subscriptionPrice << 18) / uint256(3600 * 24 * 30));
+    int96 private constant _MINIMUM_FLOW_RATE = int96(uint256(5e18) / uint256(3600 * 24 * 30));
 
     /// @dev Streamers (that are a)
     mapping(address => address) public streamers;
     mapping(address => uint256) public membershipPrice;
-    address public creator;
-
-    string public metadataURL;
-    address[] public subscribers;
-
-    uint256 public subscriptionPrice;
 
     // -----------------------------------------
     // Constructor
     // -----------------------------------------
 
-    //function init(string memory _creatorTitle, int96 _subscriptionPrice) public proxied {
-    //    creatorTitle = _creatorTitle;
-    //    subscriptionPrice = _subscriptionPrice;
-    //}
-
     function init(
         address owner,
-        string calldata _metadataURL,
-        uint256 _subscriptionPrice
-    ) public {
-        creator = owner;
-        metadataURL = _metadataURL;
-        subscriptionPrice = _subscriptionPrice;
-    }
-
-    // function postUpgrade(uint256 id) public proxied {}
-
-    constructor(
+        string calldata _avatarURL,
+        string calldata _creatorTitle,
+        uint256 _subscriptionPrice,
         ISuperfluid host,
         IConstantFlowAgreementV1 cfa,
         ISuperToken acceptedToken
-    ) {
+    ) public {
+        creator = owner;
+        avatarURL = _avatarURL;
+        creatorTitle = _creatorTitle;
+        subscriptionPrice = _subscriptionPrice;
         assert(address(host) != address(0));
         assert(address(cfa) != address(0));
         assert(address(acceptedToken) != address(0));
@@ -91,11 +94,7 @@ contract CreatonSuperApp is Proxied, ISuperApp {
         _cfa = cfa;
         _acceptedToken = acceptedToken;
 
-        uint256 configWord =
-            SuperAppDefinitions.APP_LEVEL_FINAL |
-                SuperAppDefinitions.BEFORE_AGREEMENT_CREATED_NOOP |
-                SuperAppDefinitions.BEFORE_AGREEMENT_UPDATED_NOOP |
-                SuperAppDefinitions.BEFORE_AGREEMENT_TERMINATED_NOOP;
+        uint256 configWord = SuperAppDefinitions.TYPE_APP_FINAL;
 
         _host.registerApp(configWord);
     }
@@ -104,11 +103,37 @@ contract CreatonSuperApp is Proxied, ISuperApp {
     // External Functions
     // -----------------------------------------
 
+    modifier onlyCreator() {
+        require(msg.sender == creator, "You are not the creator");
+        _;
+    }
+
+    function subscribe(uint256 _amount) external returns (bool) {
+        require(_amount != 0, "Missing subscription amount");
+        require(msg.sender != creator, "Creators can't subscribe to themselves");
+        require(currentBalance[msg.sender].isSubscribed == false, "Already subscribed");
+        currentBalance[msg.sender] = Balance({amount: _amount, isSubscribed: true});
+        emit NewSubscriber(msg.sender, _amount);
+        return true;
+    }
+
+    function setAvatarURL(string calldata _newURL) external onlyCreator {
+        avatarURL = _newURL;
+    }
+
+    function setMetadataURL(string calldata _url) external onlyCreator {
+        metadataURL.push(_url);
+    }
+
+    function getAllMetadata() public view returns (string[] memory) {
+        return metadataURL;
+    }
+
     /// @dev Take collateral fee from the potential supporter and add them acceptable streamers
     function collateral(address membership, bytes calldata ctx) external {
         // msg sender is encoded in the Context
         console.log("col");
-        address sender = _host.decodeCtx(ctx).msgSender;
+        (, , address sender, , ) = _host.decodeCtx(ctx);
 
         uint256 collateralFee = membershipPrice[membership];
         _acceptedToken.transferFrom(sender, membership, collateralFee);
@@ -118,7 +143,7 @@ contract CreatonSuperApp is Proxied, ISuperApp {
     /// @dev Check requirements before letting the streamer become a supporter
     function _beforeSupport(bytes calldata ctx) private view returns (bytes memory cbdata) {
         console.log("bs");
-        address sender = _host.decodeCtx(ctx).msgSender;
+        (, , address sender, , ) = _host.decodeCtx(ctx);
         address collateralMembership = streamers[sender]; //membership the streamer has payed collateral for
         //require(streamers[sender] > 0, _ERR_STR_NO_STREAMER);
 
@@ -146,15 +171,14 @@ contract CreatonSuperApp is Proxied, ISuperApp {
         console.log("afterrequire");
         delete streamers[streamer];
         //make streamer a supporter
-        _supportersSet.add(streamer);
-        subscribers.push(streamer);
+        _supportersSet.add(streamer); //not doing anything with this for now, delete it if not needed
         console.log("afterstreamer");
         newCtx = ctx;
     }
 
     /// @dev Quit supporting
     function _quit(bytes calldata ctx) private returns (bytes memory newCtx) {
-        address supporter = _host.decodeCtx(ctx).msgSender;
+        (, , address supporter, , ) = _host.decodeCtx(ctx);
 
         _supportersSet.remove(supporter);
     }
@@ -172,7 +196,6 @@ contract CreatonSuperApp is Proxied, ISuperApp {
                 _cfa.getNetFlow(_acceptedToken, streamer),
                 new bytes(0)
             ),
-            "0x",
             newCtx
         );
     }
@@ -186,84 +209,53 @@ contract CreatonSuperApp is Proxied, ISuperApp {
         membershipPrice[msg.sender] = price;
     }
 
-    function setMetadataURL(string calldata _url) external onlyCreator {
-        metadataURL = _url;
-    }
-
-    /**************************************************************************
-     * Getters
-     *************************************************************************/
-
-    function getMetadata() public view returns (string memory) {
-        return metadataURL;
-    }
-
-    function getAllSubscribers() public view returns (address[] memory) {
-        return subscribers;
-    }
-
-    function _isSameToken(ISuperToken superToken) private view returns (bool) {
-        return address(superToken) == address(_acceptedToken);
-    }
-
-    function _isCFAv1(address agreementClass) private view returns (bool) {
-        return
-            ISuperAgreement(agreementClass).agreementType() ==
-            keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
-    }
-
     /**************************************************************************
      * SuperApp callbacks
      *************************************************************************/
 
     function beforeAgreementCreated(
         ISuperToken superToken,
+        bytes calldata ctx,
         address agreementClass,
-        bytes32 agreementId,
-        bytes calldata agreementData,
-        bytes calldata ctx
+        bytes32 /*agreementId*/
     ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
         cbdata = _beforeSupport(ctx);
     }
 
     function afterAgreementCreated(
-        ISuperToken superToken,
+        ISuperToken, /* superToken */
+        bytes calldata ctx,
         address agreementClass,
         bytes32 agreementId,
-        bytes calldata agreementData,
-        bytes calldata cbdata,
-        bytes calldata ctx
+        bytes calldata cbdata
     ) external override onlyHost returns (bytes memory newCtx) {
         return _support(ctx, agreementClass, agreementId, cbdata);
     }
 
     function beforeAgreementUpdated(
         ISuperToken superToken,
+        bytes calldata ctx,
         address agreementClass,
-        bytes32 agreementId,
-        bytes calldata agreementData,
-        bytes calldata ctx
+        bytes32 /*agreementId*/
     ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
         cbdata = _beforeSupport(ctx);
     }
 
     function afterAgreementUpdated(
-        ISuperToken superToken,
+        ISuperToken, /* superToken */
+        bytes calldata ctx,
         address agreementClass,
         bytes32 agreementId,
-        bytes calldata agreementData,
-        bytes calldata cbdata,
-        bytes calldata ctx
+        bytes calldata cbdata
     ) external override onlyHost returns (bytes memory newCtx) {
         return _support(ctx, agreementClass, agreementId, cbdata);
     }
 
     function beforeAgreementTerminated(
         ISuperToken superToken,
+        bytes calldata, /*ctx*/
         address agreementClass,
-        bytes32 agreementId,
-        bytes calldata agreementData,
-        bytes calldata ctx
+        bytes32 /*agreementId*/
     ) external view override onlyHost returns (bytes memory cbdata) {
         // According to the app basic law, we should never revert in a termination callback
         if (!_isSameToken(superToken) || !_isCFAv1(agreementClass)) return abi.encode(true);
@@ -272,30 +264,31 @@ contract CreatonSuperApp is Proxied, ISuperApp {
 
     ///
     function afterAgreementTerminated(
-        ISuperToken superToken,
-        address agreementClass,
-        bytes32 agreementId,
-        bytes calldata agreementData,
-        bytes calldata cbdata,
-        bytes calldata ctx
+        ISuperToken, /* superToken */
+        bytes calldata ctx,
+        address, /* agreementClass */
+        bytes32, /* agreementId */
+        bytes calldata cbdata
     ) external override onlyHost returns (bytes memory newCtx) {
         // According to the app basic law, we should never revert in a termination callback
         bool shouldIgnore = abi.decode(cbdata, (bool));
+
         if (shouldIgnore) return ctx;
         return _quit(ctx);
     }
 
-    /**************************************************************************
-     * Requires
-     *************************************************************************/
+    function _isSameToken(ISuperToken superToken) private view returns (bool) {
+        return address(superToken) == address(_acceptedToken);
+    }
+
+    function _isCFAv1(address agreementClass) private pure returns (bool) {
+        return
+            ISuperAgreement(agreementClass).agreementType() ==
+            keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
+    }
 
     modifier onlyHost() {
         require(msg.sender == address(_host), "CreatonSuperApp: support only one host");
-        _;
-    }
-
-    modifier onlyCreator() {
-        require(msg.sender == creator, "You are not the creator");
         _;
     }
 
