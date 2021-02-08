@@ -40,8 +40,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     // Storage
     // -----------------------------------------
 
-
-    mapping(address => EnumerableSet.AddressSet) public creator2contract;
+    mapping(address => EnumerableSet.AddressSet) public creator2contract; // this could go wrong cause of the set
     mapping(address => address) public contract2creator;
 
     address private _host;
@@ -49,6 +48,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     address private _acceptedToken;
 
     address public treasury;
+    int96 treasury_fee;
 
     // -----------------------------------------
     // Constructor
@@ -57,8 +57,9 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     constructor(
         address host,
         address cfa,
-        address acceptedToken,
-        address _treasury
+        address acceptedToken, // get these from superfluid contracts
+        address _treasury,
+        int96 _treasury_fee
     ) {
         assert(host != address(0));
         assert(cfa != address(0));
@@ -69,6 +70,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         _acceptedToken = acceptedToken;
 
         treasury = _treasury;
+        treasury_fee = _treasury_fee;
 
     }
 
@@ -77,13 +79,14 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     // -----------------------------------------
 
     function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external {
-        CreatonSuperApp creatorContract =
+        Creator creatorContract =
             new Creator(
                 ISuperfluid(_host),
                 IConstantFlowAgreementV1(_cfa),
                 ISuperToken(_acceptedToken)
             ); 
-        creatorContract.init(msg.sender, metadataURL, subscriptionPrice, treasury);
+        creatorContract.init(msg.sender, metadataURL, subscriptionPrice, treasury, treasury_fee);
+        //  TODO do nott pass this, get treasury address and fee from CreatonAdmin
 
         address creatorContractAddr = address(creatorContract);
         contract2creator[creatorContractAddr] = msg.sender;

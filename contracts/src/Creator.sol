@@ -33,7 +33,7 @@ contract Creator is SuperAppBase{
     // Storage
     // -----------------------------------------
     
-    enum Status { pendingSubscribe, pendingUnsubscribe, subscribed }
+    enum Status { unSubscribed, pendingSubscribe, pendingUnsubscribe, subscribed }
     enum Approval { neutral, like, dislike }
     
     struct Subscriber {
@@ -63,8 +63,8 @@ contract Creator is SuperAppBase{
 
     address CreatonAdmin;
     address creator;
-    address private treasury;
-    uint256 private treasury_fee;
+    address public treasury;
+    int96 public treasury_fee;
 
     string public metadataURL;
     int96 public subscriptionPrice;
@@ -104,14 +104,15 @@ contract Creator is SuperAppBase{
         address owner,
         string calldata _metadataURL,
         uint256 _subscriptionPrice,
-        address _treasury
+        address _treasury,
+        int96 _treasury_fee
     ) public {
         creator = owner;
         metadataURL = _metadataURL;
         subscriptionPrice = int96(_subscriptionPrice);
         treasury = _treasury;
-        contract2creator = false;
-        contract2treasury = true;
+        treasury_fee = _treasury_fee;
+        streaming = false;
     }
     
     // -----------------------------------------
@@ -214,8 +215,9 @@ contract Creator is SuperAppBase{
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
 
-        address sender = _host.decodeCtx(ctx).msgSender;
-        (string sigKey, string pubKey) = abi.decode(context.userData, (string, string));
+        ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
+        address sender = _host.decodeCtx(ctx).msgSender; // subscriber
+        (string sigKey, string pubKey) = abi.decode(context.userData, (string, string)); // this is reallyy tricky
         _addSubscriber(sender, sigKey, pubKey);
 
         return _updateCreatorFlows(ctx);
@@ -252,7 +254,7 @@ contract Creator is SuperAppBase{
         int96 contract2treasury = contractFlowRate.sub(contract2creator);
 
         if (streaming){
-            if (contractFlowRate > 0){
+            if (contractFlowRate > 0){ // is there any flow coming in? function (number of pending and subscribed peeps)
 
                 // update flow to creator
                 (newCtx, ) = _host.callAgreementWithContext(
@@ -315,7 +317,7 @@ contract Creator is SuperAppBase{
             }
         }
 
-        if (!streaming) {
+        else if (!streaming) {
 
             // open flow to creator
             (newCtx, ) = _host.callAgreementWithContext(
@@ -374,7 +376,7 @@ contract Creator is SuperAppBase{
         bytes32 agreementId,
         bytes calldata /*agreementData*/,
         bytes calldata cbdata,
-        bytes calldata /*ctx*/
+        bytes calldata ctx
     )
         external override
         onlyHost
