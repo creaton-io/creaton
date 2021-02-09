@@ -37,20 +37,39 @@ if (mnemonic) {
 
 const config = {
   solidity: {
-    version: '0.7.1',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 2000,
+    compilers: [
+      {
+        version: "0.7.1",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
       },
-    },
+      {
+        version: "0.7.6",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+    ],
   },
   namedAccounts: {
-    creator: {
+    admin: {
       default: 0,
     },
-    subscriber: {
+    creator: {
       default: 1,
+    },
+    subscriber: {
+      default: 2,
+    },
+    treasury: {
+      default: 3,
     },
   },
   networks: {

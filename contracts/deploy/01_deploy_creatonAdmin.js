@@ -1,7 +1,7 @@
 const func = async function (hre) {
-  let {creator} = await hre.getNamedAccounts();
+  let {admin, treasury} = await hre.getNamedAccounts();
   const {deploy} = hre.deployments;
-  const useProxy = !hre.network.live;
+  // const useProxy = !hre.network.live;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
@@ -63,16 +63,14 @@ const func = async function (hre) {
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
-  await deploy('CreatonFactory', {
-    from: creator,
-    proxy: useProxy,
-    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address],
+  await deploy('CreatonAdmin', {
+    from: admin,
+    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address, treasury, 90],
     log: true,
   });
-
-  return !useProxy; // when live network, record the script as executed to prevent rexecution
+   // when live network, record the script as executed to prevent rexecution
 };
 
 module.exports = func;
-func.id = '01_deploy_creatonFactory'; // id required to prevent reexecution
-func.tags = ['Creatonfactory'];
+func.id = '01_deploy_creatonAdmin'; // id required to prevent reexecution
+func.tags = ['Creatonadmin'];

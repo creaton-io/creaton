@@ -1,8 +1,8 @@
-pragma solidity 0.7.1;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
 pragma abicoder v2;
 
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
-import "./utils/SafeMath.sol";
 import "hardhat/console.sol";
 import "./Creator.sol";
 
@@ -24,10 +24,8 @@ import {
 
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/EnumerableSet.sol";
 
 contract CreatonAdmin is Ownable, SuperAppBase{
-    using EnumerableSet for EnumerableSet.AddressSet;
     
     // -----------------------------------------
     // Events
@@ -40,7 +38,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     // Storage
     // -----------------------------------------
 
-    mapping(address => EnumerableSet.AddressSet) public creator2contract; // this could go wrong cause of the set
+    mapping(address => address[]) public creator2contract; // this could go wrong cause of the set
     mapping(address => address) public contract2creator;
 
     address private _host;
@@ -86,11 +84,11 @@ contract CreatonAdmin is Ownable, SuperAppBase{
                 ISuperToken(_acceptedToken)
             ); 
         creatorContract.init(msg.sender, metadataURL, subscriptionPrice, treasury, treasury_fee);
-        //  TODO do nott pass this, get treasury address and fee from CreatonAdmin
+        //  TODO do not pass this, get treasury address and fee from CreatonAdmin
 
         address creatorContractAddr = address(creatorContract);
         contract2creator[creatorContractAddr] = msg.sender;
-        creator2contract[msg.sender].add(creatorContractAddr);
+        creator2contract[msg.sender].push(creatorContractAddr);
 
         emit CreatorDeployed(msg.sender, creatorContractAddr, metadataURL, subscriptionPrice);
     }

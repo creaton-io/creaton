@@ -1,13 +1,13 @@
-pragma solidity 0.7.1;
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol" ;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.6;
+pragma abicoder v2;
 
 import {
     ISuperfluid,
     ISuperToken,
-    ISuperApp,
     ISuperAgreement,
     SuperAppDefinitions
-} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol"; //"@superfluid-finance/ethereum-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 import {
     IConstantFlowAgreementV1
@@ -17,11 +17,12 @@ import {
     SuperAppBase
 } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
+
 import "@openzeppelin/contracts/access/Ownable.sol";
-import { Int96SafeMath } from "../utils/Int96SafeMath.sol";
+import { Int96SafeMath } from "./utils/Int96SafeMath.sol";
 
 
-contract Creator is SuperAppBase{
+contract Creator is SuperAppBase {
     using Int96SafeMath for int96;
     // -----------------------------------------
     // Errors
@@ -68,7 +69,7 @@ contract Creator is SuperAppBase{
 
     string public metadataURL;
     int96 public subscriptionPrice;
-    int96 private _MINIMUM_FLOW_RATE = int96(subscriptionPrice.mul(10e18)).div(3600 * 24 * 30);
+    int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(10e18).div(3600 * 24 * 30);
     mapping (address => Subscriber) public subscribers;
     mapping (uint => Post) public posts;
     uint postCounter = 0;
@@ -82,7 +83,7 @@ contract Creator is SuperAppBase{
     constructor(
         ISuperfluid host,
         IConstantFlowAgreementV1 cfa,
-        ISuperToken acceptedToken,
+        ISuperToken acceptedToken
     ) public {
 
         CreatonAdmin = msg.sender;
@@ -126,13 +127,13 @@ contract Creator is SuperAppBase{
         require(success, "No balance");
     }
     
-    function recoverTokens(address _token) external isCreator {
-        ERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-        ERC20(_token).transfer(msg.sender, ERC20(_token).balanceOf(address(this)));
-    }
+    // function recoverTokens(address _token) external isCreator {
+    //     ERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+    //     ERC20(_token).transfer(msg.sender, ERC20(_token).balanceOf(address(this)));
+    // }
     
     function acceptSubscribe(address _address) external isCreator {
-       require(subscribers[_address].status == Status.pendingSubscriber, "Not pending subscribe");
+       require(subscribers[_address].status == Status.pendingSubscribe, "Not pending subscribe");
        subscribers[_address].status = Status.subscribed;
     }
     
@@ -154,7 +155,9 @@ contract Creator is SuperAppBase{
     }
     
     function upload(string memory _ipfsLink) external isCreator {
-       posts[postCounter] = Post(_ipfsLink, 0, 0, 0, emptyCommentArrray);
+       Post storage post = posts[postCounter];
+       post.ipfsLink = _ipfsLink;
+       post.comments = emptyCommentArrray;
        postCounter++;
     }
     
@@ -173,7 +176,7 @@ contract Creator is SuperAppBase{
     }
     
     function comment(address _address, uint _index, string memory _ipfsLink) external {
-        posts[_index].comments.push(Comment(_address, _ipfsLink, now));
+        posts[_index].comments.push(Comment(_address, _ipfsLink, block.timestamp));
         posts[_index].totalComments++;
     }
 
@@ -184,7 +187,7 @@ contract Creator is SuperAppBase{
     function percentage (
         int96 num, 
         int96 percent
-    ) public pure return (int96) {
+    ) public pure returns (int96) {
         return num.mul(percent).div(100);
     }
 
@@ -216,8 +219,8 @@ contract Creator is SuperAppBase{
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
 
         ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
-        address sender = _host.decodeCtx(ctx).msgSender; // subscriber
-        (string sigKey, string pubKey) = abi.decode(context.userData, (string, string)); // this is reallyy tricky
+        address sender = context.msgSender; // subscriber
+        (string memory sigKey, string memory pubKey) = abi.decode(context.userData, (string, string)); // this is reallyy tricky
         _addSubscriber(sender, sigKey, pubKey);
 
         return _updateCreatorFlows(ctx);
@@ -237,7 +240,7 @@ contract Creator is SuperAppBase{
     }
 
     function _unsubscribe (
-        bytes calldata ctx,
+        bytes calldata ctx
     ) private returns (bytes memory newCtx){
         address sender = _host.decodeCtx(ctx).msgSender;
         _delSubscriber(sender);
@@ -250,7 +253,7 @@ contract Creator is SuperAppBase{
     ) private returns (bytes memory newCtx){
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
-        int96 contract2creator = percentage(contractFlowRate, treasury_fee));
+        int96 contract2creator = percentage(contractFlowRate, treasury_fee);
         int96 contract2treasury = contractFlowRate.sub(contract2creator);
 
         if (streaming){
@@ -447,6 +450,15 @@ contract Creator is SuperAppBase{
         (bool shouldIgnore) = abi.decode(cbdata, (bool));
         if (shouldIgnore) return ctx;
         return _unsubscribe(ctx);
+    }
+
+    function _isSameToken(ISuperToken superToken) private view returns (bool) {
+        return address(superToken) == address(_acceptedToken);
+    }
+
+    function _isCFAv1(address agreementClass) private view returns (bool) {
+        return ISuperAgreement(agreementClass).agreementType()
+            == keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
     }
 
     // -----------------------------------------
