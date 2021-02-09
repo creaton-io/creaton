@@ -1,7 +1,7 @@
-//import builtins from 'rollup-plugin-node-builtins';
+// import builtins from 'rollup-plugin-node-builtins';
 
-//const builtinsPlugin = builtins({crypto: true});
-//builtinsPlugin.name = 'builtins'; // required, see https://github.com/vitejs/vite/issues/728
+// const builtinsPlugin = builtins({crypto: true});
+// builtinsPlugin.name = 'builtins'; // required, see https://github.com/vitejs/vite/issues/728
 
 module.exports = {
   // minify: false,
@@ -9,7 +9,7 @@ module.exports = {
   optimizeDeps: {
     exclude: ['@textile/hub', 'web3w'], // allow to develop web3w with hot reload
   },
-  //rollupInputOptions: {
+  // rollupInputOptions: {
   //  plugins: [builtinsPlugin],
-  //},
+  // },
 };

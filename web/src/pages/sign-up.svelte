@@ -16,15 +16,12 @@
   let creatorContract;
 
   onMount(async () => {
-    console.log('test1');
     await deployTextile();
     if (wallet.provider) {
       loadCreatorData();
-      console.log('test2');
     } else {
       flow.execute(async (contracts) => {
         loadCreatorData();
-        console.log('test3');
         //console.log('creatonfactory contracts:', await contracts.CreatonFactory.creatorContracts());
       });
     }
@@ -46,18 +43,16 @@
 
       const metadataURL = await textile.uploadTier(tier, profileImagefile);
 
-      subscriptionPrice = subscriptionPrice;
-      const receipt = await contracts.CreatonFactory.deployCreator(metadataURL, subscriptionPrice);
+      const receipt = await contracts.CreatonAdmin.deployCreator(metadataURL, subscriptionPrice);
       console.log(receipt);
       return receipt;
     });
   }
 
   async function loadCreatorData() {
-    console.log('test');
     creatorContract = await new Contract(
-      contracts.CreatonFactory.address,
-      contracts.CreatonFactory.abi,
+      contracts.CreatonAdmin.address,
+      contracts.CreatonAdmin.abi,
       wallet.provider.getSigner()
     );
 

@@ -7,7 +7,7 @@
   import {contracts} from '../contracts.json';
   import {wallet, flow, chain} from '../stores/wallet';
   import {onMount} from 'svelte';
-  import {SuperfluidSDK} from '@superfluid-finance/js-sdk';
+  import {SuperfluidSDK} from '../js-sdk';
   import {parseEther, formatEther} from '@ethersproject/units';
   import {JsonRpcSigner} from '@ethersproject/providers';
   import SearchBackground from '../components/SearchBackground.svelte';

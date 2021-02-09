@@ -3,7 +3,6 @@
 import Superfluid from '../build/abi.js';
 import {Contract} from '@ethersproject/contracts';
 import {id} from '@ethersproject/hash';
-import {contracts} from '../contracts.json';
 import {defaultAbiCoder, Interface} from '@ethersproject/abi';
 import {wallet} from '../stores/wallet';
 
@@ -66,20 +65,16 @@ export class SuperfluidSDK {
       wallet.provider.getSigner()
     );
 
-    this.interfaceCreateFlow = new Interface(Superfluid.ABI.IConstantFlowAgreementV1);
-    this.interfaceCollateral = new Interface(contracts.CreatonSuperApp.abi);
-
+    this.interfaceFlow = new Interface(Superfluid.ABI.IConstantFlowAgreementV1);
     this.interfaceCoder = defaultAbiCoder;
 
     const superfluidAddress = await this.resolver.get(`Superfluid.${this.version}`);
-    console.log(superfluidAddress);
     // load agreements
     const cfav1Type = id('org.superfluid-finance.agreements.ConstantFlowAgreement.v1');
     const idav1Type = id('org.superfluid-finance.agreements.InstantDistributionAgreement.v1');
 
     //this.host = await this.contracts.ISuperfluid.at(superfluidAddress);
     this.host = new Contract(superfluidAddress, Superfluid.ABI.ISuperfluid, wallet.provider.getSigner());
-    console.log('host', this.host);
     const cfaAddress = await this.host.getAgreementClass(cfav1Type);
     const idaAddress = await this.host.getAgreementClass(idav1Type);
     this.agreements = {
