@@ -62,14 +62,14 @@ contract Creator is SuperAppBase {
     IConstantFlowAgreementV1 private _cfa; // the stored constant flow agreement class address
     ISuperToken private _acceptedToken; // accepted token
 
-    address CreatonAdmin;
-    address creator;
+    address public CreatonAdmin;
+    address public creator;
     address public treasury;
     int96 public treasury_fee;
 
     string public metadataURL;
     int96 public subscriptionPrice;
-    int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(10e18).div(3600 * 24 * 30);
+    int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
     mapping (address => Subscriber) public subscribers;
     mapping (uint => Post) public posts;
     uint postCounter = 0;
