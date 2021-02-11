@@ -102,7 +102,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         }
     }
 
-    function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external trustedForwarderOnly {
+    function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external {
         Creator creatorContract =
             new Creator(
                 ISuperfluid(_host),

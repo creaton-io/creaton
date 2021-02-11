@@ -4,6 +4,7 @@ const func = async function (hre) {
   // const useProxy = !hre.network.live;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
+  const Web3 = require('web3-utils');
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
@@ -56,6 +57,8 @@ const func = async function (hre) {
   });
   await sf.initialize();
 
+  const biconomyTrustedforwarder = '0x3075b4dc7085C48A14A5A39BBa68F58B19545971';
+
   const usdcx = sf.tokens.fUSDCx;
   //console.log('usdc', sf.tokens.fUSDC.address);
   //console.log('usdcx', usdc.address);
@@ -65,7 +68,7 @@ const func = async function (hre) {
   // in live network, proxy is disabled and constructor is invoked
   await deploy('CreatonAdmin', {
     from: admin,
-    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address, treasury, 90],
+    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address, treasury, 90, biconomyTrustedforwarder],
     log: true,
   });
    // when live network, record the script as executed to prevent rexecution

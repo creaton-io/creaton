@@ -21,6 +21,7 @@
   import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
   import {Web3Provider} from "@ethersproject/providers";
   import { Interface } from '@ethersproject/abi';
+  import {ethers} from "ethers";
 
   // const textile: TextileStore = new TextileStore();
 
@@ -80,6 +81,10 @@
 
     const profileImagefile = await profileImage.files[0];
     // const metadataURL = await textile.uploadTier(tier, profileImagefile);
+    // await flow.execute(async (contracts) => {
+    //   const receipt = await contracts.CreatonAdmin.deployCreator('hello', 2);
+    //   console.log(receipt);
+    // });  
 
     adminContract = new Contract(contracts.CreatonAdmin.address,
               contracts.CreatonAdmin.abi, signer);
@@ -89,6 +94,7 @@
     console.log('here?')
 
     let forwarder = await bh.getBiconomyForwarderConfig(networkId);
+    console.log(forwarder);
     let forwarderContract = new Contract(
           forwarder.address,
           forwarder.abi,
@@ -96,7 +102,7 @@
         );   
     let gasLimit = await ethersProvider.estimateGas({
               to: adminContract.address,
-              from: forwarderContract.address,
+              from: creatorAddress,
               data: data
             });
        
@@ -106,31 +112,43 @@
     console.log('forward request?')
     const req = await bh.buildForwardTxRequest({account:creatorAddress,to:adminContract.address, gasLimitNum, batchId:0,batchNonce,data});
     console.log('tx req', req);
-    const domainSeparator = await bh.getDomainSeperator(networkId);
-    const dataToSign = await bh.getDataToSignForEIP712(req,networkId);
-    console.log(dataToSign);
-    let sig;
-    // get the user's signature
-    ethersProvider.send("eth_signTypedData_v4", [creatorAddress, dataToSign])
-        .then(function(signature){
-          sig = signature; 
-          // make the API call
-          sendTransaction({creatorAddress, req, domainSeparator, sig, signatureType:"EIP712_SIGN"});
+
+
+
+
+
+
+    // const domainSeparator = await bh.getDomainSeperator(networkId);
+    // const dataToSign = await bh.getDataToSignForEIP712(req,networkId);
+    // console.log(dataToSign);
+    // let sig;
+    // // get the user's signature
+    // ethersProvider.send("eth_signTypedData_v4", [creatorAddress, dataToSign])
+    //     .then(function(signature){
+    //       sig = signature; 
+    //       // make the API call
+    //       sendTransaction({creatorAddress, req, domainSeparator, sig, signatureType:"EIP712_SIGN"});
+    //     })
+    //     .catch(function(error) {
+	  //       console.log(error)
+    //     });
+    
+    // TODO
+
+    const hashToSign =  await bh.getDataToSignForPersonalSign(req);
+    signer.signMessage(ethers.utils.arrayify(hashToSign))
+        .then(function(sig){
+          console.log('signature ' + sig);
+          // make API call
+          sendTransaction({creatorAddress, req, sig, signatureType:"PERSONAL_SIGN"});
         })
         .catch(function(error) {
 	        console.log(error)
-	      });
-    // const hashToSign =  await bh.getDataToSignForPersonalSign(req);
-    // console.log(hashToSign);
-    // signer.signMessage(hashToSign)
-        // .then(function(sig){
-          // console.log('signature ' + sig);
-          // make API call
-          // sendTransaction(creatorAddress, req, sig, "PERSONAL_SIGN");
-        // })
-        // .catch(function(error) {
-	        // console.log(error)
-	      // });
+        });
+        
+
+
+
     // let adminInterface = new Interface(contracts.CreatonAdmin.abi);
     // let creatorAddress = await ethersProvider.getSigner().getAddress();
     // let functionSignature = adminInterface.encodeFunctionData("deployCreator", [metadataURL, subscriptionPrice]);
@@ -162,19 +180,19 @@
     // }); 
   }
 
-  async function sendTransaction({creatorAddress, req, domainSeparator, sig, signatureType}){
+  async function sendTransaction({creatorAddress, req, sig, signatureType}){
       // let params = [req, sig]
-      let params = [req, domainSeparator, sig]
+      let params = [req, ethers.utils.joinSignature(sig)]
       try {
         fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
           method: "POST",
           headers: {
-            "x-api-key" : '2YCO6NaKI.da767985-4e30-448e-a781-561d92bc73bf',
+            "x-api-key" : 'cl0_dVqUx.f935ce73-8c74-48fb-92b5-e877f0b47fe5',
             'Content-Type': 'application/json;charset=utf-8'
           },
           body: JSON.stringify({
             "to": adminContract.address,
-            "apiId": '0471ba26-8cda-424d-9c24-f13ae728add7',
+            "apiId": '024aa765-b8bf-4285-be84-e3ea1a5268bf',
             "params": params,
             "from": creatorAddress,
             "signatureType": signatureType

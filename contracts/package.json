@@ -62,5 +62,8 @@
     "mainnet:export": "hardhat --network mainnet export",
     "rinkeby:run": "cross-env HARDHAT_NETWORK=rinkeby ts-node --files",
     "hardhat": "hardhat"
+  },
+  "dependencies": {
+    "web3-utils": "^1.3.4"
   }
 }

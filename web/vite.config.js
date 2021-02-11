@@ -1,7 +1,5 @@
-// import builtins from 'rollup-plugin-node-builtins';
-
-// const builtinsPlugin = builtins({crypto: true});
-// builtinsPlugin.name = 'builtins'; // required, see https://github.com/vitejs/vite/issues/728
+import builtins from 'rollup-plugin-node-builtins';
+import globals from 'rollup-plugin-node-globals';
 
 module.exports = {
   // minify: false,
@@ -9,7 +7,19 @@ module.exports = {
   optimizeDeps: {
     exclude: ['@textile/hub', 'web3w'], // allow to develop web3w with hot reload
   },
-  // rollupInputOptions: {
-  //  plugins: [builtinsPlugin],
-  // },
+  rollupInputOptions: {
+    pluginsOptimizer: [globals(), insertBuiltinsPlugin()],
+  },
 };
+
+function insertBuiltinsPlugin() {
+  return {
+    name: 'creaton:insert-builtins-plugin',
+    options(options) {
+      const plugins = options.plugins;
+      const idx = plugins.findIndex((plugin) => plugin.name === 'node-resolve');
+      plugins.splice(idx, 0, builtins({crypto: true, stream: true}));
+      return options;
+    },
+  };
+}
