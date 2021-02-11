@@ -5,62 +5,208 @@
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
   import {onMount} from 'svelte';
-  import {TextileStore} from '../stores/textileStore';
+//   import {
+//   Buckets,
+//   KeyInfo,
+//   PrivateKey,
+//   WithKeyInfoOptions,
+//   Users,
+//   Client,
+//   Where,
+//   UserMessage,
+//   PublicKey,
+//   ThreadID,
+// } from '@textile/hub';
+  // import {TextileStore} from '../stores/textileStore';
+  import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
+  import {Web3Provider} from "@ethersproject/providers";
+  import { Interface } from '@ethersproject/abi';
 
-  const textile: TextileStore = new TextileStore();
+  // const textile: TextileStore = new TextileStore();
 
   let profileImage;
   let tierName: string = '';
   let tierDescription: string = '';
   let subscriptionPrice: number;
-  let creatorContract;
+  let adminContract;
+  let biconomy;
+  let ethersProvider;
+  let signer;
+  let creatorAddress;
+  let networkId;
+  let bh;
 
   onMount(async () => {
-    await deployTextile();
+    // await deployTextile();
     if (wallet.provider) {
-      loadCreatorData();
+      deployBiconomy();
     } else {
       flow.execute(async (contracts) => {
-        loadCreatorData();
+        deployBiconomy();
         //console.log('creatonfactory contracts:', await contracts.CreatonFactory.creatorContracts());
       });
     }
   });
 
+  async function deployBiconomy() {
+    bh = new BiconomyHelper();
+    ethersProvider = new Web3Provider(window['ethereum']);
+    console.log('hello!')
+    console.log(ethersProvider);
+    signer = ethersProvider.getSigner();
+    creatorAddress = await signer.getAddress();
+    console.log(creatorAddress);
+    networkId = 5;
+    // biconomy = new Biconomy(window['ethereum'],{apiKey: '2YCO6NaKI.da767985-4e30-448e-a781-561d92bc73bf', debug: true});
+    // ethersProvider = new Web3Provider(biconomy);
+    // biconomy.onEvent(biconomy.READY, () => {
+    //   console.log("biconomy ready");
+    //   signer = ethersProvider.getSigner();
+    // }).onEvent(biconomy.ERROR, (error, message) => {
+    //   console.log("biconomy not ready");
+    // });
+  }
+
   async function deployTextile() {
-    const setup = await textile.authenticate();
+    // const setup = await textile.authenticate();
   }
 
   async function deployCreator() {
-    await flow.execute(async (contracts) => {
-      const tier = {
-        profileImage: profileImage,
-        name: tierName,
-        description: tierDescription,
-      };
+    const tier = {
+      profileImage: profileImage,
+      name: tierName,
+      description: tierDescription,
+    };
 
-      const profileImagefile = await profileImage.files[0];
+    const profileImagefile = await profileImage.files[0];
+    // const metadataURL = await textile.uploadTier(tier, profileImagefile);
 
-      const metadataURL = await textile.uploadTier(tier, profileImagefile);
+    adminContract = new Contract(contracts.CreatonAdmin.address,
+              contracts.CreatonAdmin.abi, signer);
+    let {data} = await adminContract.populateTransaction.deployCreator('hello', 2);
+    console.log(data);
+    // let gasPrice = await ethersProvider.getGasPrice();
+    console.log('here?')
 
-      const receipt = await contracts.CreatonAdmin.deployCreator(metadataURL, subscriptionPrice);
-      console.log(receipt);
-      return receipt;
-    });
+    let forwarder = await bh.getBiconomyForwarderConfig(networkId);
+    let forwarderContract = new Contract(
+          forwarder.address,
+          forwarder.abi,
+          signer
+        );   
+    let gasLimit = await ethersProvider.estimateGas({
+              to: adminContract.address,
+              from: forwarderContract.address,
+              data: data
+            });
+       
+    
+    const batchNonce = await forwarderContract.getNonce(creatorAddress,0);
+    const gasLimitNum = Number(gasLimit);
+    console.log('forward request?')
+    const req = await bh.buildForwardTxRequest({account:creatorAddress,to:adminContract.address, gasLimitNum, batchId:0,batchNonce,data});
+    console.log('tx req', req);
+    const domainSeparator = await bh.getDomainSeperator(networkId);
+    const dataToSign = await bh.getDataToSignForEIP712(req,networkId);
+    console.log(dataToSign);
+    let sig;
+    // get the user's signature
+    ethersProvider.send("eth_signTypedData_v4", [creatorAddress, dataToSign])
+        .then(function(signature){
+          sig = signature; 
+          // make the API call
+          sendTransaction({creatorAddress, req, domainSeparator, sig, signatureType:"EIP712_SIGN"});
+        })
+        .catch(function(error) {
+	        console.log(error)
+	      });
+    // const hashToSign =  await bh.getDataToSignForPersonalSign(req);
+    // console.log(hashToSign);
+    // signer.signMessage(hashToSign)
+        // .then(function(sig){
+          // console.log('signature ' + sig);
+          // make API call
+          // sendTransaction(creatorAddress, req, sig, "PERSONAL_SIGN");
+        // })
+        // .catch(function(error) {
+	        // console.log(error)
+	      // });
+    // let adminInterface = new Interface(contracts.CreatonAdmin.abi);
+    // let creatorAddress = await ethersProvider.getSigner().getAddress();
+    // let functionSignature = adminInterface.encodeFunctionData("deployCreator", [metadataURL, subscriptionPrice]);
+    // let rawTx = {
+    //   to: contracts.CreatonAdmin.address,
+    //   data: functionSignature,
+    //   from: creatorAddress
+    // };
+    // const metaTxData = await biconomy.getForwardRequestAndMessageToSign(
+    //   rawTx
+    // );
+
+    // const hashToSign = metaTxData.personalSignatureFormat;
+    // const signature = await signer.signMessage(hashToSign);
+    // let data = {
+    //   signature: signature,
+    //   forwardRequest: metaTxData.request,
+    //   rawTransaction: rawTx,
+    //   signatureType: biconomy.PERSONAL_SIGN,
+    // };
+
+    // let tx = await ethersProvider.send("eth_sendRawTransaction", [data]);
+    // console.log("Transaction hash : ", tx);    
+
+    // ethersProvider.once(tx, (transaction) => {
+    //   // Emitted when the transaction has been mined
+    //   console.log(transaction);
+    //   //doStuff
+    // }); 
   }
 
-  async function loadCreatorData() {
-    creatorContract = await new Contract(
-      contracts.CreatonAdmin.address,
-      contracts.CreatonAdmin.abi,
-      wallet.provider.getSigner()
-    );
-
-    creatorContract.on('CreatorDeployed', (...response) => {
-      const [sender, contractaddr] = response;
-      console.log('creator contract address', contractaddr);
-    });
+  async function sendTransaction({creatorAddress, req, domainSeparator, sig, signatureType}){
+      // let params = [req, sig]
+      let params = [req, domainSeparator, sig]
+      try {
+        fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
+          method: "POST",
+          headers: {
+            "x-api-key" : '2YCO6NaKI.da767985-4e30-448e-a781-561d92bc73bf',
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify({
+            "to": adminContract.address,
+            "apiId": '0471ba26-8cda-424d-9c24-f13ae728add7',
+            "params": params,
+            "from": creatorAddress,
+            "signatureType": signatureType
+          })
+        })
+        .then(response=>response.json())
+        .then(function(result) {
+          console.log('transaction hash ' + result.txHash);
+        })
+        // once you receive transaction hash you can wait for mined transaction receipt here 
+        // using Promise in web3 : web3.eth.getTransactionReceipt  
+        // or using ethersProvider event emitters 
+	      .catch(function(error) {
+	        console.log(error)
+	      });
+      } catch (error) {
+        console.log(error);
+      }
   }
+
+  // async function loadCreatorData() {
+    // creatorContract = await new Contract(
+    //   contracts.CreatonAdmin.address,
+    //   contracts.CreatonAdmin.abi,
+    //   wallet.provider.getSigner()
+    // );
+
+    // creatorContract.on('CreatorDeployed', (...response) => {
+    //   const [sender, contractaddr] = response;
+    //   console.log('creator contract address', contractaddr);
+    // });
+  // }
 </script>
 
 <style>

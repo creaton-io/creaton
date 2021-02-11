@@ -48,6 +48,8 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     address public treasury;
     int96 treasury_fee;
 
+    address public trustedForwarder;
+
     // -----------------------------------------
     // Constructor
     // -----------------------------------------
@@ -57,7 +59,8 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         address cfa,
         address acceptedToken, // get these from superfluid contracts
         address _treasury,
-        int96 _treasury_fee
+        int96 _treasury_fee,
+        address _trustedForwarder
     ) {
         assert(host != address(0));
         assert(cfa != address(0));
@@ -70,25 +73,48 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         treasury = _treasury;
         treasury_fee = _treasury_fee;
 
+        trustedForwarder = _trustedForwarder;
     }
 
     // -----------------------------------------
     // Logic 
     // -----------------------------------------
 
-    function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external {
+    modifier trustedForwarderOnly() {
+        require(msg.sender == address(trustedForwarder), "Function can only be called through the trusted Forwarder");
+        _;
+    }
+
+    function isTrustedForwarder(address forwarder) public view returns(bool) {
+        return forwarder == trustedForwarder;
+    }
+
+    function msgSender() internal view returns (address payable ret) {
+        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+            // At this point we know that the sender is a trusted forwarder,
+            // so we trust that the last bytes of msg.data are the verified sender address.
+            // extract sender address from the end of msg.data
+            assembly {
+                ret := shr(96,calldataload(sub(calldatasize(),20)))
+            }
+        } else {
+            return msg.sender;
+        }
+    }
+
+    function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external trustedForwarderOnly {
         Creator creatorContract =
             new Creator(
                 ISuperfluid(_host),
                 IConstantFlowAgreementV1(_cfa),
                 ISuperToken(_acceptedToken)
             ); 
-        creatorContract.init(msg.sender, metadataURL, subscriptionPrice, treasury, treasury_fee);
+        creatorContract.init(msgSender(), metadataURL, subscriptionPrice, treasury, treasury_fee);
         //  TODO do not pass this, get treasury address and fee from CreatonAdmin
 
         address creatorContractAddr = address(creatorContract);
-        contract2creator[creatorContractAddr] = msg.sender;
-        creator2contract[msg.sender].push(creatorContractAddr);
+        contract2creator[creatorContractAddr] = msgSender();
+        creator2contract[msgSender()].push(creatorContractAddr);
 
         emit CreatorDeployed(msg.sender, creatorContractAddr, metadataURL, subscriptionPrice);
     }
