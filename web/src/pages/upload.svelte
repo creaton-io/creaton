@@ -183,22 +183,22 @@
   async function sign(msg: any) {
     console.log('batch signing request ... ')
     console.log(msg);
-      // let params= [
-      //     msg['address'],
-      //     msg['message']
-      // ];
-      // ethereum.request({
-      //     method: 'personal_sign',
-      //     params,
-      // })
-      // .then((result) => {
-      //     window['socket'].emit('sign_res', result);
-      //     console.log(result);
-      // })
-      // .catch((error) => {
-      //     console.log("sign error")
-      //     console.log(error);
-      // });
+       let params= [
+           msg['address'],
+           msg['message']
+       ];
+       ethereum.request({
+           method: 'personal_sign',
+           params,
+       })
+       .then((result) => {
+           window['socket'].emit('sign_res', result);
+           console.log(result);
+       })
+       .catch((error) => {
+           console.log("sign error")
+           console.log(error);
+      });
   }
 
 
