@@ -48,6 +48,7 @@
     "local:export": "hardhat export",
     "void:deploy": "hardhat deploy",
     "staging:deploy": "hardhat --network staging deploy --show-stack-traces",
+    "staging:matic:deploy": "hardhat --network stagingMatic deploy --show-stack-traces",
     "staging:export": "hardhat --network staging export",
     "staging:seed": "cross-env HARDHAT_NETWORK=staging ts-node --files scripts/seed.ts",
     "rinkeby:deploy": "hardhat --network rinkeby deploy",

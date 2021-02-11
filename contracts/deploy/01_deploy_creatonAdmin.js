@@ -47,17 +47,17 @@ const func = async function (hre) {
 
   const version = process.env.RELEASE_VERSION || 'v1';
   console.log('release version:', version);
-  console.log('chain id', network.config.chainId);
+  // console.log('chain id', network.config.chainId);
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 5,
-    version: version,
+    chainId: 80001,
+    version: 'v1',
     web3Provider: await hre.web3.currentProvider,
     tokens: ['fUSDC'],
   });
   await sf.initialize();
 
-  const biconomyTrustedforwarder = '0x3075b4dc7085C48A14A5A39BBa68F58B19545971';
+  const biconomyTrustedforwarder = '0x2B99251eC9650e507936fa9530D11dE4d6C9C05c';
 
   const usdcx = sf.tokens.fUSDCx;
   //console.log('usdc', sf.tokens.fUSDC.address);

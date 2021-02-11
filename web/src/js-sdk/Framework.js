@@ -4,7 +4,7 @@ import Superfluid from '../build/abi.js';
 import {Contract} from '@ethersproject/contracts';
 import {id} from '@ethersproject/hash';
 import {defaultAbiCoder, Interface} from '@ethersproject/abi';
-import {wallet} from '../stores/wallet';
+// import {wallet} from '../stores/wallet';
 
 const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -57,12 +57,12 @@ export class SuperfluidSDK {
     const chainId = this.chainId;
     console.log('chainId', chainId);
 
-    console.debug('Resolver at', '0x3710AB3fDE2B61736B8BB0CE845D6c61F667a78E');
+    console.debug('Resolver at', '0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3');
     //this.resolver = await this.contracts.IResolver.at(config.resolverAddress);
     this.resolver = new Contract(
-      '0x3710AB3fDE2B61736B8BB0CE845D6c61F667a78E',
+      '0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3',
       Superfluid.ABI.IResolver,
-      wallet.provider.getSigner()
+      this.web3Provider.getSigner()
     );
 
     this.interfaceFlow = new Interface(Superfluid.ABI.IConstantFlowAgreementV1);
@@ -74,12 +74,12 @@ export class SuperfluidSDK {
     const idav1Type = id('org.superfluid-finance.agreements.InstantDistributionAgreement.v1');
 
     //this.host = await this.contracts.ISuperfluid.at(superfluidAddress);
-    this.host = new Contract(superfluidAddress, Superfluid.ABI.ISuperfluid, wallet.provider.getSigner());
+    this.host = new Contract(superfluidAddress, Superfluid.ABI.ISuperfluid, this.web3Provider.getSigner());
     const cfaAddress = await this.host.getAgreementClass(cfav1Type);
     const idaAddress = await this.host.getAgreementClass(idav1Type);
     this.agreements = {
-      cfa: await new Contract(cfaAddress, Superfluid.ABI.IConstantFlowAgreementV1, wallet.provider.getSigner()),
-      ida: await new Contract(idaAddress, Superfluid.ABI.IInstantDistributionAgreementV1, wallet.provider.getSigner()),
+      cfa: await new Contract(cfaAddress, Superfluid.ABI.IConstantFlowAgreementV1, this.web3Provider.getSigner()),
+      ida: await new Contract(idaAddress, Superfluid.ABI.IInstantDistributionAgreementV1, this.web3Provider.getSigner()),
     };
 
     //this.agreements = {
@@ -106,12 +106,12 @@ export class SuperfluidSDK {
         if (superTokenAddress === ZERO_ADDRESS) {
           throw new Error(`Token ${tokenSymbol} doesn't have a super token wrapper`);
         }
-        const superToken = new Contract(superTokenAddress, Superfluid.ABI.ISuperToken, wallet.provider.getSigner());
+        const superToken = new Contract(superTokenAddress, Superfluid.ABI.ISuperToken, this.web3Provider.getSigner());
         const superTokenSymbol = await superToken.symbol();
         this.tokens[tokenSymbol] = new Contract(
           tokenAddress,
           Superfluid.ABI.ERC20WithTokenInfo,
-          wallet.provider.getSigner()
+          this.web3Provider.getSigner()
         );
         this.tokens[superTokenSymbol] = superToken;
         console.debug(`${tokenSymbol}: ERC20WithTokenInfo .tokens["${tokenSymbol}"] @${tokenAddress}`);
@@ -128,7 +128,7 @@ export class SuperfluidSDK {
     console.log('testtoken symbol:', `${tokenInfoSymbol}x`);
     console.log('host', this.host);
     const wrapper = await this.host.getERC20Wrapper(tokenInfo.address, `${tokenInfoSymbol}x`);
-    return new Contract(wrapper.wrapperAddress, Superfluid.ABI.ISuperToken, wallet.provider.getSigner());
+    return new Contract(wrapper.wrapperAddress, Superfluid.ABI.ISuperToken, this.web3Provider.getSigner());
   }
 
   /**
@@ -145,12 +145,12 @@ export class SuperfluidSDK {
     const factory = new Contract(
       await this.host.getSuperTokenFactory(),
       Superfluid.ABI.ISuperTokenFactory,
-      wallet.provider.getSigner()
+      this.web3Provider.getSigner()
     );
     console.log(factory);
     upgradability = typeof upgradability === 'undefined' ? 1 : upgradability;
     const tx = await factory
-      .connect(wallet.provider.getSigner())
+      .connect(this.web3Provider.getSigner())
       ['createERC20Wrapper(address,uint8,string,string)'](
         tokenInfo.address,
         upgradability,
@@ -163,6 +163,6 @@ export class SuperfluidSDK {
     const wrapperAddress = tx.logs[0].args.token;
     const u = ['Non upgradable', 'Semi upgrdable', 'Full upgradable'][upgradability];
     console.log(`${u} super token ${superTokenSymbol} created at ${wrapperAddress}`);
-    return new Contract(wrapperAddress, Superfluid.ABI.ISuperToken, wallet.provider.getSigner());
+    return new Contract(wrapperAddress, Superfluid.ABI.ISuperToken, this.web3Provider.getSigner());
   }
 }

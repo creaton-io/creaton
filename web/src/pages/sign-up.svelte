@@ -36,14 +36,17 @@
   let creatorAddress;
   let networkId;
   let bh;
+  let creatorContract;
 
   onMount(async () => {
     // await deployTextile();
     if (wallet.provider) {
       deployBiconomy();
+      loadCreatorData();
     } else {
       flow.execute(async (contracts) => {
         deployBiconomy();
+        loadCreatorData();
         //console.log('creatonfactory contracts:', await contracts.CreatonFactory.creatorContracts());
       });
     }
@@ -57,7 +60,7 @@
     signer = ethersProvider.getSigner();
     creatorAddress = await signer.getAddress();
     console.log(creatorAddress);
-    networkId = 5;
+    networkId = 80001;
     // biconomy = new Biconomy(window['ethereum'],{apiKey: '2YCO6NaKI.da767985-4e30-448e-a781-561d92bc73bf', debug: true});
     // ethersProvider = new Web3Provider(biconomy);
     // biconomy.onEvent(biconomy.READY, () => {
@@ -187,12 +190,12 @@
         fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
           method: "POST",
           headers: {
-            "x-api-key" : 'cl0_dVqUx.f935ce73-8c74-48fb-92b5-e877f0b47fe5',
+            "x-api-key" : 'XcDSlwY22.5ff169a7-acf2-4005-a06c-d3c2ea2ea1e1',
             'Content-Type': 'application/json;charset=utf-8'
           },
           body: JSON.stringify({
             "to": adminContract.address,
-            "apiId": '024aa765-b8bf-4285-be84-e3ea1a5268bf',
+            "apiId": '140149ae-876e-4bd2-ab89-df7c2bd843f7',
             "params": params,
             "from": creatorAddress,
             "signatureType": signatureType
@@ -213,18 +216,18 @@
       }
   }
 
-  // async function loadCreatorData() {
-    // creatorContract = await new Contract(
-    //   contracts.CreatonAdmin.address,
-    //   contracts.CreatonAdmin.abi,
-    //   wallet.provider.getSigner()
-    // );
+  async function loadCreatorData() {
+    creatorContract = await new Contract(
+      contracts.CreatonAdmin.address,
+      contracts.CreatonAdmin.abi,
+      signer
+    );
 
-    // creatorContract.on('CreatorDeployed', (...response) => {
-    //   const [sender, contractaddr] = response;
-    //   console.log('creator contract address', contractaddr);
-    // });
-  // }
+    creatorContract.on('CreatorDeployed', (...response) => {
+      const [sender, contractaddr] = response;
+      console.log('creator contract address', contractaddr);
+    });
+  }
 </script>
 
 <style>

@@ -73,6 +73,7 @@
     "staging:seed": "dotenv -e .env.staging -e .env -- npm --prefix contracts run staging:seed",
     "staging:contracts:export": "dotenv -e .env.staging -e .env -- npm --prefix contracts run staging:export -- --export ../web/src/contracts.json",
     "staging:contracts": "dotenv -e .env.staging -e .env -- npm --prefix contracts run staging:deploy -- --export ../web/src/contracts.json",
+    "staging:matic:contracts": "dotenv -e .env.staging -e .env -- npm --prefix contracts run staging:matic:deploy -- --export ../web/src/contracts.json",
     "staging:subgraph": "dotenv -e .env.staging -e .env -- npm --prefix subgraph run staging:deploy ../contracts/deployments/staging",
     "staging:web": "run-s staging:web:build staging:web:deploy",
     "staging:clean": "rimraf contracts/deployments/staging && rimraf web/src/contracts.json",

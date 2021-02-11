@@ -12,7 +12,10 @@
   import {parseEther, formatEther, parseUnits, formatUnits} from '@ethersproject/units';
   import {JsonRpcSigner} from '@ethersproject/providers';
   import SearchBackground from '../components/SearchBackground.svelte';
-import { Interface } from '@ethersproject/abi';
+  import { Interface } from '@ethersproject/abi';
+  import {ethers} from "ethers";
+  import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
+  import {Web3Provider} from "@ethersproject/providers";
 
   let creatorContract;
   let contractAddress;
@@ -27,6 +30,12 @@ import { Interface } from '@ethersproject/abi';
   let usdcBalance;
   let usdcApproved;
   let usdcxBalance;
+
+  let ethersProvider;
+  let signer;
+  let subscriberAddress;
+  let networkId;
+  let bh;
 
   let MINIMUM_GAME_FLOW_RATE;
   //TODO: try this with hardhat
@@ -60,10 +69,10 @@ import { Interface } from '@ethersproject/abi';
   });
 
   async function support() {
-    usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
-    usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
+    usdcxBalance = formatEther(await usdcx.balanceOf(subscriberAddress));
     // console.log(parseEther(MINIMUM_GAME_FLOW_RATE.toString()).mul(24 * 3600 * 30).toNumber());
-    var call;
+    let call;
     if (usdcxBalance < 2)
       call = [
         [
@@ -137,24 +146,76 @@ import { Interface } from '@ethersproject/abi';
       ];
 
     console.log('this is the batchcall: ', call);
-    await sf.host.batchCall(call, {from: $wallet.address});
+    let {data} = await sf.host.populateTransaction.biconomyBatchCall(call);
+    let forwarder = await bh.getBiconomyForwarderConfig(networkId);
+    console.log(forwarder);
+    let forwarderContract = new Contract(
+          forwarder.address,
+          forwarder.abi,
+          signer
+        );
+    let gasLimit = await ethersProvider.estimateGas({
+          to: sf.host.address,
+          from: subscriberAddress,
+          data: data
+        });
+
+    const batchNonce = await forwarderContract.getNonce(subscriberAddress,0);
+    const gasLimitNum = Number(gasLimit);
+    console.log('forward request?')
+    const req = await bh.buildForwardTxRequest({account:subscriberAddress,to:sf.host.address, gasLimitNum, batchId:0,batchNonce,data});
+    console.log('tx req', req);
+
+    const hashToSign =  await bh.getDataToSignForPersonalSign(req);
+    signer.signMessage(ethers.utils.arrayify(hashToSign))
+        .then(function(sig){
+          console.log('signature ' + sig);
+          // make API call
+          sendTransaction({subscriberAddress, req, sig, signatureType:"PERSONAL_SIGN"});
+        })
+        .catch(function(error) {
+	        console.log(error)
+        });
+
+    // await sf.host.batchCall(call, {from: subscriberAddress});
   }
 
   async function searchCreator() {
     if (wallet.provider) {
       fetchStatus = FetchState.loading;
+      deployBiconomy();
       loadCreatorData();
       loadSuperFluid();
     } else {
       flow.execute(async () => {
+        deployBiconomy();
         loadCreatorData();
         loadSuperFluid();
       });
     }
   }
 
+  async function deployBiconomy() {
+    bh = new BiconomyHelper();
+    ethersProvider = new Web3Provider(window['ethereum']);
+    console.log('hello!')
+    console.log(ethersProvider);
+    signer = ethersProvider.getSigner();
+    subscriberAddress = await signer.getAddress();
+    console.log(subscriberAddress);
+    networkId = 80001;
+    // biconomy = new Biconomy(window['ethereum'],{apiKey: '2YCO6NaKI.da767985-4e30-448e-a781-561d92bc73bf', debug: true});
+    // ethersProvider = new Web3Provider(biconomy);
+    // biconomy.onEvent(biconomy.READY, () => {
+    //   console.log("biconomy ready");
+    //   signer = ethersProvider.getSigner();
+    // }).onEvent(biconomy.ERROR, (error, message) => {
+    //   console.log("biconomy not ready");
+    // });
+  }
+
   async function loadCreatorData() {
-    creatorContract = await new Contract(contractAddress, creatorABI, wallet.provider.getSigner());
+    creatorContract = await new Contract(contractAddress, creatorABI, signer);
 
     // creatorContract.on('NewSubscriber', (...response) => {
     //   const [address, balance] = response;
@@ -178,38 +239,38 @@ import { Interface } from '@ethersproject/abi';
   }
 
   async function loadSuperFluid() {
-    sf = new SuperfluidSDK(wallet, 'v1', '5', ['fUSDC']);
+    sf = new SuperfluidSDK(ethersProvider, 'v1', '80001', ['fUSDC']);
     await sf.initialize();
 
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-    usdc = new Contract(await sf.tokens.fUSDC.address, Superfluid.ABI.TestToken, wallet.provider.getSigner());
-    usdcx = new Contract(await sf.tokens.fUSDCx.address, Superfluid.ABI.ISuperToken, wallet.provider.getSigner());
+    usdc = new Contract(await sf.tokens.fUSDC.address, Superfluid.ABI.TestToken, signer);
+    usdcx = new Contract(await sf.tokens.fUSDCx.address, Superfluid.ABI.ISuperToken, signer);
 
     //usdcx = await sf.createERC20Wrapper(usdc);
     //think I just need to use the address still so I can still get the ethers contract
 
-    usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
-    usdcxBalance = formatEther(await usdcx.balanceOf($wallet.address));
-    usdcApproved = formatEther(await usdc.allowance($wallet.address, usdc.address));
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
+    usdcxBalance = formatEther(await usdcx.balanceOf(subscriberAddress));
+    usdcApproved = formatEther(await usdc.allowance(subscriberAddress, usdc.address));
   }
 
   async function mintUSDC() {
-    await usdc.mint($wallet.address, parseUnits('1000', 18), {from: $wallet.address});
-    usdcBalance = formatEther(await usdc.balanceOf($wallet.address));
+    await usdc.mint(subscriberAddress, parseUnits('1000', 18), {from: subscriberAddress});
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
   }
 
   async function convertUSDCx() {
     await usdcx.upgrade(parseEther('900'));
-    usdcxBalance = formatUnits(await usdcx.balanceOf($wallet.address), 18);
+    usdcxBalance = formatUnits(await usdcx.balanceOf(subscriberAddress), 18);
   }
 
-  // async function approveUSDC() {
-  //   await usdc
-  //     .approve(usdcx.address, parseUnits('1000', 18), {
-  //       from: $wallet.address,
-  //     })
-  //     .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
-  // }
+  async function approveUSDC() {
+    await usdc
+      .approve(usdcx.address, parseUnits('900', 18), {
+        from: subscriberAddress,
+      })
+      .then(async (i) => (usdcApproved = await usdc.allowance(subscriberAddress, usdcx.address)));
+  }
 
   function testStream() {
     // console.log('wallet address', $wallet.address);
@@ -223,7 +284,7 @@ import { Interface } from '@ethersproject/abi';
 
   async function getStreams() {
 
-    console.log(creatorContract.subscribers($wallet.address));
+    console.log(creatorContract.subscribers(subscriberAddress));
     // console.log(creatorContract.subscribers());
     // [$wallet.address].pubKey
     // let contractflow = await sf.agreements.cfa.getNetFlow(usdcx.address, contractAddress);
@@ -235,6 +296,40 @@ import { Interface } from '@ethersproject/abi';
     // let treasuryflow = await sf.agreements.cfa.getNetFlow(usdcx.address, '0x1626957B6fCe89eF126Ff9B2cab4Abb7bbdf3EdE');
     // console.log('treasury flow', treasuryflow.mul(24 * 3600 * 30).div(parseEther('1')).toNumber());
   }
+
+  async function sendTransaction({subscriberAddress, req, sig, signatureType}){
+      // let params = [req, sig]
+      let params = [req, ethers.utils.joinSignature(sig)]
+      try {
+        fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
+          method: "POST",
+          headers: {
+            "x-api-key" : 'XcDSlwY22.5ff169a7-acf2-4005-a06c-d3c2ea2ea1e1',
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify({
+            "to": sf.host.address,
+            "apiId": 'f4570249-e456-4852-a392-8276f58ebcc5',
+            "params": params,
+            "from": subscriberAddress,
+            "signatureType": signatureType
+          })
+        })
+        .then(response=>response.json())
+        .then(function(result) {
+          console.log('transaction hash ' + result.txHash);
+        })
+        // once you receive transaction hash you can wait for mined transaction receipt here 
+        // using Promise in web3 : web3.eth.getTransactionReceipt  
+        // or using ethersProvider event emitters 
+	      .catch(function(error) {
+	        console.log(error)
+	      });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
 </script>
 
 <WalletAccess>
@@ -269,6 +364,7 @@ import { Interface } from '@ethersproject/abi';
             <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Approved usdc Balance: ${usdcApproved}</p>
             <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdcx Balance: ${usdcxBalance}</p>
             <Button class="mt-3" on:click={mintUSDC}>mint 1000 usdc</Button>
+            <Button class="mt-3" on:click={approveUSDC}>approve 900 usdc</Button>
             <Button class="mt-3" on:click={convertUSDCx}>convert 900 usdc</Button>
             <!-- <Button class="mt-3" on:click={testStream}>Directly stream test</Button> -->
             <Button class="mt-3" on:click={getStreams}>Get stream infos in console</Button>
