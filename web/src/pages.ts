@@ -23,6 +23,11 @@ export default [
     asyncComponent: (): Promise<ComponentModule> => import('./pages/creator.svelte'),
   },
   {
+    name: 'denver',
+    path: 'denver',
+    asyncComponent: (): Promise<ComponentModule> => import('./pages/denver.svelte'),
+  },
+  {
     name: 'CreatorUpload',
     path: 'creator-upload/:id',
     asyncComponent: (): Promise<ComponentModule> => import('./pages/upload.svelte'),
