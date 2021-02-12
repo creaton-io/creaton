@@ -26,14 +26,8 @@
   global.Buffer = Buffer;
 
   const textile: TextileStore = new TextileStore();
-  let creatorName: string = '';
-  let subscriptionPrice: number;
-  let ethereum, web3;
-  let contractAddress, creatorAddress, creatorContract;
+  let contractAddress, creatorAddress;
   let file, description, nuPassword;
-  let sigKey, pubKey, textilePubKey, sigKey2, pubKey2, textilePubKey2;
-  let contents = [];
-  let contentsShow = false;
 
   // Biconomy 
   let bh;
@@ -53,12 +47,12 @@
 
   onMount(async () => {
     if (wallet.provider) {
-      await loadCreatorData();
       deployBiconomy();
+      await loadCreatorData();
     } else {
       flow.execute(async () => {
-        await loadCreatorData();
         deployBiconomy();
+        await loadCreatorData();
       });
     }
     await deployTextile();
@@ -101,7 +95,7 @@
     adminContract = new Contract(contracts.CreatonAdmin.address,
               contracts.CreatonAdmin.abi, signer);
     // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
-    console.log('creator address:', creatorAddress);
+    // console.log('creator address:', creatorAddress);
     // console.log("contract address:", contractAddress);
   }
 
@@ -135,9 +129,13 @@
     };
     console.log(metadata.ipfs);
     let ccinterFace = new Interface(creatorABI);
+    console.log('got here after interface');
     let creatorContractEncoded = defaultAbiCoder.encode(['bytes'], [ccinterFace.encodeFunctionData('upload', [JSON.stringify(metadata)])]);
+    console.log('got here after encoding 1');
     let addressEncoded = defaultAbiCoder.encode(['bytes'], [defaultAbiCoder.encode(['address'], [creatorAddress])]);
-    let {data} = await adminContract.populateTransaction.forwardMetaTx(creatorContract, creatorContractEncoded, addressEncoded);
+    console.log('got here after encoding 2');
+    let {data} = await adminContract.populateTransaction.forwardMetaTx(contractAddress, creatorContractEncoded, addressEncoded);
+    console.log('got here after encoding 3');
     // const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
     // console.log(receipt);
     let forwarder = await bh.getBiconomyForwarderConfig(maticId);
@@ -148,7 +146,7 @@
           signer
         );
     let gasLimit = await ethersProvider.estimateGas({
-          to: contracts.CreatonAdmin.address,
+          to: adminContract.address,
           from: creatorAddress,
           data: data
         });
