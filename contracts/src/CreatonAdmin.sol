@@ -31,7 +31,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address creator, address creatorContract, string metadataURL, uint256 subscriptionPrice);
+    event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice);
     event NewSubscriber(address user, uint256 amount);
 
     // -----------------------------------------
@@ -116,7 +116,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         contract2creator[creatorContractAddr] = msgSender();
         creator2contract[msgSender()].push(creatorContractAddr);
 
-        emit CreatorDeployed(msg.sender, creatorContractAddr, metadataURL, subscriptionPrice);
+        emit CreatorDeployed(msg.sender, creatorContractAddr, description, subscriptionPrice);
     }
     
 }
