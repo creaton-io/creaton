@@ -11,7 +11,7 @@
   import {abi as creatorABI} from '../Creator.json';
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
-  // import {TextileStore} from '../stores/textileStore';
+  import {TextileStore} from '../stores/textileStore';
   import {Buffer} from 'buffer';
   import {onMount} from 'svelte';
   import CreatorCard from '../components/CreatorCard.svelte';
@@ -25,7 +25,7 @@
 
   global.Buffer = Buffer;
 
-  // const textile: TextileStore = new TextileStore();
+  const textile: TextileStore = new TextileStore();
   let contractAddress, creatorAddress;
   let file, description, nuPassword;
 
@@ -55,7 +55,7 @@
         await loadCreatorData();
       });
     }
-    // await deployTextile();
+    await deployTextile();
     // let socket = window['socket'];
     // socket.on('connect', function () {
     //   console.log('client connected!');
@@ -118,19 +118,19 @@
   }
 
   async function upload() {
-    // const content = await file.files[0];
-    // const encFile = await textile.uploadFile(content, contractAddress, creatorAddress, nuPassword);
-    // const metadata = {
-    //   name: encFile.encryptedFile.name,
-    //   type: encFile.encryptedFile.type,
-    //   description: description,
-    //   date: encFile.encryptedFile.date,
-    //   ipfs: encFile.encryptedFile.ipfsPath,
-    // };
-    // console.log(metadata.ipfs);
+    const content = await file.files[0];
+    const encFile = await textile.uploadFile(content, contractAddress, creatorAddress, nuPassword);
+    const metadata = {
+      name: encFile.encryptedFile.name,
+      type: encFile.encryptedFile.type,
+      description: description,
+      date: encFile.encryptedFile.date,
+      ipfs: encFile.encryptedFile.ipfsPath,
+    };
+    console.log(metadata.ipfs);
     let ccinterFace = new Interface(creatorABI);
     console.log('got here after interface');
-    let creatorContractEncoded = ccinterFace.encodeFunctionData('upload', ['hello']);
+    let creatorContractEncoded = ccinterFace.encodeFunctionData('upload', [JSON.stringify(metadata)]);
     console.log('got here after encoding 1');
     let addressEncoded = creatorAddress;
     console.log('got here after encoding 2');
