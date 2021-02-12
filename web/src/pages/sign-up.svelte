@@ -118,9 +118,6 @@
 
 
 
-
-
-
     // const domainSeparator = await bh.getDomainSeperator(networkId);
     // const dataToSign = await bh.getDataToSignForEIP712(req,networkId);
     // console.log(dataToSign);
@@ -195,7 +192,7 @@
           },
           body: JSON.stringify({
             "to": adminContract.address,
-            "apiId": '140149ae-876e-4bd2-ab89-df7c2bd843f7',
+            "apiId": '0c7eadac-d04f-4698-b5cc-429f5e2f4ffe',
             "params": params,
             "from": creatorAddress,
             "signatureType": signatureType

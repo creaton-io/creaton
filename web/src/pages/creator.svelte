@@ -142,14 +142,18 @@
       userRole = 'CREATOR';
     } else {
       userRole = 'SUBSCRIBER';
-      // TODO read from the contract see if in subscriber list
 
-      // [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
-      // if (isSubscribed) {
-      //   subscriptionStatus = 'SUBSCRIBED';
-      // } else {
-      //   subscriptionStatus = 'UNSUBSCRIBED';
-      // }
+      const subscriberStatus = await creatorContract.subscribers(await signer.getAddress()) //0xaeAedC36bE97fbeabA6E55Ef9e18bebad963335a
+
+      if(subscriberStatus[2] === 0) {
+        subscriptionStatus = 'UNSUBSCRIBED';
+      } else if (subscriberStatus[2] === 1) {
+        subscriptionStatus = 'PENDING_SUBSCRIPTION';
+      } else if (subscriberStatus[2] === 2) {
+        subscriptionStatus = 'UNSUBSCRIBED';
+      } else if (subscriberStatus[2] === 3) {
+        subscriptionStatus = 'SUBSCRIBED';
+      }
     }
     
     // TODO add this event
@@ -232,7 +236,6 @@
         console.log(error);
     });
   }
-
 
   async function support() {
     usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
@@ -375,6 +378,33 @@
         console.log(error);
       }
     }
+
+    async function getPendingSubscribers(){
+
+    }
+
+    async function grant() {
+    let pubkeys_sig = JSON.stringify([sigKey]);
+    let pubkeys_enc = JSON.stringify([pubKey]);
+    const data = {
+      subscriber_pubkeys_sig: pubkeys_sig,
+      subscriber_pubkeys_enc: pubkeys_enc,
+      label: contractAddress,
+      address: creatorAddress,
+      password: nuPassword,
+    };
+    const form_data = new FormData();
+    for (const key in data) {
+      form_data.append(key, data[key]);
+    }
+    console.log('sending through socket');
+    await window['socket'].emit('grant_signer');
+    const response = await fetch('http://127.0.0.1:5000/grant', {method: 'POST', body: form_data});
+    const tmap_string = await response.text();
+    const tmap = JSON.parse(tmap_string);
+    console.log(tmap['tmap']);
+    textile.sendTmapToSubscribers(textilePubKey, contractAddress, tmap['tmap']);
+  }
 
   async function loadKeyPairs(){
     let password = '';

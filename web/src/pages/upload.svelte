@@ -8,6 +8,7 @@
   import Blockie from '../components/Blockie.svelte';
   import {test} from 'creaton-common';
   import {logs} from 'named-logs';
+  import {abi as creatorABI} from '../Creator.json';
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
   import {TextileStore} from '../stores/textileStore';
@@ -15,88 +16,106 @@
   import {onMount} from 'svelte';
   import CreatorCard from '../components/CreatorCard.svelte';
   import {creators} from '../stores/queries';
+
+  import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
+  import {Web3Provider} from "@ethersproject/providers";
+  import {ethers} from "ethers";
+  import {defaultAbiCoder, Interface } from '@ethersproject/abi';
   // import '@metamask/legacy-web3';
 
   global.Buffer = Buffer;
 
   const textile: TextileStore = new TextileStore();
-  let creatorName: string = '';
-  let subscriptionPrice: number;
-  let ethereum, web3;
-  let contractAddress, creatorAddress, creatorContract;
+  let contractAddress, creatorAddress;
   let file, description, nuPassword;
-  let sigKey, pubKey, textilePubKey, sigKey2, pubKey2, textilePubKey2;
-  let contents = [];
-  let contentsShow = false;
+
+  // Biconomy 
+  let bh;
+  let ethersProvider;
+  let signer;
+  let userAddress;
+  const maticId = 80001;
+  const goerliId = 5;
+
+  let adminContract;
 
   if (typeof window !== 'undefined') {
-    contractAddress = window.location.pathname.split('/')[2];
-    contractAddress = Web3.toChecksumAddress(contractAddress);
+    contractAddress = '0x31142515e290B56423aA4607b35a75ad1c9a7811';
     // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
     // console.log(contractAddress)
   }
 
-  async function deployTextile() {
-    const setup = await textile.authenticate();
-  }
-
-  async function loadCreatorData() {
-    creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
-    let accounts = await wallet.provider.listAccounts();
-    creatorAddress = accounts[0];
-    // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
-    console.log('creator address:', creatorAddress);
-    // console.log("contract address:", contractAddress);
-  }
-
-  async function getContent() {
-    let contentsString = await creatorContract.getAllMetadata();
-    contents = [];
-    for (let c of contentsString) {
-      contents.push(JSON.parse(c));
-    }
-    contentsShow = !contentsShow;
-  }
-
   onMount(async () => {
     if (wallet.provider) {
+      deployBiconomy();
       await loadCreatorData();
     } else {
       flow.execute(async () => {
+        deployBiconomy();
         await loadCreatorData();
       });
     }
     await deployTextile();
-    let socket = window['socket'];
-    socket.on('connect', function () {
-      console.log('client connected!');
-    });
-    socket.on('sign_broad_req', async function (data) {
-      data = decodeURIComponent(data).replaceAll('+', ' ');
-      data = JSON.parse(data);
-      console.log('new request for tx signing!');
-      console.log(data);
-      await send(data);
-    });
-    socket.on('sign_req', async function (data) {
-      data = decodeURIComponent(data).replaceAll('+', ' ');
-      data = JSON.parse(data);
-      console.log('new request for msg signing!');
-      console.log(data);
-      await sign(data);
-    });
-    socket.on('disconnect', function () {
-      console.log('client disconnected!');
-    });
-    setTimeout(() => {
-      console.log('here we are!!!');
-      window['socket'].emit('event', 'sample!');
-    }, 1000);
-    if (typeof window['ethereum'] !== 'undefined') {
-      ethereum = window['ethereum'];
-      web3 = window['web3'];
-    }
+    // let socket = window['socket'];
+    // socket.on('connect', function () {
+    //   console.log('client connected!');
+    // });
+    // socket.on('sign_broad_req', async function (data) {
+    //   data = decodeURIComponent(data).replaceAll('+', ' ');
+    //   data = JSON.parse(data);
+    //   console.log('new request for tx signing!');
+    //   console.log(data);
+    //   await send(data);
+    // });
+    // socket.on('sign_req', async function (data) {
+    //   data = decodeURIComponent(data).replaceAll('+', ' ');
+    //   data = JSON.parse(data);
+    //   console.log('new request for msg signing!');
+    //   console.log(data);
+    //   await sign(data);
+    // });
+    // socket.on('disconnect', function () {
+    //   console.log('client disconnected!');
+    // });
+    // setTimeout(() => {
+    //   console.log('here we are!!!');
+    //   window['socket'].emit('event', 'sample!');
+    // }, 1000);
+    // if (typeof window['ethereum'] !== 'undefined') {
+    //   ethereum = window['ethereum'];
+    //   web3 = window['web3'];
+    // }
   });
+
+  async function deployTextile() {
+    // const setup = await textile.authenticate();
+  }
+
+  async function loadCreatorData() {
+    adminContract = new Contract(contracts.CreatonAdmin.address,
+              contracts.CreatonAdmin.abi, signer);
+    // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
+    // console.log('creator address:', creatorAddress);
+    // console.log("contract address:", contractAddress);
+  }
+
+  async function deployBiconomy() {
+    bh = new BiconomyHelper();
+    ethersProvider = new Web3Provider(window['ethereum']);
+    console.log('hello!')
+    console.log(ethersProvider);
+    signer = ethersProvider.getSigner();
+    creatorAddress = await signer.getAddress();
+    console.log(creatorAddress);
+    // biconomy = new Biconomy(window['ethereum'],{apiKey: '2YCO6NaKI.da767985-4e30-448e-a781-561d92bc73bf', debug: true});
+    // ethersProvider = new Web3Provider(biconomy);
+    // biconomy.onEvent(biconomy.READY, () => {
+    //   console.log("biconomy ready");
+    //   signer = ethersProvider.getSigner();
+    // }).onEvent(biconomy.ERROR, (error, message) => {
+    //   console.log("biconomy not ready");
+    // });
+  }
 
   async function upload() {
     const content = await file.files[0];
@@ -109,36 +128,108 @@
       ipfs: encFile.encryptedFile.ipfsPath,
     };
     console.log(metadata.ipfs);
-    const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
-    console.log(receipt);
-  }
-
-  async function grant() {
-    let pubkeys_sig = JSON.stringify([sigKey, sigKey2]);
-    let pubkeys_enc = JSON.stringify([pubKey, pubKey2]);
-    const data = {
-      subscriber_pubkeys_sig: pubkeys_sig,
-      subscriber_pubkeys_enc: pubkeys_enc,
-      label: contractAddress,
-      address: creatorAddress,
-      password: nuPassword,
-    };
-    const form_data = new FormData();
-    for (const key in data) {
-      form_data.append(key, data[key]);
-    }
-    console.log('sending through socket');
-    await window['socket'].emit('grant_signer');
-    const response = await fetch('http://127.0.0.1:5000/grant', {method: 'POST', body: form_data});
-    const tmap_string = await response.text();
-    const tmap = JSON.parse(tmap_string);
-    console.log(tmap['tmap']);
-    textile.sendTmapToSubscribers(textilePubKey, contractAddress, tmap['tmap']);
-  }
-
-  async function send(data: any) {
-    console.log('sending tx request ...');
+    let ccinterFace = new Interface(creatorABI);
+    console.log('got here after interface');
+    let creatorContractEncoded = ccinterFace.encodeFunctionData('upload', [JSON.stringify(metadata)]);
+    console.log('got here after encoding 1');
+    let addressEncoded = creatorAddress;
+    console.log('got here after encoding 2');
+    let {data} = await adminContract.populateTransaction.forwardMetaTx(contractAddress, creatorContractEncoded, addressEncoded);
+    console.log('got here after encoding 3');
+    // const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
+    // console.log(receipt);
+    let forwarder = await bh.getBiconomyForwarderConfig(maticId);
+    console.log(forwarder);
+    let forwarderContract = new Contract(
+          forwarder.address,
+          forwarder.abi,
+          signer
+        );
+    console.log(adminContract.address);
+    console.log(creatorAddress);
     console.log(data);
+    let gasLimit = await ethersProvider.estimateGas({
+          to: adminContract.address,
+          from: creatorAddress,
+          data: data
+        });
+
+    const batchNonce = await forwarderContract.getNonce(creatorAddress,0);
+    const gasLimitNum = Number(gasLimit);
+    console.log('forward request?')
+    const req = await bh.buildForwardTxRequest({account:creatorAddress,to:contracts.CreatonAdmin.address, gasLimitNum, batchId:0,batchNonce,data});
+    console.log('tx req', req);
+    const hashToSign =  await bh.getDataToSignForPersonalSign(req);
+    signer.signMessage(ethers.utils.arrayify(hashToSign))
+        .then(function(sig){
+          console.log('signature ' + sig);
+          // make API call
+          sendTransaction({creatorAddress, req, sig, signatureType:"PERSONAL_SIGN"});
+        })
+        .catch(function(error) {
+	        console.log(error)
+        });
+  }
+
+  async function sendTransaction({creatorAddress, req, sig, signatureType}){
+      // let params = [req, sig]
+      let params = [req, ethers.utils.joinSignature(sig)]
+      try {
+        fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
+          method: "POST",
+          headers: {
+            "x-api-key" : 'XcDSlwY22.5ff169a7-acf2-4005-a06c-d3c2ea2ea1e1',
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify({
+            "to": adminContract.address,
+            "apiId": 'dafe5955-3140-458f-ab6d-caf6f53382a6',
+            "params": params,
+            "from": creatorAddress,
+            "signatureType": signatureType
+          })
+        })
+        .then(response=>response.json())
+        .then(function(result) {
+          console.log('transaction hash ' + result.txHash);
+        })
+        // once you receive transaction hash you can wait for mined transaction receipt here 
+        // using Promise in web3 : web3.eth.getTransactionReceipt  
+        // or using ethersProvider event emitters 
+	      .catch(function(error) {
+	        console.log(error)
+	      });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+  // async function grant() {
+  //   let pubkeys_sig = JSON.stringify([sigKey, sigKey2]);
+  //   let pubkeys_enc = JSON.stringify([pubKey, pubKey2]);
+  //   const data = {
+  //     subscriber_pubkeys_sig: pubkeys_sig,
+  //     subscriber_pubkeys_enc: pubkeys_enc,
+  //     label: contractAddress,
+  //     address: creatorAddress,
+  //     password: nuPassword,
+  //   };
+  //   const form_data = new FormData();
+  //   for (const key in data) {
+  //     form_data.append(key, data[key]);
+  //   }
+  //   console.log('sending through socket');
+  //   await window['socket'].emit('grant_signer');
+  //   const response = await fetch('http://127.0.0.1:5000/grant', {method: 'POST', body: form_data});
+  //   const tmap_string = await response.text();
+  //   const tmap = JSON.parse(tmap_string);
+  //   console.log(tmap['tmap']);
+  //   textile.sendTmapToSubscribers(textilePubKey, contractAddress, tmap['tmap']);
+  // }
+
+  // async function send(data: any) {
+  //   console.log('sending tx request ...');
+  //   console.log(data);
     // let batch = web3.createBatch();
     // // let hash: {[data: string]: string;} = {};
     // let hash = [];
@@ -165,50 +256,50 @@
     // batch.execute();
     // console.log('resulting hashes');
     // console.log(hash);
-    let params= [
-      {
-        from: data['from'],
-        to: data['to'],
-        gas: data['gas'],
-        gasPrice: data['gasPrice'],
-        value: data['value'],
-        data: data['data'],
-      }
-    ];
-    ethereum.request({
-      method: 'eth_sendTransaction',
-      params,
-    })
-    .then((result) => {
-      console.log(result)
-      window['socket'].emit('sign_broad_res', result);
-      console.log(result)
-    })
-    .catch((error) => {
-      // If the request fails, the Promise will reject with an error.
-    });
-  }
+  //   let params= [
+  //     {
+  //       from: data['from'],
+  //       to: data['to'],
+  //       gas: data['gas'],
+  //       gasPrice: data['gasPrice'],
+  //       value: data['value'],
+  //       data: data['data'],
+  //     }
+  //   ];
+  //   ethereum.request({
+  //     method: 'eth_sendTransaction',
+  //     params,
+  //   })
+  //   .then((result) => {
+  //     console.log(result)
+  //     window['socket'].emit('sign_broad_res', result);
+  //     console.log(result)
+  //   })
+  //   .catch((error) => {
+  //     // If the request fails, the Promise will reject with an error.
+  //   });
+  // }
 
-  async function sign(msg: any) {
-    console.log('signing request ... ');
-    console.log(msg);
-    let params= [
-        msg['address'],
-        msg['message']
-    ];
-    ethereum.request({
-        method: 'personal_sign',
-        params,
-    })
-    .then((result) => {
-        window['socket'].emit('sign_res', result);
-        console.log(result);
-    })
-    .catch((error) => {
-        console.log("sign error")
-        console.log(error);
-    });
-  }
+  // async function sign(msg: any) {
+  //   console.log('signing request ... ');
+  //   console.log(msg);
+  //   let params= [
+  //       msg['address'],
+  //       msg['message']
+  //   ];
+  //   ethereum.request({
+  //       method: 'personal_sign',
+  //       params,
+  //   })
+  //   .then((result) => {
+  //       window['socket'].emit('sign_res', result);
+  //       console.log(result);
+  //   })
+  //   .catch((error) => {
+  //       console.log("sign error")
+  //       console.log(error);
+  //   });
+  // }
 </script>
 
 <style>
@@ -261,18 +352,14 @@
     </div>
     <Button class="mt-3" on:click={upload}>Upload</Button>
 
-    <br />
+    <!-- <br />
     <div class="field-row">
       <label for="path-url">Subscriber Signing Key: </label>
       <Input type="text" placeholder="Signing Key" className="field" bind:value={sigKey} />
-      <br />
-      <Input type="text" placeholder="Signing Key" className="field" bind:value={sigKey2} />
     </div>
     <div class="field-row">
       <label for="pubkey-url">Subscriber Public key: </label>
       <Input type="text" placeholder="Public Key" className="field" bind:value={pubKey} />
-      <br />
-      <Input type="text" placeholder="Signing Key" className="field" bind:value={pubKey2} />
     </div>
     <div class="field-row">
       <label for="description">NuCypher Password: </label>
@@ -281,10 +368,8 @@
     <div class="field-row">
       <label for="description">Textile Public Key: </label>
       <Input type="text" placeholder="Textile Key" className="field" bind:value={textilePubKey} />
-      <br />
-      <Input type="text" placeholder="Textile Key" className="field" bind:value={textilePubKey2} />
     </div>
-    <Button class="mt-3" on:click={grant}>Grant Access to Subscriber</Button>
+    <Button class="mt-3" on:click={grant}>Grant Access to Subscriber</Button> -->
 
     <!-- <br />
     <div class="field-row">
@@ -296,24 +381,24 @@
     </Button> -->
   </form>
 
-  <!-- <br />
-  <Button class="mt-3" on:click={getContent}>Show Contents</Button> -->
+  // <!-- <br />
+  // <Button class="mt-3" on:click={getContent}>Show Contents</Button> -->
 
-  <!-- <div class="py-4 dark:bg-black bg-white">
-    <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-        {#if contentsShow}
-          {#each contents as content, index}
-            <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{index}</h3>
-            <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{content.name}</h3>
-            <h3 class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
-              Description:
-              {content.description}
-            </h3>
-            <h3 class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300">{content.ipfs}</h3>
-          {/each}
-        {/if}
-      </div>
-    </div>
-  </div> -->
+  // <!-- <div class="py-4 dark:bg-black bg-white">
+  //   <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
+  //     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+  //       {#if contentsShow}
+  //         {#each contents as content, index}
+  //           <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{index}</h3>
+  //           <h3 class="text-1xl leading-normal font-medium text-gray-900 dark:text-gray-500">{content.name}</h3>
+  //           <h3 class="text-1xl mt-3 leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">
+  //             Description:
+  //             {content.description}
+  //           </h3>
+  //           <h3 class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300">{content.ipfs}</h3>
+  //         {/each}
+  //       {/if}
+  //     </div>
+  //   </div>
+  // </div> -->
 </section>
