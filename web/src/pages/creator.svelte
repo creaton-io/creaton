@@ -19,6 +19,7 @@
 
   import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
   import {Web3Provider} from "@ethersproject/providers";
+  import {ethers} from "ethers";
 
   import {Buffer} from 'buffer';
   global.Buffer = Buffer;
@@ -31,7 +32,7 @@
   let ethersProvider;
   let signer;
   let userAddress;
-  const matickId = 80001;
+  const maticId = 80001;
   const goerliId = 5;
 
   // Textile
@@ -48,22 +49,25 @@
   let contents = [];
 
   // Superfluid
-
   let sf;
   let usdc;
   let usdcx;
   let app;
   let usdcBalance;
   let usdcxBalance;
+  let usdcApproved;
 
+  // NuCypher
 
   let subscriberAddress, nuPassword;
-  let subscriberPubKeySig,subscriberPubKeyEnv;
+  let subscriberPubKeySig, subscriberPubKeyEnc;
+
+  // Page
+  let ethereum;
+  let web3;
 
   const APP_ADDRESS = '0x46113fF0F86A2c27151F43e7959Ff60DebC18dB1';
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
-  //TODO: try this with hardhat
-  //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
 
   if (typeof window !== 'undefined') {
     contractAddress = window.location.pathname.split('/')[2];
@@ -84,6 +88,35 @@
     }
     if (userRole == 'SUBSCRIBER'){
       loadSuperFluid();
+    }
+    let socket = window['socket'];
+    socket.on('connect', function () {
+      console.log('client connected!');
+    });
+    socket.on('sign_broad_req', async function (data) {
+      data = decodeURIComponent(data).replaceAll('+', ' ');
+      data = JSON.parse(data);
+      console.log('new request for tx signing!');
+      console.log(data);
+      await send(data);
+    });
+    socket.on('sign_req', async function (data) {
+      data = decodeURIComponent(data).replaceAll('+', ' ');
+      data = JSON.parse(data);
+      console.log('new request for msg signing!');
+      console.log(data);
+      await sign(data);
+    });
+    socket.on('disconnect', function () {
+      console.log('client disconnected!');
+    });
+    setTimeout(() => {
+      console.log('here we are!!!');
+      window['socket'].emit('event', 'sample!');
+    }, 1000);
+    if (typeof window['ethereum'] !== 'undefined') {
+      ethereum = window['ethereum'];
+      web3 = window['web3'];
     }
   });
 
@@ -117,7 +150,6 @@
       // } else {
       //   subscriptionStatus = 'UNSUBSCRIBED';
       // }
-
     }
     
     // TODO add this event
@@ -153,78 +185,231 @@
     // usdcApproved = formatEther(await usdc.allowance(subscriberAddress, usdc.address));
   }
 
+  async function send(data: any) {
+    console.log('sending tx request ...');
+    console.log(data);
+    let params= [
+      {
+        from: data['from'],
+        to: data['to'],
+        gas: data['gas'],
+        gasPrice: data['gasPrice'],
+        value: data['value'],
+        data: data['data'],
+      }
+    ];
+    ethereum.request({
+      method: 'eth_sendTransaction',
+      params,
+    })
+    .then((result) => {
+      console.log(result)
+      window['socket'].emit('sign_broad_res', result);
+      console.log(result)
+    })
+    .catch((error) => {
+      // If the request fails, the Promise will reject with an error.
+    });
+  }
+
+  async function sign(msg: any) {
+    console.log('signing request ... ');
+    console.log(msg);
+    let params= [
+        msg['address'],
+        msg['message']
+    ];
+    ethereum.request({
+        method: 'personal_sign',
+        params,
+    })
+    .then((result) => {
+        window['socket'].emit('sign_res', result);
+        console.log(result);
+    })
+    .catch((error) => {
+        console.log("sign error")
+        console.log(error);
+    });
+  }
+
+
   async function support() {
-    usdcBalance = await usdc.balanceOf($wallet.address);
-    usdcApproved = await usdcx.balanceOf($wallet.address);
-    var call;
-    if (usdcApproved < 2)
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
+    usdcxBalance = formatEther(await usdcx.balanceOf(subscriberAddress));
+    // console.log(parseEther(MINIMUM_GAME_FLOW_RATE.toString()).mul(24 * 3600 * 30).toNumber());
+    let call;
+    if (usdcxBalance < 2)
       call = [
         [
-          2, // upgrade 100 daix to play the game
+          101, // upgrade 100 usdcx to play the game
           usdcx.address,
-          sf.interface._encodeParams(['uint256'], [parseEther('100').toString()]),
+          sf.interfaceCoder.encode(['uint256'], [parseEther('1000')]),
         ],
+        // [
+        //   1, // approve collateral fee
+        //   usdcx.address,
+        //   sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
+        // ],
+        // [
+        //   202, // callAppAction to collateral
+        //   contractAddress,
+        //   sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']), //TODO: have to
+        // ],
         [
-          0, // approve collateral fee
-          usdcx.address,
-          sf.interface._encodeParams(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
-        ],
-        [
-          5, // callAppAction to collateral
-          app.address,
-          sf.interface.encodeFunctionData('collateral', ['0x']),
-        ],
-        [
-          4, // create constant flow (10/mo)
+          201, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interface.encodeFunctionData(
-            'createFlow',
-            [usdcx.address, app.address],
-            MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
+          sf.interfaceCoder.encode(
+            ['bytes', 'bytes'],
+            [
+              sf.interfaceFlow.encodeFunctionData('createFlow', 
+              [
+                usdcx.address,
+                contractAddress,
+                MINIMUM_GAME_FLOW_RATE.toString(),
+                '0x',
+              ]),
+              sf.interfaceCoder.encode(
+                ['string', 'string', 'string'],
+                ['hello', 'world', textile.identity.public.toString()]
+              )
+            ]
           ),
         ],
       ];
     else
       call = [
+        // [
+        //   1, // approve collateral fee
+        //   usdcx.address,
+        //   sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
+        // ],
+        // [
+        //   202, // callAppAction to collateral
+        //   contractAddress,
+        //   sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']),
+        // ],
         [
-          0, // approve collateral fee
-          usdcx.address,
-          sf.web3.eth.abi.encodeParameters(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
-        ],
-        [
-          5, // callAppAction to collateral
-          app.address,
-          app.collateral('0x').encodeABI(),
-        ],
-        [
-          4, // create constant flow (10/mo)
+          201, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interface.encodeFunctionData(
-            'createFlow',
-            [usdcx.address, app.address],
-            MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
+          sf.interfaceCoder.encode(
+            ['bytes', 'bytes'],
+            [
+              sf.interfaceFlow.encodeFunctionData('createFlow', 
+              [
+                usdcx.address,
+                contractAddress,
+                MINIMUM_GAME_FLOW_RATE.toString(),
+                '0x',
+              ]),
+              sf.interfaceCoder.encode(
+                ['string', 'string', 'string'],
+                [subscriberPubKeySig, subscriberPubKeyEnc, textile.identity.public.toString()]
+              )
+            ]
           ),
         ],
       ];
+
     console.log('this is the batchcall: ', call);
-    await sf.host.batchCall(call);
+    let {data} = await sf.host.populateTransaction.biconomyBatchCall(call);
+    let forwarder = await bh.getBiconomyForwarderConfig(maticId);
+    console.log(forwarder);
+    let forwarderContract = new Contract(
+          forwarder.address,
+          forwarder.abi,
+          signer
+        );
+    let gasLimit = await ethersProvider.estimateGas({
+          to: sf.host.address,
+          from: subscriberAddress,
+          data: data
+        });
+
+    const batchNonce = await forwarderContract.getNonce(subscriberAddress,0);
+    const gasLimitNum = Number(gasLimit);
+    console.log('forward request?')
+    const req = await bh.buildForwardTxRequest({account:subscriberAddress,to:sf.host.address, gasLimitNum, batchId:0,batchNonce,data});
+    console.log('tx req', req);
+    const hashToSign =  await bh.getDataToSignForPersonalSign(req);
+    signer.signMessage(ethers.utils.arrayify(hashToSign))
+        .then(function(sig){
+          console.log('signature ' + sig);
+          // make API call
+          sendTransaction({subscriberAddress, req, sig, signatureType:"PERSONAL_SIGN"});
+        })
+        .catch(function(error) {
+	        console.log(error)
+        });
+  }
+
+  async function sendTransaction({subscriberAddress, req, sig, signatureType}){
+      // let params = [req, sig]
+      let params = [req, ethers.utils.joinSignature(sig)]
+      try {
+        fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
+          method: "POST",
+          headers: {
+            "x-api-key" : 'XcDSlwY22.5ff169a7-acf2-4005-a06c-d3c2ea2ea1e1',
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify({
+            "to": sf.host.address,
+            "apiId": 'f4570249-e456-4852-a392-8276f58ebcc5',
+            "params": params,
+            "from": subscriberAddress,
+            "signatureType": signatureType
+          })
+        })
+        .then(response=>response.json())
+        .then(function(result) {
+          console.log('transaction hash ' + result.txHash);
+        })
+        // once you receive transaction hash you can wait for mined transaction receipt here 
+        // using Promise in web3 : web3.eth.getTransactionReceipt  
+        // or using ethersProvider event emitters 
+	      .catch(function(error) {
+	        console.log(error)
+	      });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+  async function loadKeyPairs(){
+    let password = '';
+    let data={password, userAddress}
+    let url = new URL("http://127.0.0.1:5000/loadKeyPair");
+    Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
+    fetch(url.toString())
+    .then(function(response) {
+        if (response.status >= 400) {
+            throw new Error("Bad response from server");
+        }
+        return response.json();
+    })
+    .then(function(pairs) {
+        subscriberPubKeySig=pairs.pubkey_sig;
+        subscriberPubKeyEnc=pairs.pubkey_enc;
+    });
   }
 
   async function mintUSDC() {
-    //mint some dai here!  100 default amount
-    await usdc.mint($wallet.address, parseEther('100'), {from: $wallet.address});
-    usdcBalance = await usdc.balanceOf($wallet.address);
+    await usdc.mint(userAddress, parseUnits('1000', 18), {from: userAddress});
+    usdcBalance = formatEther(await usdc.balanceOf(userAddress));
+  }
+
+  async function convertUSDCx() {
+    await usdcx.upgrade(parseEther('900'));
+    usdcxBalance = formatUnits(await usdcx.balanceOf(userAddress), 18);
   }
 
   async function approveUSDC() {
-    //approve unlimited please
     await usdc
-      .approve(usdcx.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
-        from: $wallet.address,
+      .approve(usdcx.address, parseUnits('900', 18), {
+        from: userAddress,
       })
-      .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
+      .then(async (i) => (usdcApproved = await usdc.allowance(userAddress, usdcx.address)));
   }
 
   async function handleSubscribe() {
@@ -237,7 +422,6 @@
       console.error(err);
     }
   }
-
 
   async function download(path) {
     console.log("download clicked");
@@ -263,29 +447,6 @@
     const url = window.URL.createObjectURL(blob);
     downloadURL(url, 'whatever');
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-  }
-
-  function support2() {
-    subscriptionStatus = 'SUBSCRIBED';
-    loadKeyPairs()
-  }
-
-  async function loadKeyPairs(){
-    let password = '';
-    let data={password, userAddress}
-    let url = new URL("http://127.0.0.1:5000/loadKeyPair");
-    Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
-    fetch(url.toString())
-    .then(function(response) {
-        if (response.status >= 400) {
-            throw new Error("Bad response from server");
-        }
-        return response.json();
-    })
-    .then(function(pairs) {
-        subscriberPubKeySig=pairs.pubkey_sig;
-        subscriberPubKeyEnv=pairs.pubkey_enc;
-    });
   }
 
   function copyToClipboard(val) {
@@ -355,7 +516,7 @@
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Please relay your public keys to Creator:</p>
         <ul>
           <li>{subscriberPubKeySig}</li>
-          <li>{subscriberPubKeyEnv}</li>
+          <li>{subscriberPubKeyEnc}</li>
         </ul>
       {/if}
       <br />
