@@ -142,14 +142,18 @@
       userRole = 'CREATOR';
     } else {
       userRole = 'SUBSCRIBER';
-      // TODO read from the contract see if in subscriber list
 
-      // [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
-      // if (isSubscribed) {
-      //   subscriptionStatus = 'SUBSCRIBED';
-      // } else {
-      //   subscriptionStatus = 'UNSUBSCRIBED';
-      // }
+      const subscriberStatus = await creatorContract.subscribers(await signer.getAddress()) //0xaeAedC36bE97fbeabA6E55Ef9e18bebad963335a
+
+      if(subscriberStatus[2] === 0) {
+        subscriptionStatus = 'UNSUBSCRIBED';
+      } else if (subscriberStatus[2] === 1) {
+        subscriptionStatus = 'PENDING_SUBSCRIPTION';
+      } else if (subscriberStatus[2] === 2) {
+        subscriptionStatus = 'UNSUBSCRIBED';
+      } else if (subscriberStatus[2] === 3) {
+        subscriptionStatus = 'SUBSCRIBED';
+      }
     }
     
     // TODO add this event
@@ -373,6 +377,10 @@
       } catch (error) {
         console.log(error);
       }
+    }
+
+    async function getPendingSubscribers(){
+
     }
 
     async function grant() {
