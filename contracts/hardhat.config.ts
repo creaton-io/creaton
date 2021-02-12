@@ -87,7 +87,7 @@ const config = {
       accounts,
     },
     staging: {
-      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
+      url: 'https://rpc-mumbai.maticvigil.com/v1/c0e16c25bb88390e3ebbd68547f27d5756420c5a',
       accounts,
     },
     stagingMatic: {

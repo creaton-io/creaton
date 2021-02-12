@@ -118,5 +118,21 @@ contract CreatonAdmin is Ownable, SuperAppBase{
 
         emit CreatorDeployed(msg.sender, creatorContractAddr, description, subscriptionPrice);
     }
+
+    function bytesToAddress(bytes memory bys) private pure returns (address addr) {
+        assembly {
+          addr := mload(add(bys,20))
+        } 
+    }
+
+    function forwardMetaTx(address _target, bytes memory _data, bytes memory addr) public payable returns (bytes memory) {
+        require(msg.sender == bytesToAddress(addr));
+        
+       (bool success, bytes memory res) = _target.call{value: msg.value}(abi.encodePacked(_data, addr));
+
+       require(success, "MetaTxForwarder#forwardMetaTx:  CALL_FAILED");
+
+       return res;
+    }
     
 }

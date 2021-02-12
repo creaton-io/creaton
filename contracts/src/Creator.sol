@@ -44,7 +44,7 @@ contract Creator is SuperAppBase {
     }
     
     struct Post {
-        string ipfsLink;
+        string metadataURL;
         uint totalLikes;
         uint totalDislikes;
         uint totalComments;
@@ -154,9 +154,9 @@ contract Creator is SuperAppBase {
         }
     }
     
-    function upload(string memory _ipfsLink) external isCreator {
+    function upload(string memory _metadataURL) external isCreator {
        Post storage post = posts[postCounter];
-       post.ipfsLink = _ipfsLink;
+       post.metadataURL = _metadataURL;
        post.comments = emptyCommentArrray;
        postCounter++;
     }
