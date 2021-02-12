@@ -192,7 +192,7 @@
           },
           body: JSON.stringify({
             "to": adminContract.address,
-            "apiId": 'cd655a31-0520-40b2-b5b0-0792cb4a7c3e',
+            "apiId": '0c7eadac-d04f-4698-b5cc-429f5e2f4ffe',
             "params": params,
             "from": creatorAddress,
             "signatureType": signatureType

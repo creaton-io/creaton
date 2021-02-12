@@ -11,7 +11,7 @@
   import {abi as creatorABI} from '../Creator.json';
   import {wallet, balance, flow, chain} from '../stores/wallet';
   import {identity} from 'svelte/internal';
-  import {TextileStore} from '../stores/textileStore';
+  // import {TextileStore} from '../stores/textileStore';
   import {Buffer} from 'buffer';
   import {onMount} from 'svelte';
   import CreatorCard from '../components/CreatorCard.svelte';
@@ -25,7 +25,7 @@
 
   global.Buffer = Buffer;
 
-  const textile: TextileStore = new TextileStore();
+  // const textile: TextileStore = new TextileStore();
   let contractAddress, creatorAddress;
   let file, description, nuPassword;
 
@@ -40,7 +40,7 @@
   let adminContract;
 
   if (typeof window !== 'undefined') {
-    contractAddress = '0x7B221cD5fd855b3F6Bb29a770DA44D1eFdcdb153';
+    contractAddress = '0x31142515e290B56423aA4607b35a75ad1c9a7811';
     // contractAddress = Web3.toChecksumAddress('0x067e30b82d1adc78d8b35cc93950b4501f82da5a');
     // console.log(contractAddress)
   }
@@ -55,7 +55,7 @@
         await loadCreatorData();
       });
     }
-    await deployTextile();
+    // await deployTextile();
     // let socket = window['socket'];
     // socket.on('connect', function () {
     //   console.log('client connected!');
@@ -88,7 +88,7 @@
   });
 
   async function deployTextile() {
-    const setup = await textile.authenticate();
+    // const setup = await textile.authenticate();
   }
 
   async function loadCreatorData() {
@@ -118,21 +118,21 @@
   }
 
   async function upload() {
-    const content = await file.files[0];
-    const encFile = await textile.uploadFile(content, contractAddress, creatorAddress, nuPassword);
-    const metadata = {
-      name: encFile.encryptedFile.name,
-      type: encFile.encryptedFile.type,
-      description: description,
-      date: encFile.encryptedFile.date,
-      ipfs: encFile.encryptedFile.ipfsPath,
-    };
-    console.log(metadata.ipfs);
+    // const content = await file.files[0];
+    // const encFile = await textile.uploadFile(content, contractAddress, creatorAddress, nuPassword);
+    // const metadata = {
+    //   name: encFile.encryptedFile.name,
+    //   type: encFile.encryptedFile.type,
+    //   description: description,
+    //   date: encFile.encryptedFile.date,
+    //   ipfs: encFile.encryptedFile.ipfsPath,
+    // };
+    // console.log(metadata.ipfs);
     let ccinterFace = new Interface(creatorABI);
     console.log('got here after interface');
-    let creatorContractEncoded = defaultAbiCoder.encode(['bytes'], [ccinterFace.encodeFunctionData('upload', [JSON.stringify(metadata)])]);
+    let creatorContractEncoded = ccinterFace.encodeFunctionData('upload', ['hello']);
     console.log('got here after encoding 1');
-    let addressEncoded = defaultAbiCoder.encode(['bytes'], [defaultAbiCoder.encode(['address'], [creatorAddress])]);
+    let addressEncoded = creatorAddress;
     console.log('got here after encoding 2');
     let {data} = await adminContract.populateTransaction.forwardMetaTx(contractAddress, creatorContractEncoded, addressEncoded);
     console.log('got here after encoding 3');
@@ -145,6 +145,9 @@
           forwarder.abi,
           signer
         );
+    console.log(adminContract.address);
+    console.log(creatorAddress);
+    console.log(data);
     let gasLimit = await ethersProvider.estimateGas({
           to: adminContract.address,
           from: creatorAddress,
@@ -180,7 +183,7 @@
           },
           body: JSON.stringify({
             "to": adminContract.address,
-            "apiId": 'aad856dd-8d00-410d-a315-2253d93133a1',
+            "apiId": 'dafe5955-3140-458f-ab6d-caf6f53382a6',
             "params": params,
             "from": creatorAddress,
             "signatureType": signatureType
