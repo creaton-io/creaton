@@ -3,39 +3,62 @@
   import Web3 from "web3-utils";
   import Button from '../components/Button.svelte';
   import Input from '../components/Input.svelte';
+
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
-  import {wallet, flow, chain} from '../stores/wallet';
+  import {abi as creatorABI} from '../Creator.json';
+
+  import {wallet, flow} from '../stores/wallet';
   import {onMount} from 'svelte';
+
   import {SuperfluidSDK} from '../js-sdk/Framework';
-  import {parseEther} from '@ethersproject/units';
+  import Superfluid from '../build/abi';
+  import {parseEther, formatEther, parseUnits, formatUnits} from '@ethersproject/units';
+
   import {TextileStore} from '../stores/textileStore';
+
+  import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
+  import {Web3Provider} from "@ethersproject/providers";
+
   import {Buffer} from 'buffer';
   global.Buffer = Buffer;
 
+  let userRole;
+  let subscriptionStatus;
+
+  // Biconomy 
+  let bh;
+  let ethersProvider;
+  let signer;
+  let userAddress;
+  const matickId = 80001;
+  const goerliId = 5;
+
+  // Textile
+  const textile: TextileStore = new TextileStore();
+
+  // Creator
   let creatorContract;
-  let superAppContract;
+  let creatorAddress;
   let contractAddress;
-  let creator;
-  let title;
-  let avatarURL;
+  let contractDescription;
   let subscriptionPrice;
   let currentBalance;
   let isSubscribed;
+  let contents = [];
 
-  let subscriptionStatus;
-  let subscriberAddress, nuPassword;
+  // Superfluid
 
   let sf;
   let usdc;
   let usdcx;
   let app;
-  let usdcBalance=0;
-  let usdcApproved=0;
+  let usdcBalance;
+  let usdcxBalance;
 
 
+  let subscriberAddress, nuPassword;
   let subscriberPubKeySig,subscriberPubKeyEnv;
-  let contents = [];
 
   const APP_ADDRESS = '0x46113fF0F86A2c27151F43e7959Ff60DebC18dB1';
   const MINIMUM_GAME_FLOW_RATE = '3858024691358';
@@ -49,19 +72,86 @@
 
   onMount(async () => {
     if (wallet.provider) {
-      console.log('does creator work');
+      loadBiconomy();
+      deployTextile();
       loadCreatorData();
-      console.log('does superfluid work');
-      loadSuperFluid();
-      let accounts = await wallet.provider.listAccounts();
-      subscriberAddress = accounts[0];
     } else {
       flow.execute(async () => {
+        loadBiconomy();
+        deployTextile();
         loadCreatorData();
       });
     }
-    await deployTextile();
+    if (userRole == 'SUBSCRIBER'){
+      loadSuperFluid();
+    }
   });
+
+  async function loadBiconomy() {
+    bh = new BiconomyHelper();
+    ethersProvider = new Web3Provider(window['ethereum']);
+    signer = ethersProvider.getSigner();
+    userAddress = await signer.getAddress();
+  }
+
+  async function deployTextile() {
+    const setup = await textile.authenticate();
+  }
+
+  async function loadCreatorData() {
+    creatorContract = await new Contract(contractAddress, creatorABI, signer);
+    await getContent();
+    creatorAddress = await creatorContract.creator();
+    contractDescription = await creatorContract.description();
+    subscriptionPrice = await creatorContract.subscriptionPrice();
+
+    if (userAddress == creatorAddress){
+      userRole = 'CREATOR';
+    } else {
+      userRole = 'SUBSCRIBER';
+      // TODO read from the contract see if in subscriber list
+
+      // [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
+      // if (isSubscribed) {
+      //   subscriptionStatus = 'SUBSCRIBED';
+      // } else {
+      //   subscriptionStatus = 'UNSUBSCRIBED';
+      // }
+
+    }
+    
+    // TODO add this event
+    // creatorContract.on('NewSubscriber', (...response) => {
+    //   const [address, balance] = response;
+    //   if (address === wallet.address) {
+    //     subscriptionStatus = 'SUBSCRIBED';
+    //     currentBalance = balance.toNumber();
+    //   }
+    // });
+  }
+
+  async function getContent() {
+    let contentsString = await creatorContract.getAllMetadata();
+    contents = [];
+    for (let c of contentsString) {
+      contents.push(JSON.parse(c));
+    }
+  }
+
+  async function loadSuperFluid() {
+    sf = new SuperfluidSDK(ethersProvider, 'v1', '80001', ['fUSDC']);
+    await sf.initialize();
+
+    const usdcAddress = await sf.resolver.get('tokens.fUSDC');
+    usdc = new Contract(await sf.tokens.fUSDC.address, Superfluid.ABI.TestToken, signer);
+    usdcx = new Contract(await sf.tokens.fUSDCx.address, Superfluid.ABI.ISuperToken, signer);
+
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
+    usdcxBalance = formatEther(await usdcx.balanceOf(subscriberAddress));
+
+    // TODO this wasn't working
+    // usdcApproved = formatEther(await usdc.allowance(subscriberAddress, usdc.address));
+  }
 
   async function support() {
     usdcBalance = await usdc.balanceOf($wallet.address);
@@ -122,22 +212,6 @@
     await sf.host.batchCall(call);
   }
 
-  async function loadSuperFluid() {
-    sf = new SuperfluidSDK({
-      chainId: 5,
-      version: '0.1.2-preview-20201014',
-      web3Provider: wallet.web3Provider,
-    });
-    await sf.initialize();
-
-    const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-    usdc = await sf.contracts.TestToken.at(usdcAddress);
-    const usdcxWrapper = await sf.getERC20Wrapper(usdc);
-    usdcx = await sf.contracts.ISuperToken.at(usdcxWrapper.wrapperAddress);
-
-    app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
-  }
-
   async function mintUSDC() {
     //mint some dai here!  100 default amount
     await usdc.mint($wallet.address, parseEther('100'), {from: $wallet.address});
@@ -153,40 +227,6 @@
       .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
   }
 
-  async function getContent() {
-    let contentsString = await creatorContract.getAllMetadata();
-    contents = [];
-    for (let c of contentsString) {
-      contents.push(JSON.parse(c));
-    }
-  }
-
-  async function loadCreatorData() {
-    creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
-    let accounts = await wallet.provider.listAccounts();
-    subscriberAddress = accounts[0];
-    await getContent();
-    creatorContract.on('NewSubscriber', (...response) => {
-      const [address, balance] = response;
-      if (address === wallet.address) {
-        subscriptionStatus = 'SUBSCRIBED';
-        currentBalance = balance.toNumber();
-      }
-    });
-
-    creator = await creatorContract.creator();
-    title = await creatorContract.creatorTitle();
-    avatarURL = await creatorContract.avatarURL();
-    subscriptionPrice = await creatorContract.subscriptionPrice();
-    [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
-    if (isSubscribed) {
-      subscriptionStatus = 'SUBSCRIBED';
-    } else {
-      subscriptionStatus = 'UNSUBSCRIBED';
-    }
-    
-  }
-
   async function handleSubscribe() {
     if (!subscriptionPrice) return; // todo: show error
     try {
@@ -198,12 +238,6 @@
     }
   }
 
-  const textile: TextileStore = new TextileStore();
-
-  async function deployTextile() {
-    const setup = await textile.authenticate();
-    alert("you're good");
-  }
 
   async function download(path) {
     console.log("download clicked");
@@ -237,13 +271,10 @@
   }
 
   async function loadKeyPairs(){
-    let password = prompt("Please enter your password:", "password");
-    let accounts = await wallet.provider.listAccounts();
-    let address = accounts[0];
-    let data={password, address}
+    let password = '';
+    let data={password, userAddress}
     let url = new URL("http://127.0.0.1:5000/loadKeyPair");
     Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
-
     fetch(url.toString())
     .then(function(response) {
         if (response.status >= 400) {

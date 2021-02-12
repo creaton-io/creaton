@@ -102,14 +102,14 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         }
     }
 
-    function deployCreator(string calldata metadataURL, uint256 subscriptionPrice) external {
+    function deployCreator(string calldata description, uint256 subscriptionPrice) external {
         Creator creatorContract =
             new Creator(
                 ISuperfluid(_host),
                 IConstantFlowAgreementV1(_cfa),
                 ISuperToken(_acceptedToken)
             ); 
-        creatorContract.init(msgSender(), metadataURL, subscriptionPrice, treasury, treasury_fee);
+        creatorContract.init(msgSender(), description, subscriptionPrice, treasury, treasury_fee);
         //  TODO do not pass this, get treasury address and fee from CreatonAdmin
 
         address creatorContractAddr = address(creatorContract);

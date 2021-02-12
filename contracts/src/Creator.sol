@@ -67,7 +67,7 @@ contract Creator is SuperAppBase {
     address public treasury;
     int96 public treasury_fee;
 
-    string public metadataURL;
+    string public description;
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
     mapping (address => Subscriber) public subscribers;
@@ -103,13 +103,13 @@ contract Creator is SuperAppBase {
 
     function init(
         address owner,
-        string calldata _metadataURL,
+        string calldata _description,
         uint256 _subscriptionPrice,
         address _treasury,
         int96 _treasury_fee
     ) public {
         creator = owner;
-        metadataURL = _metadataURL;
+        description = _description;
         subscriptionPrice = int96(_subscriptionPrice);
         treasury = _treasury;
         treasury_fee = _treasury_fee;
@@ -318,9 +318,7 @@ contract Creator is SuperAppBase {
 
                 streaming = false;
             }
-        }
-
-        else if (!streaming) {
+        } else if (!streaming) {
 
             // open flow to creator
             (newCtx, ) = _host.callAgreementWithContext(
