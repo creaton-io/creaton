@@ -30,7 +30,6 @@ import Button from '../components/Button.svelte';
 
 <div class="border-b-4 py-4">
 
-    
     <div class="max-w-5xl  mx-auto">
         <div class="w-full lg:flex items-center">
             <div class="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden flex-1">

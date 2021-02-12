@@ -506,11 +506,24 @@
     {#if !creator || !title || !avatarURL || !subscriptionPrice}
       <div>Fetching creator...</div>
     {:else}
-      <h3 class="text-4xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{title}</h3>
-      <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
-      <img class="w-full" src={avatarURL} alt={title} />
+      
+      <div class="max-w-5xl  mx-auto">
+        <div class="w-full lg:flex items-center">
+            <div class="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden flex-1">
+                <img src={avatarURL} alt={title} />
+            </div>
+            
+            <div class=" p-4 flex flex-col justify-between leading-normal flex-grow flex-1">
+              <div class="mb-8">
+                <div class="text-black font-bold text-xl mb-2">{title}</div>
+                <p class="text-grey-darker text-base">{creator}</p>
+              </div>
+
+    
       {#if subscriptionStatus === 'UNSUBSCRIBED'}
-        <Button class="mt-3" on:click={support2}>Subscribe - ${subscriptionPrice}</Button>
+          <div class="small-button">
+            <Button on:click={support}>Subscribe - ${subscriptionPrice}</Button>
+          </div>
       {:else if subscriptionStatus === 'PENDING'}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
       {:else}
@@ -518,6 +531,48 @@
         <label for="description">NuCypher Password: </label>
         <Input type="text" placeholder="Password" className="field" bind:value={nuPassword} />
         <br />
+        {/if}
+      </div>
+
+      {#if subscriptionStatus === 'SUBSCRIBED'}
+      <div class="border-b-4">
+        <div class="max-w-5xl  mx-auto">
+            <div class="flex pt-4">
+              {#each contents as content, index}
+              <div class="flex-1 text-center px-4 py-2 m-2">
+                <div class="flex flex-col justify-between pt-4 pb-5 px-3 bg-white shadow-lg rounded-lg">
+                  <h3 class="text-2xl leading-normal font-medium text-gray-900 truncate text-center mb-2">{index + 1}</h3> 
+                    <h3 class="text-2xl leading-normal font-medium text-gray-900 truncate text-center mb-2">{content.name}</h3> 
+                   </div>
+                   
+                    <div class="bg-white ">
+                        <div class="flex justify-evenly py-4 mb-2">
+                            <i class="fa fa-heart text-3xl  hover:text-purple-600" aria-hidden="true"></i>
+                            <i class="fa fa-thumbs-down text-4xl  hover:text-purple-600" aria-hidden="true"></i>
+                        </div>
+    
+                        <p class="pb-5">
+                          Description:
+                          {content.description}
+                        </p>
+
+                        <Button class="mt-3" on:click={() => copyToClipboard(content.ipfs)}>Get</Button>
+                        {content.ipfs}
+                    </div>
+            </div>
+
+                <h3
+                  title={encodeURI(content.ipfs)}
+                  class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300 truncate">
+                  <Button class="mt-3" on:click={() => copyToClipboard(content.ipfs)}>Get</Button>
+                  {content.ipfs}
+                </h3>
+                <Button class="mt-3" on:click={() => download(content.ipfs)}>Download</Button>
+              {/each}
+     
+        </div>
+    
+    </div>
         <div class="py-4 dark:bg-black bg-white">
           <div class="mx-auto px-4 sm:px-6 lg:max-w-screen-xl lg:px-8">
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
@@ -541,7 +596,6 @@
             </div>
           </div>
         </div>
-      {/if}
       {#if subscriberPubKeySig !== null}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Please relay your public keys to Creator:</p>
         <ul>
@@ -554,5 +608,6 @@
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">approved usdc balance: ${usdcApproved}</p>
       <Button class="mt-3" on:click={mintUSDC}>mint 100 usdc</Button>
       <Button class="mt-3" on:click={approveUSDC}>approve a lot of usdc</Button>
+    {/if}
     {/if}
   </section>
