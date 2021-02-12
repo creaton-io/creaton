@@ -96,7 +96,7 @@
           sf.interfaceCoder.encode(
             ['bytes', 'bytes'],
             [
-              sf.interfaceFlow.encodeFunctionData('createFlow', 
+              sf.interfaceFlow.encodeFunctionData('createFlow',
               [
                 usdcx.address,
                 contractAddress,
@@ -129,7 +129,7 @@
           sf.interfaceCoder.encode(
             ['bytes', 'bytes'],
             [
-              sf.interfaceFlow.encodeFunctionData('createFlow', 
+              sf.interfaceFlow.encodeFunctionData('createFlow',
               [
                 usdcx.address,
                 contractAddress,
@@ -226,7 +226,20 @@
     // });
     // console.log('subscribers: ', await creatorContract.getAllSubscribers());
     creator = await creatorContract.creator();
-    metadataURL = await creatorContract.metadataURL();
+
+    const creatorSubscriberStatus = await creatorContract.subscribers(await signer.getAddress()) //0xaeAedC36bE97fbeabA6E55Ef9e18bebad963335a
+
+    if(creatorSubscriberStatus[2] === 0) {
+      console.log('USER NOT A SUBSCRIBER')
+    } else if (creatorSubscriberStatus[2] === 1) {
+      console.log('USER IS PENDING SUBSCRIBER')
+    } else if (creatorSubscriberStatus[2] === 2) {
+      console.log('USER IS PENDING UNSUBSCRIBER')
+    } else if (creatorSubscriberStatus[2] === 3) {
+      console.log('USER IS PENDING SUBSCRIBER')
+    }
+
+    metadataURL = await creatorContract.description();
     subscriptionPrice = await creatorContract.subscriptionPrice();
     MINIMUM_GAME_FLOW_RATE = parseUnits(subscriptionPrice.toString(), 18).div(3600 * 24 * 30);
     // if (isSubscribed) {
@@ -319,9 +332,9 @@
         .then(function(result) {
           console.log('transaction hash ' + result.txHash);
         })
-        // once you receive transaction hash you can wait for mined transaction receipt here 
-        // using Promise in web3 : web3.eth.getTransactionReceipt  
-        // or using ethersProvider event emitters 
+        // once you receive transaction hash you can wait for mined transaction receipt here
+        // using Promise in web3 : web3.eth.getTransactionReceipt
+        // or using ethersProvider event emitters
 	      .catch(function(error) {
 	        console.log(error)
 	      });
@@ -374,4 +387,3 @@
     {/if}
   </SearchBackground>
 </WalletAccess>
-
