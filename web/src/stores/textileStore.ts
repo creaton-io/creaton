@@ -66,7 +66,7 @@ const schema = {
 };
 
 export class TextileStore {
-  private identity: PrivateKey;
+  public identity: PrivateKey;
   private keyInfo: KeyInfo;
   private user: Users;
   private client: Client;
