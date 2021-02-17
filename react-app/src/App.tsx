@@ -1,6 +1,6 @@
 import React, {CSSProperties} from 'react';
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Link
