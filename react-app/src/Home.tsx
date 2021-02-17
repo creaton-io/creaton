@@ -32,4 +32,5 @@ function Home() {
   ));
 }
 
+export {CREATORS_QUERY};
 export default Home;
