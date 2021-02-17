@@ -1,5 +1,4 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {CSSProperties} from 'react';
 import {
   BrowserRouter as Router,
   Switch,
@@ -7,62 +6,55 @@ import {
   Link
 } from "react-router-dom";
 import './App.css';
-import graphql from 'babel-plugin-relay/macro';
-// instead of:
-//   import { graphql } from "babel-plugin-relay"
+import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
+import Home from './Home';
 
-graphql`
-  query AppQuery{
-  creators(orderBy: timestamp, orderDirection: desc, first: 10) {
-    id
-    user
-    creatorContract
-    title
-    subscriptionPrice
-    avatarURL
-    timestamp
-  }
-}
-`;
+const client = new ApolloClient({
+  uri: 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton',
+  cache: new InMemoryCache()
+});
+
 
 function App() {
   return (
-    <Router>
-      <div>
-        <ul>
-          <li>
-            <Link to="/">Home</Link>
-          </li>
-          <li>
-            <Link to="/about">About</Link>
-          </li>
-          <li>
-            <Link to="/dashboard">Dashboard</Link>
-          </li>
-        </ul>
+    <ApolloProvider client={client}>
+      <Router>
+        <div>
+          <ul>
+            <li>
+              <Link to="/">Home</Link>
+            </li>
+            <li>
+              <Link to="/about">About</Link>
+            </li>
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
+          </ul>
 
-        <hr />
+          <hr/>
 
-        {/*
+          {/*
           A <Switch> looks through all its children <Route>
           elements and renders the first one whose path
           matches the current URL. Use a <Switch> any time
           you have multiple routes, but you want only one
           of them to render at a time
         */}
-        <Switch>
-          <Route exact path="/">
-            Home
-          </Route>
-          <Route path="/about">
-            About
-          </Route>
-          <Route path="/dashboard">
-            Dashboard
-          </Route>
-        </Switch>
-      </div>
-    </Router>
+          <Switch>
+            <Route exact path="/">
+              <Home/>
+            </Route>
+            <Route path="/about">
+              About
+            </Route>
+            <Route path="/dashboard">
+              Dashboard
+            </Route>
+          </Switch>
+        </div>
+      </Router>
+    </ApolloProvider>
   );
 }
 
