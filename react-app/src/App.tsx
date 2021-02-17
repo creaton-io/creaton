@@ -11,6 +11,7 @@ import Home from './Home';
 import WalletConnect from "./WalletConnect";
 import {useWeb3React, Web3ReactProvider} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
+import SignUp from "./Signup";
 
 const client = new ApolloClient({
   uri: 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton',
@@ -72,7 +73,7 @@ class App extends React.Component<any, any> {
                   <WalletConnect/>
                 </Route>
                 <Route path="/signup">
-                  About
+                  <SignUp/>
                 </Route>
                 <Route path="/dashboard">
                   Dashboard

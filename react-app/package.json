@@ -18,6 +18,7 @@
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/walletconnect-connector": "^6.1.6",
     "ethers": "^5.0.31",
+    "formik": "^2.2.6",
     "graphql": "^15.5.0",
     "isomorphic-fetch": "^3.0.0",
     "react": "^17.0.1",
