@@ -20,7 +20,6 @@ function Home() {
 
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
-  console.log(data)
   const myStyles: CSSProperties = {
     width: '20px',
   }
