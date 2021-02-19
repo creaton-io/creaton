@@ -5,8 +5,7 @@ import contracts from "./contracts.json";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
-import {useQuery} from "@apollo/client";
-import {CREATORS_QUERY} from "./Home";
+import {gql, useQuery} from "@apollo/client";
 
 const textile: TextileStore = new TextileStore();
 
@@ -20,18 +19,31 @@ const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState(undefined)
   const handleFileSelection = (event) => {
-    const file  =  event.currentTarget.files[0];
+    const file = event.currentTarget.files[0];
     setCurrentFile(file)
   };
-  const {loading, error, data} = useQuery(CREATORS_QUERY);
+  const CREATOR_USER = gql`
+  query GET_CREATOR_WITH_USER($user: Bytes!) {
+  creators(where: { user: $user }) {
+    id
+    user
+    creatorContract
+    title
+    subscriptionPrice
+    avatarURL
+    timestamp
+  }
+}
+`;
 
+  const {loading, error, data} = useQuery(CREATOR_USER, {variables: {user: context.account?.toLowerCase()}});
+  if (!context.account)
+    return (<div>Not connected</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
-  if(!context.account)
-    return (<div>Not connected</div>)
-  const matchingCreators = data.creators.filter(creator => creator.user.toLowerCase() === context.account?.toLowerCase())
-  if(!matchingCreators)
-    return (<div>Please signup first</div>) //TODO Test this is actually working by using a different account
+  const matchingCreators = data.creators
+  if (matchingCreators.length === 0)
+    return (<div>Please signup first. You are not a creator yet.</div>)
   const currentCreator = matchingCreators[0]
   return (
     <div>
