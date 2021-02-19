@@ -114,7 +114,7 @@
         <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Sascha Epp</h5>
-            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">INTERIM CFO & BUSINESS LEAD</p>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">BUSINESS LEAD</p>
             <div class="mt-6">
               <li class="flex items-center">
                 <a
