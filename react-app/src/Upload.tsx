@@ -1,11 +1,12 @@
 import {TextileStore} from './stores/textileStore';
-import React, {CSSProperties, useState} from "react";
+import React, {useContext, useState} from "react";
 import {Contract} from "ethers";
 import contracts from "./contracts.json";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
 import {gql, useQuery} from "@apollo/client";
+import {NuCypherSocketContext} from "./Socket";
 
 const textile: TextileStore = new TextileStore();
 
@@ -18,6 +19,7 @@ interface Values {
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState(undefined)
+  const socket = useContext(NuCypherSocketContext);
   const handleFileSelection = (event) => {
     const file = event.currentTarget.files[0];
     setCurrentFile(file)
@@ -37,6 +39,8 @@ const Upload = () => {
 `;
 
   const {loading, error, data} = useQuery(CREATOR_USER, {variables: {user: context.account?.toLowerCase()}});
+  if(socket === null)
+    return (<div>Not connected to NuCypher</div>)
   if (!context.account)
     return (<div>Not connected</div>)
   if (loading) return (<p>Loading...</p>);
