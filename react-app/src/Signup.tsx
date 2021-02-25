@@ -5,6 +5,8 @@ import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Contract} from "ethers";
 import contracts from './contracts.json'
+import {useCurrentCreator} from "./Utils";
+import {useState} from "react";
 
 interface Values {
   creatorName: string;
@@ -13,9 +15,15 @@ interface Values {
 }
 
 
-const creatorContract = new Contract(contracts.contracts.CreatonFactory.address, contracts.contracts.CreatonFactory.abi)
+const creatorFactoryContract = new Contract(contracts.contracts.CreatonFactory.address, contracts.contracts.CreatonFactory.abi)
 const SignUp = () => {
   const context = useWeb3React<Web3Provider>()
+  const {currentCreator} = useCurrentCreator()
+  const [signedup,setSignedup] = useState(false)
+  if(currentCreator !== undefined)
+    return(<div>You've already signed up!</div>)
+  if(signedup)
+    return (<div>Congratulation you just signed up</div>)
   return (
     <div>
       <h1>Signup</h1>
@@ -31,8 +39,13 @@ const SignUp = () => {
         ) => {
           const {library} = context
           if (library) {
-            const connectedContract = creatorContract.connect(library.getSigner())
-            const promise = connectedContract.deployCreator(values.avatarURL, values.creatorName, values.subscriptionPrice);
+            const connectedContract = creatorFactoryContract.connect(library.getSigner())
+            connectedContract.deployCreator(values.avatarURL, values.creatorName, values.subscriptionPrice)
+              .then(function(response){
+                setSignedup(true)
+              }).catch(function(error){
+                console.log(error)
+            });
             //TODO error handling on promise
           } else {
             alert('not connected')

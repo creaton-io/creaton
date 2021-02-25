@@ -1,54 +1,71 @@
 import {TextileStore} from './stores/textileStore';
-import React, {useContext, useState} from "react";
-import {Contract} from "ethers";
-import contracts from "./contracts.json";
+import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
-import {gql, useQuery} from "@apollo/client";
 import {NuCypherSocketContext} from "./Socket";
+import {useCurrentCreator} from "./Utils";
+import {Contract, utils} from "ethers";
+import contracts from "./contracts.json";
+import {NuCypher} from "./NuCypher";
 
-const textile: TextileStore = new TextileStore();
 
 interface Values {
   file: string;
   description: string;
-  nucypherPassword: string;
 }
 
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
-  const [currentFile, setCurrentFile] = useState(undefined)
+  const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
+  const [currentUpload, setCurrentUpload] = useState<any>({})
+  const [textile, _] = useState(new TextileStore())
+  useEffect(() => {
+    textile.authenticate().then(function () {
+      console.log('textile authenticated')
+    })
+  }, [textile])
   const socket = useContext(NuCypherSocketContext);
   const handleFileSelection = (event) => {
     const file = event.currentTarget.files[0];
+    console.log(file)
     setCurrentFile(file)
   };
-  const CREATOR_USER = gql`
-  query GET_CREATOR_WITH_USER($user: Bytes!) {
-  creators(where: { user: $user }) {
-    id
-    user
-    creatorContract
-    title
-    subscriptionPrice
-    avatarURL
-    timestamp
-  }
-}
-`;
 
-  const {loading, error, data} = useQuery(CREATOR_USER, {variables: {user: context.account?.toLowerCase()}});
-  if(socket === null)
+  const {loading, error, currentCreator} = useCurrentCreator()
+  if (socket === null)
     return (<div>Not connected to NuCypher</div>)
   if (!context.account)
     return (<div>Not connected</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
-  const matchingCreators = data.creators
-  if (matchingCreators.length === 0)
+  if (currentCreator === undefined)
     return (<div>Please signup first. You are not a creator yet.</div>)
-  const currentCreator = matchingCreators[0]
+  const creatorContract = new Contract(currentCreator.creatorContract, contracts.contracts.Creator.abi).connect(context.library!.getSigner())
+
+  async function upload(file: File, contractAddress: string, creatorAddress: string) {
+    const buf = await file.arrayBuffer();
+    const b64File = textile.arrayBufferToBase64(buf);
+    const nucypher = new NuCypher(socket!)
+    const encryptedObject = nucypher.encrypt(b64File, contractAddress, utils.getAddress(creatorAddress))
+    console.log(currentUpload.file)
+    encryptedObject['type'] = currentUpload.type
+    const buffer = Buffer.from(JSON.stringify(encryptedObject))
+    textile.pushFile(currentUpload.file, buffer).then(async function (encFile) {
+      const metadata = {
+        name: encFile.name,
+        type: encFile.type,
+        description: currentUpload.description,
+        date: encFile.date,
+        ipfs: encFile.ipfsPath,
+      };
+      console.log(metadata.ipfs);
+      const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
+      console.log(receipt);
+    })
+  }
+
+  //TODO: remove formik since it is pretty simple to handle without it
   return (
     <div>
       <h1>Welcome {currentCreator.title}</h1>
@@ -56,18 +73,17 @@ const Upload = () => {
         initialValues={{
           file: '',
           description: '',
-          nucypherPassword: '',
         }}
         onSubmit={(
           values: Values,
           {setSubmitting}: FormikHelpers<Values>
         ) => {
-          textile.authenticate();
-          if(currentFile) {
-            textile.uploadFile(currentFile!, currentCreator.contractAddress, currentCreator.user, values.nucypherPassword)
+          if (currentFile !== undefined) {
+            //encrypt via nucypher first
+            setCurrentUpload({description: values.description, file: currentFile})
+            upload(currentFile, currentCreator.creatorContract, currentCreator.user)
           }
           console.log(values)
-          // const promise = connectedContract.deployCreator(values.avatarURL, values.creatorName, values.subscriptionPrice);
           //TODO error handling on promise
           setSubmitting(false);
         }}
@@ -79,25 +95,11 @@ const Upload = () => {
           <label htmlFor="description">Description</label>
           <Field id="description" name="description" placeholder=""/>
 
-          <label htmlFor="nucypherPassword">NuCypher Password</label>
-          <Field
-            id="nucypherPassword"
-            name="nucypherPassword"
-            type="password"
-          />
-
           <button type="submit">Submit</button>
         </Form>
       </Formik>
     </div>
   );
 };
-
-// class Upload extends React.Component<any, any> {
-//   render() {
-//     // textile.authenticate();
-//     return ''
-//   }
-// }
 
 export default Upload;
