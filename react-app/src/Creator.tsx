@@ -64,7 +64,8 @@ export function Creator() {
       return
     }
     const nucypher = new NuCypher(socket)
-    const data = await nucypher.decrypt(encObject,creatorContractAddress,context.account!)
+    const data = await nucypher.decrypt(encObject.policy_pubkey, encObject.alice_sig_pubkey, encObject.enc_file_content,
+      creatorContractAddress, context.account!)
     const decrypted = textile.base64ToArrayBuffer(data['decrypted_content']);
     await downloadBlob(decrypted);
   }

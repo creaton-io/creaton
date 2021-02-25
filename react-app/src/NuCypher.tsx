@@ -1,7 +1,7 @@
-import {EncryptedObject} from "./stores/textileStore";
 import {Socket} from "socket.io-client";
 import {TransactionRequest} from "@ethersproject/providers";
 import {arrayify} from "ethers/lib/utils";
+import {Signer} from "ethers";
 
 
 export class NuCypher {
@@ -30,7 +30,7 @@ export class NuCypher {
   }
 
   public async grant(label: string, address: string, pubkey_enc: string, pubkey_sig: string,
-                     signer) {
+                     signer: Signer) {
     const nucypher = this
     return new Promise<Object>(async function (resolve, reject) {
       let transaction_listener = (transaction_dict) => {
@@ -101,10 +101,7 @@ export class NuCypher {
     })
   }
 
-  public async decrypt(encObject: EncryptedObject, label: string, address: string) {
-    const policy_pubkey = encObject['policy_pubkey'];
-    const alice_sig_pubkey = encObject['alice_sig_pubkey'];
-    const content = encObject['enc_file_content'];
+  public async decrypt(policy_pubkey: string, alice_sig_pubkey: string, content: string, label: string, address: string) {
     const data: { [key: string]: string } = {
       enc_file_content: content, label: label, policy_pubkey: policy_pubkey,
       creator_pubkey: alice_sig_pubkey, address: address
