@@ -1,0 +1,27 @@
+type Creator @entity {
+  id: ID!
+  user: Bytes!
+  creatorContract: Bytes!
+  title: String!
+  subscriptionPrice: BigInt!
+  avatarURL: String!
+  timestamp: BigInt!
+  subscribers: [Subscriber!]! @derivedFrom(field: "creator")
+}
+
+type Subscriber @entity {
+  id: ID!
+  creator: Creator!
+  user: Bytes!
+  amount: BigInt!
+}
+
+type Content @entity {
+  id: ID!
+  creator: Creator!
+  name: String!
+  type: String!
+  description: String!
+  date: String!
+  ipfs: String!
+}
