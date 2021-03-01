@@ -1,5 +1,6 @@
 import 'dotenv';
 import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-web3';
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';

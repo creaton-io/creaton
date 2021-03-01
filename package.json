@@ -44,7 +44,6 @@
     "contracts:test": "npm --prefix contracts test",
     "contracts:clean": "rimraf contracts/deployments/localhost && rimraf web/src/contracts.json",
     "contracts": "dotenv -e .env -e contracts/.env -- npm --prefix contracts run dev -- --export ../web/src/contracts.json",
-    "contractsgoerli": "dotenv -e .env -e contracts/.env -- npm --prefix contracts run goerlidev -- --export ../web/src/contracts.json",
     "shell:contracts": "newsh \"npm run contracts\"",
     "shell:contractsgoerli": "newsh \"npm run contractsgoerli\"",
     "contracts:deploy": "dotenv -e .env -e contracts/.env -- npm --prefix contracts run local:deploy -- --export ../web/src/contracts.json",

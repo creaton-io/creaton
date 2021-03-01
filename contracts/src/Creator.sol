@@ -319,16 +319,14 @@ contract Creator is SuperAppBase {
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
 
         ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
-        (string memory sigKey, string memory pubKey) = abi.decode(context.userData, (string, string)); 
-        _addSubscriber(context.msgSender, sigKey, pubKey);
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasury_fee());
         int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
-        if (subscribersList.length == 1){
+        if (subscribersList.length == 0){
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
-        } else if (subscribersList.length > 1){
+        } else if (subscribersList.length > 0){
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
             (, int96 contract2treasuryCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
             newCtx = _updateFlows(ctx,
@@ -336,6 +334,9 @@ contract Creator is SuperAppBase {
                                 contract2treasuryCurrent + contract2treasuryDelta
                                 );
         }
+
+        (string memory sigKey, string memory pubKey) = abi.decode(context.userData, (string, string)); 
+        _addSubscriber(context.msgSender, sigKey, pubKey);
     }
 
     function _updateSubscribe(
@@ -364,9 +365,8 @@ contract Creator is SuperAppBase {
         bytes calldata ctx
     ) private returns (bytes memory newCtx){
         address sender = _host.decodeCtx(ctx).msgSender;
-        _delSubscriber(sender);
 
-        if (subscribersList.length == 0){
+        if (subscribersList.length == 1){
             newCtx = _deleteFlows(ctx);
         } else if (subscribersList.length > 0){
             int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
@@ -381,6 +381,8 @@ contract Creator is SuperAppBase {
                                   contract2treasuryCurrent + contract2treasuryDelta
                                  );
         }
+
+        _delSubscriber(sender);
     }
 
     // -----------------------------------------

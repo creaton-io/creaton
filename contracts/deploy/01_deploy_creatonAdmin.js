@@ -4,6 +4,7 @@ const func = async function (hre) {
   // const useProxy = !hre.network.live;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
+
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
@@ -49,7 +50,7 @@ const func = async function (hre) {
   // console.log('chain id', network.config.chainId);
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 80001,
+    chainId: 5,
     version: 'v1',
     web3Provider: await hre.web3.currentProvider,
     tokens: ['fUSDC'],
