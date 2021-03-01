@@ -39,9 +39,11 @@ contract Creator is SuperAppBase {
     enum Status { unSubscribed, pendingSubscribe, pendingUnsubscribe, subscribed }
     enum Approval { neutral, like, dislike }
 
+    event SubscriberEvent(address user, string sigKey, string pubKey, Status status);
+    event Like(address user, Approval approval);
+    event NewPost(string metadataURL);
+
     struct Subscriber {
-        string sigKey;
-        string pubKey;
         Status status;
     }
 
@@ -70,7 +72,7 @@ contract Creator is SuperAppBase {
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
     mapping (address => Subscriber) public subscribers;
-    address[] public subscribersList;
+    int32 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     Post[] public posts;
 
     // -----------------------------------------
@@ -103,6 +105,7 @@ contract Creator is SuperAppBase {
         description = _description;
         subscriptionPrice = int96(_subscriptionPrice);
         adminContract = CreatonAdmin(admin);
+        subscriberCount = 0;
     }
 
     // -----------------------------------------
@@ -121,38 +124,46 @@ contract Creator is SuperAppBase {
     //     ERC20(_token).transfer(msg.sender, ERC20(_token).balanceOf(address(this)));
     // }
 
+    function changeStatus(address _address, Status status) private {
+        subscribers[_address].status = status;
+        emit SubscriberEvent(_address, "", "", status);
+    }
+
     function acceptSubscribe(address _address) external  {
-       require(subscribers[_address].status == Status.pendingSubscribe, "Not pending subscribe");
-       subscribers[_address].status = Status.subscribed;
+        require(subscribers[_address].status == Status.pendingSubscribe, "Not pending subscribe");
+        changeStatus(_address, Status.subscribed);
     }
 
     function acceptUnsubscribe(address _address) external  {
-       require(subscribers[_address].status == Status.pendingUnsubscribe, "Not pending unsubscribe");
-       delete subscribers[_address];
+        require(subscribers[_address].status == Status.pendingUnsubscribe, "Not pending unsubscribe");
+        changeStatus(_address, Status.unSubscribed);
+        delete subscribers[_address];
     }
 
     function bulkAcceptSubscribe(address[] memory _addresses) external  {
         for(uint i = 0; i < _addresses.length; i++) {
-            subscribers[_addresses[i]].status = Status.subscribed;
+            changeStatus(_addresses[i], Status.subscribed);
         }
     }
 
     function bulkAcceptUnsubscribe(address[] memory _addresses) external  {
         for(uint i = 0; i < _addresses.length; i++) {
+            changeStatus(_addresses[i], Status.unSubscribed);
             delete subscribers[_addresses[i]];
         }
     }
 
     function upload(string memory _metadataURL) external {
-       posts.push(Post(_metadataURL, 0, 0, emptyVoteArrray));
+        posts.push(Post(_metadataURL, 0, 0, emptyVoteArrray));
+        emit NewPost(_metadataURL);
     }
 
     function getPostCount() public view returns (uint) {
         return posts.length;
     }
 
-    function getSubscriberCount() public view returns (uint) {
-        return subscribersList.length;
+    function getSubscriberCount() public view returns (int32) {
+        return subscriberCount;
     }
 
     function hasLiked(address _address, uint _index) public view returns(bool) {
@@ -164,19 +175,12 @@ contract Creator is SuperAppBase {
         return false;
     }
 
-    function like(address _address, uint _index, uint approvalEnum) external {
+    function like(uint _index, uint approvalEnum) external {
+        address _address = msg.sender;
         require(subscribers[_address].status == Status.subscribed, "Not subscribed");
-        require(approvalEnum == 1 || approvalEnum == 2, "Invalid approval enum");
-        require(hasLiked(_address, _index) == false, 'Already liked');
-
-        if(approvalEnum == 1) {
-            posts[_index].totalLikes++;
-            posts[_index].votees.push(_address);
-        } else {
-            posts[_index].totalDislikes++;
-            posts[_index].votees.push(_address);
-
-        }
+        require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
+        Approval approval = Approval(approvalEnum);
+        emit Like(_address, approval);
     }
 
     // -----------------------------------------
@@ -295,17 +299,20 @@ contract Creator is SuperAppBase {
     }
 
     function _addSubscriber(address _address, string memory _sigKey, string memory _pubKey) private {
-        subscribersList.push(_address);
-        subscribers[_address] = Subscriber(_sigKey, _pubKey, Status.pendingSubscribe);
+        subscriberCount += 1;
+        subscribers[_address] = Subscriber(Status.pendingSubscribe);
+        emit SubscriberEvent(_address, _sigKey, _pubKey, Status.pendingSubscribe);
     }
 
     function _delSubscriber(address _address) private {
         if(subscribers[_address].status == Status.subscribed){
-            subscribers[_address].status = Status.pendingUnsubscribe;
+            changeStatus(_address, Status.pendingUnsubscribe);
         }
         if(subscribers[_address].status == Status.pendingSubscribe){
+            changeStatus(_address, Status.unSubscribed);
             delete subscribers[_address];
         }
+        subscriberCount -= 1;
     }
 
     function _subscribe (
@@ -324,9 +331,9 @@ contract Creator is SuperAppBase {
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasury_fee());
         int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
-        if (subscribersList.length == 0){
+        if (subscriberCount == 0){
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
-        } else if (subscribersList.length > 0){
+        } else if (subscriberCount > 0){
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
             (, int96 contract2treasuryCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
             newCtx = _updateFlows(ctx,
@@ -366,9 +373,9 @@ contract Creator is SuperAppBase {
     ) private returns (bytes memory newCtx){
         address sender = _host.decodeCtx(ctx).msgSender;
 
-        if (subscribersList.length == 1){
+        if (subscriberCount == 1){
             newCtx = _deleteFlows(ctx);
-        } else if (subscribersList.length > 0){
+        } else if (subscriberCount > 0){
             int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
             int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasury_fee());
             int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
