@@ -1,12 +1,9 @@
 const func = async function (hre) {
-  let {creator} = await hre.getNamedAccounts();
+  let {admin, treasury} = await hre.getNamedAccounts();
   const {deploy} = hre.deployments;
-  const useProxy = !hre.network.live;
+  // const useProxy = !hre.network.live;
 
-  const Transaction = require('ethereumjs-tx').Transaction;
-  const ethUtils = require('ethereumjs-util');
-
-  const SuperfluidSDK = require('@superfluid-finance/ethereum-contracts');
+  const SuperfluidSDK = require('@superfluid-finance/js-sdk');
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
   //Superfluid, work in progress
@@ -47,42 +44,35 @@ const func = async function (hre) {
   await tx2.wait();
   console.log('successful erc1820 deploy!');*/
 
-  const version = process.env.RELEASE_VERSION || '0.1.2-preview-20201014';
+  const version = process.env.RELEASE_VERSION || 'v1';
   console.log('release version:', version);
-  console.log('chain id', network.config.chainId);
+  // console.log('chain id', network.config.chainId);
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 5,
-    version: version,
+    chainId: 80001,
+    version: 'v1',
     web3Provider: await hre.web3.currentProvider,
+    tokens: ['fUSDC'],
   });
   await sf.initialize();
 
-  const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-  const usdc = await sf.contracts.TestToken.at(usdcAddress);
-  const usdcxWrapper = await sf.getERC20Wrapper(usdc);
-  const usdcx = await sf.contracts.ISuperToken.at(usdcxWrapper.wrapperAddress);
+  const biconomyTrustedforwarder = '0x2B99251eC9650e507936fa9530D11dE4d6C9C05c';
 
-  const creatonSuperApp = await deploy('CreatonSuperApp', {
-    from: creator,
-    proxy: useProxy,
-    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address],
+  const usdcx = sf.tokens.fUSDCx;
+  //console.log('usdc', sf.tokens.fUSDC.address);
+  //console.log('usdcx', usdc.address);
+  //const usdcx = await sf.contracts.ISuperToken.at(sf.tokens.fUSDC);
+
+  // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
+  // in live network, proxy is disabled and constructor is invoked
+  await deploy('CreatonAdmin', {
+    from: admin,
+    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address, treasury, 90, biconomyTrustedforwarder],
     log: true,
   });
-
-  await hre.tenderly.push({
-    name: 'CreatonSuperApp',
-    address: creatonSuperApp.address,
-  });
-
-  await hre.tenderly.push({
-    name: 'CreatonSuperApp',
-    address: creatonSuperApp.address,
-  });
-
-  return !useProxy; // when live network, record the script as executed to prevent rexecution
+  // when live network, record the script as executed to prevent rexecution
 };
 
 module.exports = func;
-func.id = '01_deploy_creatonSuperApp'; // id required to prevent reexecution
-func.tags = ['CreatonSuperApp'];
+func.id = '01_deploy_creatonAdmin'; // id required to prevent reexecution
+func.tags = ['Creatonadmin'];

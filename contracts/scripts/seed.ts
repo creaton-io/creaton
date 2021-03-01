@@ -1,8 +1,8 @@
 import {network, getUnnamedAccounts, ethers, getChainId} from 'hardhat';
 
 const mockCreators = [
-  ['https://briano88.files.wordpress.com/2015/03/danny-devio-as-frank-reynolds_small.jpg', 'Frank', 4],
-  ['https://photo1.allfamous.org/public/people/headshots/greg-kinnear-19630617-allfamous.org-2.jpg', 'Greg', 2],
+  ['https://briano88.files.wordpress.com/2015/03/danny-devio-as-frank-reynolds_small.jpg', 4],
+  ['https://photo1.allfamous.org/public/people/headshots/greg-kinnear-19630617-allfamous.org-2.jpg', 2],
 ];
 
 async function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {

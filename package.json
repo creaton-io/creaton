@@ -64,6 +64,8 @@
     "web:serve": "dotenv -- npm --prefix web run serve --",
     "web:build:serve": "run-s web:build web:serve",
     "web:generate": "dotenv -- npm --prefix web run generate",
+    "// GOERLI : deploy to goerli": "",
+    "goerli:contracts": "dotenv -e .env.goerli -e .env -- npm --prefix contracts run goerli:deploy",
     "// STAGING : deploy on staging": "",
     "staging:web:dev": "dotenv -e .env.staging -e .env -- npm --prefix web run dev",
     "staging:web:build": "run-s web:generate staging:contracts:export common:build staging:web:rebuild",

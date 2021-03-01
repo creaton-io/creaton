@@ -1,12 +1,9 @@
 import 'dotenv';
-import '@nomiclabs/hardhat-web3';
+import '@nomiclabs/hardhat-ethers';
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
-import '@tenderly/hardhat-tenderly';
-// require('solidity-coverage');
-
-const {Wallet} = require('@ethersproject/wallet');
+import {Wallet} from '@ethersproject/wallet';
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
@@ -16,14 +13,6 @@ if (mnemonic) {
   accounts = {
     mnemonic,
   };
-  hardhatAccounts = [];
-  for (let i = 0; i < 10; i++) {
-    const wallet = Wallet.fromMnemonic(mnemonic, "m/44'/60'/0'/0/" + i);
-    hardhatAccounts.push({
-      privateKey: wallet.privateKey,
-      balance: '1000000000000000000000',
-    });
-  }
 } else {
   hardhatAccounts = [];
   for (let i = 0; i < 10; i++) {
@@ -37,22 +26,42 @@ if (mnemonic) {
 
 const config = {
   solidity: {
-    version: '0.7.1',
-    settings: {
-      optimizer: {
-        enabled: true,
-        runs: 2000,
+    compilers: [
+      {
+        version: '0.7.1',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
       },
-    },
+      {
+        version: '0.7.6',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+    ], 
   },
   namedAccounts: {
-    creator: {
+    admin: {
       default: 0,
     },
-    subscriber: {
+    creator: {
       default: 1,
     },
+    subscriber: {
+      default: 2,
+    },
+    treasury: {
+      default: 3,
+    },
   },
+  defaultNetwork: 'goerli',
   networks: {
     coverage: {
       url: 'http://localhost:5458',
@@ -90,10 +99,6 @@ const config = {
   },
   paths: {
     sources: 'src',
-  },
-  tenderly: {
-    project: 'creaton',
-    username: 'aeroxander',
   },
 };
 
