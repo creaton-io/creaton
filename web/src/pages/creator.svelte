@@ -3,188 +3,486 @@
   import Web3 from "web3-utils";
   import Button from '../components/Button.svelte';
   import Input from '../components/Input.svelte';
+
   import {Contract} from '@ethersproject/contracts';
   import {contracts} from '../contracts.json';
-  import {wallet, flow, chain} from '../stores/wallet';
+  import {abi as creatorABI} from '../Creator.json';
+
+  import {wallet, flow} from '../stores/wallet';
   import {onMount} from 'svelte';
+
   import {SuperfluidSDK} from '../js-sdk/Framework';
-  import {parseEther} from '@ethersproject/units';
-  import {TextileStore} from '../stores/textileStore';
+  import Superfluid from '../build/abi';
+  import {parseEther, formatEther, parseUnits, formatUnits} from '@ethersproject/units';
+
+  // import {TextileStore} from '../stores/textileStore';
+
+  import {BiconomyHelper} from '../biconomy-helpers/biconomyForwarderHelpers';
+  import {Web3Provider} from "@ethersproject/providers";
+  import {ethers} from "ethers";
+
   import {Buffer} from 'buffer';
+  
   global.Buffer = Buffer;
 
+  let userRole;
+  let subscriptionStatus;
+
+  // Biconomy 
+  let bh;
+  let ethersProvider;
+  let signer;
+  let userAddress;
+  const maticId = 80001;
+  const goerliId = 5;
+
+  // Textile
+  // const textile: TextileStore = new TextileStore();
+
+  // Creator
   let creatorContract;
-  let superAppContract;
-  let contractAddress;
-  let creator;
-  let title;
-  let avatarURL;
+  let creatorAddress;
+  let contractAddress = '0x35f094A9aFefb26B6F091DBdc401071512948AB1';
+  let contractDescription;
   let subscriptionPrice;
   let currentBalance;
   let isSubscribed;
+  let contents = [];
+  let pendingSubscribers = [];
+  let MINIMUM_GAME_FLOW_RATE;
 
-  let subscriptionStatus;
-  let subscriberAddress, nuPassword;
-
+  // Superfluid
   let sf;
   let usdc;
   let usdcx;
   let app;
-  let usdcBalance=0;
-  let usdcApproved=0;
+  let usdcBalance;
+  let usdcxBalance;
+  let usdcApproved;
 
+  // NuCypher
 
-  let subscriberPubKeySig,subscriberPubKeyEnv;
-  let contents = [];
+  let subscriberAddress, nuPassword;
+  let subscriberPubKeySig, subscriberPubKeyEnc;
 
-  const APP_ADDRESS = '0x46113fF0F86A2c27151F43e7959Ff60DebC18dB1';
-  const MINIMUM_GAME_FLOW_RATE = '3858024691358';
-  //TODO: try this with hardhat
-  //const LotterySuperApp = TruffleContract(require("./LotterySuperApp.json"));
+  // Page
+  let ethereum;
+  let web3;
+
+  var creatorInfo = {
+    name: {description: ''},
+    image: {description: ''},
+  };
+
+  // Creator
+  
 
   if (typeof window !== 'undefined') {
-    contractAddress = window.location.pathname.split('/')[2];
-    contractAddress = Web3.toChecksumAddress(contractAddress);
+    // contractAddress = window.location.pathname.split('/')[2];
+    // contractAddress = Web3.toChecksumAddress(contractAddress);
   }
 
   onMount(async () => {
     if (wallet.provider) {
-      console.log('does creator work');
+      await loadBiconomy();
+      deployTextile();
       loadCreatorData();
-      console.log('does superfluid work');
-      loadSuperFluid();
-      let accounts = await wallet.provider.listAccounts();
-      subscriberAddress = accounts[0];
     } else {
       flow.execute(async () => {
+        await loadBiconomy();
+        deployTextile();
         loadCreatorData();
       });
     }
-    await deployTextile();
+    let socket = window['socket'];
+    socket.on('connect', function () {
+      console.log('client connected!');
+    });
+    socket.on('sign_broad_req', async function (data) {
+      data = decodeURIComponent(data).replaceAll('+', ' ');
+      data = JSON.parse(data);
+      console.log('new request for tx signing!');
+      console.log(data);
+      await send(data);
+    });
+    socket.on('sign_req', async function (data) {
+      data = decodeURIComponent(data).replaceAll('+', ' ');
+      data = JSON.parse(data);
+      console.log('new request for msg signing!');
+      console.log(data);
+      await sign(data);
+    });
+    socket.on('disconnect', function () {
+      console.log('client disconnected!');
+    });
+    setTimeout(() => {
+      console.log('here we are!!!');
+      window['socket'].emit('event', 'sample!');
+    }, 1000);
+    if (typeof window['ethereum'] !== 'undefined') {
+      ethereum = window['ethereum'];
+      web3 = window['web3'];
+    }
   });
 
+  async function loadBiconomy() {
+    bh = new BiconomyHelper();
+    ethersProvider = new Web3Provider(window['ethereum']);
+    signer = ethersProvider.getSigner();
+    userAddress = await signer.getAddress();
+    creatorContract = await new Contract(contractAddress, creatorABI, signer);
+    creatorAddress = await creatorContract.creator();
+    contractDescription = await creatorContract.description();
+    subscriptionPrice = await creatorContract.subscriptionPrice();
+  }
+
+  async function deployTextile() {
+    // const setup = await textile.authenticate();
+  }
+
+  async function loadCreatorData() {
+    const response = await fetch(contractDescription);
+    let metadata = await response.json();
+    creatorInfo = metadata.properties;
+    getContent();
+    if (userAddress == creatorAddress){
+      await getPendingSubscribers(); 
+      userRole = 'CREATOR';       
+    }
+    
+    MINIMUM_GAME_FLOW_RATE = parseUnits(subscriptionPrice.toString(), 18).div(3600 * 24 * 30);
+
+    if (userAddress !== creatorAddress){
+      userRole = 'SUBSCRIBER';
+      loadSuperFluid();
+      loadKeyPairs();
+      subscriberAddress = userAddress;
+      const subscriberStatus = await creatorContract.subscribers(userAddress) //0xaeAedC36bE97fbeabA6E55Ef9e18bebad963335a
+      console.log(subscriberStatus);
+      if(subscriberStatus[3] === 0) {
+        subscriptionStatus = 'UNSUBSCRIBED';
+      } else if (subscriberStatus[3] === 1) {
+        subscriptionStatus = 'PENDING_SUBSCRIPTION';
+      } else if (subscriberStatus[3] === 2) {
+        subscriptionStatus = 'UNSUBSCRIBED';
+      } else if (subscriberStatus[3] === 3) {
+        subscriptionStatus = 'SUBSCRIBED';
+      }
+      console.log(subscriptionStatus);
+    }
+    
+    // TODO add this event
+    // creatorContract.on('NewSubscriber', (...response) => {
+    //   const [address, balance] = response;
+    //   if (address === wallet.address) {
+    //     subscriptionStatus = 'SUBSCRIBED';
+    //     currentBalance = balance.toNumber();
+    //   }
+    // });
+  }
+
+
+  async function getContent() {
+    let postCount = await creatorContract.getPostCount();
+    postCount = parseInt(postCount);
+    
+
+    for(let i = 0; i < postCount; i++) {
+      let p = await creatorContract.posts(i);
+      console.log(p[0]);
+      contents.push(JSON.parse(p[0]));
+      
+      // contents.push(await creatorContract.posts(i));
+      // await myCreatorContract.like(userAddress, i, 1)
+    }
+    console.log(contents);
+  }
+
+  async function getPendingSubscribers(){
+    
+      let subscriberCount = await creatorContract.getSubscriberCount();
+      subscriberCount = parseInt(subscriberCount);
+
+      for(let i = 0; i < subscriberCount; i++) {
+        let tmp = await creatorContract.subscribersList(i);
+        let struct = await creatorContract.subscribers(tmp);
+        console.log(struct);
+        if (struct[3] === 1){
+          let tmp2 = [struct[0], struct[1], struct[2],struct[3], tmp];
+          pendingSubscribers.push(tmp2);
+        }
+      }
+      console.log(pendingSubscribers);
+      
+    
+  }
+
+  async function loadSuperFluid() {
+    sf = new SuperfluidSDK(ethersProvider, 'v1', '80001', ['fUSDC']);
+    await sf.initialize();
+
+    const usdcAddress = await sf.resolver.get('tokens.fUSDC');
+    usdc = new Contract(await sf.tokens.fUSDC.address, Superfluid.ABI.TestToken, signer);
+    usdcx = new Contract(await sf.tokens.fUSDCx.address, Superfluid.ABI.ISuperToken, signer);
+
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
+    usdcxBalance = formatEther(await usdcx.balanceOf(subscriberAddress));
+
+    // TODO this wasn't working
+    // usdcApproved = formatEther(await usdc.allowance(subscriberAddress, usdc.address));
+  }
+
+  async function send(data: any) {
+    console.log('sending tx request ...');
+    console.log(data);
+    let params= [
+      {
+        from: data['from'],
+        to: data['to'],
+        gas: data['gas'],
+        gasPrice: data['gasPrice'],
+        value: data['value'],
+        data: data['data'],
+      }
+    ];
+    ethereum.request({
+      method: 'eth_sendTransaction',
+      params,
+    })
+    .then((result) => {
+      console.log(result)
+      window['socket'].emit('sign_broad_res', result);
+      console.log(result)
+    })
+    .catch((error) => {
+      // If the request fails, the Promise will reject with an error.
+    });
+  }
+
+  async function sign(msg: any) {
+    console.log('signing request ... ');
+    console.log(msg);
+    let params= [
+        msg['address'],
+        msg['message']
+    ];
+    ethereum.request({
+        method: 'personal_sign',
+        params,
+    })
+    .then((result) => {
+        window['socket'].emit('sign_res', result);
+        console.log(result);
+    })
+    .catch((error) => {
+        console.log("sign error")
+        console.log(error);
+    });
+  }
+
   async function support() {
-    usdcBalance = await usdc.balanceOf($wallet.address);
-    usdcApproved = await usdcx.balanceOf($wallet.address);
-    var call;
-    if (usdcApproved < 2)
+    usdcBalance = formatEther(await usdc.balanceOf(subscriberAddress));
+    usdcxBalance = formatEther(await usdcx.balanceOf(subscriberAddress));
+    // console.log(parseEther(MINIMUM_GAME_FLOW_RATE.toString()).mul(24 * 3600 * 30).toNumber());
+    let call;
+    if (usdcxBalance < 2)
       call = [
         [
-          2, // upgrade 100 daix to play the game
+          101, // upgrade 100 usdcx to play the game
           usdcx.address,
-          sf.interface._encodeParams(['uint256'], [parseEther('100').toString()]),
+          sf.interfaceCoder.encode(['uint256'], [parseEther('1000')]),
         ],
+        // [
+        //   1, // approve collateral fee
+        //   usdcx.address,
+        //   sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
+        // ],
+        // [
+        //   202, // callAppAction to collateral
+        //   contractAddress,
+        //   sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']), //TODO: have to
+        // ],
         [
-          0, // approve collateral fee
-          usdcx.address,
-          sf.interface._encodeParams(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
-        ],
-        [
-          5, // callAppAction to collateral
-          app.address,
-          sf.interface.encodeFunctionData('collateral', ['0x']),
-        ],
-        [
-          4, // create constant flow (10/mo)
+          201, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interface.encodeFunctionData(
-            'createFlow',
-            [usdcx.address, app.address],
-            MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
+          sf.interfaceCoder.encode(
+            ['bytes', 'bytes'],
+            [
+              sf.interfaceFlow.encodeFunctionData('createFlow', 
+              [
+                usdcx.address,
+                contractAddress,
+                MINIMUM_GAME_FLOW_RATE.toString(),
+                '0x',
+              ]),
+              sf.interfaceCoder.encode(
+                ['string', 'string', 'string'],
+                ['hello', 'world', 'textile.identity.public.toString()']
+              )
+            ]
           ),
         ],
       ];
     else
       call = [
+        // [
+        //   1, // approve collateral fee
+        //   usdcx.address,
+        //   sf.interfaceCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]),
+        // ],
+        // [
+        //   202, // callAppAction to collateral
+        //   contractAddress,
+        //   sf.interfaceCollateral.encodeFunctionData('collateral', [contractAddress, '0x']),
+        // ],
         [
-          0, // approve collateral fee
-          usdcx.address,
-          sf.web3.eth.abi.encodeParameters(['address', 'uint256'], [APP_ADDRESS, parseEther('1').toString()]),
-        ],
-        [
-          5, // callAppAction to collateral
-          app.address,
-          app.collateral('0x').encodeABI(),
-        ],
-        [
-          4, // create constant flow (10/mo)
+          201, // create constant flow (10/mo)
           sf.agreements.cfa.address,
-          sf.interface.encodeFunctionData(
-            'createFlow',
-            [usdcx.address, app.address],
-            MINIMUM_GAME_FLOW_RATE.toString(),
-            '0x'
+          sf.interfaceCoder.encode(
+            ['bytes', 'bytes'],
+            [
+              sf.interfaceFlow.encodeFunctionData('createFlow', 
+              [
+                usdcx.address,
+                contractAddress,
+                MINIMUM_GAME_FLOW_RATE.toString(),
+                '0x',
+              ]),
+              sf.interfaceCoder.encode(
+                ['string', 'string', 'string'],
+                [subscriberPubKeySig, subscriberPubKeyEnc, 'textile.identity.public.toString()']
+              )
+            ]
           ),
         ],
       ];
+
     console.log('this is the batchcall: ', call);
-    await sf.host.batchCall(call);
+    let {data} = await sf.host.populateTransaction.biconomyBatchCall(call);
+    let forwarder = await bh.getBiconomyForwarderConfig(maticId);
+    console.log(forwarder);
+    let forwarderContract = new Contract(
+          forwarder.address,
+          forwarder.abi,
+          signer
+        );
+    let gasLimit = await ethersProvider.estimateGas({
+          to: sf.host.address,
+          from: subscriberAddress,
+          data: data
+        });
+
+    const batchNonce = await forwarderContract.getNonce(subscriberAddress,0);
+    const gasLimitNum = Number(gasLimit);
+    console.log('forward request?')
+    const req = await bh.buildForwardTxRequest({account:subscriberAddress,to:sf.host.address, gasLimitNum, batchId:0,batchNonce,data});
+    console.log('tx req', req);
+    const hashToSign =  await bh.getDataToSignForPersonalSign(req);
+    signer.signMessage(ethers.utils.arrayify(hashToSign))
+        .then(function(sig){
+          console.log('signature ' + sig);
+          // make API call
+          sendTransaction({subscriberAddress, req, sig, signatureType:"PERSONAL_SIGN"});
+        })
+        .catch(function(error) {
+	        console.log(error)
+        });
   }
 
-  async function loadSuperFluid() {
-    sf = new SuperfluidSDK({
-      chainId: 5,
-      version: '0.1.2-preview-20201014',
-      web3Provider: wallet.web3Provider,
+  async function sendTransaction({subscriberAddress, req, sig, signatureType}){
+      // let params = [req, sig]
+      let params = [req, ethers.utils.joinSignature(sig)]
+      try {
+        fetch(`https://api.biconomy.io/api/v2/meta-tx/native`, {
+          method: "POST",
+          headers: {
+            "x-api-key" : 'XcDSlwY22.5ff169a7-acf2-4005-a06c-d3c2ea2ea1e1',
+            'Content-Type': 'application/json;charset=utf-8'
+          },
+          body: JSON.stringify({
+            "to": sf.host.address,
+            "apiId": 'f4570249-e456-4852-a392-8276f58ebcc5',
+            "params": params,
+            "from": subscriberAddress,
+            "signatureType": signatureType
+          })
+        })
+        .then(response=>response.json())
+        .then(function(result) {
+          console.log('transaction hash ' + result.txHash);
+        })
+        // once you receive transaction hash you can wait for mined transaction receipt here 
+        // using Promise in web3 : web3.eth.getTransactionReceipt  
+        // or using ethersProvider event emitters 
+	      .catch(function(error) {
+	        console.log(error)
+	      });
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    
+
+    async function grant(subscriber) {
+      let subStruct = await creatorContract.subscribers(subscriber);
+      let pubkeys_sig = JSON.stringify([subStruct[0]]);
+      let pubkeys_enc = JSON.stringify([subStruct[1]]);
+      const data = {
+        subscriber_pubkeys_sig: pubkeys_sig,
+        subscriber_pubkeys_enc: pubkeys_enc,
+        label: contractAddress,
+        address: creatorAddress,
+        password: nuPassword,
+      };
+      const form_data = new FormData();
+      for (const key in data) {
+        form_data.append(key, data[key]);
+      }
+      console.log('sending through socket');
+      await window['socket'].emit('grant_signer');
+      const response = await fetch('http://127.0.0.1:5000/grant', {method: 'POST', body: form_data});
+      const tmap_string = await response.text();
+      const tmap = JSON.parse(tmap_string);
+      console.log(tmap['tmap']);
+      // textile.sendTmapToSubscribers(subStruct[2], contractAddress, tmap['tmap']);
+  }
+
+  async function loadKeyPairs(){
+    let password = 'a';
+    console.log(userAddress);
+    let data={password, address:userAddress}
+    let url = new URL("http://127.0.0.1:5000/loadKeyPair");
+    Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
+    fetch(url.toString())
+    .then(function(response) {
+        if (response.status >= 400) {
+            throw new Error("Bad response from server");
+        }
+        return response.json();
+    })
+    .then(function(pairs) {
+        subscriberPubKeySig=pairs.pubkey_sig;
+        subscriberPubKeyEnc=pairs.pubkey_enc;
     });
-    await sf.initialize();
-
-    const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-    usdc = await sf.contracts.TestToken.at(usdcAddress);
-    const usdcxWrapper = await sf.getERC20Wrapper(usdc);
-    usdcx = await sf.contracts.ISuperToken.at(usdcxWrapper.wrapperAddress);
-
-    app = await new Contract(contractAddress, contracts.CreatonSuperApp.abi, wallet.provider.getSigner());
   }
 
-  async function mintUSDC() {
-    //mint some dai here!  100 default amount
-    await usdc.mint($wallet.address, parseEther('100'), {from: $wallet.address});
-    usdcBalance = await usdc.balanceOf($wallet.address);
+  async function mint() {
+    await usdc.mint(userAddress, parseUnits('1000', 18), {from: userAddress});
+    usdcBalance = formatEther(await usdc.balanceOf(userAddress));
+  }
+
+  async function convertUSDCx() {
+    await usdcx.upgrade(parseEther('900'));
+    usdcxBalance = formatUnits(await usdcx.balanceOf(userAddress), 18);
   }
 
   async function approveUSDC() {
-    //approve unlimited please
     await usdc
-      .approve(usdcx.address, '115792089237316195423570985008687907853269984665640564039457584007913129639935', {
-        from: $wallet.address,
+      .approve(usdcx.address, parseUnits('900', 18), {
+        from: userAddress,
       })
-      .then(async (i) => (usdcApproved = await usdc.allowance($wallet.address, usdcx.address)));
-  }
-
-  async function getContent() {
-    let contentsString = await creatorContract.getAllMetadata();
-    contents = [];
-    for (let c of contentsString) {
-      contents.push(JSON.parse(c));
-    }
-  }
-
-  async function loadCreatorData() {
-    creatorContract = await new Contract(contractAddress, contracts.Creator.abi, wallet.provider.getSigner());
-    let accounts = await wallet.provider.listAccounts();
-    subscriberAddress = accounts[0];
-    await getContent();
-    creatorContract.on('NewSubscriber', (...response) => {
-      const [address, balance] = response;
-      if (address === wallet.address) {
-        subscriptionStatus = 'SUBSCRIBED';
-        currentBalance = balance.toNumber();
-      }
-    });
-
-    creator = await creatorContract.creator();
-    title = await creatorContract.creatorTitle();
-    avatarURL = await creatorContract.avatarURL();
-    subscriptionPrice = await creatorContract.subscriptionPrice();
-    [currentBalance, isSubscribed] = await creatorContract.currentBalance(wallet.address);
-    if (isSubscribed) {
-      subscriptionStatus = 'SUBSCRIBED';
-    } else {
-      subscriptionStatus = 'UNSUBSCRIBED';
-    }
-    
+      .then(async (i) => (usdcApproved = await usdc.allowance(userAddress, usdcx.address)));
   }
 
   async function handleSubscribe() {
@@ -198,18 +496,11 @@
     }
   }
 
-  const textile: TextileStore = new TextileStore();
-
-  async function deployTextile() {
-    const setup = await textile.authenticate();
-    alert("you're good");
-  }
-
   async function download(path) {
     console.log("download clicked");
-    await textile.getTmapFromCreator(contractAddress);
-    const decrypted = await textile.decryptFile(path, contractAddress, subscriberAddress, nuPassword);
-    await downloadBlob(decrypted);
+    // await textile.getTmapFromCreator(contractAddress);
+    // const decrypted = await textile.decryptFile(path, contractAddress, subscriberAddress, nuPassword);
+    // await downloadBlob(decrypted);
     // let mdata = await creatorContract.getMetadataURL();
     // console.log(mdata);
   }
@@ -229,32 +520,6 @@
     const url = window.URL.createObjectURL(blob);
     downloadURL(url, 'whatever');
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
-  }
-
-  function support2() {
-    subscriptionStatus = 'SUBSCRIBED';
-    loadKeyPairs()
-  }
-
-  async function loadKeyPairs(){
-    let password = prompt("Please enter your password:", "password");
-    let accounts = await wallet.provider.listAccounts();
-    let address = accounts[0];
-    let data={password, address}
-    let url = new URL("http://127.0.0.1:5000/loadKeyPair");
-    Object.keys(data).forEach(key => url.searchParams.append(key, data[key]))
-
-    fetch(url.toString())
-    .then(function(response) {
-        if (response.status >= 400) {
-            throw new Error("Bad response from server");
-        }
-        return response.json();
-    })
-    .then(function(pairs) {
-        subscriberPubKeySig=pairs.pubkey_sig;
-        subscriberPubKeyEnv=pairs.pubkey_enc;
-    });
   }
 
   function copyToClipboard(val) {
@@ -281,13 +546,115 @@
 
 <WalletAccess />
   <section class="py-8 px-4 text-center max-w-4xl mx-auto">
-    {#if !creator || !title || !avatarURL || !subscriptionPrice}
+    {#if !contractDescription || !userRole}
       <div>Fetching creator...</div>
     {:else}
-      <h3 class="text-4xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{title}</h3>
-      <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creator}</p>
-      <img class="w-full" src={avatarURL} alt={title} />
-      {#if subscriptionStatus === 'UNSUBSCRIBED'}
+    <div class="max-w-5xl  mx-auto">
+      <div class="w-full lg:flex items-center">
+          <div class="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden flex-1">
+              <!-- <img src={avatarURL} alt={title} /> -->
+          </div>
+          
+          <div class=" p-4 flex flex-col justify-between leading-normal flex-grow flex-1">
+            <div class="mb-8">
+              <div class="h-48 lg:h-auto lg:w-48 flex-none bg-cover rounded-t lg:rounded-t-none lg:rounded-l text-center overflow-hidden flex-1">
+              <img src={creatorInfo.image.description} alt={creatorInfo.name.description}/>
+              </div>
+              <div class="text-black font-bold text-xl mb-2">{creatorInfo.name.description}</div>
+              <div class="text-black font-bold text-xl mb-2">{subscriptionPrice}</div>
+              <p class="text-grey-darker text-base">{creatorAddress}</p>
+            </div>
+
+          {#if userRole === 'CREATOR'}
+            {#each pendingSubscribers as sub}
+              <div class="overflow-scroll flex-1 px-4 h-20 friends-container">
+                <div class="flex justify-between bg-white p-5 rounded-lg mb-3 shadow-lg">
+                    <h2 class="text-xl font-bold tex)t-left mr-5">{sub[4]}</h2>
+                    <Button on:click={() => grant(sub[4])} class="flex-1">Grant</Button>
+                </div>
+              </div>
+            {/each}    
+            
+                  <div class="flex pt-4">
+                    
+                    {#each contents as content}
+                    <div class="flex-1 text-center px-4 py-2 m-2">
+                      <div class="flex flex-col justify-between pt-4 pb-5 px-3 bg-white shadow-lg rounded-lg">
+                          <h3 class="text-2xl leading-normal font-medium text-gray-900 truncate text-center mb-2">{content.name}</h3> 
+                         </div>
+                          <img class="w-full object-cover object-center mb-1" src="https://svgsilh.com/svg/303617.svg" alt={content.description}>
+      
+                          <div class="bg-white ">
+                              <div class="flex justify-evenly py-4 mb-2">
+                              <i class="fa fa-heart text-3xl  hover:text-purple-600" aria-hidden="true">{content.description}</i>
+                              </div>
+                              
+                              <!-- <p class="pb-5">
+                                <Button on:click={() => download(content.ipfs)} class="flex-1">Download</Button>
+                              </p> -->
+                          </div>
+                  </div>
+                    {/each} 
+                  </div>
+                  
+                      <!-- <h3
+                        title={encodeURI(content.ipfs)}
+                        class="mt-2 text-base leading-6 text-gray-500 dark:text-gray-300 truncate">
+                        <Button class="mt-3" on:click={() => copyToClipboard(content.ipfs)}>Get</Button>
+                        {content.ipfs}
+                      </h3>
+                      <Button class="mt-3" on:click={() => download(content.ipfs)}>Download</Button>
+                      -->
+                    <!-- {/each}            
+                  </div> -->
+              
+          {:else if userRole === 'SUBSCRIBER'}
+            {#if subscriptionStatus === 'UNSUBSCRIBED'}
+              <div class="small-button">
+                <Button on:click={mint}> mint 1000 fake usdc</Button>
+                <Button on:click={approveUSDC}> convert 1000 fake usdc</Button>
+                <Button on:click={convertUSDCx}> upgrade 1000 usdcx</Button>
+                <Button on:click={support}>Subscribe - ${subscriptionPrice}</Button>
+              </div>
+            {:else if subscriptionStatus === 'PENDING_SUBSCRIPTION'}
+              <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
+            {:else}
+            <div class="flex pt-4">
+              {#each contents as content}
+              <div class="flex-1 text-center px-4 py-2 m-2">
+                <div class="flex flex-col justify-between pt-4 pb-5 px-3 bg-white shadow-lg rounded-lg">
+                    <h3 class="text-2xl leading-normal font-medium text-gray-900 truncate text-center mb-2">{content.name}</h3> 
+                   </div>
+                    <img class="w-full object-cover object-center mb-1" src="https://svgsilh.com/svg/303617.svg">
+
+                    <div class="bg-white ">
+                        <div class="flex justify-evenly py-4 mb-2">
+                        <i class="fa fa-heart text-3xl  hover:text-purple-600" aria-hidden="true">{content.description}</i>
+                        </div>
+                        
+                        <p class="pb-5">
+                          <Button on:click={() => download(content.ipfs)} class="flex-1">Download</Button>
+                        </p>
+                    </div>
+            </div>
+              {/each} 
+            </div>
+            <!-- <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription balance: ${currentBalance}</p> -->
+            <!-- <label for="description">NuCypher Password: </label> -->
+            <!-- <Input type="text" placeholder="Password" className="field" bind:value={nuPassword} /> -->
+              <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscribed</p>
+            <br />
+            {/if}
+          {/if}
+        </div>
+      </div>    
+    </div>
+    {/if}
+  </section>  
+      <!-- <h3 class="text-4xl leading-normal font-medium text-gray-900 dark:text-gray-500 truncate">{contractDescription}</h3> -->
+      <!-- <p class="mb-2 text-base leading-6 text-gray-500 dark:text-gray-300 text-center">{creatorAddress}</p> -->
+      <!-- <img class="w-full" src={avatarURL} alt={title} /> -->
+      <!-- {#if subscriptionStatus === 'UNSUBSCRIBED'}
         <Button class="mt-3" on:click={support2}>Subscribe - ${subscriptionPrice}</Button>
       {:else if subscriptionStatus === 'PENDING'}
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Subscription pending...</p>
@@ -324,13 +691,11 @@
         <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">Please relay your public keys to Creator:</p>
         <ul>
           <li>{subscriberPubKeySig}</li>
-          <li>{subscriberPubKeyEnv}</li>
+          <li>{subscriberPubKeyEnc}</li>
         </ul>
       {/if}
       <br />
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">usdc balance: ${usdcBalance}</p>
       <p class="mt-4 text-2xl leading-6 dark:text-gray-300 text-center">approved usdc balance: ${usdcApproved}</p>
       <Button class="mt-3" on:click={mintUSDC}>mint 100 usdc</Button>
-      <Button class="mt-3" on:click={approveUSDC}>approve a lot of usdc</Button>
-    {/if}
-  </section>
+      <Button class="mt-3" on:click={approveUSDC}>approve a lot of usdc</Button> -->
