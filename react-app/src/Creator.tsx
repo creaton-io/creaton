@@ -5,17 +5,26 @@ import {Web3Provider} from "@ethersproject/providers";
 import {NuCypherSocketContext} from "./Socket";
 import {EncryptedObject, TextileStore} from "./stores/textileStore";
 import {NuCypher} from "./NuCypher";
+import {gql, useQuery} from "@apollo/client";
 interface params{
   id: string;
 }
 export function Creator() {
   let { id } = useParams<params>();
   const creatorContractAddress = id
-  function getContents(){
-    //this should be replaced by a graph query
-    return ['/ipfs/bafkreif5cq7y7uk2fpl2r7vrms72no5svh7yy4wgivjjgn2bdo4munewhe','/ipfs/bafybeibkelvgjzum7zo5t3kmehsxkxhjcfi2dbkgbrpp72526ho5iq3jaa']
-  }
-  const contents = getContents()
+
+  const CONTENTS_QUERY = gql`
+      query GET_CONTENTS($user: Bytes!) {
+      contents(where: { creatorContract: $user }) {
+        name
+        type
+        description
+        date
+        ipfs
+      }
+    }
+    `;
+
   const [textile, _] = useState(new TextileStore())
   useEffect(()=>{
     textile.authenticate().then(function(){
@@ -24,6 +33,7 @@ export function Creator() {
   },[textile])
   const [subscription, setSubscription] = useState('not subscribed') // should be '',pending,accepted
   const context = useWeb3React<Web3Provider>()
+  const {loading, error, data} = useQuery(CONTENTS_QUERY,{variables: {user: creatorContractAddress}});
   const socket = useContext(NuCypherSocketContext);
   const [keyPair, setKeyPair] = useState({})
   function downloadURL(data, fileName) {
@@ -69,6 +79,13 @@ export function Creator() {
     const decrypted = textile.base64ToArrayBuffer(data['decrypted_content']);
     await downloadBlob(decrypted);
   }
+  if(loading){
+    return(<div>Loading</div>)
+  }
+  if(error){
+    return(<div>Error</div>)
+  }
+  const contents = data.contents;
   return (
     <div>
       <h3>ID: {id}</h3>
@@ -79,7 +96,7 @@ export function Creator() {
             subscribe()
           }}>Subscribe</button>
       {
-        contents.map((x)=><h3 key={x}>{x}: <button onClick={()=>{download(x)}}>Download</button></h3>)
+        contents.map((x)=><h3 key={x.ipfs}>{x.description}: <button onClick={()=>{download(x)}}>Download</button></h3>)
       }
     </div>
   );

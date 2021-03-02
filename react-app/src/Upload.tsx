@@ -6,7 +6,7 @@ import {Field, Form, Formik, FormikHelpers} from "formik";
 import {NuCypherSocketContext} from "./Socket";
 import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
-import contracts from "./contracts.json";
+import CreatorContract from "./Creator.json";
 import {NuCypher} from "./NuCypher";
 
 
@@ -41,17 +41,16 @@ const Upload = () => {
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
     return (<div>Please signup first. You are not a creator yet.</div>)
-  const creatorContract = new Contract(currentCreator.creatorContract, contracts.contracts.Creator.abi).connect(context.library!.getSigner())
+  const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
 
   async function upload(file: File, contractAddress: string, creatorAddress: string) {
     const buf = await file.arrayBuffer();
     const b64File = textile.arrayBufferToBase64(buf);
     const nucypher = new NuCypher(socket!)
-    const encryptedObject = nucypher.encrypt(b64File, contractAddress, utils.getAddress(creatorAddress))
-    console.log(currentUpload.file)
-    encryptedObject['type'] = currentUpload.type
+    const encryptedObject = await nucypher.encrypt(b64File, contractAddress, utils.getAddress(creatorAddress))
+    encryptedObject['type'] = file.type
     const buffer = Buffer.from(JSON.stringify(encryptedObject))
-    textile.pushFile(currentUpload.file, buffer).then(async function (encFile) {
+    textile.pushFile(file, buffer).then(async function (encFile) {
       const metadata = {
         name: encFile.name,
         type: encFile.type,
@@ -60,7 +59,7 @@ const Upload = () => {
         ipfs: encFile.ipfsPath,
       };
       console.log(metadata.ipfs);
-      const receipt = await creatorContract.setMetadataURL(JSON.stringify(metadata));
+      const receipt = await creatorContract.upload(JSON.stringify(metadata));
       console.log(receipt);
     })
   }

@@ -8,9 +8,8 @@ const CREATORS_QUERY = gql`
     id
     user
     creatorContract
-    title
+    description
     subscriptionPrice
-    avatarURL
     timestamp
   }
 }
@@ -20,15 +19,11 @@ function Home() {
   const {loading, error, data} = useQuery(CREATORS_QUERY);
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
-  const myStyles: CSSProperties = {
-    width: '20px',
-  }
   return (<div>
     {data.creators.map((creator: any) => (
       <div key={creator.id}>
         <p>
-          <img src={creator.avatarURL} style={myStyles}/><Link
-          to={"/creator/" + creator.creatorContract}>{creator.title} with price {creator.subscriptionPrice}</Link>
+          <Link to={"/creator/" + creator.creatorContract}>{creator.description} with price {creator.subscriptionPrice}</Link>
         </p>
       </div>
     ))}</div>);

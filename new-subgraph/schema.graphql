@@ -2,9 +2,8 @@ type Creator @entity {
   id: ID!
   user: Bytes!
   creatorContract: Bytes!
-  title: String!
+  description: String!
   subscriptionPrice: BigInt!
-  avatarURL: String!
   timestamp: BigInt!
   subscribers: [Subscriber!]! @derivedFrom(field: "creator")
 }
@@ -13,12 +12,14 @@ type Subscriber @entity {
   id: ID!
   creator: Creator!
   user: Bytes!
-  amount: BigInt!
+  sig_key: String!
+  pub_key: String!
 }
 
 type Content @entity {
   id: ID!
   creator: Creator!
+  creatorContract: Bytes!
   name: String!
   type: String!
   description: String!
