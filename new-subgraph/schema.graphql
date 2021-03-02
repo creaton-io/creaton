@@ -11,9 +11,11 @@ type Creator @entity {
 type Subscriber @entity {
   id: ID!
   creator: Creator!
+  creatorContract: Bytes!
   user: Bytes!
   sig_key: String!
   pub_key: String!
+  status: String!
 }
 
 type Content @entity {

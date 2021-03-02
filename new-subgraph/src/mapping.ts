@@ -31,11 +31,22 @@ export function handleSubscriberEvent(event: SubscriberEvent): void {
   let id = context.getString('user');
   let creator = Creator.load(id);
   let subscriber_user = event.params.user;
-  let subscriber = new Subscriber(subscriber_user.toHex() + id);
-  subscriber.creator = creator.id;
-  subscriber.user = subscriber_user;
-  subscriber.sig_key = event.params.sigKey;
-  subscriber.pub_key = event.params.pubKey;
+  let subscriber_id = subscriber_user.toHex() + id;
+  let subscriber = Subscriber.load(subscriber_id);
+  if (!subscriber) {
+    subscriber = new Subscriber(subscriber_id);
+    subscriber.creator = creator.id;
+    subscriber.user = subscriber_user;
+    subscriber.sig_key = event.params.sigKey;
+    subscriber.pub_key = event.params.pubKey;
+    subscriber.creatorContract = context.getBytes('contract');
+  }
+  let status = 'undefined';
+  if (event.params.status == 0) status = 'unsubscribed';
+  if (event.params.status == 1) status = 'pending_subscribe';
+  if (event.params.status == 2) status = 'pending_unsubscribe';
+  if (event.params.status == 3) status = 'subscribed';
+  subscriber.status = status;
   subscriber.save();
 }
 
