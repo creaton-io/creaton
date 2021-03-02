@@ -40,8 +40,8 @@ contract Creator is SuperAppBase {
     enum Approval { neutral, like, dislike }
 
     event SubscriberEvent(address user, string sigKey, string pubKey, Status status);
-    event Like(address user, Approval approval);
-    event NewPost(string metadataURL);
+    event Like(address user, uint index, Approval approval);
+    event NewPost(string metadataURL, uint index);
 
     struct Subscriber {
         Status status;
@@ -49,16 +49,11 @@ contract Creator is SuperAppBase {
 
     struct Post {
         string metadataURL;
-        uint totalLikes;
-        uint totalDislikes;
-        address[] votees;
     }
 
     // -----------------------------------------
     // Storage
     // -----------------------------------------
-
-    address[] emptyVoteArrray;
 
     ISuperfluid private _host; // host
     IConstantFlowAgreementV1 private _cfa; // the stored constant flow agreement class address
@@ -154,8 +149,8 @@ contract Creator is SuperAppBase {
     }
 
     function upload(string memory _metadataURL) external {
-        posts.push(Post(_metadataURL, 0, 0, emptyVoteArrray));
-        emit NewPost(_metadataURL);
+        posts.push(Post(_metadataURL));
+        emit NewPost(_metadataURL, posts.length - 1);
     }
 
     function getPostCount() public view returns (uint) {
@@ -166,21 +161,12 @@ contract Creator is SuperAppBase {
         return subscriberCount;
     }
 
-    function hasLiked(address _address, uint _index) public view returns(bool) {
-        for(uint i = 0; i < posts[_index].votees.length; i++) {
-            if(posts[_index].votees[i] == _address) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     function like(uint _index, uint approvalEnum) external {
         address _address = msg.sender;
         require(subscribers[_address].status == Status.subscribed, "Not subscribed");
         require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
         Approval approval = Approval(approvalEnum);
-        emit Like(_address, approval);
+        emit Like(_address, _index, approval);
     }
 
     // -----------------------------------------
