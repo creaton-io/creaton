@@ -96,5 +96,7 @@
     "shell:start": "npm-run-all -l --parallel shell:common shell:web shell:externals --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed",
     "shell:dev": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed shell:web"
   },
-  "dependencies": {}
+  "dependencies": {
+    "twind": "^0.15.7"
+  }
 }

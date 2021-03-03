@@ -1,6 +1,7 @@
 import {gql, useQuery} from "@apollo/client";
 import React, {CSSProperties} from "react";
 import {Link} from "react-router-dom";
+import { tw } from 'twind'
 
 const CREATORS_QUERY = gql`
   query {
