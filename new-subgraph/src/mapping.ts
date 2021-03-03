@@ -52,18 +52,21 @@ export function handleSubscriberEvent(event: SubscriberEvent): void {
 
 export function handleNewPost(event: NewPost): void {
   let context = dataSource.context();
-  log.info('here1', []);
   let creator_id = context.getString('user');
-  log.info('here2', []);
   let json_str = event.params.metadataURL;
-  log.info('here3', []);
   let data: Bytes = <Bytes>Bytes.fromUTF8(json_str);
   let metadata = json.fromBytes(data).toObject();
-  let name = metadata.get('name').toString();
-  let type = metadata.get('type').toString();
-  let description = metadata.get('description').toString();
-  let date = metadata.get('date').toString();
-  let ipfs = metadata.get('ipfs').toString();
+  let name = '';
+  let type = '';
+  let description = '';
+  let date = '';
+  let ipfs = '';
+  if (metadata.isSet('name')) name = metadata.get('name').toString();
+  if (metadata.isSet('type')) type = metadata.get('type').toString();
+  if (metadata.isSet('description')) description = metadata.get('description').toString();
+  if (metadata.isSet('date')) date = metadata.get('date').toString();
+  if (metadata.isSet('ipfs')) ipfs = metadata.get('ipfs').toString();
+  if (ipfs === '') return;
   let entity = Content.load(ipfs);
   if (!entity) {
     entity = new Content(ipfs);
