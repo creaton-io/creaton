@@ -18,7 +18,6 @@ interface Values {
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
-  const [currentUpload, setCurrentUpload] = useState<any>({})
   const [textile, _] = useState(new TextileStore())
   useEffect(() => {
     textile.authenticate().then(function () {
@@ -43,7 +42,7 @@ const Upload = () => {
     return (<div>Please signup first. You are not a creator yet.</div>)
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
 
-  async function upload(file: File, contractAddress: string, creatorAddress: string) {
+  async function upload(file: File, description: string, contractAddress: string, creatorAddress: string) {
     const buf = await file.arrayBuffer();
     const b64File = textile.arrayBufferToBase64(buf);
     const nucypher = new NuCypher(socket!)
@@ -54,7 +53,7 @@ const Upload = () => {
       const metadata = {
         name: encFile.name,
         type: encFile.type,
-        description: currentUpload.description,
+        description: description,
         date: encFile.date,
         ipfs: encFile.ipfsPath,
       };
@@ -78,9 +77,7 @@ const Upload = () => {
           {setSubmitting}: FormikHelpers<Values>
         ) => {
           if (currentFile !== undefined) {
-            //encrypt via nucypher first
-            setCurrentUpload({description: values.description, file: currentFile})
-            upload(currentFile, currentCreator.creatorContract, currentCreator.user)
+            upload(currentFile, values.description, currentCreator.creatorContract, currentCreator.user)
           }
           console.log(values)
           //TODO error handling on promise
