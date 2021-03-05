@@ -4,18 +4,17 @@ import {Formik, Field, Form, FormikHelpers} from 'formik';
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Contract} from "ethers";
-import contracts from './contracts.json'
+import CreatonAdminContract from './CreatonAdmin.json'
 import {useCurrentCreator} from "./Utils";
 import {useState} from "react";
 
 interface Values {
   creatorName: string;
-  avatarURL: string;
   subscriptionPrice: number;
 }
 
 
-const creatorFactoryContract = new Contract(contracts.contracts.CreatonFactory.address, contracts.contracts.CreatonFactory.abi)
+const creatorFactoryContract = new Contract(CreatonAdminContract.address, CreatonAdminContract.abi)
 const SignUp = () => {
   const context = useWeb3React<Web3Provider>()
   const {currentCreator} = useCurrentCreator()
@@ -30,7 +29,6 @@ const SignUp = () => {
       <Formik
         initialValues={{
           creatorName: '',
-          avatarURL: '',
           subscriptionPrice: 0,
         }}
         onSubmit={(
@@ -40,7 +38,7 @@ const SignUp = () => {
           const {library} = context
           if (library) {
             const connectedContract = creatorFactoryContract.connect(library.getSigner())
-            connectedContract.deployCreator(values.avatarURL, values.creatorName, values.subscriptionPrice)
+            connectedContract.deployCreator(values.creatorName, values.subscriptionPrice)
               .then(function(response){
                 setSignedup(true)
               }).catch(function(error){
@@ -56,9 +54,6 @@ const SignUp = () => {
         <Form>
           <label htmlFor="creatorName">Name</label>
           <Field id="creatorName" name="creatorName" placeholder="John The Creator"/>
-
-          <label htmlFor="avatarURL">Avatar URL</label>
-          <Field id="avatarURL" name="avatarURL" placeholder=""/>
 
           <label htmlFor="subscriptionPrice">Subscription Price</label>
           <Field

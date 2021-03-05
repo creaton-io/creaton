@@ -20,9 +20,8 @@ export function useCurrentCreator() {
     id
     user
     creatorContract
-    title
+    description
     subscriptionPrice
-    avatarURL
     timestamp
   }
 }

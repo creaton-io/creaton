@@ -6,20 +6,20 @@ dataSources:
     name: CreatonFactory
     network: goerli
     source:
-      address: "0x44664E522a9eb437c192c10D7f1588cC59Cc1F90"
+      address: "0xd292d88BAA89B8728d60F168a560E4bd7101E124"
       abi: CreatonFactory
-      startBlock: 3749337
+      startBlock: 4374568
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - CreatorDeployed
+        - Creator
       abis:
         - name: CreatonFactory
           file: ./abis/CreatonFactory.json
       eventHandlers:
-        - event: CreatorDeployed(address,address,string,string,uint256)
+        - event: CreatorDeployed(address,address,string,uint256)
           handler: handleCreatorDeployed
       file: ./src/mapping.ts
 templates:
@@ -33,14 +33,14 @@ templates:
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - CreatorDeployed
+        - Content
+        - Subscriber
       abis:
         - name: Creator
           file: ./abis/Creator.json
       eventHandlers:
-        - event: NewSubscriber(address,uint256)
-          handler: handleNewSubscriber
-      callHandlers:
-        - function: setMetadataURL(string)
-          handler: handleUpload
+        - event: SubscriberEvent(address,string,string,uint8)
+          handler: handleSubscriberEvent
+        - event: NewPost(string,uint256)
+          handler: handleNewPost
       file: ./src/mapping.ts
