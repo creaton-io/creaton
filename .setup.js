@@ -56,7 +56,6 @@ function npmInstall (dir) {
     process.exit(exitCode);
   }
 }
-npmInstall('common-lib');
 npmInstall('contracts');
 npmInstall('subgraph');
 npmInstall('web');

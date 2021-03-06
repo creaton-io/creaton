@@ -20,7 +20,6 @@
     "rimraf": "^3.0.2",
     "rollup-plugin-node-builtins": "^2.1.2",
     "rollup-plugin-node-globals": "^1.4.0",
-    "svelte": "^3.31.1",
     "typescript": "3.9.7",
     "wait-on": "^5.2.1",
     "wighawag_newsh": "0.0.6"
@@ -36,10 +35,6 @@
     "externals:down": "docker-compose down -v",
     "externals": "dotenv -e .env -e contracts/.env -- docker-compose up",
     "shell:externals": "newsh \"npm run externals\"",
-    "// common lib: ensure it is compiled": "",
-    "common:dev": "npm --prefix common-lib run dev",
-    "shell:common": "newsh \"npm run common:dev\"",
-    "common:build": "npm --prefix common-lib run build",
     "// contracts : deploy smart contracts on local ethereum node": "",
     "contracts:test": "npm --prefix contracts test",
     "contracts:clean": "rimraf contracts/deployments/localhost && rimraf web/src/contracts.json",
@@ -95,6 +90,5 @@
     "dev": "npm-run-all -l --parallel shell:common --sequential common:build contracts:clean shell:contracts subgraph:setup shell:subgraph seed",
     "shell:start": "npm-run-all -l --parallel shell:common shell:web shell:externals --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed",
     "shell:dev": "npm-run-all -l --parallel shell:common --sequential common:build subgraph:setup contracts:clean shell:contracts shell:subgraph seed shell:web"
-  },
-  "dependencies": {}
+  }
 }
