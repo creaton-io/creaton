@@ -6,6 +6,8 @@
     "@apollo/client": "^3.3.11",
     "@craco/craco": "^6.1.1",
     "@ethersproject/providers": "^5.0.23",
+    "@superfluid-finance/ethereum-contracts": "^1.0.0-rc.0",
+    "@superfluid-finance/js-sdk": "^0.4.0",
     "@testing-library/jest-dom": "^5.11.9",
     "@testing-library/react": "^11.2.5",
     "@testing-library/user-event": "^12.7.1",
