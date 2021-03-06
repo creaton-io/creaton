@@ -8,13 +8,10 @@ const SuperfluidProvider = (props) => {
   const [superfluid, setSuperfluid] = useState<Framework | null>(null);
   const web3Context = useWeb3React<Web3Provider>()
   async function init() {
-    if(!window['ethereum']){
-      return
-    }
-    let ethersProvider = new Web3Provider(window['ethereum']);
-    console.log(window['ethereum']);
+    if(!web3Context.library)
+      return;
     let sf = new Framework({
-      web3Provider: ethersProvider,
+      ethers: web3Context.library!,
       version: 'v1',
       chainId: 5,
       tokens: ["fUSDC"],
