@@ -1,7 +1,2 @@
-node_modules/
-.env
-generated/
-build/
-subgraph.yaml
-!templates/*
-abis/
+build
+generated
