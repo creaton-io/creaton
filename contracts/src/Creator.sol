@@ -67,7 +67,7 @@ contract Creator is SuperAppBase {
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
     mapping (address => Subscriber) public subscribers;
-    int32 subscriberCount; // subscribers in subscribed/pendingSubscribe state
+    uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     Post[] public posts;
 
     // -----------------------------------------
@@ -157,7 +157,7 @@ contract Creator is SuperAppBase {
         return posts.length;
     }
 
-    function getSubscriberCount() public view returns (int32) {
+    function getSubscriberCount() public view returns (uint256) {
         return subscriberCount;
     }
 
