@@ -17,8 +17,14 @@ import {NuCypherSocketContext, NuCypherSocketProvider} from "./Socket";
 import Grant from "./Grant";
 import {Creator} from "./Creator";
 
+let APOLLO_URI
+if (process.env.NODE_ENV === 'development')
+  APOLLO_URI = 'http://localhost:8000/subgraphs/name/creaton-io/creaton'
+else
+  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton'
+
 const client = new ApolloClient({
-  uri: 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton',
+  uri: APOLLO_URI,
   cache: new InMemoryCache()
 });
 
