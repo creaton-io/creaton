@@ -4,9 +4,11 @@ import {Formik, Field, Form, FormikHelpers} from 'formik';
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Contract} from "ethers";
-import CreatonAdminContract from './CreatonAdmin.json'
+import creaton_contracts from './contracts.json'
 import {useCurrentCreator} from "./Utils";
 import {useState} from "react";
+
+const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
 interface Values {
   creatorName: string;

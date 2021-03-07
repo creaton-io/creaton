@@ -6,10 +6,10 @@ import {Field, Form, Formik, FormikHelpers} from "formik";
 import {NuCypherSocketContext} from "./Socket";
 import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
-import CreatorContract from "./Creator.json";
+import creaton_contracts from './contracts.json'
 import {NuCypher} from "./NuCypher";
 
-
+const CreatorContract = creaton_contracts.Creator
 interface Values {
   file: string;
   description: string;

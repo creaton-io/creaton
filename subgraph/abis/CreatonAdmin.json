@@ -2,34 +2,34 @@
   {
     "inputs": [
       {
-        "internalType": "contract ISuperfluid",
+        "internalType": "address",
         "name": "host",
         "type": "address"
       },
       {
-        "internalType": "contract IConstantFlowAgreementV1",
+        "internalType": "address",
         "name": "cfa",
         "type": "address"
       },
       {
-        "internalType": "contract ISuperToken",
+        "internalType": "address",
         "name": "acceptedToken",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "_treasury",
         "type": "address"
       },
       {
-        "internalType": "string",
-        "name": "_description",
-        "type": "string"
+        "internalType": "int96",
+        "name": "_treasury_fee",
+        "type": "int96"
       },
       {
-        "internalType": "uint256",
-        "name": "_subscriptionPrice",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "_trustedForwarder",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -41,42 +41,29 @@
       {
         "indexed": false,
         "internalType": "address",
-        "name": "user",
+        "name": "creator",
         "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "index",
-        "type": "uint256"
+        "internalType": "address",
+        "name": "creatorContract",
+        "type": "address"
       },
       {
         "indexed": false,
-        "internalType": "enum Creator.Approval",
-        "name": "approval",
-        "type": "uint8"
-      }
-    ],
-    "name": "Like",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "string",
-        "name": "metadataURL",
+        "name": "description",
         "type": "string"
       },
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "index",
+        "name": "subscriptionPrice",
         "type": "uint256"
       }
     ],
-    "name": "NewPost",
+    "name": "CreatorDeployed",
     "type": "event"
   },
   {
@@ -90,64 +77,32 @@
       },
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "sigKey",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "string",
-        "name": "pubKey",
-        "type": "string"
-      },
-      {
-        "indexed": false,
-        "internalType": "enum Creator.Status",
-        "name": "status",
-        "type": "uint8"
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
       }
     ],
-    "name": "SubscriberEvent",
+    "name": "NewSubscriber",
     "type": "event"
   },
   {
+    "anonymous": false,
     "inputs": [
       {
+        "indexed": true,
         "internalType": "address",
-        "name": "_address",
+        "name": "previousOwner",
         "type": "address"
-      }
-    ],
-    "name": "acceptSubscribe",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
+        "indexed": true,
         "internalType": "address",
-        "name": "_address",
+        "name": "newOwner",
         "type": "address"
       }
     ],
-    "name": "acceptUnsubscribe",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "admin",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
+    "name": "OwnershipTransferred",
+    "type": "event"
   },
   {
     "inputs": [
@@ -158,12 +113,12 @@
       },
       {
         "internalType": "address",
-        "name": "agreementClass",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "bytes32",
-        "name": "agreementId",
+        "name": "",
         "type": "bytes32"
       },
       {
@@ -173,12 +128,12 @@
       },
       {
         "internalType": "bytes",
-        "name": "cbdata",
+        "name": "",
         "type": "bytes"
       },
       {
         "internalType": "bytes",
-        "name": "ctx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -186,7 +141,7 @@
     "outputs": [
       {
         "internalType": "bytes",
-        "name": "newCtx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -217,12 +172,12 @@
       },
       {
         "internalType": "bytes",
-        "name": "cbdata",
+        "name": "",
         "type": "bytes"
       },
       {
         "internalType": "bytes",
-        "name": "ctx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -230,7 +185,7 @@
     "outputs": [
       {
         "internalType": "bytes",
-        "name": "newCtx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -246,12 +201,12 @@
       },
       {
         "internalType": "address",
-        "name": "agreementClass",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "bytes32",
-        "name": "agreementId",
+        "name": "",
         "type": "bytes32"
       },
       {
@@ -261,12 +216,12 @@
       },
       {
         "internalType": "bytes",
-        "name": "cbdata",
+        "name": "",
         "type": "bytes"
       },
       {
         "internalType": "bytes",
-        "name": "ctx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -274,7 +229,7 @@
     "outputs": [
       {
         "internalType": "bytes",
-        "name": "newCtx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -285,12 +240,12 @@
     "inputs": [
       {
         "internalType": "contract ISuperToken",
-        "name": "superToken",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "agreementClass",
+        "name": "",
         "type": "address"
       },
       {
@@ -305,7 +260,7 @@
       },
       {
         "internalType": "bytes",
-        "name": "ctx",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -313,7 +268,7 @@
     "outputs": [
       {
         "internalType": "bytes",
-        "name": "cbdata",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -324,12 +279,12 @@
     "inputs": [
       {
         "internalType": "contract ISuperToken",
-        "name": "superToken",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "agreementClass",
+        "name": "",
         "type": "address"
       },
       {
@@ -352,7 +307,7 @@
     "outputs": [
       {
         "internalType": "bytes",
-        "name": "cbdata",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -363,17 +318,17 @@
     "inputs": [
       {
         "internalType": "contract ISuperToken",
-        "name": "superToken",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "agreementClass",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "bytes32",
-        "name": "agreementId",
+        "name": "",
         "type": "bytes32"
       },
       {
@@ -391,7 +346,7 @@
     "outputs": [
       {
         "internalType": "bytes",
-        "name": "cbdata",
+        "name": "",
         "type": "bytes"
       }
     ],
@@ -401,32 +356,67 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_addresses",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
-    "name": "bulkAcceptSubscribe",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "name": "contract2creator",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_addresses",
-        "type": "address[]"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
-    "name": "bulkAcceptUnsubscribe",
+    "name": "creator2contract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "description",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "subscriptionPrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "deployCreator",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "creator",
+    "name": "owner",
     "outputs": [
       {
         "internalType": "address",
@@ -439,118 +429,32 @@
   },
   {
     "inputs": [],
-    "name": "description",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getPostCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "getSubscriberCount",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "_index",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "approvalEnum",
-        "type": "uint256"
-      }
-    ],
-    "name": "like",
+    "name": "renounceOwnership",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "int96",
-        "name": "num",
-        "type": "int96"
-      },
-      {
-        "internalType": "int96",
-        "name": "percent",
-        "type": "int96"
-      }
-    ],
-    "name": "percentage",
-    "outputs": [
-      {
-        "internalType": "int96",
-        "name": "",
-        "type": "int96"
-      }
-    ],
-    "stateMutability": "pure",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "posts",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "metadataURL",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "",
+        "name": "newOwner",
         "type": "address"
       }
     ],
-    "name": "subscribers",
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "treasury",
     "outputs": [
       {
-        "internalType": "enum Creator.Status",
-        "name": "status",
-        "type": "uint8"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -558,7 +462,7 @@
   },
   {
     "inputs": [],
-    "name": "subscriptionPrice",
+    "name": "treasury_fee",
     "outputs": [
       {
         "internalType": "int96",
@@ -570,27 +474,16 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "trustedForwarder",
+    "outputs": [
       {
-        "internalType": "string",
-        "name": "_metadataURL",
-        "type": "string"
+        "internalType": "address",
+        "name": "",
+        "type": "address"
       }
     ],
-    "name": "upload",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "withdrawEth",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "stateMutability": "payable",
-    "type": "receive"
   }
 ]

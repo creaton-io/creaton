@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import re
 from pathlib import Path
 
 from PyInquirer import prompt, Separator
@@ -9,6 +10,66 @@ import os
 
 def run_command(command):
     os.system(command)
+
+
+def update_contracts():
+    BASE_PATH = Path('contracts/deployments')
+    networks = list(os.listdir(BASE_PATH))
+    network = prompt([
+        {
+            'type': 'list',
+            'name': 'network',
+            'message': 'Which network?',
+            'choices': networks
+        },
+    ])['network']
+    creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
+    creator = json.load(open(Path('contracts/artifacts/src/Creator.sol/Creator.json')))
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator}
+    REACT_CONTRACT_PATH = Path('react-app/src/contracts.json')
+    json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
+    print(f'Updated {REACT_CONTRACT_PATH}')
+    update_subgraph(creaton_admin, creator, network)
+
+
+def update_subgraph(creaton_admin, creator, network):
+    SUBGRAPH_ABI_PATH = Path('subgraph/abis')
+    json.dump(creator['abi'], open(SUBGRAPH_ABI_PATH / 'Creator.json', 'w'), indent=2)
+    print(f"Updated {SUBGRAPH_ABI_PATH / 'Creator.json'}")
+    json.dump(creaton_admin['abi'], open(SUBGRAPH_ABI_PATH / 'CreatonAdmin.json', 'w'), indent=2)
+    print(f"Updated {SUBGRAPH_ABI_PATH / 'CreatonAdmin.json'}")
+    converted_lines = []
+    yaml_path = 'subgraph/subgraph.yaml'
+    for line in open(yaml_path).readlines():
+        if 'network:' in line:
+            if network not in line:
+                print(f'Subgraph yaml config is for {line.strip()} but this configuration is for network {network}'
+                      f'Refusing to update the subgraph')
+                return
+        if '#CreatonAdminAddress' in line:
+            # Replacing the address
+            line = re.sub(r'0x[^"]+', creaton_admin['address'], line)
+        converted_lines.append(line)
+    with open(yaml_path, 'w') as f:
+        f.write(''.join(converted_lines))
+    print(f'Updated {yaml_path}')
+
+
+def deploy_contracts():
+    run_command('npm run goerli:contracts')
+    if prompt([
+        {
+            'type': 'list',
+            'name': 'yesno',
+            'message': 'Update the contract addresses in subgraph and react?',
+            'choices': [
+                'Yes please',
+                'No thanks',
+            ]
+        },
+    ])['yesno'] == 'No thanks':
+        return
+    return update_contracts()
 
 
 def main():
@@ -22,12 +83,19 @@ def main():
                 'subgraph',
                 'react-app',
                 Separator(),
+                'deploy contracts',
+                'update contracts',
                 'run subgraph docker',
             ]
         },
     ]
 
     subproject = prompt(question)['subproject']
+    if subproject == 'deploy contracts':
+        return deploy_contracts()
+    if subproject == 'update contracts':
+        return update_contracts()
+
     if subproject == 'run subgraph docker':
         run_command('cd subgraph && docker-compose up')
         return

@@ -21,7 +21,7 @@ services:
       RUST_LOG: info
       RUST_BACKTRACE: full
   ipfs:
-    image: ipfs/go-ipfs
+    image: ipfs/go-ipfs:release
     ports:
       - '5001:5001'
     environment:

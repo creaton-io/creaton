@@ -11,7 +11,10 @@ import {parseUnits, parseEther} from '@ethersproject/units';
 import { wad4human } from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
 import {Contract, utils} from "ethers";
-import CreatorContract from "./Creator.json";
+import creaton_contracts from "./contracts.json";
+
+const CreatorContract = creaton_contracts.Creator
+
 interface params{
   id: string;
 }

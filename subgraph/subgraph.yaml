@@ -3,11 +3,11 @@ schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
-    name: CreatonFactory
+    name: CreatonAdmin
     network: goerli
     source:
-      address: "0xd292d88BAA89B8728d60F168a560E4bd7101E124"
-      abi: CreatonFactory
+      address: "0x915993338C43F523d247452409904143DBbFa688" #CreatonAdminAddress Do not remove this comment
+      abi: CreatonAdmin
       startBlock: 4374568
     mapping:
       kind: ethereum/events
@@ -16,8 +16,8 @@ dataSources:
       entities:
         - Creator
       abis:
-        - name: CreatonFactory
-          file: ./abis/CreatonFactory.json
+        - name: CreatonAdmin
+          file: ./abis/CreatonAdmin.json
       eventHandlers:
         - event: CreatorDeployed(address,address,string,uint256)
           handler: handleCreatorDeployed
