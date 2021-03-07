@@ -37,10 +37,10 @@ export function handleSubscriberEvent(event: SubscriberEvent): void {
     subscriber = new Subscriber(subscriber_id);
     subscriber.creator = creator.id;
     subscriber.user = subscriber_user;
-    subscriber.sig_key = event.params.sigKey;
-    subscriber.pub_key = event.params.pubKey;
     subscriber.creatorContract = context.getBytes('contract');
   }
+  if (event.params.sigKey) subscriber.sig_key = event.params.sigKey;
+  if (event.params.pubKey) subscriber.pub_key = event.params.pubKey;
   let status = 'undefined';
   if (event.params.status == 0) status = 'unsubscribed';
   if (event.params.status == 1) status = 'pending_subscribe';
