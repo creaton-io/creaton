@@ -6,6 +6,12 @@ import {NuCypherSocketContext} from "./Socket";
 import {EncryptedObject, TextileStore} from "./stores/textileStore";
 import {NuCypher} from "./NuCypher";
 import {gql, useQuery} from "@apollo/client";
+import { SuperfluidContext } from "./Superfluid";
+import {parseUnits, parseEther} from '@ethersproject/units';
+import { wad4human } from "@decentral.ee/web3-helpers";
+import {defaultAbiCoder} from '@ethersproject/abi';
+import {Contract, utils} from "ethers";
+import CreatorContract from "./Creator.json";
 interface params{
   id: string;
 }
@@ -47,6 +53,7 @@ export function Creator() {
     }
   });
   const socket = useContext(NuCypherSocketContext);
+  const superfluid = useContext(SuperfluidContext);
   const [keyPair, setKeyPair] = useState({})
 
   function downloadURL(data, fileName) {
@@ -66,6 +73,35 @@ export function Creator() {
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   }
 
+  async function mint() {
+    let {sf, usdc, usdcx} = superfluid;
+    let subscriber = context.account;
+    console.log('minted', wad4human(await usdc.balanceOf(subscriber)), 'usdc');
+    const tx = await usdc.mint(subscriber, parseUnits('1000', 18), {from: subscriber});
+    await tx.wait();
+    console.log('this is mint tx', tx);
+    console.log('minted', wad4human(await usdc.balanceOf(subscriber)), 'usdc');
+  }
+  
+  async function approveUSDC() {
+    let {sf, usdc, usdcx} = superfluid;
+    let subscriber = context.account;
+    console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
+    const tx = await usdc.approve(usdcx.address, parseUnits('1800', 18), {from: subscriber,});
+    await tx.wait();
+    console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
+  }
+  
+  async function convertUSDCx() {
+    let {sf, usdc, usdcx} = superfluid;
+    let subscriber = context.account;
+    console.log('converted', wad4human(await usdcx.balanceOf(subscriber)), 'usdc to usdcx');
+    const tx = await usdcx.upgrade(parseUnits('900', 18), {from: subscriber});
+    await tx.wait();
+    let usdcxBalance = wad4human(await usdcx.balanceOf(subscriber));
+    console.log('converted', usdcxBalance, 'usdc to usdcx');
+  }
+
   async function subscribe() {
     if (!(context.account)) {
       alert('Connect to metamask')
@@ -77,7 +113,35 @@ export function Creator() {
     }
     const nucypher = new NuCypher(socket)
     const result = await nucypher.getKeyPair(context.account)
-    setKeyPair(result)
+    let call;
+    let MINIMUM_GAME_FLOW_RATE = parseUnits('2', 18).div(3600 * 24 * 30);
+    let {sf, usdc, usdcx} = superfluid;
+    let subscriber = context.account;
+    call = [
+      [
+        201, // create constant flow (10/mo)
+        sf.agreements.cfa.address,
+        defaultAbiCoder.encode(
+          ['bytes', 'bytes'],
+          [
+            sf.agreements.cfa.contract.methods.createFlow(
+              usdcx.address,
+              creatorContractAddress,
+              MINIMUM_GAME_FLOW_RATE.toString(),
+              '0x',
+            ).encodeABI(),
+            defaultAbiCoder.encode(
+              ['string', 'string'],
+              [result['pubkey_sig'], result['pubkey_enc']]
+            )
+          ]
+        ),
+      ],
+    ];
+    const tx = await sf.host.batchCall(call, {from: subscriber});
+    await tx.wait();
+    console.log('subscribed');
+    setKeyPair(result);
   }
 
   async function download(content) {
@@ -93,6 +157,12 @@ export function Creator() {
     const decrypted = textile.base64ToArrayBuffer(data['decrypted_content']);
     await downloadBlob(decrypted, content);
   }
+
+  async function test(){
+    const creatorContract = new Contract(creatorContractAddress, CreatorContract.abi, context.library!.getSigner())
+    console.log(await creatorContract.posts(0));
+  }
+
   if(!context.account)
     return (<div>Connect to metamask</div>)
   if (contentsQuery.loading || subscriptionQuery.loading) {
@@ -114,13 +184,28 @@ export function Creator() {
       {(subscription == 'unsubscribed') && (<button onClick={() => {
         subscribe()
       }}>Subscribe</button>)}
+      <br/>
+      <button onClick={() => {
+        mint()
+      }}>Mint</button>
+      <br/>
+      <button onClick={() => {
+        approveUSDC()
+      }}>Approve</button>
+      <br/>
+      <button onClick={() => {
+        convertUSDCx()
+      }}>Upgrade</button>
+      <button onClick={() => {
+              test()
+            }}>test</button>
       <h3>Uploaded Contents</h3>
       <ul>
         {
           contents.map((x) => <li key={x.ipfs}>{x.name}({x.description}):
-            {subscription === 'subscribed' && (<button onClick={() => {
-              download(x)
-            }}>Download</button>)}
+            {(<button onClick={() => {
+              test()
+            }}>test</button>)}
           </li>)
         }
       </ul>
