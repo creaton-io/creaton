@@ -16,7 +16,7 @@ const CREATORS_QUERY = gql`
 `;
 
 function Home() {
-  const {loading, error, data} = useQuery(CREATORS_QUERY);
+  const {loading, error, data} = useQuery(CREATORS_QUERY,{pollInterval: 10000});
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   return (<div>

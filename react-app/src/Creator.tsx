@@ -53,11 +53,27 @@ export function Creator() {
     variables: {
       user: context.account,
       creator: creatorContractAddress
-    }
+    },
+    pollInterval: 10000
   });
   const socket = useContext(NuCypherSocketContext);
   const superfluid = useContext(SuperfluidContext);
   const [keyPair, setKeyPair] = useState({})
+  const [usdcx, setUsdcx] = useState(0)
+
+  async function getUsdcx() {
+    if (!superfluid)
+      return;
+    let {usdcx} = superfluid;
+    let subscriber = context.account;
+    if (!subscriber)
+      return;
+    setUsdcx(wad4human(await usdcx.balanceOf(subscriber)))
+  }
+
+  useEffect(() => {
+    getUsdcx()
+  }, [context, superfluid])
 
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
@@ -102,6 +118,7 @@ export function Creator() {
     const tx = await usdcx.upgrade(parseUnits('900', 18), {from: subscriber});
     await tx.wait();
     let usdcxBalance = wad4human(await usdcx.balanceOf(subscriber));
+    setUsdcx(usdcxBalance)
     console.log('converted', usdcxBalance, 'usdc to usdcx');
   }
 
@@ -160,12 +177,6 @@ export function Creator() {
     const decrypted = textile.base64ToArrayBuffer(data['decrypted_content']);
     await downloadBlob(decrypted, content);
   }
-
-  async function test(){
-    const creatorContract = new Contract(creatorContractAddress, CreatorContract.abi, context.library!.getSigner())
-    console.log(await creatorContract.posts(0));
-  }
-
   if(!context.account)
     return (<div>Connect to metamask</div>)
   if (contentsQuery.loading || subscriptionQuery.loading) {
@@ -183,6 +194,7 @@ export function Creator() {
       <h3>ID: {id}</h3>
       <h3>Status: {subscription}</h3>
       <h3>Account: {context.account}</h3>
+      <h3>Superfluid usdcx: {usdcx}</h3>
       {Object.entries(keyPair).map((x) => <h3 key={x[0]}>{x[0]} : {x[1]}</h3>)}
       {(subscription == 'unsubscribed') && (<button onClick={() => {
         subscribe()
@@ -199,16 +211,13 @@ export function Creator() {
       <button onClick={() => {
         convertUSDCx()
       }}>Upgrade</button>
-      <button onClick={() => {
-              test()
-            }}>test</button>
       <h3>Uploaded Contents</h3>
       <ul>
         {
           contents.map((x) => <li key={x.ipfs}>{x.name}({x.description}):
-            {(<button onClick={() => {
-              test()
-            }}>test</button>)}
+            {subscription === 'subscribed' && (<button onClick={() => {
+              download(x)
+            }}>Download</button>)}
           </li>)
         }
       </ul>

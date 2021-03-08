@@ -8,6 +8,10 @@ import {NuCypherSocketContext} from "./Socket";
 import {Creator, useCurrentCreator} from "./Utils";
 import {NuCypher} from "./NuCypher";
 import {gql, useQuery} from "@apollo/client";
+import {Contract} from "ethers";
+import creaton_contracts from "./contracts.json";
+
+const CreatorContract = creaton_contracts.Creator
 
 interface Values {
   pubkey_enc: string;
@@ -30,7 +34,10 @@ const Grant = () => {
   const web3Context = useWeb3React<Web3Provider>()
   const [grantStatus, setGrantStatus] = useState({status: '', message: ''})
   const creator = useCurrentCreator().currentCreator
-  const {loading, error, data} = useQuery(SUBSCRIBERS_QUERY, {variables: {user: creator?.creatorContract}});
+  const {loading, error, data} = useQuery(SUBSCRIBERS_QUERY, {
+    pollInterval: 10000,
+    variables: {user: creator?.creatorContract}
+  });
   if (socket === null)
     return (<div>Not connected to NuCypher</div>)
   if (!web3Context.account)
@@ -42,11 +49,20 @@ const Grant = () => {
   if (error)
     return (<div>Error Loading subscribers</div>)
   let currentCreator: Creator = creator
-  function grant(subscriber){
+
+  function grant(subscriber) {
     setGrantStatus({status: 'pending', message: 'Granting subscribers, please wait'})
     const nucypher = new NuCypher(socket!)
     nucypher.grant(currentCreator.creatorContract, currentCreator.user, subscriber.pub_key, subscriber.sig_key, web3Context.library!.getSigner())
+      .then(function () {
+        const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
+        console.log('3rd transaction for accepting the subscription in creator contract')
+        creatorContract.acceptSubscribe(subscriber.user).then(function () {
+          console.log('Accepted the subscription')
+        })
+      })
   }
+
   return (
     <div>
       <h1>Grant Subscribers</h1>
