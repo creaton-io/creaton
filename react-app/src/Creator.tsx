@@ -41,6 +41,7 @@ export function Creator() {
     }
     `;
 
+
   const [textile, _] = useState(new TextileStore())
   useEffect(() => {
     textile.authenticate().then(function () {
