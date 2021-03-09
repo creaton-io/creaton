@@ -32,6 +32,20 @@ def update_contracts():
     update_subgraph(creaton_admin, creator, network)
 
 
+def yesno(question):
+    return prompt([
+        {
+            'type': 'list',
+            'name': 'yesno',
+            'message': question,
+            'choices': [
+                'Yes please',
+                'No thanks',
+            ]
+        },
+    ])['yesno'] == 'Yes please'
+
+
 def update_subgraph(creaton_admin, creator, network):
     SUBGRAPH_ABI_PATH = Path('subgraph/abis')
     json.dump(creator['abi'], open(SUBGRAPH_ABI_PATH / 'Creator.json', 'w'), indent=2)
@@ -54,22 +68,14 @@ def update_subgraph(creaton_admin, creator, network):
         f.write(''.join(converted_lines))
     print(f'Updated {yaml_path}')
 
+    if yesno('Redeploy the contracts locally?'):
+        run_command('cd subgraph && npm run deploy-local')
+
 
 def deploy_contracts():
     run_command('npm run goerli:contracts')
-    if prompt([
-        {
-            'type': 'list',
-            'name': 'yesno',
-            'message': 'Update the contract addresses in subgraph and react?',
-            'choices': [
-                'Yes please',
-                'No thanks',
-            ]
-        },
-    ])['yesno'] == 'No thanks':
-        return
-    return update_contracts()
+    if yesno('Update the contract addresses in subgraph and react?'):
+        return update_contracts()
 
 
 def main():
