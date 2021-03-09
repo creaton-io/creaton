@@ -26,7 +26,10 @@ export function useCurrentCreator() {
   }
 }
 `;
-  const {loading, error, data, refetch} = useQuery(CREATOR_USER, {variables: {user: context.account?.toLowerCase()}});
+  const {loading, error, data, refetch} = useQuery(CREATOR_USER, {
+    variables: {user: context.account?.toLowerCase()},
+    pollInterval: 10000
+  });
   let currentCreator: Creator | undefined = undefined
   if (!error && !loading) {
     const matchingCreators = data.creators
