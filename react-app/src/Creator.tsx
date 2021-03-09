@@ -40,6 +40,18 @@ export function Creator() {
       }
     }
     `;
+  const CONTRACT_INFO_QUERY = gql`
+      query GET_CONTRACT($contractAddress: Bytes!){
+        creators(where: {creatorContract: $contractAddress}) {
+          id
+          user
+          creatorContract
+          description
+          subscriptionPrice
+          timestamp
+        }
+      }
+   `;
 
   const [textile, _] = useState(new TextileStore())
   useEffect(() => {
@@ -49,6 +61,7 @@ export function Creator() {
   }, [textile])
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
+  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     variables: {
       user: context.account,
@@ -60,6 +73,7 @@ export function Creator() {
   const superfluid = useContext(SuperfluidContext);
   const [keyPair, setKeyPair] = useState({})
   const [usdcx, setUsdcx] = useState(0)
+  const {currentCreator} = useCurrentCreator()
 
   async function getUsdcx() {
     if (!superfluid)
@@ -134,7 +148,8 @@ export function Creator() {
     const nucypher = new NuCypher(socket)
     const result = await nucypher.getKeyPair(context.account)
     let call;
-    let MINIMUM_GAME_FLOW_RATE = parseUnits('2', 18).div(3600 * 24 * 30);
+    const contract = contractQuery.data.creators[0]
+    let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
     let {sf, usdc, usdcx} = superfluid;
     let subscriber = context.account;
     call = [
@@ -147,7 +162,7 @@ export function Creator() {
             sf.agreements.cfa.contract.methods.createFlow(
               usdcx.address,
               creatorContractAddress,
-              MINIMUM_GAME_FLOW_RATE.toString(),
+              MINIMUM_FLOW_RATE.toString(),
               '0x',
             ).encodeABI(),
             defaultAbiCoder.encode(
@@ -179,10 +194,10 @@ export function Creator() {
   }
   if(!context.account)
     return (<div>Connect to metamask</div>)
-  if (contentsQuery.loading || subscriptionQuery.loading) {
+  if (contentsQuery.loading || subscriptionQuery.loading || contractQuery.loading) {
     return (<div>Loading</div>)
   }
-  if (contentsQuery.error || subscriptionQuery.error) {
+  if (contentsQuery.error || subscriptionQuery.error || contractQuery.error) {
     return (<div>Error</div>)
   }
   const contents = contentsQuery.data.contents;
