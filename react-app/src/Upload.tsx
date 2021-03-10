@@ -8,6 +8,7 @@ import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
 import creaton_contracts from './contracts.json'
 import {NuCypher} from "./NuCypher";
+import {ErrorHandlerContext} from "./ErrorHandler";
 
 const CreatorContract = creaton_contracts.Creator
 interface Values {
@@ -19,6 +20,7 @@ const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const [textile, _] = useState(new TextileStore())
+  const [status, setStatus] = useState("")
   useEffect(() => {
     textile.authenticate().then(function () {
       console.log('textile authenticated')
@@ -32,6 +34,7 @@ const Upload = () => {
   };
 
   const {loading, error, currentCreator} = useCurrentCreator()
+  const errorHandler = useContext(ErrorHandlerContext)
   if (socket === null)
     return (<div>Not connected to NuCypher</div>)
   if (!context.account)
@@ -46,9 +49,17 @@ const Upload = () => {
     const buf = await file.arrayBuffer();
     const b64File = textile.arrayBufferToBase64(buf);
     const nucypher = new NuCypher(socket!)
-    const encryptedObject = await nucypher.encrypt(b64File, contractAddress, utils.getAddress(creatorAddress))
+    let encryptedObject;
+    setStatus('Encrypting the file...')
+    try {
+      encryptedObject = await nucypher.encrypt(b64File, contractAddress, utils.getAddress(creatorAddress))
+    } catch (error) {
+      errorHandler.setError(error.toString())
+      return;
+    }
     encryptedObject['type'] = file.type
     const buffer = Buffer.from(JSON.stringify(encryptedObject))
+    setStatus('Uploading encrypted content to IPFS...')
     textile.pushFile(file, buffer).then(async function (encFile) {
       const metadata = {
         name: encFile.name,
@@ -58,8 +69,18 @@ const Upload = () => {
         ipfs: encFile.ipfsPath,
       };
       console.log(metadata.ipfs);
-      const receipt = await creatorContract.upload(JSON.stringify(metadata));
+      setStatus('Adding content metadata to your creator contract')
+      let receipt;
+      try {
+        receipt = await creatorContract.upload(JSON.stringify(metadata));
+      } catch (error) {
+        errorHandler.setError('Could not upload the content to your contract' + error.message)
+        return;
+      }
+      setStatus('Upload successful!')
       console.log(receipt);
+    }).catch(function (error) {
+      errorHandler.setError(error.toString())
     })
   }
 
@@ -67,6 +88,7 @@ const Upload = () => {
   return (
     <div>
       <h1>Welcome {currentCreator.title}</h1>
+      {status && (<h3>{status}</h3>)}
       <Formik
         initialValues={{
           file: '',

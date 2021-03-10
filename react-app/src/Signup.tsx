@@ -6,7 +6,8 @@ import {Web3Provider} from "@ethersproject/providers";
 import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
 import {useCurrentCreator} from "./Utils";
-import {useState} from "react";
+import {useContext, useState} from "react";
+import {ErrorHandlerContext} from "./ErrorHandler";
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
@@ -20,11 +21,14 @@ const creatorFactoryContract = new Contract(CreatonAdminContract.address, Creato
 const SignUp = () => {
   const context = useWeb3React<Web3Provider>()
   const {currentCreator} = useCurrentCreator()
-  const [signedup,setSignedup] = useState(false)
-  if(currentCreator !== undefined)
-    return(<div>You've already signed up!</div>)
-  if(signedup)
-    return (<div>Congratulation you just signed up</div>)
+  const errorHandler = useContext(ErrorHandlerContext)
+  const [signedup, setSignedup] = useState<any>(false)
+  if (currentCreator !== undefined)
+    return (<div>Congratulation you just signed up on creaton!</div>)
+  if (!context.library)
+    return (<div>Please connect your wallet</div>)
+  if (signedup)
+    return (<div>{signedup}</div>)
   return (
     <div>
       <h1>Signup</h1>
@@ -38,18 +42,13 @@ const SignUp = () => {
           {setSubmitting}: FormikHelpers<Values>
         ) => {
           const {library} = context
-          if (library) {
-            const connectedContract = creatorFactoryContract.connect(library.getSigner())
-            connectedContract.deployCreator(values.creatorName, values.subscriptionPrice)
-              .then(function(response){
-                setSignedup(true)
-              }).catch(function(error){
-                console.log(error)
-            });
-            //TODO error handling on promise
-          } else {
-            alert('not connected')
-          }
+          const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+          connectedContract.deployCreator(values.creatorName, values.subscriptionPrice)
+            .then(function (response) {
+              setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+            }).catch(function (error) {
+            errorHandler.setError('Failed to signup. ' + error.message)
+          });
           setSubmitting(false);
         }}
       >
