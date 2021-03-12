@@ -61,7 +61,20 @@
     "@tailwindcss/postcss7-compat": "^2.0.3",
     "@types/react-router-dom": "^5.1.7",
     "autoprefixer": "^9.8.6",
-    "postcss": "^7.0.35",
+    "@storybook/addon-actions": "^6.1.20",
+    "@storybook/addon-controls": "^6.1.21",
+    "@storybook/addon-essentials": "^6.1.20",
+    "@storybook/addon-links": "^6.1.20",
+    "@storybook/react": "^6.1.20",
+    "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@tailwindcss/typography": "^0.4.0",
+    "babel-loader": "^8.2.2",
+    "clsx": "^1.1.1",
+    "postcss": "^7",
+    "postcss-flexbugs-fixes": "^5.0.2",
+    "postcss-import": "^14.0.0",
+    "postcss-loader": "^5.0.0",
+    "postcss-preset-env": "^6.7.0",
     "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3"
   }
 }
