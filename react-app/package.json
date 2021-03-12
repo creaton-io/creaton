@@ -37,7 +37,10 @@
     "start": "craco start",
     "build": "craco build",
     "test": "craco test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "storybook": "start-storybook -p 6006",
+    "sb": "yarn storybook",
+    "build-storybook": "build-storybook"
   },
   "eslintConfig": {
     "extends": [
@@ -58,17 +61,16 @@
     ]
   },
   "devDependencies": {
-    "@tailwindcss/postcss7-compat": "^2.0.3",
-    "@types/react-router-dom": "^5.1.7",
-    "autoprefixer": "^9.8.6",
     "@storybook/addon-actions": "^6.1.20",
     "@storybook/addon-controls": "^6.1.21",
     "@storybook/addon-essentials": "^6.1.20",
     "@storybook/addon-links": "^6.1.20",
     "@storybook/react": "^6.1.20",
     "@tailwindcss/aspect-ratio": "^0.2.0",
+    "@tailwindcss/postcss7-compat": "^2.0.3",
     "@tailwindcss/typography": "^0.4.0",
-    "babel-loader": "^8.2.2",
+    "@types/react-router-dom": "^5.1.7",
+    "autoprefixer": "^9.8.6",
     "clsx": "^1.1.1",
     "postcss": "^7",
     "postcss-flexbugs-fixes": "^5.0.2",
