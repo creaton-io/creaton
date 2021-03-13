@@ -17,6 +17,7 @@ import {NuCypherSocketContext, NuCypherSocketProvider} from "./Socket";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 import {Creator} from "./Creator";
+import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
 
 let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
@@ -49,67 +50,78 @@ function Status() {
 
 const App = () => {
   return (
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <SuperfluidProvider>
-        <NuCypherSocketProvider>
-          <ApolloProvider client={client}>
-            <Status/>
-            <Router>
-              <div>
-                <ul>
-                  <li>
-                    <Link to="/">Home</Link>
-                  </li>
-                  <li>
-                    <Link to="/connect-wallet">Connect Wallet</Link>
-                  </li>
-                  <li>
-                    <Link to="/signup">SignUp</Link>
-                  </li>
-                  <li>
-                    <Link to="/upload">Upload</Link>
-                  </li>
-                  <li>
-                    <Link to="/grant">Grant</Link>
-                  </li>
+    <ErrorHandlerProvider>
+      <Web3ReactProvider getLibrary={getLibrary}>
+        <SuperfluidProvider>
+          <NuCypherSocketProvider>
+            <ApolloProvider client={client}>
+              <Status/>
+              <Router>
+                <div>
+                  <ul>
+                    <li>
+                      <Link to="/">Home</Link>
+                    </li>
+                    <li>
+                      <Link to="/connect-wallet">Connect Wallet</Link>
+                    </li>
+                    <li>
+                      <Link to="/signup">SignUp</Link>
+                    </li>
+                    <li>
+                      <Link to="/upload">Upload</Link>
+                    </li>
+                    <li>
+                      <Link to="/grant">Grant</Link>
+                    </li>
 
-                </ul>
+                  </ul>
 
-                <hr/>
+                  <hr/>
 
-                {/*
+                  {/*
             A <Switch> looks through all its children <Route>
             elements and renders the first one whose path
             matches the current URL. Use a <Switch> any time
             you have multiple routes, but you want only one
             of them to render at a time
           */}
-                <Switch>
-                  <Route exact path="/">
-                    <Home/>
-                  </Route>
-                  <Route path="/connect-wallet">
-                    <WalletConnect/>
-                  </Route>
-                  <Route path="/signup">
-                    <SignUp/>
-                  </Route>
-                  <Route path="/upload">
-                    <Upload/>
-                  </Route>
-                  <Route path="/grant">
-                    <Grant/>
-                  </Route>
-                  <Route path="/creator/:id">
-                    <Creator/>
-                  </Route>
-                </Switch>
-              </div>
-            </Router>
-          </ApolloProvider>
-        </NuCypherSocketProvider>
-      </SuperfluidProvider> 
-    </Web3ReactProvider>
+                  <ErrorHandlerContext.Consumer>
+                    {value => (value.error && (<div>Error: {value.error}
+                      <button onClick={() => {
+                        value.setError('')
+                      }}>Clear
+                      </button>
+                    </div>))}
+                  </ErrorHandlerContext.Consumer>
+                  <hr/>
+                  <Switch>
+                    <Route exact path="/">
+                      <Home/>
+                    </Route>
+                    <Route path="/connect-wallet">
+                      <WalletConnect/>
+                    </Route>
+                    <Route path="/signup">
+                      <SignUp/>
+                    </Route>
+                    <Route path="/upload">
+                      <Upload/>
+                    </Route>
+                    <Route path="/grant">
+                      <Grant/>
+                    </Route>
+                    <Route path="/creator/:id">
+                      <Creator/>
+                    </Route>
+                  </Switch>
+                </div>
+              </Router>
+            </ApolloProvider>
+          </NuCypherSocketProvider>
+        </SuperfluidProvider>
+      </Web3ReactProvider>
+    </ErrorHandlerProvider>
   );
 }
 

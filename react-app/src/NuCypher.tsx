@@ -25,7 +25,7 @@ export class NuCypher {
       nucypher.socket.emit('encrypt', {address, file_content, label})
       await new Promise(r => setTimeout(r, nucypher.timeout));
       nucypher.socket.off(event_name, listener)
-      reject('timeout')
+      reject('Encryption timed out. Took more than ' + (nucypher.timeout/1000) + ' seconds')
     })
   }
 

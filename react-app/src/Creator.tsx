@@ -12,6 +12,7 @@ import { wad4human } from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
 import {Contract, utils} from "ethers";
 import creaton_contracts from "./contracts.json";
+import {useCurrentCreator} from "./Utils";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -209,6 +210,7 @@ export function Creator() {
     <div>
       <h3>ID: {id}</h3>
       <h3>Status: {subscription}</h3>
+      {(currentCreator && currentCreator.creatorContract===creatorContractAddress) && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
       {Object.entries(keyPair).map((x) => <h3 key={x[0]}>{x[0]} : {x[1]}</h3>)}
