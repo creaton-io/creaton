@@ -1,19 +1,19 @@
 import {useParams} from "react-router-dom";
-import React, {useContext, useEffect, useState} from "react";
+import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {EncryptedObject, TextileStore} from "./stores/textileStore";
+import {EncryptedObject} from "./stores/textileStore";
 import {gql, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
-import {parseUnits, parseEther} from '@ethersproject/units';
+import {parseUnits} from '@ethersproject/units';
 import {wad4human} from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
-import {Contract, utils} from "ethers";
 import creaton_contracts from "./contracts.json";
 import {useCurrentCreator} from "./Utils";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralBob} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
+import {Base64} from "js-base64";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -85,6 +85,36 @@ export function Creator() {
   useEffect(() => {
     getUsdcx()
   }, [context, superfluid])
+  const [downloadStatus, setDownloadStatus] = useState({})
+  const [downloadCache, setDownloadCache] = useState({})
+  const [subscription, setSubscription] = useState('unsubscribed')
+  useEffect(() => {
+    if (subscriptionQuery.data && subscriptionQuery.data.subscribers.length > 0)
+      setSubscription(subscriptionQuery.data.subscribers[0].status)
+  }, [subscriptionQuery, context])
+  useEffect(() => {
+    if (contentsQuery.loading || contentsQuery.error) return;
+    if (!textile) return;
+    if (subscription !== 'subscribed') return;
+    const contents = contentsQuery.data.contents;
+    if (Object.keys(downloadStatus).length === 0 || !contents) return;
+    if (umbralWasm === null) return;
+    if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
+      console.log('already downloading some stuff')
+      return;
+    }
+    for (let content of contents) {
+      if (downloadStatus[content.ipfs] === 'pending') {
+        setDownloadStatus({...downloadStatus, [content.ipfs]: 'downloading'})
+        decrypt(content).then((decrypted) => {
+          console.log('decrypted promise result', decrypted)
+          setDownloadCache({...downloadCache, [content.ipfs]: decrypted})
+          setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
+        })
+        break;
+      }
+    }
+  }, [downloadStatus, textile, subscription])
 
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
@@ -171,16 +201,24 @@ export function Creator() {
     console.log('subscribed');
   }
 
-  async function download(content) {
+  async function decrypt(content) {
     console.log(content)
     const encObject: EncryptedObject = await textile!.downloadEncryptedFile(content.ipfs)
     const umbral = new UmbralBob(umbralWasm, context.account!)
-    console.log(encObject)
-    const decrypted = await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk)
-
-    await downloadBlob(decrypted, content);
+    return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk)
   }
-  if(!context.account)
+
+  async function download(content) {
+    let decrypted;
+    if (downloadStatus[content.ipfs] === 'cached')
+      decrypted = downloadCache[content.ipfs]
+    else
+      decrypted = await decrypt(content)
+    if (decrypted)
+      await downloadBlob(decrypted, content);
+  }
+
+  if (!context.account)
     return (<div>Connect to metamask</div>)
   if (contentsQuery.loading || subscriptionQuery.loading || contractQuery.loading) {
     return (<div>Loading</div>)
@@ -189,14 +227,32 @@ export function Creator() {
     return (<div>Error</div>)
   }
   const contents = contentsQuery.data.contents;
-  let subscription = 'unsubscribed'
-  if (subscriptionQuery.data.subscribers.length > 0)
-    subscription = subscriptionQuery.data.subscribers[0].status
+  if (Object.keys(downloadStatus).length === 0 && contents.length > 0) {
+    const status = {}
+    contents.forEach((x) => {
+      status[x.ipfs] = 'pending';
+    })
+    console.log('setting download status', status)
+    setDownloadStatus(status)
+  }
+  const contract = contractQuery.data.creators[0]
+
+  function showContent(content) {
+    if (downloadStatus[content.ipfs] !== 'cached') return;
+    const src = "data:" + content.type + ";base64, " + Base64.fromUint8Array(downloadCache[content.ipfs]);
+    if (content.type.startsWith('image')) {
+      return (<img style={{'maxWidth': '150px'} as CSSProperties} src={src}/>)
+    } else if (content.type.startsWith('video')) {
+      return (<video controls style={{'maxWidth': '300px'} as CSSProperties} src={src}/>)
+    }
+  }
+
   return (
     <div>
-      <h3>ID: {id}</h3>
+      <h3>Contract ID: {id}</h3>
+      <h3>Creator ID: {contract.user}</h3>
       <h3>Status: {subscription}</h3>
-      {(currentCreator && currentCreator.creatorContract===creatorContractAddress) && (<h3>This is your account</h3>)}
+      {(currentCreator && currentCreator.creatorContract === creatorContractAddress) && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
       {(subscription == 'unsubscribed') && (<button onClick={() => {
@@ -218,9 +274,9 @@ export function Creator() {
       <ul>
         {
           contents.map((x) => <li key={x.ipfs}>{x.name}({x.description}):
-            {subscription === 'subscribed' && (<button onClick={() => {
+            {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[x.ipfs]}</span><button onClick={() => {
               download(x)
-            }}>Download</button>)}
+            }}>Download</button></div>)} {showContent(x)}
           </li>)
         }
       </ul>
