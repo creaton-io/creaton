@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import {CreatorDeployed as CreatorDeployedEvent} from '../generated/CreatonFactory/CreatonFactory';
+import {CreatorDeployed as CreatorDeployedEvent} from '../generated/CreatonAdmin/CreatonAdmin';
 import {Content, Creator, Subscriber} from '../generated/schema';
 import {SubscriberEvent, NewPost} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
