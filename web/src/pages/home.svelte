@@ -222,7 +222,7 @@
             <button
               type="button"
               class="bg-gradient-to-r from-green-400 to-blue-500 text-white font-semibold px-6 py-3 rounded-md">
-              Join the Creator Economy
+              Stay tuned on our social media!
             </button>
           </div>
         </div>
