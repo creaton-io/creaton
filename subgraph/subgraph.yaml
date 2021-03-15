@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: goerli
     source:
-      address: "0x915993338C43F523d247452409904143DBbFa688" #CreatonAdminAddress Do not remove this comment
+      address: "0xC93C15AA1Bf2909903c77B7f070F34dD3B2943CA" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 4374568
     mapping:
