@@ -7,6 +7,8 @@ import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
 import {useCurrentCreator} from "./Utils";
 import {useState} from "react";
+import {Button} from "./elements/button";
+import {Input} from "./elements/input";
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
