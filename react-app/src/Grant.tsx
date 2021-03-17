@@ -9,6 +9,7 @@ import {Contract} from "ethers";
 import creaton_contracts from "./contracts.json";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator} from "./Umbral";
+import {Button} from "./elements/button";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -121,23 +122,23 @@ const Grant = () => {
     <div>
       <h1>Grant Subscribers</h1>
       {grantStatus.message && <h3>{grantStatus.message}</h3>}
-      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_subscribe')) && (<button onClick={() => {
+      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_subscribe')) && (<Button onClick={() => {
         grant_all()
-      }}>Grant all pending_subscribe</button>)}
-      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (<button onClick={() => {
+      }} label="Grant all pending_subscribe"/>)}
+      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (<Button onClick={() => {
         revoke_all()
-      }}>Revoke all pending_unsubscribe</button>)}
+      }} label="Revoke all pending_unsubscribe"/>)}
       <br/>
       {data.subscribers.map((subscriber) => (<div key={subscriber.user}>{subscriber.user} : {subscriber.status}
-        {subscriber.status === 'pending_subscribe' && (<button onClick={() => {
+        {subscriber.status === 'pending_subscribe' && (<Button onClick={() => {
           grant(subscriber)
-        }}>Grant</button>)}
-        {subscriber.status === 'subscribed' && (<button onClick={() => {
+        }} label="Grant"/>)}
+        {subscriber.status === 'subscribed' && (<Button onClick={() => {
           regrant(subscriber)
-        }}>Re-Grant</button>)}
-        {subscriber.status === 'pending_unsubscribe' && (<button onClick={() => {
+        }} label="Re-Grant" />)}
+        {subscriber.status === 'pending_unsubscribe' && (<Button onClick={() => {
           revoke(subscriber)
-        }}>Revoke</button>)}
+        }} label="Revoke"/>)}
       </div>))}
     </div>
   );

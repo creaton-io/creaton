@@ -10,6 +10,8 @@ import {useCurrentCreator} from "./Utils";
 import {useContext, useEffect, useState} from "react";
 import {ErrorHandlerContext} from "./ErrorHandler";
 import Web3Modal from "web3modal";
+import {Button} from "./elements/button";
+import {Input} from "./elements/input";
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
@@ -21,79 +23,45 @@ interface Values {
 
 const creatorFactoryContract = new Contract(CreatonAdminContract.address, CreatonAdminContract.abi)
 const SignUp = () => {
-
-  const [provider, setProvider] = useState<any>(undefined);
-  const [signedup, setSignedup] = useState<any>(false)
+  const context = useWeb3React<Web3Provider>()
+  const {currentCreator} = useCurrentCreator()
   const errorHandler = useContext(ErrorHandlerContext)
-  const paymasterAddress = '0x8c9245773caF636cAE9Cb1B28a82e061Bd38fDCb'
-
-  async function connectWallet(){
-    const providerOptions = {
-      /* See Provider Options Section */
-      injected: {
-        package: null
-      }
-    };
-    const web3Modal = new Web3Modal({
-      providerOptions // required
-    });
-    const initialProvider = await web3Modal.connect();
-    const config = {
-      paymasterAddress
-    }
-    const gsnProvider = await RelayProvider.newProvider({provider: initialProvider, config}).init();
-    //@ts-ignore
-    const provider = new Web3Provider(gsnProvider)
-    setProvider(provider);
-  }
-
-  if (!provider)
-    return (<button onClick={() => connectWallet()}> Connect Wallet</button>)
-  // const {currentCreator} = useCurrentCreator()
-
-  // if (currentCreator !== undefined)
-  //   return (<div>Congratulation you just signed up on creaton!</div>)
-  // if (!context.library)
-  //   return (<div>Please connect your wallet</div>)
+  const [creatorName, setCreatorName] = useState("")
+  const [subscriptionPrice, setSubscriptionPrice] = useState("5")
+  const [signedup, setSignedup] = useState<any>(false)
+  if (currentCreator !== undefined)
+    return (<div>Congratulation you just signed up on creaton!</div>)
+  if (!context.library)
+    return (<div>Please connect your wallet</div>)
   if (signedup)
     return (<div>{signedup}</div>)
+
+  function submitForm(event) {
+    const {library} = context
+    const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+    connectedContract.deployCreator(creatorName, subscriptionPrice)
+      .then(function (response) {
+        setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+      }).catch(function (error) {
+      errorHandler.setError('Failed to signup. ' + error.message)
+    });
+    event.preventDefault();
+  }
+
   return (
     <div>
       <h1>Signup</h1>
-      <Formik
-        initialValues={{
-          creatorName: '',
-          subscriptionPrice: 0,
-        }}
-        onSubmit={(
-          values: Values,
-          {setSubmitting}: FormikHelpers<Values>
-        ) => {
-          const connectedContract = creatorFactoryContract.connect(provider.getSigner())
-          connectedContract.deployCreator(values.creatorName, values.subscriptionPrice)
-            .then(function (response) {
-              setSignedup("Waiting for your signup to be confirmed on the blockchain...")
-            }).catch(function (error) {
-            errorHandler.setError('Failed to signup. ' + error.message)
-          });
-          setSubmitting(false);
-        }}
-      >
-        <Form>
-          <label htmlFor="creatorName">Name</label>
-          <Field id="creatorName" name="creatorName" placeholder="John The Creator"/>
-
-          <label htmlFor="subscriptionPrice">Subscription Price</label>
-          <Field
-            id="subscriptionPrice"
-            name="subscriptionPrice"
-            placeholder="3"
-            type="number"
-          />
-
-          <button type="submit">Submit</button>
-        </Form>
-      </Formik>
+      <form onSubmit={submitForm}>
+        <label htmlFor="creatorName">Name</label>
+        <Input type="text" placeholder="John The Creator" value={creatorName} onChange={(event) => {
+          setCreatorName(event.target.value)
+        }}></Input>
+        <label htmlFor="subscriptionPrice">Subscription Price</label>
+        <Input type="number" value={subscriptionPrice} onChange={(event) => {
+          setSubscriptionPrice(event.target.value)
+        }}></Input>
+        <Button type="submit" label="Submit"></Button>
+      </form>
     </div>
   );
 };

@@ -11,7 +11,8 @@ import {UmbralWasmContext} from "./UmbralWasm";
 import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
-
+import {Button} from "./elements/button";
+import {Input} from "./elements/input";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -242,7 +243,7 @@ const Upload = () => {
 
   return (
     <div>
-      <h1>Welcome {currentCreator.title}</h1>
+      <h1>Welcome {currentCreator.description}</h1>
       {status && (<h3>{status}</h3>)}
       <Formik
         initialValues={{
@@ -273,9 +274,8 @@ const Upload = () => {
         <label htmlFor="file">Content</label>
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
                type="file" ref={fileInput}/>
-        <button type="button" onClick={() => fileInput.current.click()}>
-          Choose file
-        </button>
+        <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}>
+        </Button>
         <small>
           {currentFile ? currentFile.name || "Error" : "No file chosen"}
         </small>
@@ -289,11 +289,11 @@ const Upload = () => {
         </div>}
         <br/>
         <label htmlFor="name">Name</label>
-        <input type="text" name="name" placeholder="name" value={fileName} onChange={(event) => {
+        <Input type="text" name="name" placeholder="name" value={fileName} onChange={(event) => {
           setFileName(event.target.value)
         }}/>
         <label htmlFor="description">Description</label>
-        <input type="text" name="description" placeholder="description" value={description} onChange={(event) => {
+        <Input type="text" name="description" placeholder="description" value={description} onChange={(event) => {
           setDescription(event.target.value)
         }}/>
         <input type="checkbox" id="encrypted" name="encrypted" checked={uploadEncrypted}
@@ -301,7 +301,7 @@ const Upload = () => {
                  setUploadEncrypted(!uploadEncrypted)
                }}/>
         <label htmlFor="encrypted">Encrypted?</label>
-        <button type="submit">Submit</button>
+        <Button type="submit" label="Submit"/>
       </form>
     </div>
   );
