@@ -1,0 +1,7 @@
+version: '3'
+services:
+  umbral-server:
+    build:
+      context: ./
+    ports:
+      - "3010:3010"

@@ -13,11 +13,12 @@ import {useWeb3React, Web3ReactProvider} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import SignUp from "./Signup";
 import Upload from "./Upload";
-import {NuCypherSocketContext, NuCypherSocketProvider} from "./Socket";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 import {Creator} from "./Creator";
 import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
+import {UmbralWasmProvider} from "./UmbralWasm";
+import {TextileProvider} from "./TextileProvider";
 
 let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
@@ -39,11 +40,9 @@ function getLibrary(provider: any): Web3Provider {
 
 function Status() {
   const {active, error} = useWeb3React()
-  const socket = useContext(NuCypherSocketContext);
   return (
     <div>
     <h1 style={{margin: '1rem', textAlign: 'right'}}>Web3:{active ? '🟢' : error ? '🔴' : '🟠'}</h1>
-    <h1 style={{margin: '1rem', textAlign: 'right'}}>NuSocket:{socket !== null ? '🟢' : '🔴'}</h1>
     </div>
   );
 }
@@ -51,9 +50,10 @@ function Status() {
 const App = () => {
   return (
     <ErrorHandlerProvider>
+      <TextileProvider>
       <Web3ReactProvider getLibrary={getLibrary}>
         <SuperfluidProvider>
-          <NuCypherSocketProvider>
+          <UmbralWasmProvider>
             <ApolloProvider client={client}>
               <Status/>
               <Router>
@@ -118,9 +118,10 @@ const App = () => {
                 </div>
               </Router>
             </ApolloProvider>
-          </NuCypherSocketProvider>
+          </UmbralWasmProvider>
         </SuperfluidProvider>
       </Web3ReactProvider>
+      </TextileProvider>
     </ErrorHandlerProvider>
   );
 }

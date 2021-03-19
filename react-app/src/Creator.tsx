@@ -2,25 +2,27 @@ import {useParams} from "react-router-dom";
 import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {NuCypherSocketContext} from "./Socket";
 import {EncryptedObject, TextileStore} from "./stores/textileStore";
-import {NuCypher} from "./NuCypher";
 import {gql, useQuery} from "@apollo/client";
-import { SuperfluidContext } from "./Superfluid";
+import {SuperfluidContext} from "./Superfluid";
 import {parseUnits, parseEther} from '@ethersproject/units';
-import { wad4human } from "@decentral.ee/web3-helpers";
+import {wad4human} from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
 import {Contract, utils} from "ethers";
 import creaton_contracts from "./contracts.json";
 import {useCurrentCreator} from "./Utils";
+import {UmbralWasmContext} from "./UmbralWasm";
+import {UmbralBob} from "./Umbral";
+import {TextileContext} from "./TextileProvider";
 
 const CreatorContract = creaton_contracts.Creator
 
-interface params{
+interface params {
   id: string;
 }
+
 export function Creator() {
-  let { id } = useParams<params>();
+  let {id} = useParams<params>();
   const creatorContractAddress = id
 
   const CONTENTS_QUERY = gql`
@@ -54,12 +56,7 @@ export function Creator() {
       }
    `;
 
-  const [textile, _] = useState(new TextileStore())
-  useEffect(() => {
-    textile.authenticate().then(function () {
-      console.log('textile authenticated')
-    })
-  }, [textile])
+  const textile = useContext(TextileContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})
@@ -70,9 +67,8 @@ export function Creator() {
     },
     pollInterval: 10000
   });
-  const socket = useContext(NuCypherSocketContext);
   const superfluid = useContext(SuperfluidContext);
-  const [keyPair, setKeyPair] = useState({})
+  const umbralWasm = useContext(UmbralWasmContext)
   const [usdcx, setUsdcx] = useState(0)
   const {currentCreator} = useCurrentCreator()
 
@@ -100,8 +96,8 @@ export function Creator() {
     a.remove();
   }
 
-  function downloadBlob(decrypted: ArrayBuffer, content) {
-    const blob = new Blob([new Uint8Array(decrypted)], {type: content.type});
+  function downloadBlob(decrypted: Uint8Array, content) {
+    const blob = new Blob([decrypted], {type: content.type});
     const url = window.URL.createObjectURL(blob);
     downloadURL(url, content.name);
     setTimeout(() => window.URL.revokeObjectURL(url), 1000);
@@ -142,12 +138,8 @@ export function Creator() {
       alert('Connect to metamask')
       return;
     }
-    if (socket == null) {
-      alert('connect to wallet')
-      return
-    }
-    const nucypher = new NuCypher(socket)
-    const result = await nucypher.getKeyPair(context.account)
+    const umbral = new UmbralBob(umbralWasm, context.account)
+    const result = umbral.getPublicKeyBase64()
     let call;
     const contract = contractQuery.data.creators[0]
     let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
@@ -168,7 +160,7 @@ export function Creator() {
             ).encodeABI(),
             defaultAbiCoder.encode(
               ['string', 'string'],
-              [result['pubkey_sig'], result['pubkey_enc']]
+              [result, 'newcypher']
             )
           ]
         ),
@@ -177,20 +169,15 @@ export function Creator() {
     const tx = await sf.host.batchCall(call, {from: subscriber});
     await tx.wait();
     console.log('subscribed');
-    setKeyPair(result);
   }
 
   async function download(content) {
     console.log(content)
-    const encObject: EncryptedObject = await textile.downloadEncryptedFile(content.ipfs)
-    if (socket == null) {
-      alert('connect to wallet')
-      return
-    }
-    const nucypher = new NuCypher(socket)
-    const data = await nucypher.decrypt(encObject.policy_pubkey, encObject.alice_sig_pubkey, encObject.enc_file_content,
-      creatorContractAddress, context.account!)
-    const decrypted = textile.base64ToArrayBuffer(data['decrypted_content']);
+    const encObject: EncryptedObject = await textile!.downloadEncryptedFile(content.ipfs)
+    const umbral = new UmbralBob(umbralWasm, context.account!)
+    console.log(encObject)
+    const decrypted = await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk)
+
     await downloadBlob(decrypted, content);
   }
   if(!context.account)
@@ -212,7 +199,6 @@ export function Creator() {
       {(currentCreator && currentCreator.creatorContract===creatorContractAddress) && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
-      {Object.entries(keyPair).map((x) => <h3 key={x[0]}>{x[0]} : {x[1]}</h3>)}
       {(subscription == 'unsubscribed') && (<button onClick={() => {
         subscribe()
       }}>Subscribe</button>)}

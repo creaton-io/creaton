@@ -1,0 +1,21 @@
+{
+  "name": "umbral-pre",
+  "collaborators": [
+    "Bogdan Opanchuk <bogdan@opanchuk.net>"
+  ],
+  "description": "Implementation of Umbral proxy reencryption algorithm",
+  "version": "0.0.3",
+  "license": "GPL-3.0-only",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nucypher/rust-umbral/tree/master/umbral-pre-wasm"
+  },
+  "files": [
+    "umbral_pre_wasm_bg.wasm", "umbral_pre_wasm_bg.js", "umbral_pre_wasm_bg.wasm.d.ts",
+    "umbral_pre_wasm.js",
+    "umbral_pre_wasm.d.ts"
+  ],
+  "module": "umbral_pre_wasm.js",
+  "types": "umbral_pre_wasm.d.ts",
+  "sideEffects": false, "keywords": ["umbral", "nucypher"]
+}

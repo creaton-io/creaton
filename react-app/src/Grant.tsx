@@ -1,22 +1,16 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
-import {Formik, Field, Form, FormikHelpers} from 'formik';
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useContext, useState} from "react";
-import {NuCypherSocketContext} from "./Socket";
 import {Creator, useCurrentCreator} from "./Utils";
-import {NuCypher} from "./NuCypher";
 import {gql, useQuery} from "@apollo/client";
 import {Contract} from "ethers";
 import creaton_contracts from "./contracts.json";
+import {UmbralWasmContext} from "./UmbralWasm";
+import {UmbralAlice} from "./Umbral";
 
 const CreatorContract = creaton_contracts.Creator
-
-interface Values {
-  pubkey_enc: string;
-  pubkey_sig: string;
-}
 
 const SUBSCRIBERS_QUERY = gql`
       query GET_SUBSCRIBERS($user: Bytes!) {
@@ -30,7 +24,7 @@ const SUBSCRIBERS_QUERY = gql`
 `;
 
 const Grant = () => {
-  const socket = useContext(NuCypherSocketContext)
+  const umbralWasm = useContext(UmbralWasmContext)
   const web3Context = useWeb3React<Web3Provider>()
   const [grantStatus, setGrantStatus] = useState({status: '', message: ''})
   const creator = useCurrentCreator().currentCreator
@@ -38,8 +32,9 @@ const Grant = () => {
     pollInterval: 10000,
     variables: {user: creator?.creatorContract}
   });
-  if (socket === null)
-    return (<div>Not connected to NuCypher</div>)
+
+  if (umbralWasm === null)
+    return (<div>Umbral Wasm not loaded</div>)
   if (!web3Context.account)
     return (<div>Not connected to MetaMask</div>)
   if (creator === undefined)
@@ -52,15 +47,21 @@ const Grant = () => {
 
   function grant(subscriber) {
     setGrantStatus({status: 'pending', message: 'Granting subscribers, please wait'})
-    const nucypher = new NuCypher(socket!)
-    nucypher.grant(currentCreator.creatorContract, currentCreator.user, subscriber.pub_key, subscriber.sig_key, web3Context.library!.getSigner())
+    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    umbral.grant(subscriber.sig_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-        console.log('3rd transaction for accepting the subscription in creator contract')
         creatorContract.acceptSubscribe(subscriber.user).then(function () {
           console.log('Accepted the subscription')
+          setGrantStatus({status: 'done', message: 'Granted'})
         })
       })
+  }
+
+  function regrant(subscriber) {
+    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    console.log(subscriber)
+    umbral.grant(subscriber.sig_key)
   }
 
   return (
@@ -69,6 +70,7 @@ const Grant = () => {
       {grantStatus.message && <h3>{grantStatus.message}</h3>}
       {data.subscribers.map((subscriber) => (<div key={subscriber.user}>{subscriber.user} : {subscriber.status}
         {subscriber.status==='pending_subscribe' && (<button onClick={()=>{grant(subscriber)}}>Grant</button>)}
+        {subscriber.status==='subscribed' && (<button onClick={()=>{regrant(subscriber)}}>Re-Grant</button>)}
       </div>))}
     </div>
   );

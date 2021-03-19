@@ -92,6 +92,7 @@ def main():
                 'deploy contracts',
                 'update contracts',
                 'run subgraph docker',
+                'run re-encryption server',
             ]
         },
     ]
@@ -104,6 +105,10 @@ def main():
 
     if subproject == 'run subgraph docker':
         run_command('cd subgraph && docker-compose up')
+        return
+
+    if subproject == 'run re-encryption server':
+        run_command('cd umbral-server && docker-compose up')
         return
 
     json_config = json.load(open(Path(subproject) / 'package.json'))
