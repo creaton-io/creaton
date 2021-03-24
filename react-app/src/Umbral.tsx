@@ -1,5 +1,11 @@
 import {Base64} from "js-base64";
 
+let REENCRYPTION_URI
+if (process.env.NODE_ENV === 'development')
+  REENCRYPTION_URI = 'http://localhost:3010'
+else
+  REENCRYPTION_URI = 'http://40.76.193.211:3010'
+
 export class Umbral {
   address
   umbral
@@ -66,7 +72,7 @@ export class UmbralAlice extends Umbral {
       signing_pk: Base64.fromUint8Array(signing_pk.to_array()),
       kfrag: Base64.fromUint8Array(kfrags[0].to_array())
     }
-    const response = await fetch('http://localhost:3010/grant', {
+    const response = await fetch(REENCRYPTION_URI+'/grant', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -98,7 +104,7 @@ export class UmbralBob extends Umbral {
       alice_pk: alice_pk,
       bob_pk: Base64.fromUint8Array(bob_pk.to_array())
     }
-    const response = await fetch('http://localhost:3010/reencrypt', {
+    const response = await fetch(REENCRYPTION_URI+'/reencrypt', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
