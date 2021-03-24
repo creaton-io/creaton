@@ -24,7 +24,7 @@ let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
   APOLLO_URI = 'http://localhost:8000/subgraphs/name/creaton-io/creaton'
 else
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton'
+  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton2'
 
 const client = new ApolloClient({
   uri: APOLLO_URI,
