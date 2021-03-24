@@ -93,6 +93,10 @@ const config = {
       url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
       accounts,
     },
+    mumbai: {
+      url: 'https://rpc-mumbai.matic.today',
+      accounts,
+    },
     mainnet: {
       url: 'https://mainnet.infura.io/v3/' + process.env.INFURA_TOKEN,
       accounts,

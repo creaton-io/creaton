@@ -34,7 +34,7 @@ const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.RPC_URL_1 as string,
   4: process.env.RPC_URL_4 as string
 }
-const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42]})
+const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
 const walletconnect = new WalletConnectConnector({
   rpc: {1: RPC_URLS[1]},
   bridge: 'https://bridge.walletconnect.org',

@@ -73,7 +73,7 @@ def update_subgraph(creaton_admin, creator, network):
 
 
 def deploy_contracts():
-    run_command('npm run goerli:contracts')
+    run_command('npm run mumbai:contracts')
     if yesno('Update the contract addresses in subgraph and react?'):
         return update_contracts()
 

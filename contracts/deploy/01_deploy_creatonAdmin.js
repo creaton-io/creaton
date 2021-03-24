@@ -50,7 +50,7 @@ const func = async function (hre) {
   // console.log('chain id', network.config.chainId);
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 5,
+    chainId: 80001,
     version: 'v1',
     web3Provider: await hre.web3.currentProvider,
     tokens: ['fUSDC'],
