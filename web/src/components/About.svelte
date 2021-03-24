@@ -13,6 +13,24 @@
       <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
         <div class="py-6 bg-white border-solid rounded-lg border-4">
           <div class="pt-6 text-center">
+            <h5 class="text-2xl font-bold">Siddig Zeidan</h5>
+            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold -mb-1">Front-end Dev</p>
+            <div class="mt-6">
+              <li class="flex items-center">
+                <a
+                  class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
+                  href="https://ca.linkedin.com/in/ziggy-zeidan-64a93565"
+                  target="_blank">
+                  <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
+                </a>
+              </li>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
+        <div class="py-6 bg-white border-solid rounded-lg border-4">
+          <div class="pt-6 text-center">
             <h5 class="text-2xl font-bold">Alexander Klus</h5>
             <p class="mt-1 text-lg text-gray-500 uppercase font-semibold">Blockchain Dev</p>
             <div class="mt-6">
@@ -38,24 +56,6 @@
                 <a
                   class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
                   href="https://www.linkedin.com/in/sina-faraji-341a381a1/"
-                  target="_blank">
-                  <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
-                </a>
-              </li>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="w-full md:w-6/12 lg:w-3/12 lg:mb-0 mb-12 px-4">
-        <div class="py-6 bg-white border-solid rounded-lg border-4">
-          <div class="pt-6 text-center">
-            <h5 class="text-2xl font-bold">Siddig Zeidan</h5>
-            <p class="mt-1 text-lg text-gray-500 uppercase font-semibold -mb-1">Front-end Dev</p>
-            <div class="mt-6">
-              <li class="flex items-center">
-                <a
-                  class="bg-blue-400 w-8 h-8 rounded-full outline-none font-bold ml-auto mr-auto"
-                  href="https://ca.linkedin.com/in/ziggy-zeidan-64a93565"
                   target="_blank">
                   <i class="text-white fab fa-linkedin text-lg leading-lg align-bottom" />
                 </a>
