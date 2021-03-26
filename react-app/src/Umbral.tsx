@@ -70,7 +70,8 @@ export class UmbralAlice extends Umbral {
     console.log(kfrags[0].to_array())
     const json_payload = {
       signing_pk: Base64.fromUint8Array(signing_pk.to_array()),
-      kfrag: Base64.fromUint8Array(kfrags[0].to_array())
+      kfrag: Base64.fromUint8Array(kfrags[0].to_array()),
+      bob_pk: bob_pk_base64
     }
     const response = await fetch(REENCRYPTION_URI+'/grant', {
       method: 'POST',
