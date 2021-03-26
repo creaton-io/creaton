@@ -4,7 +4,7 @@ let REENCRYPTION_URI
 if (process.env.NODE_ENV === 'development')
   REENCRYPTION_URI = 'http://localhost:3010'
 else
-  REENCRYPTION_URI = 'https://creaton.eastus.cloudapp.azure.com'
+  REENCRYPTION_URI = 'https://creaton.m30m.me'
 
 export class Umbral {
   address
