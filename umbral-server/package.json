@@ -16,6 +16,7 @@
     "js-base64": "^3.6.0",
     "morgan": "^1.10.0",
     "request": "^2.88.2",
+    "sqlite3": "^5.0.2",
     "umbral-pre-wasm": "file:./umbral-wasm-nodejs"
   }
 }
