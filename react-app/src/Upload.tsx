@@ -45,6 +45,7 @@ const Upload = () => {
     const buf = await file.arrayBuffer();
     const bytes = new Uint8Array(buf);
     const umbral = new UmbralAlice(umbralWasm, currentCreator!.user)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!))
     let encryptedObject;
     setStatus('Encrypting the file...')
     try {

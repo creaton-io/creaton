@@ -1,44 +1,49 @@
 import {Base64} from "js-base64";
+import {utils} from "ethers";
 
 let REENCRYPTION_URI
 if (process.env.NODE_ENV === 'development')
   REENCRYPTION_URI = 'http://localhost:3010'
 else
-  REENCRYPTION_URI = 'https://creaton.m30m.me'
+  REENCRYPTION_URI = 'https://reencryption.creaton.io'
 
 export class Umbral {
   address
   umbral
+  masterKey
 
   constructor(umbral, etherum_address: string) {
     this.umbral = umbral
     this.address = etherum_address.toLowerCase()
   }
 
-
-  protected getKeyOrCreate(keyAddress: string) {
+  public async initMasterkey(signer) {
+    const keyAddress = 'masterkey-' + this.address
     let item = localStorage.getItem(keyAddress);
-    let privateKey
     if (!item) {
-      privateKey = this.umbral.SecretKey.random()
-      localStorage.setItem(keyAddress, Base64.fromUint8Array(privateKey.to_array()))
+      const signature = await signer.signMessage('For encryption/decryption of content, we need to generate additional secret keys.\nWe generate these keys based on your wallet so that you can recover them later in another device.\nTo continue please sign this message.')
+      this.masterKey = utils.arrayify(signature)
+      localStorage.setItem(keyAddress, Base64.fromUint8Array(this.masterKey))
     } else {
-      privateKey = this.umbral.SecretKey.from_array(Base64.toUint8Array(item))
+      this.masterKey = Base64.toUint8Array(item)
     }
+  }
+
+  protected getPrivatePublic(bytes: Uint8Array){
+    const privateKey = this.umbral.SecretKey.from_array(bytes)
     const publicKey = this.umbral.PublicKey.from_secret_key(privateKey)
     return [privateKey, publicKey];
   }
-
 
 }
 
 export class UmbralAlice extends Umbral {
   private getSecretKey() {
-    return this.getKeyOrCreate('sk-' + this.address);
+    return this.getPrivatePublic(this.masterKey.slice(0,32))
   }
 
   private getSigningSecretKey() {
-    return this.getKeyOrCreate('signing-sk-' + this.address);
+    return this.getPrivatePublic(this.masterKey.slice(32,64))
   }
 
   public encrypt(file_content: Uint8Array) {
@@ -89,7 +94,7 @@ export class UmbralAlice extends Umbral {
 export class UmbralBob extends Umbral {
 
   private getSecretKey() {
-    return this.getKeyOrCreate('bob-' + this.address);
+    return this.getPrivatePublic(this.masterKey.slice(0,32))
   }
 
   public getPublicKeyBase64() {

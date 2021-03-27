@@ -45,9 +45,10 @@ const Grant = () => {
     return (<div>Error Loading subscribers</div>)
   let currentCreator: Creator = creator
 
-  function grant(subscriber) {
+  async function grant(subscriber) {
     setGrantStatus({status: 'pending', message: 'Granting subscribers, please wait'})
     const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
     umbral.grant(subscriber.sig_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
@@ -58,8 +59,9 @@ const Grant = () => {
       })
   }
 
-  function regrant(subscriber) {
+  async function regrant(subscriber) {
     const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
     console.log(subscriber)
     umbral.grant(subscriber.sig_key)
   }

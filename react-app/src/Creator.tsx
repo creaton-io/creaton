@@ -169,6 +169,7 @@ export function Creator() {
       return;
     }
     const umbral = new UmbralBob(umbralWasm, context.account)
+    await umbral.initMasterkey(context.library!.getSigner(context.account))
     const result = umbral.getPublicKeyBase64()
     let call;
     const contract = contractQuery.data.creators[0]
@@ -205,6 +206,7 @@ export function Creator() {
     console.log(content)
     const encObject: EncryptedObject = await textile!.downloadEncryptedFile(content.ipfs)
     const umbral = new UmbralBob(umbralWasm, context.account!)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!))
     return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk)
   }
 
