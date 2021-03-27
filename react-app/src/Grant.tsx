@@ -59,6 +59,42 @@ const Grant = () => {
       })
   }
 
+  async function grant_all() {
+    setGrantStatus({status: 'pending', message: 'Granting all pending subscribers, please wait'})
+    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    let users: any = []
+    for (let subscriber of data.subscribers) {
+      if (subscriber.status === 'pending_subscribe') {
+        await umbral.grant(subscriber.sig_key)
+        users.push(subscriber.user)
+      }
+    }
+    const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
+    creatorContract.bulkAcceptSubscribe(users).then(function () {
+      console.log('Accepted all the subscription')
+      setGrantStatus({status: 'done', message: 'Granted'})
+    })
+  }
+
+  async function revoke_all() {
+    setGrantStatus({status: 'pending', message: 'Reovking all pending unsubscribers, please wait'})
+    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    let users: any = []
+    for (let subscriber of data.subscribers) {
+      if (subscriber.status === 'pending_unsubscribe') {
+        await umbral.revoke(subscriber.sig_key)
+        users.push(subscriber.user)
+      }
+    }
+    const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
+    creatorContract.bulkAcceptUnsubscribe(users).then(function () {
+      console.log('Revoked all the pending_unsubscription')
+      setGrantStatus({status: 'done', message: 'Revoked all'})
+    })
+  }
+
   async function revoke(subscriber) {
     setGrantStatus({status: 'pending', message: 'Revoking subscribers, please wait'})
     const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
@@ -84,10 +120,23 @@ const Grant = () => {
     <div>
       <h1>Grant Subscribers</h1>
       {grantStatus.message && <h3>{grantStatus.message}</h3>}
+      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_subscribe')) && (<button onClick={() => {
+        grant_all()
+      }}>Grant all pending_subscribe</button>)}
+      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (<button onClick={() => {
+        revoke_all()
+      }}>Revoke all pending_unsubscribe</button>)}
+      <br/>
       {data.subscribers.map((subscriber) => (<div key={subscriber.user}>{subscriber.user} : {subscriber.status}
-        {subscriber.status==='pending_subscribe' && (<button onClick={()=>{grant(subscriber)}}>Grant</button>)}
-        {subscriber.status==='subscribed' && (<button onClick={()=>{regrant(subscriber)}}>Re-Grant</button>)}
-        {subscriber.status==='pending_unsubscribe' && (<button onClick={()=>{revoke(subscriber)}}>Revoke</button>)}
+        {subscriber.status === 'pending_subscribe' && (<button onClick={() => {
+          grant(subscriber)
+        }}>Grant</button>)}
+        {subscriber.status === 'subscribed' && (<button onClick={() => {
+          regrant(subscriber)
+        }}>Re-Grant</button>)}
+        {subscriber.status === 'pending_unsubscribe' && (<button onClick={() => {
+          revoke(subscriber)
+        }}>Revoke</button>)}
       </div>))}
     </div>
   );
