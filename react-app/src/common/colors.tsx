@@ -1,6 +1,7 @@
 import {FC} from "react";
 import { startCase, kebabCase } from 'lodash';
 import clsx from "clsx";
+import React from "react";
 
 export interface ColorProps {
     name: string;
