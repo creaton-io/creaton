@@ -2,6 +2,10 @@ import {useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
+
+import {NuCypherSocketContext} from './Socket';
+import {EncryptedObject, TextileStore} from "./stores/textileStore";
+import {NuCypher} from "./NuCypher";
 import {EncryptedObject} from "./stores/textileStore";
 import {gql, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
@@ -56,7 +60,17 @@ export function Creator() {
       }
    `;
 
+<<<<<<< HEAD
+
+  const [textile, _] = useState(new TextileStore())
+  useEffect(() => {
+    textile.authenticate().then(function () {
+      console.log('textile authenticated')
+    })
+  }, [textile])
+=======
   const textile = useContext(TextileContext)
+>>>>>>> 7dd1a42d65b09c24512eb4962e7a46c009b3a70d
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})

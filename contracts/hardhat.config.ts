@@ -6,7 +6,8 @@ import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
 import {Wallet} from '@ethersproject/wallet';
 
-const mnemonic = process.env.MNEMONIC;
+// const mnemonic = process.env.MNEMONIC;
+const mnemonic = 'clinic motion explain margin poem regular oil heavy assume broken finger proof';
 let accounts;
 let hardhatAccounts;
 
@@ -56,7 +57,7 @@ const config = {
       default: 1,
     },
     subscriber: {
-      default: 2,
+      default: 4,
     },
     treasury: {
       default: 3,
@@ -90,7 +91,8 @@ const config = {
       accounts,
     },
     goerli: {
-      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
+      // url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
+      url: 'https://eth-goerli.alchemyapi.io/v2/' + 'IUpvNP1pJQSpTDx7buvmQTFD6L9aYvUi',
       accounts,
     },
     mumbai: {
