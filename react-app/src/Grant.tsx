@@ -59,6 +59,20 @@ const Grant = () => {
       })
   }
 
+  async function revoke(subscriber) {
+    setGrantStatus({status: 'pending', message: 'Revoking subscribers, please wait'})
+    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
+    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    umbral.revoke(subscriber.sig_key)
+      .then(function () {
+        const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
+        creatorContract.acceptUnsubscribe(subscriber.user).then(function () {
+          console.log('Revoked the subscription')
+          setGrantStatus({status: 'done', message: 'Revoked'})
+        })
+      })
+  }
+
   async function regrant(subscriber) {
     const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
     await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
@@ -73,6 +87,7 @@ const Grant = () => {
       {data.subscribers.map((subscriber) => (<div key={subscriber.user}>{subscriber.user} : {subscriber.status}
         {subscriber.status==='pending_subscribe' && (<button onClick={()=>{grant(subscriber)}}>Grant</button>)}
         {subscriber.status==='subscribed' && (<button onClick={()=>{regrant(subscriber)}}>Re-Grant</button>)}
+        {subscriber.status==='pending_unsubscribe' && (<button onClick={()=>{revoke(subscriber)}}>Revoke</button>)}
       </div>))}
     </div>
   );

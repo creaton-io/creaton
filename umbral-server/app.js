@@ -40,6 +40,23 @@ app.post('/grant', async (req, res) => {
   }
 });
 
+app.post('/revoke', async (req, res) => {
+  const signing_pk = req.body.signing_pk;
+  const bob_pk = req.body.bob_pk;
+  const bob_pk_digest = ethers.utils.keccak256(Base64.toUint8Array(bob_pk));
+  const recovered_signing_pk = ethers.utils.computePublicKey(
+    ethers.utils.recoverPublicKey(bob_pk_digest, req.body.signature),
+    true
+  );
+  const original_signing_pk = ethers.utils.hexlify(Base64.toUint8Array(signing_pk));
+  if (original_signing_pk !== recovered_signing_pk) res.status(400).send('Digest mismatch');
+  else {
+    console.log(original_signing_pk, recovered_signing_pk);
+    db.run('DELETE FROM `KFrags`  WHERE `signing_pk` = ? AND `bob_pk` = ?;', signing_pk, bob_pk);
+    res.send('OK');
+  }
+});
+
 app.post('/reencrypt', async (req, res) => {
   let signing_pk = req.body.signing_pk;
   const original_bob_pk = ethers.utils.hexlify(Base64.toUint8Array(req.body.bob_pk));

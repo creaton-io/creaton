@@ -91,6 +91,25 @@ export class UmbralAlice extends Umbral {
     console.log(response)
   }
 
+  public async revoke(bob_pk_base64: string) {
+    let [signing_sk, signing_pk] = this.getSigningSecretKey()
+    const ethers_signing_sk = new utils.SigningKey(utils.hexlify(signing_sk.to_array()))
+    const signature = ethers_signing_sk.signDigest(utils.keccak256(Base64.toUint8Array(bob_pk_base64)))
+    const json_payload = {
+      signing_pk: Base64.fromUint8Array(signing_pk.to_array()),
+      bob_pk: bob_pk_base64,
+      signature: signature
+    }
+    const response = await fetch(REENCRYPTION_URI+'/revoke', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(json_payload)
+    })
+    console.log(response)
+  }
+
 
 }
 
