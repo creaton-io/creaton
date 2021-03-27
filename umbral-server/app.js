@@ -2,6 +2,7 @@ const umbral = require('umbral-pre-wasm');
 const express = require('express');
 const {Base64} = require('js-base64');
 const sqlite3 = require('sqlite3');
+const {ethers} = require('ethers');
 
 const db = new sqlite3.Database('data/db.sqlite');
 db.run(
@@ -22,22 +23,41 @@ app.get('/', (req, res) => {
 const ursula_memory = {};
 
 app.post('/grant', async (req, res) => {
-  let signing_pk = req.body.signing_pk;
-  let kfrag = req.body.kfrag;
-  let bob_pk = req.body.bob_pk;
-  db.run('INSERT OR IGNORE INTO `KFrags`(`signing_pk`,`bob_pk`,`kfrag`) VALUES (?,?,?)', signing_pk, bob_pk, kfrag);
-  res.send('OK');
+  const signing_pk = req.body.signing_pk;
+  const kfrag = req.body.kfrag;
+  const bob_pk = req.body.bob_pk;
+  const kfrag_digest = ethers.utils.keccak256(Base64.toUint8Array(kfrag));
+  const recovered_signing_pk = ethers.utils.computePublicKey(
+    ethers.utils.recoverPublicKey(kfrag_digest, req.body.signature),
+    true
+  );
+  const original_signing_pk = ethers.utils.hexlify(Base64.toUint8Array(signing_pk));
+  if (original_signing_pk !== recovered_signing_pk) res.status(400).send('Digest mismatch');
+  else {
+    console.log(original_signing_pk, recovered_signing_pk);
+    db.run('INSERT OR IGNORE INTO `KFrags`(`signing_pk`,`bob_pk`,`kfrag`) VALUES (?,?,?)', signing_pk, bob_pk, kfrag);
+    res.send('OK');
+  }
 });
 
 app.post('/reencrypt', async (req, res) => {
   let signing_pk = req.body.signing_pk;
-  let ursula_key = signing_pk + '-' + req.body.bob_pk;
+  const original_bob_pk = ethers.utils.hexlify(Base64.toUint8Array(req.body.bob_pk));
+  const capsule_digest = ethers.utils.keccak256(Base64.toUint8Array(req.body.capsule));
+  const recovered_bob_pk = ethers.utils.computePublicKey(
+    ethers.utils.recoverPublicKey(capsule_digest, req.body.signature),
+    true
+  );
+  if (original_bob_pk !== recovered_bob_pk) {
+    res.status(400).send('Digest mismatch');
+    return;
+  }
   db.get(
     'SELECT `signing_pk`, `bob_pk`, `kfrag` FROM `KFrags` WHERE `signing_pk` = ? AND `bob_pk` = ?',
     signing_pk,
     req.body.bob_pk,
     function (err, row) {
-      if (!kfrag) {
+      if (!row) {
         res.status(400).send('KFrag not found');
         return;
       }

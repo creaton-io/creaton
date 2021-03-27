@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
+    "ethers": "^5.0.32",
     "express": "^4.17.1",
     "js-base64": "^3.6.0",
     "morgan": "^1.10.0",

@@ -73,10 +73,13 @@ export class UmbralAlice extends Umbral {
     )
     console.log('kfrags', kfrags)
     console.log(kfrags[0].to_array())
+    const ethers_signing_sk = new utils.SigningKey(utils.hexlify(signing_sk.to_array()))
+    const signature = ethers_signing_sk.signDigest(utils.keccak256(kfrags[0].to_array()))
     const json_payload = {
       signing_pk: Base64.fromUint8Array(signing_pk.to_array()),
       kfrag: Base64.fromUint8Array(kfrags[0].to_array()),
-      bob_pk: bob_pk_base64
+      bob_pk: bob_pk_base64,
+      signature: signature
     }
     const response = await fetch(REENCRYPTION_URI+'/grant', {
       method: 'POST',
@@ -104,10 +107,13 @@ export class UmbralBob extends Umbral {
 
   private async getCFrag(ciphertext: string, capsule: string, signing_pk: string, alice_pk: string){
     let [bob_sk, bob_pk] = this.getSecretKey()
+    const ethers_bob_sk = new utils.SigningKey(utils.hexlify(bob_sk.to_array()))
+    const signature = ethers_bob_sk.signDigest(utils.keccak256(Base64.toUint8Array(capsule)))
     const json_payload = {
       signing_pk: signing_pk,
       capsule: capsule,
       alice_pk: alice_pk,
+      signature: signature,
       bob_pk: Base64.fromUint8Array(bob_pk.to_array())
     }
     const response = await fetch(REENCRYPTION_URI+'/reencrypt', {
@@ -130,6 +136,5 @@ export class UmbralBob extends Umbral {
     const ciphertext_obj = Base64.toUint8Array(ciphertext)
     let plaintext_bob = capsule_obj.with_cfrag(cfrag).decrypt_reencrypted(bob_sk, alice_pk_obj, ciphertext_obj)
     return plaintext_bob
-
   }
 }
