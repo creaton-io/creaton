@@ -214,7 +214,6 @@
       }
       console.log(pendingSubscribers);
       
-    
   }
 
   async function loadSuperFluid() {

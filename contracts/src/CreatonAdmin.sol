@@ -4,7 +4,7 @@ pragma abicoder v2;
 
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "hardhat/console.sol";
-import "./Creator.sol";
+import "./CreatorProxy.sol";
 
 import {
     ISuperfluid,
@@ -49,6 +49,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     int96 public treasury_fee;
 
     address public trustedForwarder;
+    address public creatorBeacon;
 
     // -----------------------------------------
     // Constructor
@@ -60,7 +61,8 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         address acceptedToken, // get these from superfluid contracts
         address _treasury,
         int96 _treasury_fee,
-        address _trustedForwarder
+        address _trustedForwarder,
+        address _creatorBeacon
     ) {
         assert(host != address(0));
         assert(cfa != address(0));
@@ -74,6 +76,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         treasury_fee = _treasury_fee;
 
         trustedForwarder = _trustedForwarder;
+        creatorBeacon = _creatorBeacon;
     }
 
     // -----------------------------------------
@@ -103,15 +106,13 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     // }
 
     function deployCreator(string calldata description, uint256 subscriptionPrice) external {
-        Creator creatorContract =
-            new Creator(
-                ISuperfluid(_host),
-                IConstantFlowAgreementV1(_cfa),
-                ISuperToken(_acceptedToken),
-                msg.sender,
-                description,
-                subscriptionPrice
-            ); 
+
+        CreatorProxy creatorContract =
+            new CreatorProxy(
+                creatorBeacon,
+                abi.encodeWithSignature("initialize(address,address,address,address,string,uint256)",
+                                        _host, _cfa, _acceptedToken, msg.sender, description, subscriptionPrice)
+            );
 
         address creatorContractAddr = address(creatorContract);
         contract2creator[creatorContractAddr] = msg.sender;

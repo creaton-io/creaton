@@ -3,6 +3,7 @@ pragma solidity 0.7.6;
 pragma abicoder v2;
 
 import './CreatonAdmin.sol';
+import "@openzeppelin/contracts/proxy/Initializable.sol";
 
 import {
     ISuperfluid,
@@ -20,11 +21,10 @@ import {
 } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import { Int96SafeMath } from "./utils/Int96SafeMath.sol";
 
 
-contract Creator is SuperAppBase {
+contract CreatorV1 is SuperAppBase, Initializable {
     using Int96SafeMath for int96;
     // -----------------------------------------
     // Errors
@@ -65,43 +65,73 @@ contract Creator is SuperAppBase {
 
     string public description;
     int96 public subscriptionPrice;
-    int96 private _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
+    int96 private _MINIMUM_FLOW_RATE;
     mapping (address => Subscriber) public subscribers;
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     Post[] public posts;
 
     // -----------------------------------------
-    // Constructor
+    // Initializer
     // -----------------------------------------
 
-    constructor(
-        ISuperfluid host,
-        IConstantFlowAgreementV1 cfa,
-        ISuperToken acceptedToken, 
-        address owner,
+    function initialize(
+        address host,
+        address cfa,
+        address acceptedToken,
+        address _creator,
         string memory _description,
         uint256 _subscriptionPrice
-    ) {
-
+    ) public payable initializer {
         admin = msg.sender;
 
         assert(address(host) != address(0));
         assert(address(cfa) != address(0));
         assert(address(acceptedToken) != address(0));
 
-        _host = host;
-        _cfa = cfa;
-        _acceptedToken = acceptedToken;
+        _host = ISuperfluid(host);
+        _cfa = IConstantFlowAgreementV1(cfa);
+        _acceptedToken = ISuperToken(acceptedToken);
 
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
         _host.registerApp(configWord);
 
-        creator = owner;
+        creator = _creator;
         description = _description;
         subscriptionPrice = int96(_subscriptionPrice);
+        _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
         adminContract = CreatonAdmin(admin);
         subscriberCount = 0;
     }
+
+//    constructor(
+//        ISuperfluid host,
+//        IConstantFlowAgreementV1 cfa,
+//        ISuperToken acceptedToken,
+//        address owner,
+//        string memory _description,
+//        uint256 _subscriptionPrice
+//    ) {
+//
+//        admin = msg.sender;
+//
+//        assert(address(host) != address(0));
+//        assert(address(cfa) != address(0));
+//        assert(address(acceptedToken) != address(0));
+//
+//        _host = host;
+//        _cfa = cfa;
+//        _acceptedToken = acceptedToken;
+//
+//        uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
+//        _host.registerApp(configWord);
+//
+//        creator = owner;
+//        description = _description;
+//        subscriptionPrice = int96(_subscriptionPrice);
+//        _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
+//        adminContract = CreatonAdmin(admin);
+//        subscriberCount = 0;
+//    }
 
     // -----------------------------------------
     // Logic

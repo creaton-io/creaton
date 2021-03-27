@@ -2,7 +2,7 @@ import {useParams} from "react-router-dom";
 import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {NuCypherSocketContext} from "./Socket";
+import {NuCypherSocketContext} from './Socket';
 import {EncryptedObject, TextileStore} from "./stores/textileStore";
 import {NuCypher} from "./NuCypher";
 import {gql, useQuery} from "@apollo/client";
