@@ -19,6 +19,7 @@ import {Creator} from "./Creator";
 import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
 import {TextileProvider} from "./TextileProvider";
+import TwitterVerification from "./TwitterVerification";
 
 let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
@@ -74,6 +75,9 @@ const App = () => {
                     <li>
                       <Link to="/grant">Grant</Link>
                     </li>
+                    <li>
+                      <Link to="/twitter-verification">Twitter Verification</Link>
+                    </li>
 
                   </ul>
 
@@ -113,6 +117,9 @@ const App = () => {
                     </Route>
                     <Route path="/creator/:id">
                       <Creator/>
+                    </Route>
+                    <Route path="/twitter-verification">
+                      <TwitterVerification/>
                     </Route>
                   </Switch>
                 </div>
