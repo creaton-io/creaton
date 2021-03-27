@@ -13,17 +13,19 @@ import {useWeb3React, Web3ReactProvider} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import SignUp from "./Signup";
 import Upload from "./Upload";
-import {NuCypherSocketContext, NuCypherSocketProvider} from "./Socket";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 import {Creator} from "./Creator";
 import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
+import {UmbralWasmProvider} from "./UmbralWasm";
+import {TextileProvider} from "./TextileProvider";
+import TwitterVerification from "./TwitterVerification";
 
 let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
   APOLLO_URI = 'http://localhost:8000/subgraphs/name/creaton-io/creaton'
 else
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton'
+  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton2'
 
 const client = new ApolloClient({
   uri: APOLLO_URI,
@@ -39,11 +41,9 @@ function getLibrary(provider: any): Web3Provider {
 
 function Status() {
   const {active, error} = useWeb3React()
-  const socket = useContext(NuCypherSocketContext);
   return (
     <div>
     <h1 style={{margin: '1rem', textAlign: 'right'}}>Web3:{active ? '🟢' : error ? '🔴' : '🟠'}</h1>
-    <h1 style={{margin: '1rem', textAlign: 'right'}}>NuSocket:{socket !== null ? '🟢' : '🔴'}</h1>
     </div>
   );
 }
@@ -51,9 +51,10 @@ function Status() {
 const App = () => {
   return (
     <ErrorHandlerProvider>
+      <TextileProvider>
       <Web3ReactProvider getLibrary={getLibrary}>
         <SuperfluidProvider>
-          <NuCypherSocketProvider>
+          <UmbralWasmProvider>
             <ApolloProvider client={client}>
               <Status/>
               <Router>
@@ -73,6 +74,9 @@ const App = () => {
                     </li>
                     <li>
                       <Link to="/grant">Grant</Link>
+                    </li>
+                    <li>
+                      <Link to="/twitter-verification">Twitter Verification</Link>
                     </li>
 
                   </ul>
@@ -114,13 +118,17 @@ const App = () => {
                     <Route path="/creator/:id">
                       <Creator/>
                     </Route>
+                    <Route path="/twitter-verification">
+                      <TwitterVerification/>
+                    </Route>
                   </Switch>
                 </div>
               </Router>
             </ApolloProvider>
-          </NuCypherSocketProvider>
+          </UmbralWasmProvider>
         </SuperfluidProvider>
       </Web3ReactProvider>
+      </TextileProvider>
     </ErrorHandlerProvider>
   );
 }

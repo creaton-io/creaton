@@ -1,16 +1,17 @@
-import {TextileStore} from './stores/textileStore';
 import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
-import {NuCypherSocketContext} from "./Socket";
 import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
 import creaton_contracts from './contracts.json'
-import {NuCypher} from "./NuCypher";
 import {ErrorHandlerContext} from "./ErrorHandler";
+import {UmbralAlice} from "./Umbral";
+import {UmbralWasmContext} from "./UmbralWasm";
+import {TextileContext} from "./TextileProvider";
 
 const CreatorContract = creaton_contracts.Creator
+
 interface Values {
   file: string;
   description: string;
@@ -19,14 +20,8 @@ interface Values {
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
-  const [textile, _] = useState(new TextileStore())
+  const textile = useContext(TextileContext)
   const [status, setStatus] = useState("")
-  useEffect(() => {
-    textile.authenticate().then(function () {
-      console.log('textile authenticated')
-    })
-  }, [textile])
-  const socket = useContext(NuCypherSocketContext);
   const handleFileSelection = (event) => {
     const file = event.currentTarget.files[0];
     console.log(file)
@@ -35,32 +30,35 @@ const Upload = () => {
 
   const {loading, error, currentCreator} = useCurrentCreator()
   const errorHandler = useContext(ErrorHandlerContext)
-  if (socket === null)
-    return (<div>Not connected to NuCypher</div>)
+  const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
     return (<div>Not connected</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
     return (<div>Please signup first. You are not a creator yet.</div>)
+  if (!umbralWasm)
+    return (<div>Umbral wasm not loaded yet</div>)
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
 
   async function upload(file: File, description: string, contractAddress: string, creatorAddress: string) {
     const buf = await file.arrayBuffer();
-    const b64File = textile.arrayBufferToBase64(buf);
-    const nucypher = new NuCypher(socket!)
+    const bytes = new Uint8Array(buf);
+    const umbral = new UmbralAlice(umbralWasm, currentCreator!.user)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!))
     let encryptedObject;
     setStatus('Encrypting the file...')
     try {
-      encryptedObject = await nucypher.encrypt(b64File, contractAddress, utils.getAddress(creatorAddress))
+      encryptedObject = umbral.encrypt(bytes)
     } catch (error) {
       errorHandler.setError(error.toString())
       return;
     }
     encryptedObject['type'] = file.type
+    console.log(encryptedObject)
     const buffer = Buffer.from(JSON.stringify(encryptedObject))
     setStatus('Uploading encrypted content to IPFS...')
-    textile.pushFile(file, buffer).then(async function (encFile) {
+    textile!.pushFile(file, buffer).then(async function (encFile) {
       const metadata = {
         name: encFile.name,
         type: encFile.type,

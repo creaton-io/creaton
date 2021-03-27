@@ -45,10 +45,11 @@ export interface CidKey {
 }
 
 export interface EncryptedObject {
-  policy_pubkey: string;
-  alice_sig_pubkey: string;
-  enc_file_content: string;
-  type?: string;
+  ciphertext: string;
+  capsule: string;
+  signing_pk: string;
+  alice_pk: string;
+  type: string;
 }
 
 
@@ -79,7 +80,7 @@ export class TextileStore {
   public async authenticate(): Promise<void> {
     this.identity = await this.getIdentity();
     await this.initialize();
-    console.log(this.identity.public.toString());
+    console.log('textile authenticated ' + this.identity.public.toString());
   }
 
   private async getIdentity(): Promise<PrivateKey> {

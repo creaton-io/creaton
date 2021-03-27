@@ -25,7 +25,6 @@
     "wighawag_newsh": "0.0.6"
   },
   "scripts": {
-    "prepare": "node ./.setup.js",
     "lint": "eslint \"**/*.{js,ts}\"",
     "lint:fix": "eslint --fix \"**/*.{js,ts}\"",
     "format": "prettier --write \"**/*.{ts,js,svelte,sol}\"",

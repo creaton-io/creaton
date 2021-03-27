@@ -1,21 +1,21 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/*@tailwind base;*/
+/*@tailwind components;*/
+/*@tailwind utilities;*/
 
-:root {
-  --color-navy: theme('colors.palette.navy');
-  --color-navy-dark: theme('colors.palette.navyDark');
-  --color-navy-light: theme('colors.palette.navyLight');
-  --color-green: theme('colors.palette.green');
-  --color-green-dark: theme('colors.palette.greenDark');
-  --color-green-light: theme('colors.palette.greenLight');
-  --color-blue-primary: theme('colors.palette.bluePrimary');
-  --color-blue: theme('colors.palette.blue');
-  --color-blue-dark: theme('colors.palette.blueDark');
-  --color-blue-light: theme('colors.palette.blueLight');
-  --color-pink: theme('colors.palette.pink');
-  --color-pink-light: theme('colors.palette.pinkLight');
-}
+/*:root {*/
+/*  --color-navy: theme('colors.palette.navy');*/
+/*  --color-navy-dark: theme('colors.palette.navyDark');*/
+/*  --color-navy-light: theme('colors.palette.navyLight');*/
+/*  --color-green: theme('colors.palette.green');*/
+/*  --color-green-dark: theme('colors.palette.greenDark');*/
+/*  --color-green-light: theme('colors.palette.greenLight');*/
+/*  --color-blue-primary: theme('colors.palette.bluePrimary');*/
+/*  --color-blue: theme('colors.palette.blue');*/
+/*  --color-blue-dark: theme('colors.palette.blueDark');*/
+/*  --color-blue-light: theme('colors.palette.blueLight');*/
+/*  --color-pink: theme('colors.palette.pink');*/
+/*  --color-pink-light: theme('colors.palette.pinkLight');*/
+/*}*/
 
 body {
   margin: 0;
