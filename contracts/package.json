@@ -12,7 +12,7 @@
     "@ethersproject/wallet": "^5.0.10",
     "@nomiclabs/hardhat-ethers": "^2.0.1",
     "@nomiclabs/hardhat-web3": "^2.0.0",
-    "@openzeppelin/contracts": "^3.4.0",
+    "@openzeppelin/contracts": "4.0.0",
     "@superfluid-finance/ethereum-contracts": "^0.2.3",
     "@superfluid-finance/js-sdk": "0.2.4",
     "@truffle/contract": "^4.3.5",

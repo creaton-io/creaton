@@ -1,6 +1,6 @@
-pragma solidity 0.7.6;
+pragma solidity 0.8.0;
 
-import "@openzeppelin/contracts/proxy/BeaconProxy.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 
 contract CreatorProxy is BeaconProxy {
 

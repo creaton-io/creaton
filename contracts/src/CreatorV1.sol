@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.7.6;
+pragma solidity 0.8.0;
 pragma abicoder v2;
 
 import './CreatonAdmin.sol';
-import "@openzeppelin/contracts/proxy/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import {
     ISuperfluid,
@@ -97,41 +97,11 @@ contract CreatorV1 is SuperAppBase, Initializable {
 
         creator = _creator;
         description = _description;
-        subscriptionPrice = int96(_subscriptionPrice);
+        subscriptionPrice = int96(uint96(_subscriptionPrice));
         _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
         adminContract = CreatonAdmin(admin);
         subscriberCount = 0;
     }
-
-//    constructor(
-//        ISuperfluid host,
-//        IConstantFlowAgreementV1 cfa,
-//        ISuperToken acceptedToken,
-//        address owner,
-//        string memory _description,
-//        uint256 _subscriptionPrice
-//    ) {
-//
-//        admin = msg.sender;
-//
-//        assert(address(host) != address(0));
-//        assert(address(cfa) != address(0));
-//        assert(address(acceptedToken) != address(0));
-//
-//        _host = host;
-//        _cfa = cfa;
-//        _acceptedToken = acceptedToken;
-//
-//        uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
-//        _host.registerApp(configWord);
-//
-//        creator = owner;
-//        description = _description;
-//        subscriptionPrice = int96(_subscriptionPrice);
-//        _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
-//        adminContract = CreatonAdmin(admin);
-//        subscriberCount = 0;
-//    }
 
     // -----------------------------------------
     // Logic

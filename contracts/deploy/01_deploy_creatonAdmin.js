@@ -11,8 +11,6 @@ const func = async function (hre) {
   //1820 contract not necesarry on goerli
 
   const version = process.env.RELEASE_VERSION || 'v1';
-  console.log('release version:', version);
-  console.log('chain id', network.config.chainId);
 
   const sf = new SuperfluidSDK.Framework({
     chainId: 80001,
@@ -23,7 +21,7 @@ const func = async function (hre) {
   await sf.initialize();
 
   const biconomyTrustedforwarder = '0x2B99251eC9650e507936fa9530D11dE4d6C9C05c';
-  const usdcx = sf.tokens.fUSDCx
+  const usdcx = sf.tokens.fUSDCx;
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
   // in live network, proxy is disabled and constructor is invoked
@@ -48,7 +46,14 @@ const func = async function (hre) {
 
   let adminContract = await deploy('CreatonAdmin', {
     from: admin,
-    args: [sf.host.address, sf.agreements.cfa.address, usdcx.address, treasury, 90, biconomyTrustedforwarder, beaconContract.address]
+    args: [
+      sf.host.address,
+      sf.agreements.cfa.address,
+      usdcx.address,
+      treasury,
+      90,
+      biconomyTrustedforwarder,
+      beaconContract.address]
   });
 
 };

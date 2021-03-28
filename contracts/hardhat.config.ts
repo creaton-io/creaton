@@ -7,7 +7,7 @@ import 'hardhat-deploy-ethers';
 import {Wallet} from '@ethersproject/wallet';
 
 // const mnemonic = process.env.MNEMONIC;
-const mnemonic = 'clinic motion explain margin poem regular oil heavy assume broken finger proof';
+const mnemonic = 'aerobic claim erase pretty real unfold twenty label yard open square universe';
 let accounts;
 let hardhatAccounts;
 
@@ -30,16 +30,7 @@ const config = {
   solidity: {
     compilers: [
       {
-        version: '0.7.1',
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 2000,
-          },
-        },
-      },
-      {
-        version: '0.7.6',
+        version: '0.8.0',
         settings: {
           optimizer: {
             enabled: true,
@@ -57,13 +48,13 @@ const config = {
       default: 1,
     },
     subscriber: {
-      default: 4,
+      default: 2,
     },
     treasury: {
       default: 3,
     },
   },
-  defaultNetwork: 'goerli',
+  defaultNetwork: 'mumbai',
   networks: {
     coverage: {
       url: 'http://localhost:5458',

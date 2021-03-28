@@ -2,6 +2,7 @@ export/
 web/dist
 web/public/pwa
 contracts/deployments
+contracts/deploy
 contracts/artifacts
 contracts/cache
 contracts/coverage
@@ -9,6 +10,7 @@ node_modules
 subgraph/abis
 subgraph/build
 subgraph/generated
+react/src
 common-lib/lib
 *.yaml
 *.json
