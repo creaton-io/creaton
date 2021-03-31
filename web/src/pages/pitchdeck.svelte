@@ -13,7 +13,7 @@
     title="Pitch Deck">
     <iframe
       class="ml-auto mr-auto w-full"
-      src="/creaton-pitch-deck.pdf"
+      src="/creaton-pitch-deck-2.pdf"
       title="Creaton Pitch Deck"
       width="1920"
       height="1080">
