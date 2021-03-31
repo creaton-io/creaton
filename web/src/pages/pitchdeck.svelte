@@ -6,7 +6,7 @@
   </a>
   <object
     class="ml-auto mr-auto w-full"
-    data="/creaton-pitch-deck.pdf"
+    data="/creaton-pitch-deck-2.pdf"
     type="application/pdf"
     width="1920"
     height="1080"
