@@ -205,7 +205,13 @@ export function Creator() {
 
   async function decrypt(content) {
     console.log(content)
-    const encObject: EncryptedObject = await textile!.downloadEncryptedFile(content.ipfs)
+    let encObject
+    if (content.ipfs.startsWith('/ipfs'))
+      encObject = await textile!.downloadEncryptedFile(content.ipfs)
+    else {//handle arweave
+      const response = await fetch('https://arweave.net/' + content.ipfs)
+      encObject = await response.json()
+    }
     const umbral = new UmbralBob(umbralWasm, context.account!)
     await umbral.initMasterkey(context.library!.getSigner(context.account!))
     return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk)
