@@ -40,6 +40,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
 
     mapping(address => address[]) public creator2contract; 
     mapping(address => address) public contract2creator;
+    mapping(address => string) private creator2twitter;
 
     address private _host;
     address private _cfa;
@@ -50,6 +51,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
 
     address public trustedForwarder;
     address public creatorBeacon;
+    address public nftFactory;
 
     // -----------------------------------------
     // Constructor
@@ -62,7 +64,8 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         address _treasury,
         int96 _treasury_fee,
         address _trustedForwarder,
-        address _creatorBeacon
+        address _creatorBeacon,
+        address _nftFactory
     ) {
         assert(host != address(0));
         assert(cfa != address(0));
@@ -77,6 +80,7 @@ contract CreatonAdmin is Ownable, SuperAppBase{
 
         trustedForwarder = _trustedForwarder;
         creatorBeacon = _creatorBeacon;
+        nftFactory = _nftFactory;
     }
 
     // -----------------------------------------
@@ -110,8 +114,8 @@ contract CreatonAdmin is Ownable, SuperAppBase{
         CreatorProxy creatorContract =
             new CreatorProxy(
                 creatorBeacon,
-                abi.encodeWithSignature("initialize(address,address,address,address,string,uint256)",
-                                        _host, _cfa, _acceptedToken, msg.sender, description, subscriptionPrice)
+                abi.encodeWithSignature("initialize(address,address,address,address,string,uint256,address)",
+                                        _host, _cfa, _acceptedToken, msg.sender, description, subscriptionPrice, nftFactory)
             );
 
         address creatorContractAddr = address(creatorContract);

@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: mumbai
     source:
-      address: "0x16801ef383c713fd7593Df2a48c6e76e96E176e9" #CreatonAdminAddress Do not remove this comment
+      address: "0x2E52132bC659972Aef643A74fEbA21651918702B" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 11919176
     mapping:

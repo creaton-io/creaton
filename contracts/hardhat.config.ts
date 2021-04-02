@@ -87,7 +87,7 @@ const config = {
       accounts,
     },
     mumbai: {
-      url: 'https://rpc-mumbai.matic.today',
+      url: 'https://matic-mumbai.p2pify.com',
       accounts,
     },
     mainnet: {

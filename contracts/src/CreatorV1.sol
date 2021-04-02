@@ -3,6 +3,8 @@ pragma solidity 0.8.0;
 pragma abicoder v2;
 
 import './CreatonAdmin.sol';
+import './NFTFactory.sol';
+import './Post.sol';
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 
 import {
@@ -24,6 +26,7 @@ import {
 import { Int96SafeMath } from "./utils/Int96SafeMath.sol";
 
 
+
 contract CreatorV1 is SuperAppBase, Initializable {
     using Int96SafeMath for int96;
     // -----------------------------------------
@@ -41,14 +44,9 @@ contract CreatorV1 is SuperAppBase, Initializable {
 
     event SubscriberEvent(address user, string sigKey, string pubKey, Status status);
     event Like(address user, uint index, Approval approval);
-    event NewPost(string metadataURL, uint index);
 
     struct Subscriber {
         Status status;
-    }
-
-    struct Post {
-        string metadataURL;
     }
 
     // -----------------------------------------
@@ -62,13 +60,15 @@ contract CreatorV1 is SuperAppBase, Initializable {
     address public admin;
     address public creator;
     CreatonAdmin adminContract;
+    NFTFactory nftFactory;
 
     string public description;
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE;
     mapping (address => Subscriber) public subscribers;
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
-    Post[] public posts;
+    address public publicPostNFT;
+    address public privatePostNFT;
 
     // -----------------------------------------
     // Initializer
@@ -80,7 +80,8 @@ contract CreatorV1 is SuperAppBase, Initializable {
         address acceptedToken,
         address _creator,
         string memory _description,
-        uint256 _subscriptionPrice
+        uint256 _subscriptionPrice,
+        address nftFactoryAddress
     ) public payable initializer {
         admin = msg.sender;
 
@@ -100,6 +101,7 @@ contract CreatorV1 is SuperAppBase, Initializable {
         subscriptionPrice = int96(uint96(_subscriptionPrice));
         _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
         adminContract = CreatonAdmin(admin);
+        nftFactory = NFTFactory(nftFactoryAddress);
         subscriberCount = 0;
     }
 
@@ -148,15 +150,6 @@ contract CreatorV1 is SuperAppBase, Initializable {
         }
     }
 
-    function upload(string memory _metadataURL) external {
-        posts.push(Post(_metadataURL));
-        emit NewPost(_metadataURL, posts.length - 1);
-    }
-
-    function getPostCount() public view returns (uint) {
-        return posts.length;
-    }
-
     function getSubscriberCount() public view returns (uint256) {
         return subscriberCount;
     }
@@ -167,6 +160,22 @@ contract CreatorV1 is SuperAppBase, Initializable {
         require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
         Approval approval = Approval(approvalEnum);
         emit Like(_address, _index, approval);
+    }
+
+    // TODO only once
+    // TODO check comes from admin
+    // TODO check is the creator
+    // TODO unique name/symbol per creator?
+    function createFreeTier(string memory name, string memory symbol) public {
+        publicPostNFT = nftFactory.createPostNFT(name, symbol, "ipfs://", address(this));
+    }
+
+    function createTier(string memory name, string memory symbol) public {
+        privatePostNFT = nftFactory.createPostNFT(name, symbol, "ipfs://", address(this));
+    }
+
+    function upload(string memory _metadataURI) external {
+        Post(publicPostNFT).mint(creator, _metadataURI);
     }
 
     // -----------------------------------------

@@ -33,6 +33,11 @@ const func = async function (hre) {
   // console.log("result of running tx", result);
   // when live network, record the script as executed to prevent rexecution
 
+  let nftFactory = await deploy('NFTFactory', {
+    from: admin,
+    log:true
+  });
+
   let implemetationContract = await deploy ('CreatorV1', {
     from: admin,
     log: true
@@ -53,7 +58,8 @@ const func = async function (hre) {
       treasury,
       90,
       biconomyTrustedforwarder,
-      beaconContract.address]
+      beaconContract.address,
+      nftFactory.address]
   });
 
 };
