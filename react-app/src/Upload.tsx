@@ -12,6 +12,12 @@ import {TextileContext} from "./TextileProvider";
 
 const CreatorContract = creaton_contracts.Creator
 
+let ARWEAVE_URI
+if (process.env.NODE_ENV === 'development')
+  ARWEAVE_URI = 'http://localhost:1984'
+else
+  ARWEAVE_URI = 'https://report.creaton.io'
+
 interface Values {
   file: string;
   description: string;
@@ -56,15 +62,21 @@ const Upload = () => {
     }
     encryptedObject['type'] = file.type
     console.log(encryptedObject)
-    const buffer = Buffer.from(JSON.stringify(encryptedObject))
-    setStatus('Uploading encrypted content to IPFS...')
-    textile!.pushFile(file, buffer).then(async function (encFile) {
+    setStatus('Uploading encrypted content to arweave...')
+    const response = await fetch(ARWEAVE_URI+'/upload', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(encryptedObject)
+    })
+    response.text().then(async function(arweave_id) {
       const metadata = {
-        name: encFile.name,
-        type: encFile.type,
+        name: encryptedObject.name,
+        type: encryptedObject.type,
         description: description,
-        date: encFile.date,
-        ipfs: encFile.ipfsPath,
+        date: (new Date()).getTime().toString(),
+        ipfs: arweave_id,
       };
       console.log(metadata.ipfs);
       setStatus('Adding content metadata to your creator contract')
