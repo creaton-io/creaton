@@ -1,9 +1,0 @@
-version: '3'
-services:
-  umbral-server:
-    build:
-      context: ./
-    volumes:
-      - "./data:/usr/src/app/data"
-    ports:
-      - "3010:3010"
