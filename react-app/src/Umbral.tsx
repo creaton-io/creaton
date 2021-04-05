@@ -8,20 +8,21 @@ else
   REENCRYPTION_URI = 'https://reencryption.creaton.io'
 
 export class Umbral {
-  address
   umbral
   masterKey
 
-  constructor(umbral, etherum_address: string) {
+  constructor(umbral) {
     this.umbral = umbral
-    this.address = etherum_address.toLowerCase()
   }
 
-  public async initMasterkey(signer) {
-    const keyAddress = 'masterkey-' + this.address
+  public async initMasterkey(signer, address, isContractAddress) {
+    const keyAddress = 'masterkey-' + address
     let item = localStorage.getItem(keyAddress);
     if (!item) {
-      const signature = await signer.signMessage('For encryption/decryption of content, we need to generate additional secret keys.\nWe generate these keys based on your wallet so that you can recover them later in another device.\nTo continue please sign this message.')
+      let message = 'For encryption/decryption of content in creaton, we need to generate additional secret keys.\nWe generate these keys based on your wallet so that you can recover them later in another device.\nTo continue please sign this message.';
+      if (isContractAddress)
+        message = message + '\n Creator contract address:' + address
+      const signature = await signer.signMessage(message)
       this.masterKey = utils.arrayify(signature)
       localStorage.setItem(keyAddress, Base64.fromUint8Array(this.masterKey))
     } else {
@@ -37,13 +38,20 @@ export class Umbral {
 
 }
 
-export class UmbralAlice extends Umbral {
+export class UmbralCreator extends Umbral {
+  contractAddress
+
+  constructor(umbral, contractAddress) {
+    super(umbral);
+    this.contractAddress = contractAddress
+  }
+
   private getSecretKey() {
-    return this.getPrivatePublic(this.masterKey.slice(0,32))
+    return this.getPrivatePublic(this.masterKey.slice(0, 32))
   }
 
   private getSigningSecretKey() {
-    return this.getPrivatePublic(this.masterKey.slice(32,64))
+    return this.getPrivatePublic(this.masterKey.slice(32, 64))
   }
 
   public encrypt(file_content: Uint8Array) {
@@ -79,7 +87,8 @@ export class UmbralAlice extends Umbral {
       signing_pk: Base64.fromUint8Array(signing_pk.to_array()),
       kfrag: Base64.fromUint8Array(kfrags[0].to_array()),
       bob_pk: bob_pk_base64,
-      signature: signature
+      signature: signature,
+      contract_address: this.contractAddress
     }
     const response = await fetch(REENCRYPTION_URI+'/grant', {
       method: 'POST',
@@ -98,7 +107,8 @@ export class UmbralAlice extends Umbral {
     const json_payload = {
       signing_pk: Base64.fromUint8Array(signing_pk.to_array()),
       bob_pk: bob_pk_base64,
-      signature: signature
+      signature: signature,
+      contract_address: this.contractAddress
     }
     const response = await fetch(REENCRYPTION_URI+'/revoke', {
       method: 'POST',
@@ -113,10 +123,10 @@ export class UmbralAlice extends Umbral {
 
 }
 
-export class UmbralBob extends Umbral {
+export class UmbralSubscriber extends Umbral {
 
   private getSecretKey() {
-    return this.getPrivatePublic(this.masterKey.slice(0,32))
+    return this.getPrivatePublic(this.masterKey.slice(0, 32))
   }
 
   public getPublicKeyBase64() {
@@ -124,7 +134,7 @@ export class UmbralBob extends Umbral {
     return Base64.fromUint8Array(bob_pk.to_array())
   }
 
-  private async getCFrag(ciphertext: string, capsule: string, signing_pk: string, alice_pk: string){
+  private async getCFrag(ciphertext: string, capsule: string, signing_pk: string, alice_pk: string, contractAddress: string) {
     let [bob_sk, bob_pk] = this.getSecretKey()
     const ethers_bob_sk = new utils.SigningKey(utils.hexlify(bob_sk.to_array()))
     const signature = ethers_bob_sk.signDigest(utils.keccak256(Base64.toUint8Array(capsule)))
@@ -133,6 +143,7 @@ export class UmbralBob extends Umbral {
       capsule: capsule,
       alice_pk: alice_pk,
       signature: signature,
+      contract_address: contractAddress,
       bob_pk: Base64.fromUint8Array(bob_pk.to_array())
     }
     const response = await fetch(REENCRYPTION_URI+'/reencrypt', {
@@ -147,9 +158,9 @@ export class UmbralBob extends Umbral {
   }
 
 
-  public async decrypt(ciphertext: string, capsule: string, signing_pk: string, alice_pk: string) {
+  public async decrypt(ciphertext: string, capsule: string, signing_pk: string, alice_pk: string, contractAddress: string) {
     let [bob_sk, bob_pk] = this.getSecretKey()
-    const cfrag = await this.getCFrag(ciphertext,capsule,signing_pk,alice_pk)
+    const cfrag = await this.getCFrag(ciphertext, capsule, signing_pk, alice_pk, contractAddress)
     const capsule_obj = this.umbral.Capsule.from_array(Base64.toUint8Array(capsule))
     const alice_pk_obj = this.umbral.PublicKey.from_array(Base64.toUint8Array(alice_pk))
     const ciphertext_obj = Base64.toUint8Array(ciphertext)
