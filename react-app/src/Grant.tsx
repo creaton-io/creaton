@@ -8,7 +8,7 @@ import {gql, useQuery} from "@apollo/client";
 import {Contract} from "ethers";
 import creaton_contracts from "./contracts.json";
 import {UmbralWasmContext} from "./UmbralWasm";
-import {UmbralAlice} from "./Umbral";
+import {UmbralCreator} from "./Umbral";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -45,10 +45,15 @@ const Grant = () => {
     return (<div>Error Loading subscribers</div>)
   let currentCreator: Creator = creator
 
+  async function getUmbral() {
+    const umbral = new UmbralCreator(umbralWasm, currentCreator.creatorContract)
+    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!),currentCreator.creatorContract,true)
+    return umbral
+  }
+
   async function grant(subscriber) {
     setGrantStatus({status: 'pending', message: 'Granting subscribers, please wait'})
-    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
-    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    const umbral = await getUmbral()
     umbral.grant(subscriber.sig_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
@@ -61,8 +66,7 @@ const Grant = () => {
 
   async function grant_all() {
     setGrantStatus({status: 'pending', message: 'Granting all pending subscribers, please wait'})
-    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
-    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    const umbral = await getUmbral()
     let users: any = []
     for (let subscriber of data.subscribers) {
       if (subscriber.status === 'pending_subscribe') {
@@ -79,8 +83,7 @@ const Grant = () => {
 
   async function revoke_all() {
     setGrantStatus({status: 'pending', message: 'Reovking all pending unsubscribers, please wait'})
-    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
-    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    const umbral = await getUmbral()
     let users: any = []
     for (let subscriber of data.subscribers) {
       if (subscriber.status === 'pending_unsubscribe') {
@@ -97,8 +100,7 @@ const Grant = () => {
 
   async function revoke(subscriber) {
     setGrantStatus({status: 'pending', message: 'Revoking subscribers, please wait'})
-    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
-    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    const umbral = await getUmbral()
     umbral.revoke(subscriber.sig_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
@@ -110,8 +112,7 @@ const Grant = () => {
   }
 
   async function regrant(subscriber) {
-    const umbral = new UmbralAlice(umbralWasm, currentCreator.user)
-    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!))
+    const umbral = await getUmbral()
     console.log(subscriber)
     umbral.grant(subscriber.sig_key)
   }

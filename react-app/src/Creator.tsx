@@ -3,7 +3,6 @@ import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 
-import {EncryptedObject} from "./stores/textileStore";
 import {gql, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
@@ -12,13 +11,11 @@ import {defaultAbiCoder} from '@ethersproject/abi';
 import creaton_contracts from "./contracts.json";
 import {useCurrentCreator} from "./Utils";
 import {UmbralWasmContext} from "./UmbralWasm";
-import {UmbralBob} from "./Umbral";
+import {UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
 import {Contract} from "ethers";
 import {ErrorHandlerContext} from "./ErrorHandler";
-
-const CreatorContract = creaton_contracts.Creator
 
 interface params {
   id: string;
@@ -177,8 +174,8 @@ export function Creator() {
       alert('Connect to metamask')
       return;
     }
-    const umbral = new UmbralBob(umbralWasm, context.account)
-    await umbral.initMasterkey(context.library!.getSigner(context.account))
+    const umbral = new UmbralSubscriber(umbralWasm)
+    await umbral.initMasterkey(context.library!.getSigner(context.account), context.account, false)
     const result = umbral.getPublicKeyBase64()
     let call;
     const contract = contractQuery.data.creators[0]
@@ -220,9 +217,9 @@ export function Creator() {
       const response = await fetch('https://arweave.net/' + content.ipfs)
       encObject = await response.json()
     }
-    const umbral = new UmbralBob(umbralWasm, context.account!)
-    await umbral.initMasterkey(context.library!.getSigner(context.account!))
-    return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk)
+    const umbral = new UmbralSubscriber(umbralWasm)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account!, false)
+    return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk, creatorContractAddress)
   }
 
   async function download(content) {

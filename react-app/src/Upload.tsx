@@ -6,7 +6,7 @@ import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
 import creaton_contracts from './contracts.json'
 import {ErrorHandlerContext} from "./ErrorHandler";
-import {UmbralAlice} from "./Umbral";
+import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {TextileContext} from "./TextileProvider";
 
@@ -61,11 +61,11 @@ const Upload = () => {
       }
   }
 
-  async function upload(file: File, description: string, contractAddress: string, creatorAddress: string) {
+  async function upload(file: File, description: string) {
     const buf = await file.arrayBuffer();
     const bytes = new Uint8Array(buf);
-    const umbral = new UmbralAlice(umbralWasm, currentCreator!.user)
-    await umbral.initMasterkey(context.library!.getSigner(context.account!))
+    const umbral = new UmbralCreator(umbralWasm, currentCreator!.creatorContract)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!), currentCreator!.creatorContract, true)
     let encryptedObject;
     setStatus('Encrypting the file...')
     try {
@@ -86,7 +86,7 @@ const Upload = () => {
     })
     response.text().then(async function(arweave_id) {
       const metadata = {
-        name: encryptedObject.name,
+        name: file.name,
         type: encryptedObject.type,
         description: description,
         date: (new Date()).getTime().toString(),
@@ -148,7 +148,7 @@ const Upload = () => {
           {setSubmitting}: FormikHelpers<Values>
         ) => {
           if (currentFile !== undefined) {
-            upload(currentFile, values.description, currentCreator.creatorContract, currentCreator.user)
+            upload(currentFile, values.description)
           }
           console.log(values)
           //TODO error handling on promise
