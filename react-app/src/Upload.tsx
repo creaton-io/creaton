@@ -13,7 +13,7 @@ import {TextileContext} from "./TextileProvider";
 const CreatorContract = creaton_contracts.Creator
 
 let ARWEAVE_URI
-if (process.env.NODE_ENV === 'development')
+if (false && process.env.NODE_ENV === 'development')
   ARWEAVE_URI = 'http://localhost:1984'
 else
   ARWEAVE_URI = 'https://report.creaton.io'
@@ -21,6 +21,11 @@ else
 interface Values {
   file: string;
   description: string;
+}
+
+interface NFTValues {
+  name: string;
+  symbol: string;
 }
 
 const Upload = () => {
@@ -46,6 +51,15 @@ const Upload = () => {
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
+
+  async function createNFT(name: string, symbol: string){
+    try {
+        let receipt = await creatorContract.createTier(name, symbol);
+      } catch (error) {
+        errorHandler.setError('Could not create your NFT contract' + error.message);
+        return;
+      }
+  }
 
   async function upload(file: File, description: string, contractAddress: string, creatorAddress: string) {
     const buf = await file.arrayBuffer();
@@ -82,7 +96,7 @@ const Upload = () => {
       setStatus('Adding content metadata to your creator contract')
       let receipt;
       try {
-        receipt = await creatorContract.upload(JSON.stringify(metadata));
+        receipt = await creatorContract.upload('', JSON.stringify(metadata), 1);
       } catch (error) {
         errorHandler.setError('Could not upload the content to your contract' + error.message)
         return;
@@ -99,6 +113,31 @@ const Upload = () => {
     <div>
       <h1>Welcome {currentCreator.title}</h1>
       {status && (<h3>{status}</h3>)}
+      <Formik
+        initialValues={{
+          name: '',
+          symbol: '',
+        }}
+        onSubmit={(
+          values: NFTValues,
+          {setSubmitting}: FormikHelpers<NFTValues>
+        ) => {
+          createNFT(values.name, values.symbol)
+          // console.log(values)
+          //TODO error handling on promise
+          setSubmitting(false);
+        }}
+      >
+        <Form>
+          <label htmlFor="name">name</label>
+          <Field id="name" name="name" placeholder=""/>
+
+          <label htmlFor="symbol">symbol</label>
+          <Field id="symbol" name="symbol" placeholder=""/>
+
+          <button type="submit">Submit</button>
+        </Form>
+      </Formik>
       <Formik
         initialValues={{
           file: '',

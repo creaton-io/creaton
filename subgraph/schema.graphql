@@ -27,4 +27,13 @@ type Content @entity {
   description: String!
   date: String!
   ipfs: String!
+  tier: Int!
+  tokenId: BigInt!
+  likes: Int!
 }
+
+
+
+
+
+

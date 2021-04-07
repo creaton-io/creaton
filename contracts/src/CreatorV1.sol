@@ -43,7 +43,9 @@ contract CreatorV1 is SuperAppBase, Initializable {
     enum Approval { neutral, like, dislike }
 
     event SubscriberEvent(address user, string sigKey, string pubKey, Status status);
-    event Like(address user, uint index, Approval approval);
+    event Like(address user, uint256 tokenId, Approval approval);
+    event NewPost(uint256 tokenId, string jsonData, uint8 tier);
+    event PostContract(address nftContract);
 
     struct Subscriber {
         Status status;
@@ -67,8 +69,8 @@ contract CreatorV1 is SuperAppBase, Initializable {
     int96 private _MINIMUM_FLOW_RATE;
     mapping (address => Subscriber) public subscribers;
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
-    address public publicPostNFT;
-    address public privatePostNFT;
+    address public postNFT;
+    mapping (uint256 => uint8) post2tier;
 
     // -----------------------------------------
     // Initializer
@@ -154,28 +156,30 @@ contract CreatorV1 is SuperAppBase, Initializable {
         return subscriberCount;
     }
 
-    function like(uint _index, uint approvalEnum) external {
+    // TODO check tokenId is minted (exists)
+    function like(uint _tokenId, uint approvalEnum) external {
         address _address = msg.sender;
-        require(subscribers[_address].status == Status.subscribed, "Not subscribed");
+        if (post2tier[_tokenId] > 0){
+            require(subscribers[_address].status == Status.subscribed, "Not subscribed");
+        }
         require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
         Approval approval = Approval(approvalEnum);
-        emit Like(_address, _index, approval);
+        emit Like(_address, _tokenId, approval);
     }
 
     // TODO only once
     // TODO check comes from admin
     // TODO check is the creator
     // TODO unique name/symbol per creator?
-    function createFreeTier(string memory name, string memory symbol) public {
-        publicPostNFT = nftFactory.createPostNFT(name, symbol, "ipfs://", address(this));
-    }
-
     function createTier(string memory name, string memory symbol) public {
-        privatePostNFT = nftFactory.createPostNFT(name, symbol, "ipfs://", address(this));
+        postNFT = nftFactory.createPostNFT(name, symbol, "ipfs://", address(this));
+        emit PostContract(postNFT);
     }
 
-    function upload(string memory _metadataURI) external {
-        Post(publicPostNFT).mint(creator, _metadataURI);
+    function upload(string memory _metadataURI, string memory _dataJSON, uint8 tier) external {
+        uint256 tokenId = Post(postNFT).mint(creator, _metadataURI);
+        post2tier[tokenId] = tier;
+        emit NewPost(tokenId, _dataJSON, tier);
     }
 
     // -----------------------------------------

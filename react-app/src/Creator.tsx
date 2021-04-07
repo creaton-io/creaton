@@ -15,6 +15,8 @@ import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralBob} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
+import {Contract} from "ethers";
+import {ErrorHandlerContext} from "./ErrorHandler";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -34,6 +36,9 @@ export function Creator() {
         description
         date
         ipfs
+        likes
+        tokenId
+        tier
       }
     }
     `;
@@ -57,7 +62,10 @@ export function Creator() {
       }
    `;
 
+
+
   const textile = useContext(TextileContext)
+  const errorHandler = useContext(ErrorHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})
@@ -256,6 +264,16 @@ export function Creator() {
     }
   }
 
+  const creatorContract = new Contract(creatorContractAddress, CreatorContract.abi).connect(context.library!.getSigner());
+  async function like(content) {
+    try {
+        let receipt = await creatorContract.like(content.tokenId, 1);
+      } catch (error) {
+        errorHandler.setError('Could not like content' + error.message);
+        return;
+      }
+  }
+
   return (
     <div>
       <h3>Contract ID: {id}</h3>
@@ -284,8 +302,8 @@ export function Creator() {
         {
           contents.map((x) => <li key={x.ipfs}>{x.name}({x.description}):
             {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[x.ipfs]}</span><button onClick={() => {
-              download(x)
-            }}>Download</button></div>)} {showContent(x)}
+              like(x)
+            }}>Like</button> {x.likes} likes </div>)} {showContent(x)}
           </li>)
         }
       </ul>

@@ -131,14 +131,14 @@ contract CreatonAdmin is Ownable, SuperAppBase{
     //     } 
     // }
 
-    // function forwardMetaTx(address _target, bytes memory _data, bytes memory addr) public payable returns (bytes memory) {
-    //     require(msgSender() == bytesToAddress(addr));
+     function forwardMetaTx(address _target, bytes memory _data, bytes memory addr) public payable returns (bytes memory) {
+         require(msgSender() == bytesToAddress(addr));
         
-    //    (bool success, bytes memory res) = _target.call{value: msg.value}(abi.encodePacked(_data, addr));
+        (bool success, bytes memory res) = _target.call{value: msg.value}(abi.encodePacked(_data, addr));
 
-    //    require(success, "MetaTxForwarder#forwardMetaTx:  CALL_FAILED");
+        require(success, "MetaTxForwarder#forwardMetaTx:  CALL_FAILED");
 
-    //    return res;
-    // }
+        return res;
+     }
     
 }

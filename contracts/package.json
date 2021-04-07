@@ -4,6 +4,8 @@
   "version": "0.0.1",
   "private": true,
   "devDependencies": {
+    "sha3": "2.1.4",
+    "@opengsn/gsn": "^2.0.1",
     "@decentral.ee/web3-helpers": "^0.5.2",
     "@ethereum-waffle/chai": "^3.2.1",
     "@ethersproject/bignumber": "^5.0.13",

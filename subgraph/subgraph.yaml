@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: mumbai
     source:
-      address: "0x2E52132bC659972Aef643A74fEbA21651918702B" #CreatonAdminAddress Do not remove this comment
+      address: "0xd077e73058d7EdB3544B0F1f4e7D64c1cAAe77C8" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 11919176
     mapping:
@@ -41,6 +41,11 @@ templates:
       eventHandlers:
         - event: SubscriberEvent(address,string,string,uint8)
           handler: handleSubscriberEvent
-        - event: NewPost(string,uint256)
+        - event: NewPost(uint256,string,uint8)
           handler: handleNewPost
+#        - event: PostContract(address)
+#          handler: handlePostContract
+        - event: Like(address,uint256,uint8)
+          handler: handleLike
       file: ./src/mapping.ts
+

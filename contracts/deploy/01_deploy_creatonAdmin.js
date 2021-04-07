@@ -59,7 +59,8 @@ const func = async function (hre) {
       90,
       biconomyTrustedforwarder,
       beaconContract.address,
-      nftFactory.address]
+      nftFactory.address],
+    log: true
   });
 
 };

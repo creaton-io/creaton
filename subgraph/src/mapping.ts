@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import {CreatorDeployed as CreatorDeployedEvent} from '../generated/CreatonAdmin/CreatonAdmin';
 import {Content, Creator, Subscriber} from '../generated/schema';
-import {SubscriberEvent, NewPost} from '../generated/templates/Creator/Creator';
+import {SubscriberEvent, PostContract, NewPost, Like} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
 import {DataSourceContext, dataSource, json, Bytes, log} from '@graphprotocol/graph-ts';
 
@@ -23,7 +23,6 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   entity.subscriptionPrice = event.params.subscriptionPrice;
   entity.timestamp = event.block.timestamp;
   entity.save();
-  log.info('here1s', []);
 }
 
 export function handleSubscriberEvent(event: SubscriberEvent): void {
@@ -53,7 +52,10 @@ export function handleSubscriberEvent(event: SubscriberEvent): void {
 export function handleNewPost(event: NewPost): void {
   let context = dataSource.context();
   let creator_id = context.getString('user');
-  let json_str = event.params.metadataURL;
+  let creator_contract = context.getBytes('contract');
+  let tokenId = event.params.tokenId;
+  let id = creator_contract.toHex() + "-" + tokenId.toString()
+  let json_str = event.params.jsonData;
   let data: Bytes = <Bytes>Bytes.fromUTF8(json_str);
   let metadata = json.fromBytes(data).toObject();
   let name = '';
@@ -67,9 +69,9 @@ export function handleNewPost(event: NewPost): void {
   if (metadata.isSet('date')) date = metadata.get('date').toString();
   if (metadata.isSet('ipfs')) ipfs = metadata.get('ipfs').toString();
   if (ipfs === '') return;
-  let entity = Content.load(ipfs);
+  let entity = Content.load(id);
   if (!entity) {
-    entity = new Content(ipfs);
+    entity = new Content(id);
   }
   entity.creator = creator_id;
   entity.creatorContract = context.getBytes('contract');
@@ -78,5 +80,36 @@ export function handleNewPost(event: NewPost): void {
   entity.name = name;
   entity.type = type;
   entity.ipfs = ipfs;
+  entity.tokenId = tokenId;
+  entity.tier = event.params.tier;
+  entity.likes = 0;
   entity.save();
 }
+
+export function handleLike(event: Like): void {
+  let context = dataSource.context();
+  let creator_contract = context.getBytes('contract');
+  let tokenId = event.params.tokenId;
+  let id = creator_contract.toHex() + "-" + tokenId.toString();
+  let entity = Content.load(id);
+  entity.likes = entity.likes + 1;
+  entity.save();
+}
+
+// export function handlePostContract(event: PostContract): void {
+//   let id = event.params..toHex();
+//   let entity = Creator.load(id);
+//   if (!entity) {
+//     entity = new Creator(id);
+//   }
+//   entity.user = event.params.creator;
+//   entity.creatorContract = event.params.creatorContract;
+//   let context = new DataSourceContext();
+//   context.setString('user', id);
+//   context.setBytes('contract', event.params.creatorContract);
+//   CreatorTemplate.createWithContext(event.params.creatorContract, context);
+//   entity.description = event.params.description;
+//   entity.subscriptionPrice = event.params.subscriptionPrice;
+//   entity.timestamp = event.block.timestamp;
+//   entity.save();
+// }

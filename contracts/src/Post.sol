@@ -29,11 +29,12 @@ contract Post is Context, AccessControlEnumerable, ERC721URIStorage, ERC721Burna
         return _baseTokenURI;
     }
 
-    function mint(address to, string memory _metadataURI) public {
+    function mint(address to, string memory _metadataURI) public returns(uint256) {
         require(hasRole(MINTER_ROLE, _msgSender()), "ERC721PresetMinterPauserAutoId: must have minter role to mint");
         _mint(to, _tokenId.current());
         _setTokenURI(_tokenId.current(), _metadataURI);
         _tokenId.increment();
+        return (_tokenId.current() - 1);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Pausable) {
