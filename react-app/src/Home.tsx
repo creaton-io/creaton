@@ -53,18 +53,18 @@ function Home() {
         </div>
         
         <div className="max-w-7xl flex mx-auto py-32 px-28">
-            <div className="flex flex-1 items-center justify-center"><img src="./assets/svgs/section-1.svg"/></div>
+            <div className="flex flex-1 items-center justify-center"><img src="/assets/svgs/section-1.svg"/></div>
             <div className="flex-1 flex flex-col justify-center px-4">
                 <h1 className="text-4xl mb-12 font-semibold">Create exclusive content for subscribers</h1>
                 <div className="flex w-full">
                     <div className="flex-1">
-                        <img src="./assets/svgs/earn-money.svg"/>
+                        <img src="/assets/svgs/earn-money.svg"/>
                         <h3 className="text-lg font-bold mt-8 mb-4">No waiting for your check!</h3>
                         <div className="whitespace-pre-line">Earn real-time (every second) streaming income for creating exclusive content
                       </div>
                     </div>
                     <div className="flex-1">
-                        <img src="./assets/svgs/tokenize.svg"/>
+                        <img src="/assets/svgs/tokenize.svg"/>
                         <h3 className="text-lg font-bold mt-8 mb-4">NFT your creations</h3>
                         <div className="whitespace-pre-line">Be the owner of your content, forever and everywhere in the Ether</div>
                     </div>
@@ -77,18 +77,18 @@ function Home() {
                     <h1 className="text-4xl mb-12 font-semibold">Get access to memberships, content and perks</h1>
                     <div className="flex w-full">
                         <div className="flex-1">
-                            <img src="./assets/svgs/eye.svg"/>
+                            <img src="/assets/svgs/eye.svg"/>
                             <h3 className="text-lg font-bold mt-8 mb-4">Membership content</h3>
                             <div className="whitespace-pre-line">Get access to content, premieres and events as long as you subscribe!</div>
                         </div>
                         <div className="flex-1">
-                            <img src="./assets/svgs/star.svg"/>
+                            <img src="/assets/svgs/star.svg"/>
                             <h3 className="text-lg font-bold mt-8 mb-4">Level up your fan status</h3>
                             <div className="whitespace-pre-line">Get rewarded by creators for holding NFT's that display your level of commitment!</div>
                         </div>
                     </div>
                 </div>
-                <div className="flex flex-1 items-center justify-center"><img src="./assets/svgs/section-2.svg"/></div>
+                <div className="flex flex-1 items-center justify-center"><img src="/assets/svgs/section-2.svg"/></div>
             </div>
         </div>
         <div className="max-w-7xl px-32 py-28 mx-auto">
@@ -97,7 +97,7 @@ function Home() {
                 <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                     <div className="flex-1 bg-white flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="./assets/svgs/default-avatar.svg" alt="2bts"/></a></div>
+                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="/assets/svgs/default-avatar.svg" alt="2bts"/></a></div>
                             <div>
                                 <button type="button" className="w-8 h-8 rounded-full inline-flex items-center justify-center border focus:outline-none">
                                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-xs text-black" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -121,7 +121,7 @@ function Home() {
                 <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                     <div className="flex-1 bg-white flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="./assets/svgs/default-avatar.svg" alt="React-test"/></a></div>
+                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="/assets/svgs/default-avatar.svg" alt="React-test"/></a></div>
                             <div>
                                 <button type="button" className="w-8 h-8 rounded-full inline-flex items-center justify-center border focus:outline-none">
                                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-xs text-black" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -145,7 +145,7 @@ function Home() {
                 <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                     <div className="flex-1 bg-white flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="./assets/svgs/default-avatar.svg" alt="check"/></a></div>
+                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="/assets/svgs/default-avatar.svg" alt="check"/></a></div>
                             <div>
                                 <button type="button" className="w-8 h-8 rounded-full inline-flex items-center justify-center border focus:outline-none">
                                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-xs text-black" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -169,7 +169,7 @@ function Home() {
                 <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                     <div className="flex-1 bg-white flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="./assets/svgs/default-avatar.svg" alt="Test"/></a></div>
+                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="/assets/svgs/default-avatar.svg" alt="Test"/></a></div>
                             <div>
                                 <button type="button" className="w-8 h-8 rounded-full inline-flex items-center justify-center border focus:outline-none">
                                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-xs text-black" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -193,7 +193,7 @@ function Home() {
                 <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                     <div className="flex-1 bg-white flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="./assets/svgs/default-avatar.svg" alt="Cryptosaurus"/></a></div>
+                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="/assets/svgs/default-avatar.svg" alt="Cryptosaurus"/></a></div>
                             <div>
                                 <button type="button" className="w-8 h-8 rounded-full inline-flex items-center justify-center border focus:outline-none">
                                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-xs text-black" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -217,7 +217,7 @@ function Home() {
                 <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                     <div className="flex-1 bg-white flex flex-col justify-between">
                         <div className="flex items-center justify-between">
-                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="./assets/svgs/default-avatar.svg" alt="test"/></a></div>
+                            <div className="flex-shrink-0"><a href="#"><img className="h-8 w-8 rounded-full" src="/assets/svgs/default-avatar.svg" alt="test"/></a></div>
                             <div>
                                 <button type="button" className="w-8 h-8 rounded-full inline-flex items-center justify-center border focus:outline-none">
                                     <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="ellipsis-h" className="svg-inline--fa fa-ellipsis-h fa-w-16 fa-xs text-black" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
@@ -242,17 +242,17 @@ function Home() {
         </div>
         <div className="bg-black text-white invisible">
             <div className="max-w-7xl flex mx-auto py-32 px-28">
-                <div className="flex flex-1 items-center justify-center"><img src="./assets/svgs/section-4.svg"/></div>
+                <div className="flex flex-1 items-center justify-center"><img src="/assets/svgs/section-4.svg"/></div>
                 <div className="flex-1 flex flex-col justify-center px-4">
                     <h1 className="text-4xl mb-12 font-semibold">Be the owner of your content (yes, you never owned yours)</h1>
                     <div className="flex w-full">
                         <div className="flex-1">
-                            <img src="./assets/svgs/empty.svg"/>
+                            <img src="/assets/svgs/empty.svg"/>
                             <h3 className="text-lg font-bold mt-8 mb-4">Take your work everywhere in the Ether</h3>
                             <div className="whitespace-pre-line">Wherever you go, you own your content in the shape of a NFT. Go where you're treated best! But we will try our best ;) </div>
                         </div>
                         <div className="flex-1">
-                            <img src="./assets/svgs/empty.svg"/>
+                            <img src="/assets/svgs/empty.svg"/>
                             <h3 className="text-lg font-bold mt-8 mb-4">Can't be taken down!</h3>
                             <div className="whitespace-pre-line">You won't have to worry about us taking you down with the platform like Vine, as Creaton is ownership-driven </div>
                         </div>
@@ -267,21 +267,21 @@ function Home() {
                 <div>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</div>
             </div>
             <a href="#" className="px-6 py-3 rounded-full text-white bg-blue border-blue border border-solid">Join the race</a>
-            <div className="mt-12"><img src="./assets/images/section-5.png" className="mx-auto" width="768" height="631"/></div>
+            <div className="mt-12"><img src="/assets/images/section-5.png" className="mx-auto" width="768" height="631"/></div>
         </div>
         <div className="bg-grey">
             <div className="max-w-7xl flex mx-auto py-32 px-28">
-                <div className="flex flex-1 items-center justify-center"><img src="./assets/svgs/section-6.svg"/></div>
+                <div className="flex flex-1 items-center justify-center"><img src="/assets/svgs/section-6.svg"/></div>
                 <div className="flex-1 flex flex-col justify-center px-4">
                     <h1 className="text-4xl mb-12 font-semibold">Delete this too unless there can be a better graphic</h1>
                     <div className="flex w-full">
                         <div className="flex-1">
-                            <img src="./assets/svgs/empty.svg"/>
+                            <img src="/assets/svgs/empty.svg"/>
                             <h3 className="text-lg font-bold mt-8 mb-4">Lorem ipsum dolor</h3>
                             <div className="whitespace-pre-line">Lorem ipsum dolor sit amet, consectetur </div>
                         </div>
                         <div className="flex-1">
-                            <img src="./assets/svgs/empty.svg"/>
+                            <img src="/assets/svgs/empty.svg"/>
                             <h3 className="text-lg font-bold mt-8 mb-4">Lorem ipsum</h3>
                             <div className="whitespace-pre-line">Lorem ipsum dolor sit amet, consectetur adipiscing elit</div>
                         </div>
@@ -290,18 +290,18 @@ function Home() {
             </div>
         </div>
         <div className="max-w-7xl mx-auto py-32 px-28 relative">
-            <img src="./assets/svgs/section-7.svg" className="absolute top-0 right-0"/>
+            <img src="/assets/svgs/section-7.svg" className="absolute top-0 right-0"/>
             <h1 className="text-4xl mb-12 font-semibold">Partners &amp; Investors</h1>
-            <div className="flex items-center"><img src="./assets/images/brand-3.png" width="168" height="77.15"/><img src="./assets/images/brand-1.png" width="168" height="77.15"/></div>
+            <div className="flex items-center"><img src="/assets/images/brand-3.png" width="168" height="77.15"/><img src="/assets/images/brand-1.png" width="168" height="77.15"/></div>
             <h1 className="text-4xl mt-24 mb-12 font-semibold">Technologies</h1>
-            <div className="flex justify-between items-center"><img src="./assets/images/brand-2.png" width="168" height="77.15"/><img src="./assets/images/brand-3.png" width="168" height="77.15"/><img src="./assets/images/brand-4.png" width="168" height="77.15"/><img src="./assets/images/brand-5.png" width="168" height="77.15"/><img src="./assets/images/brand-6.png" width="168" height="77.15"/><img src="./assets/images/brand-7.png" width="168" height="77.15"/></div>
+            <div className="flex justify-between items-center"><img src="/assets/images/brand-2.png" width="168" height="77.15"/><img src="/assets/images/brand-3.png" width="168" height="77.15"/><img src="/assets/images/brand-4.png" width="168" height="77.15"/><img src="/assets/images/brand-5.png" width="168" height="77.15"/><img src="/assets/images/brand-6.png" width="168" height="77.15"/><img src="/assets/images/brand-7.png" width="168" height="77.15"/></div>
         </div>
         <div className="py-16 px-28 bg-black">
             <div className="max-w-7xl mx-auto">
                 <h3 className="text-2xl text-white font-bold">Keep updated on our progress!</h3>
                 <div className="flex mt-4 items-end">
                     <div className="border-solid border-grey rounded-full border flex"><input placeholder="Email address" className="bg-transparent focus:outline-none ml-4 text-white"/><a href="#" className="px-4 py-2 rounded-full text-white bg-blue border-blue border border-solid">Join the race</a></div>
-                    <div className="flex ml-auto space-x-4"><img src="./assets/svgs/twitter.svg"/><img src="./assets/svgs/github.svg"/><img src="./assets/svgs/medium.svg"/><img src="./assets/svgs/telegram.svg"/></div>
+                    <div className="flex ml-auto space-x-4"><img src="/assets/svgs/twitter.svg"/><img src="/assets/svgs/github.svg"/><img src="/assets/svgs/medium.svg"/><img src="/assets/svgs/telegram.svg"/></div>
                 </div>
             </div>
         </div>

@@ -6,7 +6,7 @@ import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
 import creaton_contracts from './contracts.json'
 import {ErrorHandlerContext} from "./ErrorHandler";
-import {UmbralAlice} from "./Umbral";
+import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {TextileContext} from "./TextileProvider";
 
