@@ -17,6 +17,8 @@ import {Base64} from "js-base64";
 import {Contract} from "ethers";
 import {ErrorHandlerContext} from "./ErrorHandler";
 
+const CreatorContract = creaton_contracts.Creator
+
 interface params {
   id: string;
 }

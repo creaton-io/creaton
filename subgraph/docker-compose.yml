@@ -17,7 +17,7 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'mumbai:https://rpc-mumbai.matic.today'
+      ethereum: 'goerli:https://goerli.infura.io/v3/5da64f50a6764ab3bf78ad6d39d7c97f'
       RUST_LOG: info
       RUST_BACKTRACE: full
   ipfs:

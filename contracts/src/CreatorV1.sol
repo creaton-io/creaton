@@ -6,6 +6,7 @@ import './CreatonAdmin.sol';
 import './NFTFactory.sol';
 import './Post.sol';
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
 
 import {
     ISuperfluid,
@@ -27,7 +28,7 @@ import { Int96SafeMath } from "./utils/Int96SafeMath.sol";
 
 
 
-contract CreatorV1 is SuperAppBase, Initializable {
+contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     using Int96SafeMath for int96;
     // -----------------------------------------
     // Errors
@@ -64,6 +65,7 @@ contract CreatorV1 is SuperAppBase, Initializable {
     CreatonAdmin adminContract;
     NFTFactory nftFactory;
 
+
     string public description;
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE;
@@ -83,7 +85,7 @@ contract CreatorV1 is SuperAppBase, Initializable {
         address _creator,
         string memory _description,
         uint256 _subscriptionPrice,
-        address nftFactoryAddress
+        address _trustedForwarder
     ) public payable initializer {
         admin = msg.sender;
 
@@ -94,7 +96,6 @@ contract CreatorV1 is SuperAppBase, Initializable {
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
         _acceptedToken = ISuperToken(acceptedToken);
-
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
         _host.registerApp(configWord);
 
@@ -102,9 +103,10 @@ contract CreatorV1 is SuperAppBase, Initializable {
         description = _description;
         subscriptionPrice = int96(uint96(_subscriptionPrice));
         _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
+
         adminContract = CreatonAdmin(admin);
-        nftFactory = NFTFactory(nftFactoryAddress);
-        subscriberCount = 0;
+        nftFactory = NFTFactory(adminContract.nftFactory());
+        trustedForwarder = _trustedForwarder;
     }
 
     // -----------------------------------------
@@ -113,6 +115,7 @@ contract CreatorV1 is SuperAppBase, Initializable {
 
     receive() external payable {}
 
+    // TODO check for msg.sender
     function withdrawEth() public {
         (bool success, ) = msg.sender.call{value: (address(this).balance)}("Not admin");
         require(success, "No balance");
@@ -158,13 +161,13 @@ contract CreatorV1 is SuperAppBase, Initializable {
 
     // TODO check tokenId is minted (exists)
     function like(uint _tokenId, uint approvalEnum) external {
-        address _address = msg.sender;
+        address subAddress = _msgSender();
         if (post2tier[_tokenId] > 0){
-            require(subscribers[_address].status == Status.subscribed, "Not subscribed");
+            require(subscribers[subAddress].status == Status.subscribed, "Not subscribed");
         }
         require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
         Approval approval = Approval(approvalEnum);
-        emit Like(_address, _tokenId, approval);
+        emit Like(subAddress, _tokenId, approval);
     }
 
     // TODO only once
@@ -191,6 +194,10 @@ contract CreatorV1 is SuperAppBase, Initializable {
         int96 percent
     ) public pure returns (int96) {
         return num.mul(percent).div(100);
+    }
+
+    function versionRecipient() external view override  returns (string memory){
+        return "2.1.0";
     }
 
     // -----------------------------------------

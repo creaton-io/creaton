@@ -1,6 +1,6 @@
 const func = async function (hre) {
   let {admin, treasury} = await hre.getNamedAccounts();
-  const {deploy} = hre.deployments;
+  const {deploy, execute} = hre.deployments;
   // const useProxy = !hre.network.live;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
@@ -13,14 +13,15 @@ const func = async function (hre) {
   const version = process.env.RELEASE_VERSION || 'v1';
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 80001,
+    chainId: 5,
     version: 'v1',
     web3Provider: await hre.web3.currentProvider,
     tokens: ['fUSDC'],
   });
   await sf.initialize();
 
-  const biconomyTrustedforwarder = '0x2B99251eC9650e507936fa9530D11dE4d6C9C05c';
+  const trustedforwarder = "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2";
+  const paymaster = "0x8c9245773caF636cAE9Cb1B28a82e061Bd38fDCb"
   const usdcx = sf.tokens.fUSDCx;
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
@@ -57,14 +58,23 @@ const func = async function (hre) {
       usdcx.address,
       treasury,
       90,
-      biconomyTrustedforwarder,
       beaconContract.address,
-      nftFactory.address],
+      nftFactory.address,
+      trustedforwarder,
+      paymaster],
     log: true
   });
+  
+  let relayHubReceipt = await execute(
+      'CreatonPaymaster',
+      {from: admin},
+      "setAdmin",
+      adminContract.address);
+
+  console.log(relayHubReceipt.transactionHash);
 
 };
 
 module.exports = func;
 func.id = '01_deploy_creatonAdmin'; // id required to prevent reexecution
-func.tags = ['Creatonadmin'];
+func.tags = ['CreatonAdmin'];

@@ -54,7 +54,7 @@ const config = {
       default: 3,
     },
   },
-  defaultNetwork: 'mumbai',
+  defaultNetwork: 'goerli',
   networks: {
     coverage: {
       url: 'http://localhost:5458',
