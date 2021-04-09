@@ -7,7 +7,7 @@ import "./CreatorProxy.sol";
 import "./metatx/CreatonPaymaster.sol";
 // TODO override _msgSender and _msgData from Context and BaseRelayRecipient
 //import "@openzeppelin/contracts/access/Ownable.sol";
-import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
+import "./gsn/contracts/BaseRelayRecipient.sol";
 
 contract CreatonAdmin is BaseRelayRecipient {
     

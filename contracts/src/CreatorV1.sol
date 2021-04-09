@@ -6,7 +6,7 @@ import './CreatonAdmin.sol';
 import './NFTFactory.sol';
 import './Post.sol';
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@opengsn/gsn/contracts/BaseRelayRecipient.sol";
+import "./gsn/contracts/BaseRelayRecipient.sol";
 
 import {
     ISuperfluid,

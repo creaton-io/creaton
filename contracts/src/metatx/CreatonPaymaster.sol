@@ -3,8 +3,8 @@ pragma abicoder v2;
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import "@opengsn/gsn/contracts/forwarder/IForwarder.sol";
-import "@opengsn/gsn/contracts/BasePaymaster.sol";
+import "../gsn/contracts/forwarder/IForwarder.sol";
+import "../gsn/contracts/BasePaymaster.sol";
 
 contract CreatonPaymaster is BasePaymaster {
 
