@@ -11,7 +11,7 @@ import {defaultAbiCoder} from '@ethersproject/abi';
 import creaton_contracts from "./contracts.json";
 import {useCurrentCreator} from "./Utils";
 import {UmbralWasmContext} from "./UmbralWasm";
-import {UmbralSubscriber} from "./Umbral";
+import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
 import {Contract} from "ethers";
@@ -99,10 +99,12 @@ export function Creator() {
     if (subscriptionQuery.data && subscriptionQuery.data.subscribers.length > 0)
       setSubscription(subscriptionQuery.data.subscribers[0].status)
   }, [subscriptionQuery, context])
+  let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
+  const canDecrypt = (isSelf || subscription === 'subscribed')
   useEffect(() => {
     if (contentsQuery.loading || contentsQuery.error) return;
     if (!textile) return;
-    if (subscription !== 'subscribed') return;
+    if (!canDecrypt) return;
     const contents = contentsQuery.data.contents;
     if (Object.keys(downloadStatus).length === 0 || !contents) return;
     if (umbralWasm === null) return;
@@ -122,7 +124,7 @@ export function Creator() {
         break;
       }
     }
-  }, [downloadStatus, textile, subscription])
+  }, [downloadStatus, textile, canDecrypt])
 
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
@@ -211,7 +213,6 @@ export function Creator() {
   }
 
   async function decrypt(content) {
-    console.log(content)
     let encObject
     if (content.ipfs.startsWith('/ipfs'))
       encObject = await textile!.downloadEncryptedFile(content.ipfs)
@@ -219,9 +220,15 @@ export function Creator() {
       const response = await fetch('https://arweave.net/' + content.ipfs)
       encObject = await response.json()
     }
-    const umbral = new UmbralSubscriber(umbralWasm)
-    await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account!, false)
-    return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk, creatorContractAddress)
+    if (isSelf) {
+      const umbral = new UmbralCreator(umbralWasm, currentCreator!.creatorContract)
+      await umbral.initMasterkey(context.library!.getSigner(context.account!), currentCreator!.creatorContract, true)
+      return await umbral.decrypt(encObject.ciphertext, encObject.capsule)
+    } else {
+      const umbral = new UmbralSubscriber(umbralWasm)
+      await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account!, false)
+      return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk, creatorContractAddress)
+    }
   }
 
   async function download(content) {
@@ -287,7 +294,7 @@ export function Creator() {
       <h3>Contract ID: {id}</h3>
       <h3>Creator ID: {contract.user}</h3>
       <h3>Status: {subscription}</h3>
-      {(currentCreator && currentCreator.creatorContract === creatorContractAddress) && (<h3>This is your account</h3>)}
+      {isSelf && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
       {(subscription == 'unsubscribed') && (<button onClick={() => {
