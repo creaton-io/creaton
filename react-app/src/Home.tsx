@@ -16,7 +16,6 @@ const CREATORS_QUERY = gql`
 `;
 
 function Home() {
-  const {loading, error, data} = useQuery(CREATORS_QUERY,{pollInterval: 10000});
   return (
     <div>
         <div className="relative bg-black overflow-hidden">

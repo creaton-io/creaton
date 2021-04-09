@@ -67,6 +67,13 @@ export class UmbralCreator extends Umbral {
     }
   }
 
+  public decrypt(ciphertext: string, capsule: string) {
+    let [alice_sk, alice_pk] = this.getSecretKey()
+    const capsule_obj = this.umbral.Capsule.from_array(Base64.toUint8Array(capsule))
+    const ciphertext_obj = Base64.toUint8Array(ciphertext)
+    return this.umbral.decrypt_original(alice_sk, capsule_obj, ciphertext_obj)
+  }
+
   public async grant(bob_pk_base64: string) {
     let n = 3 // how many fragments to create
     let m = 1 // how many should be enough to decrypt

@@ -20,6 +20,7 @@ import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
 import {TextileProvider} from "./TextileProvider";
 import TwitterVerification from "./TwitterVerification";
+import Creators from "./Creators";
 
 let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
@@ -99,7 +100,7 @@ const App = () => {
 
                   <ul>
                     <li>
-                      <Link to="/">Home</Link>
+                      <Link to="/creators">Creators</Link>
                     </li>
                     <li>
                       <Link to="/connect-wallet">Connect Wallet</Link>
@@ -139,6 +140,9 @@ const App = () => {
                   <Switch>
                     <Route exact path="/">
                       <Home/>
+                    </Route>
+                    <Route exact path="/creators">
+                      <Creators/>
                     </Route>
                     <Route path="/connect-wallet">
                       <WalletConnect/>
