@@ -16,6 +16,7 @@ import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
 import {Contract} from "ethers";
 import {ErrorHandlerContext} from "./ErrorHandler";
+import {VideoPlayer} from "./VideoPlayer";
 
 interface params {
   id: string;
@@ -110,6 +111,7 @@ export function Creator() {
       return;
     }
     for (let content of contents) {
+      if (content.tier == 0) continue;
       if (downloadStatus[content.ipfs] === 'pending') {
         setDownloadStatus({...downloadStatus, [content.ipfs]: 'downloading'})
         decrypt(content).then((decrypted) => {
@@ -252,16 +254,25 @@ export function Creator() {
   const contract = contractQuery.data.creators[0]
 
   function showContent(content) {
-    if (downloadStatus[content.ipfs] !== 'cached') return;
-    const src = "data:" + content.type + ";base64, " + Base64.fromUint8Array(downloadCache[content.ipfs]);
+    let src
+    if (content.tier === 0)
+      src = 'https://arweave.net/' + content.ipfs
+    else {
+      if (downloadStatus[content.ipfs] !== 'cached') return;
+      src = "data:" + content.type + ";base64, " + Base64.fromUint8Array(downloadCache[content.ipfs]);
+    }
     if (content.type.startsWith('image')) {
       return (<img style={{'maxWidth': '150px'} as CSSProperties} src={src}/>)
     } else if (content.type.startsWith('video')) {
       return (<video controls style={{'maxWidth': '300px'} as CSSProperties} src={src}/>)
+    } else if (content.type === 'application/vnd.apple.mpegurl') {
+      return (
+        <VideoPlayer url={src}/>
+      )
     }
   }
 
-  const creatorContract = new Contract(creatorContractAddress, CreatorContract.abi).connect(context.library!.getSigner());
+  const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
   async function like(content) {
     try {
         let receipt = await creatorContract.like(content.tokenId, 1);

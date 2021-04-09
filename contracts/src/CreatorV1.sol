@@ -172,7 +172,7 @@ contract CreatorV1 is SuperAppBase, Initializable {
     // TODO check is the creator
     // TODO unique name/symbol per creator?
     function createTier(string memory name, string memory symbol) public {
-        postNFT = nftFactory.createPostNFT(name, symbol, "ipfs://", address(this));
+        postNFT = nftFactory.createPostNFT(name, symbol, "", address(this));
         emit PostContract(postNFT);
     }
 
