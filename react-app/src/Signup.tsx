@@ -42,6 +42,7 @@ const SignUp = () => {
       paymasterAddress
     }
     const gsnProvider = await RelayProvider.newProvider({provider: initialProvider, config}).init();
+    //@ts-ignore
     const provider = new Web3Provider(gsnProvider)
     setProvider(provider);
   }
