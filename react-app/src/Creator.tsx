@@ -17,6 +17,8 @@ import {Base64} from "js-base64";
 import {Contract} from "ethers";
 import {ErrorHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
+import {Button} from "./elements/button";
+import {Card} from "./components/card";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -262,6 +264,17 @@ export function Creator() {
   }
   const contract = contractQuery.data.creators[0]
 
+  function getSrc(content){
+    let src
+    if (content.tier === 0)
+      src = 'https://arweave.net/' + content.ipfs
+    else {
+      if (downloadStatus[content.ipfs] !== 'cached') return;
+      src = "data:" + content.type + ";base64, " + Base64.fromUint8Array(downloadCache[content.ipfs]);
+    }
+    return src;
+  }
+
   function showContent(content) {
     let src
     if (content.tier === 0)
@@ -279,6 +292,21 @@ export function Creator() {
         <VideoPlayer url={src}/>
       )
     }
+  }
+
+  function showItem(content){
+    if (content.type.startsWith('image')) {
+      let src = getSrc(content)
+      if(src)
+        return <Card key={content.ipfs} imgUrl={src} name={content.name}/>
+    }
+
+    return <li key={content.ipfs}>{content.name}({content.description}):
+            {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
+              like(content)
+            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}
+          </li>
+
   }
 
   const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
@@ -299,9 +327,9 @@ export function Creator() {
       {isSelf && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
-      {(subscription == 'unsubscribed') && (<button onClick={() => {
+      {(subscription == 'unsubscribed') && (<Button onClick={() => {
         subscribe()
-      }}>Subscribe</button>)}
+      }} label="Subscribe"/>)}
       <br/>
       <button onClick={() => {
         mint()
@@ -317,11 +345,7 @@ export function Creator() {
       <h3>Uploaded Contents</h3>
       <ul>
         {
-          contents.map((x) => <li key={x.ipfs}>{x.name}({x.description}):
-            {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[x.ipfs]}</span><button onClick={() => {
-              like(x)
-            }}>Like</button> {x.likes} likes </div>)} {showContent(x)}
-          </li>)
+          contents.map((x) => showItem(x))
         }
       </ul>
     </div>

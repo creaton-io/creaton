@@ -12,6 +12,10 @@ const colors = {
     blueLight: '#EAEFFE',
     pink: '#E54775',
     pinkLight: '#FADAE3',
+    white: '#ffffff',
+    black: '#212121',
+    grey: '#EEF0F4',
+    greyDark: '#9592A3',
 };
 
 export const colorsMockData = {

@@ -6,7 +6,7 @@ export interface Creator {
   id:string;
   user:string;
   creatorContract:string;
-  title:string;
+  description:string;
   subscriptionPrice: number;
   avatarURL: string;
   timestamp: number;

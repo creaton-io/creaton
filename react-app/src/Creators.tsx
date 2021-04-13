@@ -1,6 +1,7 @@
 import {gql, useQuery} from "@apollo/client";
 import React from "react";
 import {Link} from "react-router-dom";
+import {Card} from "./components/card";
 
 const CREATORS_QUERY = gql`
   query {
@@ -20,10 +21,13 @@ function Creators() {
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   return (<div>
+
     {data.creators.map((creator: any) => (
       <div key={creator.id}>
         <p>
-          <Link to={"/creator/" + creator.creatorContract}>{creator.description} with price {creator.subscriptionPrice}</Link>
+          <Link to={"/creator/" + creator.creatorContract}>
+            <Card price={creator.subscriptionPrice} name={creator.description}></Card>
+          </Link>
         </p>
       </div>
     ))}</div>);
