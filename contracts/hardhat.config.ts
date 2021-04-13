@@ -27,6 +27,7 @@ if (mnemonic) {
 }
 
 const config = {
+
   solidity: {
     compilers: [
       {
@@ -38,8 +39,27 @@ const config = {
           },
         },
       },
+      {
+        version: '0.6.0',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+      {
+        version: '0.6.6',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      }
     ], 
   },
+
   namedAccounts: {
     admin: {
       default: 0,

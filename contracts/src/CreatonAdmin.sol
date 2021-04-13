@@ -6,7 +6,7 @@ pragma abicoder v2;
 import "./CreatorProxy.sol";
 import "./metatx/CreatonPaymaster.sol";
 // TODO override _msgSender and _msgData from Context and BaseRelayRecipient
-//import "@openzeppelin/contracts/access/Ownable.sol";
+//import "@openzeppelin/contracts/access/OwnableBaseRelayRecipient.sol";
 import "./gsn/contracts/BaseRelayRecipient.sol";
 
 contract CreatonAdmin is BaseRelayRecipient {
@@ -24,7 +24,7 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     mapping(address => address[]) public creator2contract; 
     mapping(address => address) public contract2creator;
-    mapping(address => string) private creator2twitter;
+    mapping(address => string) public user2twitter;
 
     address private _host;
     address private _cfa;
@@ -94,6 +94,11 @@ contract CreatonAdmin is BaseRelayRecipient {
         CreatonPaymaster(paymaster).addCreatorContract(creatorContractAddr);
 
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
+    }
+
+    // TODO only be called from twitter contract
+    function signUp (address user, string memory twitter) public {
+        user2twitter[user] = twitter;
     }
 
     function versionRecipient() external view override  returns (string memory){

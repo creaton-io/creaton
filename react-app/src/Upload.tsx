@@ -66,6 +66,7 @@ const Upload = () => {
     return (<div>Please signup first. You are not a creator yet.</div>)
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
+  console.log(context.library);
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
 
   async function createNFT(name: string, symbol: string) {

@@ -20,6 +20,11 @@ contract CreatonPaymaster is BasePaymaster {
         targets[creatorContract] = true;
     }
 
+    function addTwitterVerification(address twitterContract) public onlyOwner {
+        targets[twitterContract] = true;
+    }
+
+
 	function preRelayedCall(
 		GsnTypes.RelayRequest calldata relayRequest,
 		bytes calldata signature,

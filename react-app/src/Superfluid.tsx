@@ -12,7 +12,7 @@ const SuperfluidProvider = (props) => {
   async function init() {
     if(!web3Context.library)
       return;
-    if(web3Context.chainId !== 80001) {
+    if(web3Context.chainId !== 5) {
       errorHandler.setError('Please connect to goerli network')
       return;
     }

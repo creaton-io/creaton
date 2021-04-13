@@ -24,6 +24,7 @@
     "ethers": "^5.0.31",
     "formik": "^2.2.6",
     "graphql": "^15.5.0",
+    "hls.js": "^1.0.0",
     "isomorphic-fetch": "^3.0.0",
     "js-base64": "^3.6.0",
     "react": "^17.0.1",
@@ -65,6 +66,8 @@
     ]
   },
   "devDependencies": {
+    "@ffmpeg/core": "^0.8.5",
+    "@ffmpeg/ffmpeg": "^0.9.7",
     "@opengsn/gsn": "^2.1.0",
     "@tailwindcss/aspect-ratio": "^0.2.0",
     "@tailwindcss/postcss7-compat": "^2.0.3",

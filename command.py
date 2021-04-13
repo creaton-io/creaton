@@ -25,7 +25,8 @@ def update_contracts():
     ])['network']
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
-    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator}
+    twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator, 'TwitterVerification': twitter}
     REACT_CONTRACT_PATH = Path('react-app/src/contracts.json')
     json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
     print(f'Updated {REACT_CONTRACT_PATH}')

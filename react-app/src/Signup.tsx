@@ -22,32 +22,38 @@ interface Values {
 const creatorFactoryContract = new Contract(CreatonAdminContract.address, CreatonAdminContract.abi)
 const SignUp = () => {
 
-  const [provider, setProvider] = useState<any>(undefined);
-  const [signedup, setSignedup] = useState<any>(false)
   const errorHandler = useContext(ErrorHandlerContext)
-  const paymasterAddress = '0x8c9245773caF636cAE9Cb1B28a82e061Bd38fDCb'
+  const context = useWeb3React<Web3Provider>()
+  const [library, setLibrary] = useState<any>(null)
+  const [signedup, setSignedup] = useState<any>(false)
 
-  async function connectWallet(){
-    const providerOptions = {
-      /* See Provider Options Section */
-      injected: {
-        package: null
-      }
-    };
-    const web3Modal = new Web3Modal({
-      providerOptions // required
-    });
-    const initialProvider = await web3Modal.connect();
-    const config = {
-      paymasterAddress
-    }
-    const gsnProvider = await RelayProvider.newProvider({provider: initialProvider, config}).init();
-    const provider = new Web3Provider(gsnProvider)
-    setProvider(provider);
-  }
+  if (!context.library)
+    return (<div>Please connect your wallet</div>)
+  // @ts-ignore
+  context.library.then((result) => {
+    setLibrary(result);
+  })
 
-  if (!provider)
-    return (<button onClick={() => connectWallet()}> Connect Wallet</button>)
+
+
+  // async function connectWallet(){
+  //   const providerOptions = {
+  //     /* See Provider Options Section */
+  //     injected: {
+  //       package: null
+  //     }
+  //   };
+  //   const web3Modal = new Web3Modal({
+  //     providerOptions // required
+  //   });
+  //   const initialProvider = await web3Modal.connect();
+  //   const config = {
+  //     paymasterAddress
+  //   }
+  //   const gsnProvider = await RelayProvider.newProvider({provider: initialProvider, config}).init();
+  //   const provider = new Web3Provider(gsnProvider)
+  //   setProvider(provider);
+  // }
   // const {currentCreator} = useCurrentCreator()
 
   // if (currentCreator !== undefined)
@@ -68,7 +74,7 @@ const SignUp = () => {
           values: Values,
           {setSubmitting}: FormikHelpers<Values>
         ) => {
-          const connectedContract = creatorFactoryContract.connect(provider.getSigner())
+          const connectedContract = creatorFactoryContract.connect(library.getSigner())
           connectedContract.deployCreator(values.creatorName, values.subscriptionPrice)
             .then(function (response) {
               setSignedup("Waiting for your signup to be confirmed on the blockchain...")

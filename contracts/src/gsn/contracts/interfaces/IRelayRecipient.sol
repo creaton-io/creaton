@@ -34,4 +34,5 @@ abstract contract IRelayRecipient {
     function _msgData() internal virtual view returns (bytes memory);
 
     function versionRecipient() external virtual view returns (string memory);
+
 }

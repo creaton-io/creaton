@@ -19,6 +19,13 @@ module.exports = async function (hre) {
       "setTrustedForwarder",
       "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2");
 
+    let twitterContractReceipt = await execute(
+      'CreatonPaymaster',
+      {from: admin},
+      "addTwitterVerification",
+      "0x43edd0335fE94980F3852Ddb19A5E140e3dd55ce"
+    )
+
 }
 
 module.exports.tags = ['CreatonPaymaster'];

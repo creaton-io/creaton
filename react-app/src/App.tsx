@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect} from 'react';
 import {
   HashRouter as Router,
   Switch,
@@ -20,7 +20,10 @@ import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
 import {TextileProvider} from "./TextileProvider";
 import TwitterVerification from "./TwitterVerification";
+
 import Creators from "./Creators";
+import Web3Modal from "web3modal";
+import {RelayProvider} from "@opengsn/gsn";
 
 let APOLLO_URI
 if (process.env.NODE_ENV === 'development')
@@ -34,9 +37,24 @@ const client = new ApolloClient({
 });
 
 
-function getLibrary(provider: any): Web3Provider {
-  const library = new Web3Provider(provider)
+const getLibrary = async (provider) => {
+    // TODO read this from contracts.json???
+  let paymasterAddress = '0x44A5600E35f76e8423f48A3be5829C588882337c'
+    const config = {
+      paymasterAddress
+    }
+    // @ts-ignore
+  const gsnProvider = await RelayProvider.newProvider({provider: provider, config}).init();
+    // @ts-ignore
+  // return new Web3Provider(RelayProvider.newProvider({provider: provider, config}).init()
+  //   .then((result:any) => {
+  //     console.log(result);
+  //     return result;
+  //   }));
+  const library = new Web3Provider(gsnProvider)
   library.pollingInterval = 12000
+  // console.log(library.getSigner())
+  // console.log('hereeeeeeeeee', library.getSigner());
   return library
 }
 
@@ -53,8 +71,9 @@ const App = () => {
   return (
     <ErrorHandlerProvider>
       <TextileProvider>
+
       <Web3ReactProvider getLibrary={getLibrary}>
-        <SuperfluidProvider>
+        {/*<SuperfluidProvider>*/}
           <UmbralWasmProvider>
             <ApolloProvider client={client}>
               <Status/>
@@ -96,7 +115,7 @@ const App = () => {
         </div>
         </div>
 
-                  
+
 
                   <ul>
                     <li>
@@ -167,7 +186,7 @@ const App = () => {
               </Router>
             </ApolloProvider>
           </UmbralWasmProvider>
-        </SuperfluidProvider>
+        {/*</SuperfluidProvider>*/}
       </Web3ReactProvider>
       </TextileProvider>
     </ErrorHandlerProvider>
