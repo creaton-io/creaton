@@ -1,4 +1,4 @@
-import {ButtonHTMLAttributes, FC} from "react";
+import {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -9,7 +9,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl}) => {
-
+    const [like, setLike] = useState(false);
     return (
         <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
             <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
@@ -23,7 +23,7 @@ export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl}) => {
                             </a>
                         </div>
                         <div>
-                            <Icon name="heart" className="text-grey-dark mr-4" />
+                            <Icon onClick={() => setLike(!like)} name="heart" className={clsx('cursor-pointer',like ? 'text-red-500' : 'text-grey-dark')} />
                             <Icon name="ellipsis-h" className="text-grey-dark" />
                         </div>
                     </div>
