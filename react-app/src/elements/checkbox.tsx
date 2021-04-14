@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import clsx from 'clsx';
-import checked from '../../public/assets/svgs/checked.svg';
-import partial from '../../public/assets/svgs/partial-checked.svg';
+// import checked from '../../public/assets/svgs/checked.svg';
+// import partial from '../../public/assets/svgs/partial-checked.svg';
 
 export enum CheckboxState {
     unchecked,
@@ -12,11 +12,11 @@ export const Checkbox = ({ label, state, toggle }) => {
     const content = useMemo(() => {
         switch (state) {
             case CheckboxState.checked:
-                // return <img src="./assets/images/checked.png"/>;
-                return <img src={checked} />;
+                return <img src="./assets/images/checked.png"/>;
+                // return <img src={checked} />;
             case CheckboxState.partial:
-                // return <img src="./assets/images/partial-checked.png"/>;
-                return <img src={partial} />
+                return <img src="./assets/images/partial-checked.png"/>;
+                // return <img src={partial} />
             default:
                 return;
         }
