@@ -81,7 +81,7 @@ export function handleNewPost(event: NewPost): void {
   entity.type = type;
   entity.ipfs = ipfs;
   entity.tokenId = tokenId;
-  entity.tier = event.params.tier;
+  entity.tier = event.params.contentType;
   entity.likes = 0;
   entity.save();
 }
