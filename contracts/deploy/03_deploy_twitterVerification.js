@@ -21,7 +21,7 @@ module.exports = async function (hre) {
       log: true
     });
 
-    console.log('add chainlink node to oracle')
+    console.log('Add Chainlink node to oracle')
     let setChainlinkNode = await execute(
       'Oracle',
       {from: admin},
@@ -43,7 +43,7 @@ module.exports = async function (hre) {
       log: true
     });
 
-    console.log('add twitter verification contract to paymaster')
+    console.log('Add Twitter verification contract to paymaster')
     let addTwitterVerification = await execute(
       'CreatonPaymaster',
       {from: admin},

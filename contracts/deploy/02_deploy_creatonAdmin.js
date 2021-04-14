@@ -66,7 +66,7 @@ const func = async function (hre) {
     log: true
   });
 
-  console.log('add creaton admin to paymaster')
+  console.log('Add creaton admin to paymaster')
   let relayHubReceipt = await execute(
       'CreatonPaymaster',
       {from: admin},
