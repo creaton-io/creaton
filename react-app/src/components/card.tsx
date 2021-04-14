@@ -1,5 +1,6 @@
 import {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
+import clsx from "clsx";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
