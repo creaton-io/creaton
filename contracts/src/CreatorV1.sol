@@ -42,10 +42,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     enum Status { unSubscribed, pendingSubscribe, pendingUnsubscribe, subscribed }
     enum Approval { neutral, like, dislike }
+    enum Type {free, encryped}
 
     event SubscriberEvent(address user, string sigKey, string pubKey, Status status);
     event Like(address user, uint256 tokenId, Approval approval);
-    event NewPost(uint256 tokenId, string jsonData, uint8 tier);
+    event NewPost(uint256 tokenId, string jsonData, Type contentType);
     event PostContract(address nftContract);
 
     struct Subscriber {
@@ -65,14 +66,13 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     CreatonAdmin adminContract;
     NFTFactory nftFactory;
 
-
     string public description;
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE;
     mapping (address => Subscriber) public subscribers;
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     address public postNFT;
-    mapping (uint256 => uint8) post2tier;
+    mapping (uint256 => Type) post2tier;
 
     // -----------------------------------------
     // Initializer
@@ -131,24 +131,24 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         emit SubscriberEvent(_address, "", "", status);
     }
 
-    function acceptSubscribe(address _address) external  {
+    function acceptSubscribe(address _address) external onlyCreator {
         require(subscribers[_address].status == Status.pendingSubscribe, "Not pending subscribe");
         changeStatus(_address, Status.subscribed);
     }
 
-    function acceptUnsubscribe(address _address) external  {
+    function acceptUnsubscribe(address _address) external onlyCreator {
         require(subscribers[_address].status == Status.pendingUnsubscribe, "Not pending unsubscribe");
         changeStatus(_address, Status.unSubscribed);
         delete subscribers[_address];
     }
 
-    function bulkAcceptSubscribe(address[] memory _addresses) external  {
+    function bulkAcceptSubscribe(address[] memory _addresses) external onlyCreator {
         for(uint i = 0; i < _addresses.length; i++) {
             changeStatus(_addresses[i], Status.subscribed);
         }
     }
 
-    function bulkAcceptUnsubscribe(address[] memory _addresses) external  {
+    function bulkAcceptUnsubscribe(address[] memory _addresses) external onlyCreator {
         for(uint i = 0; i < _addresses.length; i++) {
             changeStatus(_addresses[i], Status.unSubscribed);
             delete subscribers[_addresses[i]];
@@ -159,10 +159,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         return subscriberCount;
     }
 
-    // TODO check tokenId is minted (exists)
     function like(uint _tokenId, uint approvalEnum) external {
+        require(postNFT != address(0));
+        require(Post(postNFT).exists(_tokenId));
         address subAddress = _msgSender();
-        if (post2tier[_tokenId] > 0){
+        if (post2tier[_tokenId] == Type.encryped){
             require(subscribers[subAddress].status == Status.subscribed, "Not subscribed");
         }
         require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
@@ -170,19 +171,18 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         emit Like(subAddress, _tokenId, approval);
     }
 
-    // TODO only once
-    // TODO check comes from admin
-    // TODO check is the creator
-    // TODO unique name/symbol per creator?
-    function createTier(string memory name, string memory symbol) public {
+    function createPostNFT(string memory name, string memory symbol) public onlyCreator {
+        require(postNFT == address(0));
         postNFT = nftFactory.createPostNFT(name, symbol, "", address(this));
         emit PostContract(postNFT);
     }
 
-    function upload(string memory _metadataURI, string memory _dataJSON, uint8 tier) external {
+    function upload(string memory _metadataURI, string memory _dataJSON, Type contentType) external onlyCreator {
+        require(postNFT != address(0));
+        require(contentType ==  Type.free || contentType == Type.encryped);
         uint256 tokenId = Post(postNFT).mint(creator, _metadataURI);
-        post2tier[tokenId] = tier;
-        emit NewPost(tokenId, _dataJSON, tier);
+        post2tier[tokenId] = contentType;
+        emit NewPost(tokenId, _dataJSON, contentType);
     }
 
     // -----------------------------------------
@@ -520,8 +520,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         _;
     }
 
-    modifier isCreator() {
-        require(msg.sender == creator, "Not owner");
+    modifier onlyCreator() {
+        require(_msgSender() == creator, "Not the creator");
         _;
     }
 

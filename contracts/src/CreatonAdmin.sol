@@ -78,7 +78,6 @@ contract CreatonAdmin is BaseRelayRecipient {
     // -----------------------------------------
 
     function deployCreator(string calldata description, uint256 subscriptionPrice) external {
-
         CreatorProxy creatorContract =
             new CreatorProxy(
                 creatorBeacon,

@@ -77,7 +77,7 @@ contract TwitterVerification is ChainlinkClient, OwnableBaseRelayRecipient {
     function verifySignature(bytes memory signature, address userAddress, string memory username) public view returns (bool) {
 
         string memory header = "\x19Ethereum Signed Message:\n000000";
-        string memory main = "Signing Up on Creaton With My Twitter Account: @";
+        string memory main = "Verifying on Creaton With My Twitter Account: @";
         string memory message = string(abi.encodePacked(main, username));
         uint256 lengthOffset;
         uint256 length;

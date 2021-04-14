@@ -13,16 +13,15 @@ module.exports = async function (hre) {
       log: true
     });
 
-    let linkContract = LinkToken.address;
-
     let oracle = await deploy('Oracle', {
       from: admin,
       args: [
-        linkContract
+        LinkToken.address
       ],
       log: true
     });
 
+    console.log('add chainlink node to oracle')
     let setChainlinkNode = await execute(
       'Oracle',
       {from: admin},
@@ -35,7 +34,7 @@ module.exports = async function (hre) {
     let twitterVerification = await deploy('TwitterVerification', {
       from: admin,
       args: [
-        linkContract,
+        LinkToken.address,
         oracle.address,
         jobId,
         trustedforwarder,
@@ -44,6 +43,7 @@ module.exports = async function (hre) {
       log: true
     });
 
+    console.log('add twitter verification contract to paymaster')
     let addTwitterVerification = await execute(
       'CreatonPaymaster',
       {from: admin},

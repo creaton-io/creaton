@@ -7,24 +7,21 @@ module.exports = async function (hre) {
       log: true
     });
 
+    console.log('add paymaster to relayhub')
     let relayHubReceipt = await execute(
       'CreatonPaymaster',
       {from: admin},
       "setRelayHub",
       "0x1F3d1C33977957EA41bEdFDcBf7fF64Fd3A3985e");
+    console.log(relayHubReceipt.transactionHash)
 
+    console.log('set trusted forwarder')
     let trustedForwarderReceipt = await execute(
       'CreatonPaymaster',
       {from: admin},
       "setTrustedForwarder",
       "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2");
-
-    let twitterContractReceipt = await execute(
-      'CreatonPaymaster',
-      {from: admin},
-      "addTwitterVerification",
-      "0x43edd0335fE94980F3852Ddb19A5E140e3dd55ce"
-    )
+    console.log(trustedForwarderReceipt.transactionHash)
 
 }
 

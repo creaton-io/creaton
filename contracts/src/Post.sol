@@ -37,6 +37,10 @@ contract Post is Context, AccessControlEnumerable, ERC721URIStorage, ERC721Burna
         return (_tokenId.current() - 1);
     }
 
+    function exists(uint256 tokenId) public view returns (bool) {
+        return _exists(tokenId);
+    }
+
     function _beforeTokenTransfer(address from, address to, uint256 tokenId) internal virtual override(ERC721, ERC721Pausable) {
         super._beforeTokenTransfer(from, to, tokenId);
     }

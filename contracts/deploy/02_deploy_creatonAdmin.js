@@ -20,8 +20,9 @@ const func = async function (hre) {
   });
   await sf.initialize();
 
+  // TODO don't forget to change this on demand
   const trustedforwarder = "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2";
-  const paymaster = "0x8c9245773caF636cAE9Cb1B28a82e061Bd38fDCb"
+  const paymasterContract = await hre.deployments.get("CreatonPaymaster")
   const usdcx = sf.tokens.fUSDCx;
 
   // proxy only in non-live network (localhost and hardhat) enabling HCR (Hot Contract Replaement)
@@ -61,20 +62,20 @@ const func = async function (hre) {
       beaconContract.address,
       nftFactory.address,
       trustedforwarder,
-      paymaster],
+      paymasterContract.address],
     log: true
   });
-  
+
+  console.log('add creaton admin to paymaster')
   let relayHubReceipt = await execute(
       'CreatonPaymaster',
       {from: admin},
       "setAdmin",
       adminContract.address);
-
   console.log(relayHubReceipt.transactionHash);
 
 };
 
 module.exports = func;
-func.id = '01_deploy_creatonAdmin'; // id required to prevent reexecution
+func.id = '02_deploy_creatonAdmin'; // id required to prevent reexecution
 func.tags = ['CreatonAdmin'];

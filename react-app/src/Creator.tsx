@@ -247,6 +247,7 @@ export function Creator() {
 
   if (!context.account)
     return (<div>Connect to metamask</div>)
+  // @ts-ignore
   if (contentsQuery.loading || subscriptionQuery.loading || contractQuery.loading) {
     return (<div>Loading</div>)
   }

@@ -26,6 +26,7 @@ import {RelayProvider} from "@opengsn/gsn";
 import {Button} from "./elements/button";
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { faEllipsisH, faHeart } from "@fortawesome/free-solid-svg-icons";
+import creaton_contracts from "./contracts.json";
 
 library.add(faEllipsisH, faHeart);
 
@@ -45,26 +46,23 @@ const client = new ApolloClient({
   cache: new InMemoryCache()
 });
 
+const paymaster = creaton_contracts.Paymaster
 
-const getLibrary = async (provider) => {
-    // TODO read this from contracts.json???
-  let paymasterAddress = '0x44A5600E35f76e8423f48A3be5829C588882337c'
+
+const getLibrary = (provider) => {
+  let paymasterAddress = paymaster.address
     const config = {
       paymasterAddress
     }
-    // @ts-ignore
-  const gsnProvider = await RelayProvider.newProvider({provider: provider, config}).init();
-    // @ts-ignore
-  // return new Web3Provider(RelayProvider.newProvider({provider: provider, config}).init()
-  //   .then((result:any) => {
-  //     console.log(result);
-  //     return result;
-  //   }));
-  const library = new Web3Provider(gsnProvider)
+  // @ts-ignore
+  // const gsnProvider = await RelayProvider.newProvider({provider: provider, config}).init();
+  const gsnProvider = RelayProvider.newProvider({provider: provider, config});
+  gsnProvider.init()
+  // @ts-ignore
+  const gsnLibrary = new Web3Provider(gsnProvider)
+  const library = new Web3Provider(provider)
   library.pollingInterval = 12000
-  // console.log(library.getSigner())
-  // console.log('hereeeeeeeeee', library.getSigner());
-  return library
+  return gsnLibrary
 }
 
 function Status() {
@@ -88,9 +86,8 @@ const App = () => {
   return (
     <ErrorHandlerProvider>
       <TextileProvider>
-
       <Web3ReactProvider getLibrary={getLibrary}>
-        {/*<SuperfluidProvider>*/}
+        <SuperfluidProvider>
           <UmbralWasmProvider>
             <ApolloProvider client={client}>
               <Status/>
@@ -196,7 +193,7 @@ const App = () => {
               </Router>
             </ApolloProvider>
           </UmbralWasmProvider>
-        {/*</SuperfluidProvider>*/}
+        </SuperfluidProvider>
       </Web3ReactProvider>
       </TextileProvider>
     </ErrorHandlerProvider>

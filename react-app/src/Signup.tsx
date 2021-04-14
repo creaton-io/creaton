@@ -28,7 +28,6 @@ const SignUp = () => {
   const errorHandler = useContext(ErrorHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const [signedup, setSignedup] = useState<any>(false)
-  const [library, setLibrary] = useState<any>(null)
   const {currentCreator} = useCurrentCreator()
 
   const [creatorName, setCreatorName] = useState("")
@@ -36,17 +35,15 @@ const SignUp = () => {
 
   if (!context.library)
     return (<div>Please connect your wallet</div>)
-  // @ts-ignore
-  context.library.then((result) => {
-    setLibrary(result);
-  })
-
   if (currentCreator !== undefined)
     return (<div>Congratulation you just signed up on creaton!</div>)
   if (signedup)
     return (<div>{signedup}</div>)
 
   function submitForm(event) {
+    const {library} = context;
+    console.log(creatorFactoryContract)
+    // @ts-ignore
     const connectedContract = creatorFactoryContract.connect(library!.getSigner())
     connectedContract.deployCreator(creatorName, subscriptionPrice)
       .then(function (response) {

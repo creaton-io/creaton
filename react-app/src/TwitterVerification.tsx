@@ -93,7 +93,7 @@ const TwitterVerification = () => {
           {setSubmitting}: FormikHelpers<Values>
         ) => {
           const method = 'personal_sign'
-          const msg = "Signing Up on Creaton With My Twitter Account: @" + values.twitterUsername;
+          const msg = "Verifying on Creaton With My Twitter Account: @" + values.twitterUsername;
           const params = [context.account, msg]
           // @ts-ignore
           library.provider.send({
