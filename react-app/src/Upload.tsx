@@ -12,6 +12,7 @@ import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
 import {ContractForm} from "./ContractForm"
+import {Checkbox} from "./elements/checkbox";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -279,11 +280,9 @@ const Upload = () => {
         </small>
         {(currentFile?.type === 'video/mp4' && ffmpeg !== undefined) &&
         <div>
-          <label htmlFor="isStreaming">Convert to streaming format?</label>
-          <input type="checkbox" id="isStreaming" name="isStreaming" checked={isStreaming}
-                 onChange={() => {
+          <Checkbox checked={isStreaming} onChange={() => {
                    setIsStreaming(!isStreaming)
-                 }}/>
+                 }} label="Convert to streaming format?" />
         </div>}
         <br/>
         <label htmlFor="name">Name</label>
@@ -294,11 +293,9 @@ const Upload = () => {
         <Input type="text" name="description" placeholder="description" value={description} onChange={(event) => {
           setDescription(event.target.value)
         }}/>
-        <input type="checkbox" id="encrypted" name="encrypted" checked={uploadEncrypted}
-               onChange={() => {
-                 setUploadEncrypted(!uploadEncrypted)
-               }}/>
-        <label htmlFor="encrypted">Encrypted?</label>
+        <Checkbox checked={uploadEncrypted} onChange={() => {
+                   setUploadEncrypted(!uploadEncrypted)
+                 }} label="Encrypted?" />
         <Button type="submit" label="Submit"/>
       </form>
     </div>
