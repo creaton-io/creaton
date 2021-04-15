@@ -24,11 +24,11 @@ import TwitterVerification from "./TwitterVerification";
 import Creators from "./Creators";
 import {RelayProvider} from "@opengsn/gsn";
 import {Button} from "./elements/button";
-import { library } from "@fortawesome/fontawesome-svg-core";
-import { faEllipsisH, faHeart } from "@fortawesome/free-solid-svg-icons";
+import {library} from "@fortawesome/fontawesome-svg-core";
+import {faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog} from "@fortawesome/free-solid-svg-icons";
 import creaton_contracts from "./contracts.json";
 
-library.add(faEllipsisH, faHeart);
+library.add(faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog);
 
 const styles = {
   fontFamily: 'sans-serif',

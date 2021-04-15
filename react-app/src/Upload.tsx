@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {Field, Form, Formik, FormikHelpers} from "formik";
 import {useCurrentCreator} from "./Utils";
 import {Contract, utils} from "ethers";
 import creaton_contracts from './contracts.json'
@@ -9,10 +8,10 @@ import {ErrorHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
-import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
+import {ContractForm} from "./ContractForm"
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -22,19 +21,13 @@ if (false && process.env.NODE_ENV === 'development')
 else
   ARWEAVE_URI = 'https://report.creaton.io'
 
-
-interface NFTValues {
-  name: string;
-  symbol: string;
-}
-
 const ARWEAVE_GATEWAY = 'https://arweave.net/';
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
-  const textile = useContext(TextileContext)
   const [status, setStatus] = useState("")
+  const [nftContractStatus, setNftContractStatus] = useState<any>(undefined)
   const [description, setDescription] = useState("")
   const [fileName, setFileName] = useState("")
   const [isStreaming, setIsStreaming] = useState(false);
@@ -55,8 +48,26 @@ const Upload = () => {
       })
     }
   }, [ffmpeg])
-
   const {loading, error, currentCreator} = useCurrentCreator()
+
+  function updateNFTContractStatus(){
+    if (!context.account || currentCreator === undefined)
+      return;
+    const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
+    creatorContract.postNFT().then((address)=>{
+      if(address === '0x0000000000000000000000000000000000000000'){
+        setNftContractStatus('not-created')
+      }
+      else
+        setNftContractStatus('created')
+    })
+  }
+
+  useEffect(()=>{
+    updateNFTContractStatus();
+  },[currentCreator, context])
+
+
   const errorHandler = useContext(ErrorHandlerContext)
   const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
@@ -67,12 +78,14 @@ const Upload = () => {
     return (<div>Please signup first. You are not a creator yet.</div>)
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
+  if (nftContractStatus===undefined)
+    return (<div>Checking your nft contract status</div>)
   console.log(context.library);
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
-
   async function createNFT(name: string, symbol: string) {
     try {
-      let receipt = await creatorContract.createTier(name, symbol);
+      await creatorContract.createPostNFT(name, symbol);
+      updateNFTContractStatus();
     } catch (error) {
       errorHandler.setError('Could not create your NFT contract' + error.message);
       return;
@@ -242,35 +255,19 @@ const Upload = () => {
     event.preventDefault()
   }
 
+  if(nftContractStatus==='not-created'){
+    return (<div>
+      <h1>Welcome {currentCreator.description}</h1>
+      <h2>You have not created your NFT contract yet.</h2>
+      {status && (<h3>{status}</h3>)}
+      <ContractForm createNFT={createNFT}/>
+    </div>)
+  }
+  else
   return (
     <div>
       <h1>Welcome {currentCreator.description}</h1>
       {status && (<h3>{status}</h3>)}
-      <Formik
-        initialValues={{
-          name: '',
-          symbol: '',
-        }}
-        onSubmit={(
-          values: NFTValues,
-          {setSubmitting}: FormikHelpers<NFTValues>
-        ) => {
-          createNFT(values.name, values.symbol)
-          // console.log(values)
-          //TODO error handling on promise
-          setSubmitting(false);
-        }}
-      >
-        <Form>
-          <label htmlFor="name">name</label>
-          <Field id="name" name="name" placeholder=""/>
-
-          <label htmlFor="symbol">symbol</label>
-          <Field id="symbol" name="symbol" placeholder=""/>
-
-          <button type="submit">Submit</button>
-        </Form>
-      </Formik>
       <form onSubmit={handleSubmit}>
         <label htmlFor="file">Content</label>
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"

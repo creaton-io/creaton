@@ -24,11 +24,9 @@ function Creators() {
 
     {data.creators.map((creator: any) => (
       <div key={creator.id}>
-        <p>
-          <Link to={"/creator/" + creator.creatorContract}>
-            <Card price={creator.subscriptionPrice} name={creator.description}></Card>
-          </Link>
-        </p>
+        <Link to={"/creator/" + creator.creatorContract}>
+          <Card price={creator.subscriptionPrice} name={creator.description}></Card>
+        </Link>
       </div>
     ))}</div>);
 }
