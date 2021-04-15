@@ -72,7 +72,7 @@ const Upload = () => {
 
   async function createNFT(name: string, symbol: string) {
     try {
-      let receipt = await creatorContract.createTier(name, symbol);
+      let receipt = await creatorContract.createPostNFT(name, symbol);
     } catch (error) {
       errorHandler.setError('Could not create your NFT contract' + error.message);
       return;
