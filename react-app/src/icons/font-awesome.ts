@@ -31,10 +31,20 @@ const fabIcons = [
 export const iconMap: { [key: string]: any } = {
     'heart': ['fas', 'heart'],
     'ellipsis-h': ['fas', 'ellipsis-h'],
+    'search': ['fas', 'search'],
+    'bell': ['fas', 'bell'],
+    'share': ['fas', 'share-alt'],
+    'check': ['fas', 'check'],
+    'times': ['fas', 'times'],
+    'exclamation': ['fas', 'exclamation'],
+    'info': ['fas', 'info'],
+    'cog': ['fas', 'cog'],
 
     // branding
     'github': ['fab', 'github'],
     'twitter': ['fab', 'twitter'],
+    'medium': ['fab', 'medium-m'],
+    'telegram': ['fab', 'telegram']
 }
 
 export const resolveIconAlias = (name: string): IconProp => (

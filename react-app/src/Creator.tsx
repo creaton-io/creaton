@@ -302,7 +302,7 @@ export function Creator() {
         return <Card key={content.ipfs} imgUrl={src} name={content.name}/>
     }
 
-    return <li key={content.ipfs}>{content.name}({content.description}):
+    return <li key={content.ipfs}>{content.name}({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
             {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
               like(content)
             }}>Like</button> {content.likes} likes </div>)} {showContent(content)}
