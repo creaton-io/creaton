@@ -13,7 +13,6 @@ type Subscriber @entity {
   creator: Creator!
   creatorContract: Bytes!
   user: Bytes!
-  sig_key: String!
   pub_key: String!
   status: String!
 }

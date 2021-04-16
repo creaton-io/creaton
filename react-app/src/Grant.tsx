@@ -17,7 +17,6 @@ const SUBSCRIBERS_QUERY = gql`
       query GET_SUBSCRIBERS($user: Bytes!) {
       subscribers(where: { creatorContract: $user }) {
         user
-        sig_key
         pub_key
         status
       }
@@ -55,7 +54,7 @@ const Grant = () => {
   async function grant(subscriber) {
     setGrantStatus({status: 'pending', message: 'Granting subscribers, please wait'})
     const umbral = await getUmbral()
-    umbral.grant(subscriber.sig_key)
+    umbral.grant(subscriber.pub_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
         creatorContract.acceptSubscribe(subscriber.user).then(function () {
@@ -71,7 +70,7 @@ const Grant = () => {
     let users: any = []
     for (let subscriber of data.subscribers) {
       if (subscriber.status === 'pending_subscribe') {
-        await umbral.grant(subscriber.sig_key)
+        await umbral.grant(subscriber.pub_key)
         users.push(subscriber.user)
       }
     }
@@ -88,7 +87,7 @@ const Grant = () => {
     let users: any = []
     for (let subscriber of data.subscribers) {
       if (subscriber.status === 'pending_unsubscribe') {
-        await umbral.revoke(subscriber.sig_key)
+        await umbral.revoke(subscriber.pub_key)
         users.push(subscriber.user)
       }
     }
@@ -102,7 +101,7 @@ const Grant = () => {
   async function revoke(subscriber) {
     setGrantStatus({status: 'pending', message: 'Revoking subscribers, please wait'})
     const umbral = await getUmbral()
-    umbral.revoke(subscriber.sig_key)
+    umbral.revoke(subscriber.pub_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
         creatorContract.acceptUnsubscribe(subscriber.user).then(function () {
@@ -115,22 +114,23 @@ const Grant = () => {
   async function regrant(subscriber) {
     const umbral = await getUmbral()
     console.log(subscriber)
-    umbral.grant(subscriber.sig_key)
+    umbral.grant(subscriber.pub_key)
   }
+  console.log(data.subscribers)
 
   return (
     <div>
       <h1>Grant Subscribers</h1>
       {grantStatus.message && <h3>{grantStatus.message}</h3>}
-      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_subscribe')) && (<Button onClick={() => {
+      {data.subscribers.some((subscriber) => (subscriber.status === 'requested_subscribe')) && (<Button onClick={() => {
         grant_all()
-      }} label="Grant all pending_subscribe"/>)}
+      }} label="Grant all requests"/>)}
       {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (<Button onClick={() => {
         revoke_all()
       }} label="Revoke all pending_unsubscribe"/>)}
       <br/>
       {data.subscribers.map((subscriber) => (<div key={subscriber.user}>{subscriber.user} : {subscriber.status}
-        {subscriber.status === 'pending_subscribe' && (<Button onClick={() => {
+        {subscriber.status === 'requested_subscribe' && (<Button onClick={() => {
           grant(subscriber)
         }} label="Grant"/>)}
         {subscriber.status === 'subscribed' && (<Button onClick={() => {

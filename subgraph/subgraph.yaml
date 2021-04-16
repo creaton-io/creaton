@@ -39,7 +39,7 @@ templates:
         - name: Creator
           file: ./abis/Creator.json
       eventHandlers:
-        - event: SubscriberEvent(address,string,string,uint8)
+        - event: SubscriberEvent(address,string,uint8)
           handler: handleSubscriberEvent
         - event: NewPost(uint256,string,uint8)
           handler: handleNewPost

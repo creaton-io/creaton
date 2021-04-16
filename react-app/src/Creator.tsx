@@ -177,14 +177,7 @@ export function Creator() {
     console.log('converted', usdcxBalance, 'usdc to usdcx');
   }
 
-  async function subscribe() {
-    if (!(context.account)) {
-      alert('Connect to metamask')
-      return;
-    }
-    const umbral = new UmbralSubscriber(umbralWasm)
-    await umbral.initMasterkey(context.library!.getSigner(context.account), context.account, false)
-    const result = umbral.getPublicKeyBase64()
+  async function startStreaming() {
     let call;
     const contract = contractQuery.data.creators[0]
     let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
@@ -204,8 +197,8 @@ export function Creator() {
               '0x',
             ).encodeABI(),
             defaultAbiCoder.encode(
-              ['string', 'string'],
-              [result, 'newcypher']
+              ['string'],
+              ['']
             )
           ]
         ),
@@ -311,6 +304,14 @@ export function Creator() {
   }
 
   const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
+
+  async function subscribe() {
+    const umbral = new UmbralSubscriber(umbralWasm)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
+    const result = umbral.getPublicKeyBase64()
+    await creatorContract.requestSubscribe(result)
+  }
+
   async function like(content) {
     try {
         let receipt = await creatorContract.like(content.tokenId, 1);
@@ -328,9 +329,12 @@ export function Creator() {
       {isSelf && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
-      {(subscription == 'unsubscribed') && (<Button onClick={() => {
+      {(subscription === 'unsubscribed') && (<Button onClick={() => {
         subscribe()
       }} label="Subscribe"/>)}
+      {(subscription === 'pending_subscribe') && (<Button onClick={() => {
+        startStreaming()
+      }} label="Start Streaming"/>)}
       <br/>
       <button onClick={() => {
         mint()

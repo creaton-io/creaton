@@ -62,7 +62,7 @@ const getLibrary = (provider) => {
   const gsnLibrary = new Web3Provider(gsnProvider)
   const library = new Web3Provider(provider)
   library.pollingInterval = 12000
-  return gsnLibrary
+  return library
 }
 
 function Status() {

@@ -81,12 +81,11 @@ const Upload = () => {
     return (<div>Umbral wasm not loaded yet</div>)
   if (nftContractStatus===undefined)
     return (<div>Checking your nft contract status</div>)
-  console.log(context.library);
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
   async function createNFT(name: string, symbol: string) {
     try {
       await creatorContract.createPostNFT(name, symbol);
-      updateNFTContractStatus();
+      setNftContractStatus('created');
     } catch (error) {
       errorHandler.setError('Could not create your NFT contract' + error.message);
       return;
