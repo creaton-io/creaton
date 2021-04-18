@@ -19,6 +19,8 @@ dataSources:
         - name: CreatonAdmin
           file: ./abis/CreatonAdmin.json
       eventHandlers:
+        - event: ProfileUpdate(address,string)
+          handler: handleProfileUpdate
         - event: CreatorDeployed(address,address,string,uint256)
           handler: handleCreatorDeployed
       file: ./src/mapping.ts

@@ -17,6 +17,7 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice);
     event NewSubscriber(address user, uint256 amount);
+    event ProfileUpdate(address user, string jsonData);
 
     // -----------------------------------------
     // Storage
@@ -98,6 +99,10 @@ contract CreatonAdmin is BaseRelayRecipient {
     // TODO only be called from twitter contract
     function signUp (address user, string memory twitter) public {
         user2twitter[user] = twitter;
+    }
+
+    function updateProfile(string memory dataJSON) external {
+        emit ProfileUpdate(_msgSender(), dataJSON);
     }
 
     function versionRecipient() external view override  returns (string memory){

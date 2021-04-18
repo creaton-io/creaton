@@ -1,15 +1,17 @@
 import {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
 import clsx from "clsx";
+import {Avatar} from "./avatar";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
     price?: number;
     name?: string;
     imgUrl?: string;
+    avatarUrl?: string;
 }
 
-export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl}) => {
+export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl, avatarUrl}) => {
     const [like, setLike] = useState(false);
     return (
         <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
@@ -18,9 +20,7 @@ export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl}) => {
                     <div className="flex items-center justify-between">
                         <div className="flex-shrink-0">
                             <a href="#">
-                                <img className="h-8 w-8 rounded-full"
-                                     src="https://images.unsplash.com/photo-1527538079466-b6297ad15363?ixlib=rb-1.2.1&ixqx=giK1HBp0xK&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                                     alt="" />
+                                <Avatar src={avatarUrl} size="small"/>
                             </a>
                         </div>
                         <div>

@@ -12,6 +12,9 @@ const CREATORS_QUERY = gql`
     description
     subscriptionPrice
     timestamp
+    profile {
+      data
+    }
   }
 }
 `;
@@ -25,7 +28,7 @@ function Creators() {
     {data.creators.map((creator: any) => (
       <div key={creator.id}>
         <Link to={"/creator/" + creator.creatorContract}>
-          <Card price={creator.subscriptionPrice} name={creator.description}></Card>
+          <Card price={creator.subscriptionPrice} name={JSON.parse(creator.profile.data).username} avatarUrl={JSON.parse(creator.profile.data).image}></Card>
         </Link>
       </div>
     ))}</div>);

@@ -10,6 +10,7 @@ import creaton_contracts from "./contracts.json";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator} from "./Umbral";
 import {Button} from "./elements/button";
+import {Avatar} from "./components/avatar";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -19,6 +20,9 @@ const SUBSCRIBERS_QUERY = gql`
         user
         pub_key
         status
+        profile {
+          data
+        }
       }
     }
 `;
@@ -129,7 +133,8 @@ const Grant = () => {
         revoke_all()
       }} label="Revoke all pending_unsubscribe"/>)}
       <br/>
-      {data.subscribers.map((subscriber) => (<div key={subscriber.user}>{subscriber.user} : {subscriber.status}
+      {data.subscribers.map((subscriber) => (<div key={subscriber.user}>
+        <Avatar size="small" src={JSON.parse(subscriber.profile.data).image}/> {JSON.parse(subscriber.profile.data).username} : {subscriber.status}
         {subscriber.status === 'requested_subscribe' && (<Button onClick={() => {
           grant(subscriber)
         }} label="Grant"/>)}

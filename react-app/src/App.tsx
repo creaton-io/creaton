@@ -1,4 +1,4 @@
-import React, {useContext, useEffect} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {
   HashRouter as Router,
   Switch,
@@ -25,10 +25,12 @@ import Creators from "./Creators";
 import {RelayProvider} from "@opengsn/gsn";
 import {Button} from "./elements/button";
 import {library} from "@fortawesome/fontawesome-svg-core";
-import {faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog} from "@fortawesome/free-solid-svg-icons";
+import {faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser} from "@fortawesome/free-solid-svg-icons";
 import creaton_contracts from "./contracts.json";
+import {ProfileEdit} from "./ProfileEdit";
+import {useCurrentProfile} from "./Utils";
 
-library.add(faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog);
+library.add(faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser);
 
 const styles = {
   fontFamily: 'sans-serif',
@@ -75,7 +77,11 @@ function Status() {
 }
 
 function ConnectOrSignup() {
-  const {active} = useWeb3React()
+  const context = useWeb3React()
+  const {active} = context
+  const {currentProfile} = useCurrentProfile()
+  if(currentProfile)
+    return (<Link to="/signup"><Button label="Profile"></Button></Link>)
   if(active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
@@ -174,7 +180,7 @@ const App = () => {
                       <WalletConnect/>
                     </Route>
                     <Route path="/signup">
-                      <SignUp/>
+                      <ProfileEdit/>
                     </Route>
                     <Route path="/upload">
                       <Upload/>

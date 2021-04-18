@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
-import {CreatorDeployed as CreatorDeployedEvent} from '../generated/CreatonAdmin/CreatonAdmin';
-import {Content, Creator, Subscriber} from '../generated/schema';
+import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate} from '../generated/CreatonAdmin/CreatonAdmin';
+import {Content, Creator, Profile, Subscriber} from '../generated/schema';
 import {SubscriberEvent, PostContract, NewPost, Like} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
 import {DataSourceContext, dataSource, json, Bytes, log} from '@graphprotocol/graph-ts';
@@ -22,6 +22,10 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   entity.description = event.params.description;
   entity.subscriptionPrice = event.params.subscriptionPrice;
   entity.timestamp = event.block.timestamp;
+  let profile = Profile.load(id);
+  if (profile) {
+    entity.profile = profile.id;
+  }
   entity.save();
 }
 
@@ -46,6 +50,10 @@ export function handleSubscriberEvent(event: SubscriberEvent): void {
   if (event.params.status == 3) status = 'pending_unsubscribe';
   if (event.params.status == 4) status = 'subscribed';
   subscriber.status = status;
+  let profile = Profile.load(subscriber_user.toHex());
+  if (profile) {
+    subscriber.profile = profile.id;
+  }
   subscriber.save();
 }
 
@@ -93,6 +101,17 @@ export function handleLike(event: Like): void {
   let id = creator_contract.toHex() + "-" + tokenId.toString();
   let entity = Content.load(id);
   entity.likes = entity.likes + 1;
+  entity.save();
+}
+
+export function handleProfileUpdate(event: ProfileUpdate): void {
+  let id = event.params.user.toHex();
+  let entity = Profile.load(id);
+  if (!entity) {
+    entity = new Profile(id);
+  }
+  entity.address = event.params.user;
+  entity.data = event.params.jsonData;
   entity.save();
 }
 

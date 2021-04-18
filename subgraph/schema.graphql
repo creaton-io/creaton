@@ -1,6 +1,13 @@
+type Profile @entity {
+  id: ID!
+  address: Bytes!
+  data: String!
+}
+
 type Creator @entity {
   id: ID!
   user: Bytes!
+  profile: Profile
   creatorContract: Bytes!
   description: String!
   subscriptionPrice: BigInt!
@@ -11,6 +18,7 @@ type Creator @entity {
 type Subscriber @entity {
   id: ID!
   creator: Creator!
+  profile: Profile
   creatorContract: Bytes!
   user: Bytes!
   pub_key: String!

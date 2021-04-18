@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator} from "./Utils";
-import {Contract, utils} from "ethers";
+import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
 import {ErrorHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
@@ -13,16 +13,13 @@ import {Button} from "./elements/button";
 import {Input} from "./elements/input";
 import {ContractForm} from "./ContractForm"
 import {Checkbox} from "./elements/checkbox";
+import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
+import SignUp from "./Signup";
+import {Toggle} from "./elements/toggle";
 
 const CreatorContract = creaton_contracts.Creator
 
-let ARWEAVE_URI
-if (false && process.env.NODE_ENV === 'development')
-  ARWEAVE_URI = 'http://localhost:1984'
-else
-  ARWEAVE_URI = 'https://report.creaton.io'
 
-const ARWEAVE_GATEWAY = 'https://arweave.net/';
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
@@ -76,7 +73,8 @@ const Upload = () => {
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
-    return (<div>Please signup first. You are not a creator yet.</div>)
+    return (<div><h3>Please signup first. You are not a creator yet.</h3>
+      <SignUp/></div>)
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
   if (nftContractStatus===undefined)
@@ -292,9 +290,10 @@ const Upload = () => {
         <Input type="text" name="description" placeholder="description" value={description} onChange={(event) => {
           setDescription(event.target.value)
         }}/>
-        <Checkbox checked={uploadEncrypted} onChange={() => {
+        Only for subscribers
+        <Toggle state={uploadEncrypted} onClick={() => {
                    setUploadEncrypted(!uploadEncrypted)
-                 }} label="Encrypted?" />
+                 }}/>
         <Button type="submit" label="Submit"/>
       </form>
     </div>
