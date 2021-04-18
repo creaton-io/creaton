@@ -29,6 +29,7 @@ import {faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, fa
 import creaton_contracts from "./contracts.json";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentProfile} from "./Utils";
+import {InjectedConnector} from "@web3-react/injected-connector";
 
 library.add(faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser);
 
@@ -77,47 +78,76 @@ function Status() {
 }
 
 function ConnectOrSignup() {
-  const context = useWeb3React()
-  const {active} = context
+  const {active, activate} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
-  if(currentProfile)
+
+  async function tryConnect() {
+    //TODO: test walletConnect and open up a modal
+    const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
+    if (await injected.getProvider())
+      activate(injected)
+    else {
+      alert('only injected providers are supported at the moment')
+    }
+  }
+
+  if (currentProfile)
     return (<Link to="/signup"><Button label="Profile"></Button></Link>)
-  if(active)
+  if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
-    return (<Link to="/connect-wallet"><Button label="Connect Wallet"></Button></Link>)
+    return (<Button label="Connect Wallet" onClick={tryConnect}></Button>)
+}
+
+const Autoconnect = () => {
+  const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
+  const {activate, active} = useWeb3React<Web3Provider>()
+  useEffect(() => {
+    async function connectWalletIfAvailable() {
+      if (!active && ((await injected.getProvider()).selectedAddress))
+        activate(injected)
+    }
+
+    connectWalletIfAvailable()
+  }, [active, injected, activate])
+  return null;
 }
 
 const App = () => {
+
+
   return (
     <ErrorHandlerProvider>
       <TextileProvider>
-      <Web3ReactProvider getLibrary={getLibrary}>
-        <SuperfluidProvider>
-          <UmbralWasmProvider>
-            <ApolloProvider client={client}>
-              <Status/>
-              <Router>
-<div>
-    <div>
-        <div className="relative bg-black overflow-hidden">
-            <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full" aria-hidden="true">
-                <div className="relative h-full max-w-7xl mx-auto"></div>
-            </div>
-            <div className="relative pt-6 pb-16 sm:pb-24">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                    <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
-                        <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
-                            <div className="flex items-center justify-between w-full md:w-auto">
-                                <a href="#"><span className="sr-only">Workflow</span><img src="./assets/svgs/logo.svg"/></a>
-                              <div className="-mr-2 flex items-center md:hidden">
-                                <button type="button"
-                                        className="bg-gray-50 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
-                                        aria-expanded="false">
-                                  <span className="sr-only">Open main menu</span>
-                                  <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
-                                       viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+        <Web3ReactProvider getLibrary={getLibrary}>
+          <Autoconnect/>
+          <SuperfluidProvider>
+            <UmbralWasmProvider>
+              <ApolloProvider client={client}>
+                <Status/>
+                <Router>
+                  <div>
+                    <div>
+                      <div className="relative bg-black overflow-hidden">
+                        <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
+                             aria-hidden="true">
+                          <div className="relative h-full max-w-7xl mx-auto"></div>
+                        </div>
+                        <div className="relative pt-6 pb-16 sm:pb-24">
+                          <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                            <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
+                              <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
+                                <div className="flex items-center justify-between w-full md:w-auto">
+                                  <a href="#"><span className="sr-only">Workflow</span><img
+                                    src="./assets/svgs/logo.svg"/></a>
+                                  <div className="-mr-2 flex items-center md:hidden">
+                                    <button type="button"
+                                            className="bg-gray-50 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                                            aria-expanded="false">
+                                      <span className="sr-only">Open main menu</span>
+                                      <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
+                                           viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
                                           d="M4 6h16M4 12h16M4 18h16"></path>
                                   </svg>
                                 </button>
