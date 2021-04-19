@@ -9,7 +9,7 @@ export const Avatar = ({src = '', size = 'large'}: any) => {
   if (!src)
     return (
       <div className={clsx(size_classes[size], "rounded-full bg-gray-100 text-center")}>
-        <Icon className="m-auto text-gray-400 w-full h-full" name="cog"/>
+        <Icon size={size === 'large' ? "5x" : undefined} className="m-auto text-gray-400 w-full h-full" name="question"/>
       </div>
     )
   else
