@@ -3,7 +3,7 @@ import {Web3Provider} from "@ethersproject/providers";
 import * as React from "react";
 import {BigNumber, ethers} from "ethers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import {useContext, useState} from "react";
 import creaton_contracts from './contracts.json'
 import {Contract} from "ethers";
@@ -20,7 +20,7 @@ const CreatonContract = new Contract(Creaton.address, Creaton.abi)
 
 const TwitterVerification = () => {
   const context = useWeb3React<Web3Provider>()
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
 
   const [library, setLibrary] = useState<any>(null)
   const [signature, setSignature] = useState<any>('')
@@ -101,7 +101,10 @@ const TwitterVerification = () => {
             params
           }, (err, res) => {
             if (err) {
-              errorHandler.setError('Message Sigining Failed ' + err.message)
+              notificationHandler.setNotification({
+                description: 'Message Sigining Failed ' + err.message,
+                type: 'error'
+              })
               return
             }
             setSignature(res.result)

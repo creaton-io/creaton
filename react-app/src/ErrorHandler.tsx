@@ -1,14 +1,14 @@
 import React, {createContext, useState} from "react";
 
-interface ErrorHandler {
-  error;
-  setError;
+interface NotificationHandler {
+  notification;
+  setNotification;
 }
 
-const ErrorHandlerContext = createContext<ErrorHandler>({error: null, setError: null})
-const ErrorHandlerProvider = (props) => {
-  const [error, setError] = useState<any>(null);
-  const handler: ErrorHandler = {error, setError}
-  return (<ErrorHandlerContext.Provider value={handler}>{props.children}</ErrorHandlerContext.Provider>)
+const NotificationHandlerContext = createContext<NotificationHandler>({notification: null, setNotification: null})
+const NotificationHandlerProvider = (props) => {
+  const [notification, setNotification] = useState<any>(null);
+  const handler: NotificationHandler = {notification: notification, setNotification: setNotification}
+  return (<NotificationHandlerContext.Provider value={handler}>{props.children}</NotificationHandlerContext.Provider>)
 }
-export {ErrorHandlerContext, ErrorHandlerProvider};
+export {NotificationHandlerContext, NotificationHandlerProvider};

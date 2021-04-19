@@ -16,7 +16,7 @@ import Upload from "./Upload";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 import {Creator} from "./Creator";
-import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
+import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
 import {TextileProvider} from "./TextileProvider";
 import TwitterVerification from "./TwitterVerification";
@@ -30,7 +30,10 @@ import {useCurrentProfile} from "./Utils";
 import {InjectedConnector} from "@web3-react/injected-connector";
 import {APOLLO_URI} from "./Config";
 import {Notification} from "./components/notification";
+import {initFontAwesome} from "./icons/font-awesome";
+import {Avatar} from "./components/avatar";
 
+initFontAwesome()
 
 const styles = {
   fontFamily: 'sans-serif',
@@ -76,7 +79,8 @@ function ConnectOrSignup() {
   }
 
   if (currentProfile)
-    return (<Link to="/signup"><Button label="Profile"></Button></Link>)
+    return (<Link to="/signup">
+      <Avatar size="menu" src={currentProfile.image}/></Link>)
   if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
@@ -101,7 +105,7 @@ const App = () => {
 
 
   return (
-    <ErrorHandlerProvider>
+    <NotificationHandlerProvider>
       <TextileProvider>
         <Web3ReactProvider getLibrary={getLibrary}>
           <Autoconnect/>
@@ -110,13 +114,13 @@ const App = () => {
               <ApolloProvider client={client}>
                 <Router>
                   <div>
-                    <ErrorHandlerContext.Consumer>
-                      {value => (value.error && (<div className="fixed top-5 right-5 z-50 bg-white">
-                        <Notification type="error" description={value.error} close={() => {
-                          value.setError('')
+                    <NotificationHandlerContext.Consumer>
+                      {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
+                        <Notification type={value.notification.type} description={value.notification.description} close={() => {
+                          value.setNotification(null)
                         }}/>
                       </div>))}
-                    </ErrorHandlerContext.Consumer>
+                    </NotificationHandlerContext.Consumer>
 
                     <div>
 
@@ -213,7 +217,7 @@ const App = () => {
         </SuperfluidProvider>
       </Web3ReactProvider>
       </TextileProvider>
-    </ErrorHandlerProvider>
+    </NotificationHandlerProvider>
   );
 }
 

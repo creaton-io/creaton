@@ -4,7 +4,7 @@ import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator} from "./Utils";
 import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
@@ -66,7 +66,7 @@ const Upload = () => {
   },[currentCreator, context])
 
 
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
     return (<div>Not connected</div>)
@@ -85,7 +85,10 @@ const Upload = () => {
       await creatorContract.createPostNFT(name, symbol);
       setNftContractStatus('created');
     } catch (error) {
-      errorHandler.setError('Could not create your NFT contract' + error.message);
+      notificationHandler.setNotification({
+        description: 'Could not create your NFT contract' + error.message,
+        type: 'error'
+      });
       return;
     }
   }
@@ -100,7 +103,7 @@ const Upload = () => {
       try {
         encryptedObject = umbral.encrypt(bytes)
       } catch (error) {
-        errorHandler.setError(error.toString())
+        notificationHandler.setNotification({description: error.toString(), type: 'error'})
         return;
       }
       encryptedObject['type'] = file_type
@@ -156,14 +159,17 @@ const Upload = () => {
             tier = 1
           receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
         } catch (error) {
-          errorHandler.setError('Could not upload the content to your contract' + error.message)
+          notificationHandler.setNotification({
+            description: 'Could not upload the content to your contract' + error.message,
+            type: 'error'
+          })
           return;
         }
         setStatus('Upload successful!')
         console.log(receipt);
       })
     }).catch(function (error) {
-      errorHandler.setError(error.toString())
+      notificationHandler.setNotification({description: error.toString(), type: 'error'})
     })
   }
 
@@ -255,7 +261,6 @@ const Upload = () => {
 
   if(nftContractStatus==='not-created'){
     return (<div>
-      <h1>Welcome {currentCreator.description}</h1>
       <h2>You have not created your NFT contract yet.</h2>
       {status && (<h3>{status}</h3>)}
       <ContractForm createNFT={createNFT}/>

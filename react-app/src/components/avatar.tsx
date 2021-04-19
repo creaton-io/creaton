@@ -4,6 +4,7 @@ import clsx from 'clsx';
 export const Avatar = ({src = '', size = 'large'}: any) => {
   const size_classes = {
     'large': 'w-32 h-32',
+    'menu':'h-12 w-12',
     'small': 'w-8 h-8'
   }
   if (!src)
@@ -14,6 +15,6 @@ export const Avatar = ({src = '', size = 'large'}: any) => {
     )
   else
     return (
-      <img className={clsx(size_classes[size], "rounded-full")} src={src} alt="profile avatar"/>
+      <img className={clsx(size_classes[size], "rounded-full", "border-2")} src={src} alt="profile avatar"/>
     );
 }
