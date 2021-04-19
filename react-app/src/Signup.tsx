@@ -56,7 +56,6 @@ const SignUp = () => {
 
   return (
     <div>
-      <h1>Signup</h1>
       <form onSubmit={submitForm}>
         <label htmlFor="creatorName">Name</label>
         <Input type="text" placeholder="John The Creator" value={creatorName} onChange={(event) => {

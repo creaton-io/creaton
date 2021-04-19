@@ -101,6 +101,26 @@ const Autoconnect = () => {
   return null;
 }
 
+const HeaderButtons = () => {
+  const {currentProfile} = useCurrentProfile()
+  return (<div className="hidden md:flex md:space-x-10 ml-auto">
+    <Link to="/">
+      <Button label="Home" theme="secondary"></Button>
+    </Link>
+    <Link to="/creators">
+      <Button label="Creators" theme="secondary"></Button>
+    </Link>
+    {currentProfile && (<Link to="/grant">
+      <Button label="Grant" theme="secondary"></Button>
+    </Link>)}
+    {currentProfile && (<Link to="/upload">
+      <Button label="Upload" theme="secondary"></Button>
+    </Link>)}
+    <Button label="Pitch Deck" theme="secondary-2"></Button>
+    <ConnectOrSignup/>
+  </div>)
+}
+
 const App = () => {
 
 
@@ -144,32 +164,14 @@ const App = () => {
                                       <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
                                            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                          d="M4 6h16M4 12h16M4 18h16"></path>
-                                  </svg>
-                                </button>
+                                              d="M4 6h16M4 12h16M4 18h16"></path>
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                        </div>
-                      <div className="hidden md:flex md:space-x-10 ml-auto">
-                        <Link to="/">
-                          <Button label="Home" theme="secondary"></Button>
-                        </Link>
-                        <Link to="/creators">
-                          <Button label="Creators" theme="secondary"></Button>
-                        </Link>
-                        <Link to="/grant">
-                          <Button label="Grant" theme="secondary"></Button>
-                        </Link>
-                        <Link to="/upload">
-                          <Button label="Upload" theme="secondary"></Button>
-                        </Link>
-                      </div>
-                      <div className="hidden md:flex md:items-center md:justify-end md:inset-y-0 md:ml-8 md:mr-0">
-                        <a href="#" className="px-4 py-2 rounded-full text-blue border-blue border border-solid">Pitch
-                          Deck</a>
-                        <ConnectOrSignup/>
-                      </div>
-                    </nav>
+                              <HeaderButtons/>
+                            </nav>
                 </div>
             </div>
         </div>
