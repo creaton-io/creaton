@@ -30,6 +30,7 @@ import creaton_contracts from "./contracts.json";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentProfile} from "./Utils";
 import {InjectedConnector} from "@web3-react/injected-connector";
+import {APOLLO_URI} from "./Config";
 
 library.add(faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser);
 
@@ -37,12 +38,6 @@ const styles = {
   fontFamily: 'sans-serif',
   textAlign: 'center',
 };
-
-let APOLLO_URI
-if (process.env.NODE_ENV === 'development')
-  APOLLO_URI = 'http://localhost:8000/subgraphs/name/creaton-io/creaton'
-else
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton2'
 
 const client = new ApolloClient({
   uri: APOLLO_URI,

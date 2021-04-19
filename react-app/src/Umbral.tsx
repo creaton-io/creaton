@@ -1,11 +1,6 @@
 import {Base64} from "js-base64";
 import {utils} from "ethers";
-
-let REENCRYPTION_URI
-if (process.env.NODE_ENV === 'development')
-  REENCRYPTION_URI = 'http://localhost:3010'
-else
-  REENCRYPTION_URI = 'https://reencryption.creaton.io'
+import {REENCRYPTION_URI} from "./Config";
 
 export class Umbral {
   umbral
