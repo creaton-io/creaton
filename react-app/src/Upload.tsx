@@ -166,6 +166,7 @@ const Upload = () => {
           return;
         }
         setStatus('Upload successful!')
+        notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'})
         console.log(receipt);
       })
     }).catch(function (error) {

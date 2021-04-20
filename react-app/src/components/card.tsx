@@ -19,9 +19,7 @@ export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl, avatarUrl})
                 <div className="flex-1 bg-white flex flex-col justify-between">
                     <div className="flex items-center justify-between">
                         <div className="flex-shrink-0">
-                            <a href="#">
                                 <Avatar src={avatarUrl} size="small"/>
-                            </a>
                         </div>
                         <div>
                             <Icon onClick={() => setLike(!like)} name="heart" className={clsx('cursor-pointer',like ? 'text-red-500' : 'text-grey-dark')} />

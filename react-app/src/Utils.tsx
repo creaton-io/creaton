@@ -36,9 +36,8 @@ export function useCurrentProfile() {
   else
     user = ''
   const {loading, error, data, refetch} = useQuery(PROFILE_QUERY, {
-    variables: {user: user}
+    variables: {user: user}, pollInterval: 20000
   });
-  console.log('user is this in useCurrentProfile', user)
   const [currentProfile, setCurrentProfile] = useState<Profile | undefined>(undefined);
   useEffect(() => {
     console.log('loading', loading, 'error', error)

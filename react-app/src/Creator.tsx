@@ -60,17 +60,19 @@ export function Creator() {
           description
           subscriptionPrice
           timestamp
+          profile {
+            data
+          }
         }
       }
    `;
-
 
 
   const textile = useContext(TextileContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
-  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})
+  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}})
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     variables: {
       user: context.account,
@@ -100,8 +102,12 @@ export function Creator() {
   const [downloadCache, setDownloadCache] = useState({})
   const [subscription, setSubscription] = useState('unsubscribed')
   useEffect(() => {
-    if (subscriptionQuery.data && subscriptionQuery.data.subscribers.length > 0)
-      setSubscription(subscriptionQuery.data.subscribers[0].status)
+    if (subscriptionQuery.data) {
+      if (subscriptionQuery.data.subscribers.length > 0)
+        setSubscription(subscriptionQuery.data.subscribers[0].status)
+      else
+        setSubscription("unsubscribed")
+    }
   }, [subscriptionQuery, context])
   let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
   const canDecrypt = (isSelf || subscription === 'subscribed')
@@ -291,8 +297,9 @@ export function Creator() {
   function showItem(content){
     if (content.type.startsWith('image')) {
       let src = getSrc(content)
-      if(src)
-        return <Card key={content.ipfs} imgUrl={src} name={content.name}/>
+      if (src)
+        return <Card key={content.ipfs} imgUrl={src} name={content.name}
+                     avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
     }
 
     return <li key={content.ipfs}>{content.name}({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
@@ -309,7 +316,9 @@ export function Creator() {
     const umbral = new UmbralSubscriber(umbralWasm)
     await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
     const result = umbral.getPublicKeyBase64()
-    await creatorContract.requestSubscribe(result)
+    const receipt = await creatorContract.requestSubscribe(result)
+    await receipt.wait(1)
+    notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
   }
 
   async function like(content) {
@@ -329,7 +338,7 @@ export function Creator() {
       {isSelf && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
-      {(subscription === 'unsubscribed') && (<Button onClick={() => {
+      {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
         subscribe()
       }} label="Subscribe"/>)}
       {(subscription === 'pending_subscribe') && (<Button onClick={() => {

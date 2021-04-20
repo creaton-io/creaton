@@ -26,7 +26,7 @@ import {RelayProvider} from "@opengsn/gsn";
 import {Button} from "./elements/button";
 import creaton_contracts from "./contracts.json";
 import {ProfileEdit} from "./ProfileEdit";
-import {useCurrentProfile} from "./Utils";
+import {useCurrentCreator, useCurrentProfile} from "./Utils";
 import {InjectedConnector} from "@web3-react/injected-connector";
 import {APOLLO_URI} from "./Config";
 import {Notification} from "./components/notification";
@@ -103,6 +103,7 @@ const Autoconnect = () => {
 
 const HeaderButtons = () => {
   const {currentProfile} = useCurrentProfile()
+  const {currentCreator} = useCurrentCreator()
   return (<div className="hidden md:flex md:space-x-10 ml-auto">
     <Link to="/">
       <Button label="Home" theme="secondary"></Button>
@@ -110,7 +111,7 @@ const HeaderButtons = () => {
     <Link to="/creators">
       <Button label="Creators" theme="secondary"></Button>
     </Link>
-    {currentProfile && (<Link to="/grant">
+    {currentCreator && (<Link to="/grant">
       <Button label="Grant" theme="secondary"></Button>
     </Link>)}
     {currentProfile && (<Link to="/upload">

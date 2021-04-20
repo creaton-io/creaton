@@ -1,5 +1,5 @@
 import {Button} from "./elements/button";
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useState} from "react";
 import {Input} from "./elements/input";
 import {Contract} from "ethers";
 import creaton_contracts from "./contracts.json";
@@ -8,6 +8,7 @@ import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentProfile} from "./Utils";
 import {Avatar} from "./components/avatar";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
+import {NotificationHandlerContext} from "./ErrorHandler";
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React<Web3Provider>()
@@ -16,6 +17,7 @@ const ProfileEdit = (props) => {
   const [username, setUsername] = useState<string>('')
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const {currentProfile, refetch} = useCurrentProfile()
+  const notificationHandler = useContext(NotificationHandlerContext)
   useEffect(() => {
     console.log(currentProfile)
     if (currentProfile) {
@@ -30,6 +32,7 @@ const ProfileEdit = (props) => {
   }, [currentProfile])
 
   const showPreviewImage = (file) => {
+    if(!file)return;
     const reader = new FileReader();
     reader.onload = function (e) {
       setPreviewSrc(e.target!.result)
@@ -65,11 +68,24 @@ const ProfileEdit = (props) => {
       })
       const arweave_id = await response.text()
       payload['image'] = ARWEAVE_GATEWAY + arweave_id
+    } else if (previewSrc) {
+      payload['image'] = previewSrc
     }
     const {library} = web3Context;
     console.log(payload)
     const connectedContract = creatorFactoryContract.connect(library!.getSigner())
-    await connectedContract.updateProfile(JSON.stringify(payload))
+    let result
+    try {
+      result = await connectedContract.updateProfile(JSON.stringify(payload))
+    } catch (error) {
+      notificationHandler.setNotification({
+        description: 'Could not create your profile' + error.message,
+        type: 'error'
+      });
+      return;
+    }
+    await result.wait(1)
+    notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
     refetch()
   }
 
