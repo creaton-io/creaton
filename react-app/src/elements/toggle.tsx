@@ -19,7 +19,7 @@ const classes = {
 }
 export const Toggle = ({ onClick, state, size = 'def' }) => {
     return (
-        <button className={clsx(classes.wrapper, state ? classes.off : classes.active, classes[size].wrapper)} onClick={onClick}>
+        <button className={clsx(classes.wrapper, state ? classes.active : classes.off, classes[size].wrapper)} onClick={onClick}>
             <span className={clsx(classes.pointer, classes[size].pointer, state ? classes[size].move : classes.position)} />
         </button>
     )
