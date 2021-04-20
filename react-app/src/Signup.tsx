@@ -32,6 +32,8 @@ const SignUp = () => {
 
   const [creatorName, setCreatorName] = useState("")
   const [subscriptionPrice, setSubscriptionPrice] = useState("5")
+  const [collectionName, setCollectionName] = useState("")
+  const [collectionSymbol, setCollectionSymbol] = useState("")
 
   if (!context.library)
     return (<div>Please connect your wallet</div>)
@@ -45,9 +47,11 @@ const SignUp = () => {
     console.log(creatorFactoryContract)
     // @ts-ignore
     const connectedContract = creatorFactoryContract.connect(library!.getSigner())
-    connectedContract.deployCreator(creatorName, subscriptionPrice)
-      .then(function (response) {
+    connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+      .then(async function (response) {
         setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+        await response.wait(1)
+        notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
       }).catch(function (error) {
       notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
     });
@@ -57,15 +61,27 @@ const SignUp = () => {
   return (
     <div>
       <form onSubmit={submitForm}>
-        <label htmlFor="creatorName">Name</label>
-        <Input type="text" placeholder="John The Creator" value={creatorName} onChange={(event) => {
+        <label htmlFor="creatorName">Bio</label>
+        <Input type="text" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
           setCreatorName(event.target.value)
         }}></Input>
+
         <label htmlFor="subscriptionPrice">Subscription Price</label>
         <Input type="number" value={subscriptionPrice} onChange={(event) => {
           setSubscriptionPrice(event.target.value)
         }}></Input>
-        <Button type="submit" label="Submit"></Button>
+
+        <label>Collection Name</label>
+        <Input type="text" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
+          setCollectionName(event.target.value)
+        }}></Input>
+
+        <label>Collection Symbol</label>
+        <Input type="text" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
+          setCollectionSymbol(event.target.value)
+        }}></Input>
+
+        <Button type="submit" label="Become a Creator"></Button>
       </form>
     </div>
   );

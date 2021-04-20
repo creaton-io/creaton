@@ -143,7 +143,11 @@ const Grant = () => {
         revoke_all()
       }} label="Revoke all pending_unsubscribe"/>)}
 
-      <div>
+      {requested_subscribers.length === 0 && (<div>
+        <h3>You have no pending subscribers</h3>
+      </div>)}
+
+      {requested_subscribers.length > 0 && (<div>
         <h3>Check the profiles you want to grant access</h3>
         {requested_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center place-self-start m-3">
@@ -157,7 +161,7 @@ const Grant = () => {
           grantChecked()
         }}
                                                                                           label={"Grant " + (Array.from(checkedSubscribers.values()).filter((checked) => (checked)).length) + " subscribers"}/>)}
-      </div>
+      </div>)}
       <h3>Subscribers</h3>
       {other_subscribers.map((subscriber) => (<div key={subscriber.user}>
         <Avatar size="small"
