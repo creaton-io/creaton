@@ -17,14 +17,14 @@ const FilterItem = ({ avatar, title, subtitle, description, count, source }) => 
     </li>
 )
 const SearchInput = ({ search }) => {
-    const ref = React.useRef(null);
+    const ref = React.useRef<any>(null);
     return (
         <div className="flex">
             <div className="flex rounded-full p-4 w-full bg-gray-100 items-center">
                 <Icon name="search" className="text-gray-500" />
                 <input ref={ref} className="w-full bg-transparent focus:outline-none ml-4" />
             </div>
-            <Button theme="none" label="Search" className="ml-4 bg-red-600 text-white" onClick={() => search(ref.current?.value)} />
+            <Button label="Search" className="ml-4 bg-red-600 text-white" onClick={() => search(ref.current?.value)} />
         </div>
     )
 }
