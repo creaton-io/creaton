@@ -75,21 +75,26 @@ const ProfileEdit = (props) => {
 
   if (!web3Context.library)
     return (<div>Connect your wallet</div>)
-  return (<div>
-    Edit your profile
-    <form onSubmit={updateProfile}>
-      <Avatar src={previewSrc}/>
+  return (
+    <form onSubmit={updateProfile} className="grid grid-cols-1 place-items-center">
+
       <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
              onChange={(event) => handleFileSelection(event)} name="file"
              type="file" ref={fileInput}/>
-      <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}/>
-      <Input type="text" name="username" placeholder="username" value={username} onChange={(event) => {
-        setUsername(event.target.value)
-      }}/>
-      <Button type="submit" label="Submit"/>
-    </form>
-
-  </div>)
+      <div className="flex flex-row">
+        <div className="flex-shrink place-self-center p-5">
+          <Button label="Upload Avatar" type="button" onClick={() => fileInput.current.click()}/>
+        </div>
+        <div className="p-5">
+          <Avatar src={previewSrc}/>
+        </div>
+      </div>
+      <div className="p-5"><Input type="text" name="username" placeholder="Your Username" value={username}
+                                  onChange={(event) => {
+                                    setUsername(event.target.value)
+                                  }}/></div>
+      <div><Button type="submit" label={currentProfile ? "Update Profile" : "Sign Up"}/></div>
+    </form>)
 }
 
 export {ProfileEdit}

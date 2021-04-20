@@ -8,7 +8,7 @@ import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
 import {useCurrentCreator} from "./Utils";
 import {useContext, useEffect, useState} from "react";
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import Web3Modal from "web3modal";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
@@ -25,7 +25,7 @@ const creatorFactoryContract = new Contract(CreatonAdminContract.address, Creato
 const SignUp = () => {
 
 
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const [signedup, setSignedup] = useState<any>(false)
   const {currentCreator} = useCurrentCreator()
@@ -49,14 +49,13 @@ const SignUp = () => {
       .then(function (response) {
         setSignedup("Waiting for your signup to be confirmed on the blockchain...")
       }).catch(function (error) {
-      errorHandler.setError('Failed to signup. ' + error.message)
+      notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
     });
     event.preventDefault();
   }
 
   return (
     <div>
-      <h1>Signup</h1>
       <form onSubmit={submitForm}>
         <label htmlFor="creatorName">Name</label>
         <Input type="text" placeholder="John The Creator" value={creatorName} onChange={(event) => {

@@ -16,7 +16,7 @@ import Upload from "./Upload";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 import {Creator} from "./Creator";
-import {ErrorHandlerContext, ErrorHandlerProvider} from "./ErrorHandler";
+import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
 import {TextileProvider} from "./TextileProvider";
 import TwitterVerification from "./TwitterVerification";
@@ -24,25 +24,21 @@ import TwitterVerification from "./TwitterVerification";
 import Creators from "./Creators";
 import {RelayProvider} from "@opengsn/gsn";
 import {Button} from "./elements/button";
-import {library} from "@fortawesome/fontawesome-svg-core";
-import {faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser} from "@fortawesome/free-solid-svg-icons";
 import creaton_contracts from "./contracts.json";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentProfile} from "./Utils";
 import {InjectedConnector} from "@web3-react/injected-connector";
+import {APOLLO_URI} from "./Config";
+import {Notification} from "./components/notification";
+import {initFontAwesome} from "./icons/font-awesome";
+import {Avatar} from "./components/avatar";
 
-library.add(faEllipsisH, faHeart, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser);
+initFontAwesome()
 
 const styles = {
   fontFamily: 'sans-serif',
   textAlign: 'center',
 };
-
-let APOLLO_URI
-if (process.env.NODE_ENV === 'development')
-  APOLLO_URI = 'http://localhost:8000/subgraphs/name/creaton-io/creaton'
-else
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton2'
 
 const client = new ApolloClient({
   uri: APOLLO_URI,
@@ -68,15 +64,6 @@ const getLibrary = (provider) => {
   return library
 }
 
-function Status() {
-  const {active, error} = useWeb3React()
-  return (
-    <div>
-    <h1 style={{margin: '1rem', textAlign: 'right'}}>Web3:{active ? '🟢' : error ? '🔴' : '🟠'}</h1>
-    </div>
-  );
-}
-
 function ConnectOrSignup() {
   const {active, activate} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
@@ -92,7 +79,8 @@ function ConnectOrSignup() {
   }
 
   if (currentProfile)
-    return (<Link to="/signup"><Button label="Profile"></Button></Link>)
+    return (<Link to="/signup">
+      <Avatar size="menu" src={currentProfile.image}/></Link>)
   if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
@@ -113,21 +101,49 @@ const Autoconnect = () => {
   return null;
 }
 
+const HeaderButtons = () => {
+  const {currentProfile} = useCurrentProfile()
+  return (<div className="hidden md:flex md:space-x-10 ml-auto">
+    <Link to="/">
+      <Button label="Home" theme="secondary"></Button>
+    </Link>
+    <Link to="/creators">
+      <Button label="Creators" theme="secondary"></Button>
+    </Link>
+    {currentProfile && (<Link to="/grant">
+      <Button label="Grant" theme="secondary"></Button>
+    </Link>)}
+    {currentProfile && (<Link to="/upload">
+      <Button label="Upload" theme="secondary"></Button>
+    </Link>)}
+    <Button label="Pitch Deck" theme="secondary-2"></Button>
+    <ConnectOrSignup/>
+  </div>)
+}
+
 const App = () => {
 
 
   return (
-    <ErrorHandlerProvider>
+    <NotificationHandlerProvider>
       <TextileProvider>
         <Web3ReactProvider getLibrary={getLibrary}>
           <Autoconnect/>
           <SuperfluidProvider>
             <UmbralWasmProvider>
               <ApolloProvider client={client}>
-                <Status/>
                 <Router>
                   <div>
+                    <NotificationHandlerContext.Consumer>
+                      {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
+                        <Notification type={value.notification.type} description={value.notification.description} close={() => {
+                          value.setNotification(null)
+                        }}/>
+                      </div>))}
+                    </NotificationHandlerContext.Consumer>
+
                     <div>
+
                       <div className="relative bg-black overflow-hidden">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
                              aria-hidden="true">
@@ -148,57 +164,28 @@ const App = () => {
                                       <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
                                            viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                          d="M4 6h16M4 12h16M4 18h16"></path>
-                                  </svg>
-                                </button>
+                                              d="M4 6h16M4 12h16M4 18h16"></path>
+                                      </svg>
+                                    </button>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                        </div>
-                      <div className="hidden md:flex md:space-x-10 ml-auto">
-                        <Link to="/">
-                          <Button label="Home" theme="secondary"></Button>
-                        </Link>
-                        <Link to="/creators">
-                          <Button label="Creators" theme="secondary"></Button>
-                        </Link>
-                        <Link to="/grant">
-                          <Button label="Grant" theme="secondary"></Button>
-                        </Link>
-                        <Link to="/upload">
-                          <Button label="Upload" theme="secondary"></Button>
-                        </Link>
-                      </div>
-                      <div className="hidden md:flex md:items-center md:justify-end md:inset-y-0 md:ml-8 md:mr-0">
-                        <a href="#" className="px-4 py-2 rounded-full text-blue border-blue border border-solid">Pitch
-                          Deck</a>
-                        <ConnectOrSignup/>
-
-
-                      </div>
-                    </nav>
+                              <HeaderButtons/>
+                            </nav>
                 </div>
             </div>
         </div>
-        </div>
+
+                    </div>
 
 
-
-                  {/*
+                    {/*
             A <Switch> looks through all its children <Route>
             elements and renders the first one whose path
             matches the current URL. Use a <Switch> any time
             you have multiple routes, but you want only one
             of them to render at a time
           */}
-                  <ErrorHandlerContext.Consumer>
-                    {value => (value.error && (<div>Error: {value.error}
-                      <button onClick={() => {
-                        value.setError('')
-                      }}>Clear
-                      </button>
-                    </div>))}
-                  </ErrorHandlerContext.Consumer>
-                  <hr/>
                   <Switch>
                     <Route exact path="/">
                       <Home/>
@@ -232,7 +219,7 @@ const App = () => {
         </SuperfluidProvider>
       </Web3ReactProvider>
       </TextileProvider>
-    </ErrorHandlerProvider>
+    </NotificationHandlerProvider>
   );
 }
 

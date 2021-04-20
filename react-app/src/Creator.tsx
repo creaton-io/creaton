@@ -15,7 +15,7 @@ import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
 import {Contract} from "ethers";
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
@@ -67,7 +67,7 @@ export function Creator() {
 
 
   const textile = useContext(TextileContext)
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})
@@ -316,7 +316,7 @@ export function Creator() {
     try {
         let receipt = await creatorContract.like(content.tokenId, 1);
       } catch (error) {
-        errorHandler.setError('Could not like content' + error.message);
+        notificationHandler.setNotification({description:'Could not like content' +error.message, type:error});
         return;
       }
   }

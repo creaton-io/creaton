@@ -34,7 +34,7 @@ const NotiType = {
         titleClass: 'text-gray-500',
     }
 }
-export const Notification = ({ type = 'success', label, icon, description }: any) => {
+export const Notification = ({ type = 'success', label, icon, description, close }: any) => {
     const defaultSetting = NotiType[type];
     return (
         <div className={clsx('flex shadow-lg rounded-lg p-6 items-center', defaultSetting.background)} style={{ width: 'fit-content' }}>
@@ -43,7 +43,7 @@ export const Notification = ({ type = 'success', label, icon, description }: any
                 <h2 className={clsx(' font-semibold text-lg', defaultSetting.titleClass)}>{label || defaultSetting.label}</h2>
                 <div className="text-gray-400 text-xs">{description || 'lorem ipsum dolor sit amet'}</div>
             </div>
-            <Icon className="text-gray-400" name="times" />
+            <Icon className="text-gray-400" name="times" onClick={close}/>
         </div>
     );
 }
