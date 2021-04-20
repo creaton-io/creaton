@@ -32,20 +32,16 @@ const SearchInput = ({ search }) => {
     )
 }
 export const FilterList = ({ list }) => {
-    const [items, setItems] = React.useState(list);
-    const search = (value) => {
-        const lowValue = value.toLowerCase();
-        const newItems = list.filter((item) => item.title.toLowerCase().includes(lowValue));
-        setItems(newItems);
-    }
-    return (
-        <div className="relative p-4">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                <SearchInput search={search} />
-                <ul className="divide-y divide-gray-100">
-                    {items.map((item) => <FilterItem key={item.title} {...item} />)}
-                </ul>
-            </div>
-        </div>
-    );
+  const [searchValue, setSearchValue] = React.useState('');
+  const filteredItems = list.filter((item) => item.title.toLowerCase().includes(searchValue.toLowerCase()));
+  return (
+    <div className="relative p-4">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <SearchInput search={setSearchValue}/>
+        <ul className="divide-y divide-gray-100">
+          {filteredItems.map((item) => <FilterItem key={item.title} {...item} />)}
+        </ul>
+      </div>
+    </div>
+  );
 }
