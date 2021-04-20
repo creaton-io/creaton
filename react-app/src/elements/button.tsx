@@ -4,7 +4,7 @@ import clsx from "clsx";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
     label: string;
-    theme?: 'primary' | 'secondary' | 'secondary-2',
+    theme?: 'primary' | 'secondary' | 'secondary-2' | string,
 }
 
 const primaryStyle = [
@@ -32,7 +32,7 @@ const secondary2Style = [
 ]
 
 export const Button: FC<ButtonProps> = ({ theme= 'primary', className, label, ...props }) => {
-    let classes = primaryStyle;
+    let classes = [];
 
     switch (theme) {
         case "secondary":
@@ -40,6 +40,9 @@ export const Button: FC<ButtonProps> = ({ theme= 'primary', className, label, ..
             break;
         case "secondary-2":
             classes = secondary2Style;
+            break;
+        case "primary":
+            classes = primaryStyle;
             break;
     }
 
