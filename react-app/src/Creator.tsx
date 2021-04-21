@@ -19,6 +19,7 @@ import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
+import {REPORT_URI} from "./Config";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -323,11 +324,36 @@ export function Creator() {
 
   async function like(content) {
     try {
-        let receipt = await creatorContract.like(content.tokenId, 1);
-      } catch (error) {
-        notificationHandler.setNotification({description:'Could not like content' +error.message, type:error});
-        return;
-      }
+      let receipt = await creatorContract.like(content.tokenId, 1);
+    } catch (error) {
+      notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
+    }
+  }
+
+  async function report(content) {
+    try {
+      const message = "I want to report the content with token id " + content.tokenId + " in contract " +
+        creatorContractAddress + " on the Creaton platform.";
+      const signature = await context.library!.getSigner().signMessage(message);
+      const response = await fetch(REPORT_URI, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          signature: signature,
+          tokenId: content.tokenId,
+          contract: creatorContractAddress,
+          signer: context.account
+        })
+      })
+      notificationHandler.setNotification({
+        description: 'Content reported. Thanks for contributing to the platform :)',
+        type: 'success'
+      });
+    } catch (error) {
+      notificationHandler.setNotification({description: 'Could not report content' + error.message, type: 'error'});
+    }
   }
 
   return (
