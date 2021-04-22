@@ -50,7 +50,7 @@ export const Button: FC<ButtonProps> = ({ theme= 'primary', className, label, ..
         <button
             type="button"
             className={clsx(
-                "inline-flex items-center px-8 py-4",
+                "text-center w-full items-center px-8 py-4 mb-5",
                 "font-medium rounded-full leading-4",
                 ...classes,
                 className
