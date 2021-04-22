@@ -14,7 +14,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl, avatarUrl}) => {
     const [like, setLike] = useState(false);
     return (
-        <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:grid-cols-3 lg:max-w-none">
+        <div>
             <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
                 <div className="flex-1 bg-white flex flex-col justify-between">
                     <div className="flex items-center justify-between">

@@ -357,32 +357,38 @@ export function Creator() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col max-w-5xl my-0 mx-auto text-center py-5 text-center">
+      <img className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
       <h3>Contract ID: {id}</h3>
       <h3>Creator ID: {contract.user}</h3>
       <h3>Status: {subscription}</h3>
       {isSelf && (<h3>This is your account</h3>)}
       <h3>Account: {context.account}</h3>
       <h3>Superfluid usdcx: {usdcx}</h3>
-      {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
-        subscribe()
-      }} label="Subscribe"/>)}
-      {(subscription === 'pending_subscribe') && (<Button onClick={() => {
-        startStreaming()
-      }} label="Start Streaming"/>)}
-      <br/>
-      <button onClick={() => {
-        mint()
-      }}>Mint</button>
-      <br/>
-      <button onClick={() => {
-        approveUSDC()
-      }}>Approve</button>
-      <br/>
-      <button onClick={() => {
-        convertUSDCx()
-      }}>Upgrade</button>
-      <h3>Uploaded Contents</h3>
+ 
+      <div className="my-5 mx-auto max-w-lg w-full">
+        {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
+          subscribe()
+        }} label="Subscribe"/>)}
+        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
+          startStreaming()
+        }} label="Start Streaming"/>)}
+
+        <div className="flex">
+            <Button onClick={() => {
+                  mint()
+                }} label="Mint" theme='secondary-2'/>
+              
+              <Button onClick={() => {
+                approveUSDC()
+              }} label="Approve" theme='secondary-2'/>
+          </div>
+
+        <Button onClick={() => {
+          convertUSDCx()
+        }} label="Upgrade"/>
+      </div>
+      <h1 className="mb-5">Uploaded Contents</h1>
       <ul>
         {
           contents.map((x) => showItem(x))
