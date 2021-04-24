@@ -1,42 +1,58 @@
 import {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
 import clsx from "clsx";
-import {Avatar} from "./avatar";
+import {VideoPlayer} from "../VideoPlayer";
+
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
     price?: number;
     name?: string;
-    imgUrl?: string;
+    description?: string,
+    fileUrl?: string;
+    fileType?: string;
     avatarUrl?: string;
 }
 
-export const Card: FC<ButtonProps> = ({ className,price,name,imgUrl, avatarUrl}) => {
+export const Card: FC<ButtonProps> = ({ className,price,name,fileUrl, avatarUrl, fileType, description}) => {
     const [like, setLike] = useState(false);
+    console.log(fileType);
+    // console.log(fileUrl);
+    //     let url:string = fileUrl || '';
+    //     const fetchurl = async (url: string) => {
+    //     console.log(url);
+    //     const response = await fetch(url);
+    //     const fileType = await FileType.fromStream(response.body);
+    
+    //     console.log("this is the filetype", fileType);
+    //     //=> {ext: 'jpg', mime: 'image/jpeg'}
+    // };
+    // fetchurl(url);
     return (
-        <div>
+        <div className="mb-5">
             <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
-                <div className="flex-1 bg-white flex flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                        <div className="flex-shrink-0">
-                                <Avatar src={avatarUrl} size="small"/>
-                        </div>
-                        <div>
-                            <Icon onClick={() => setLike(!like)} name="heart" className={clsx('cursor-pointer',like ? 'text-red-500' : 'text-grey-dark')} />
-                            <Icon name="ellipsis-h" className="text-grey-dark" />
-                        </div>
-                    </div>
-                </div>
-
-              {imgUrl && <div className="flex-shrink-0 my-6">
-                <img className="h-72 w-72 w-full object-cover rounded-xl"
-                     src={imgUrl}
+           
+              {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
+                  {fileType === "image" 
+                  ? <img className="w-72 object-fit rounded-xl"
+                     src={fileUrl}
                      alt=""/>
+                     :  <VideoPlayer url={fileUrl}/>
+    }
               </div>}
-                <div>
+              <div className="flex-1 bg-white flex flex-col justify-between">
+                    <div className="flex items-center justify-between">
                     <h4 className="text-lg font-semibold text-gray-900">
                       {name}
                     </h4>
+                        <div>
+                            <Icon onClick={() => setLike(!like)} name="heart" className={clsx('cursor-pointer',like ? 'text-red-500' : 'text-grey-dark')} />
+                        </div>
+                    </div>
+
+                    <p>
+                       {description}
+                    </p>
                   {price && <div>
                         <span className="text-xs">
                             Subscribe for

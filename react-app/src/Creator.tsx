@@ -20,6 +20,8 @@ import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
 import {REPORT_URI} from "./Config";
+import {Icon} from "./icons";
+const FileType = require('file-type/browser');
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -67,7 +69,7 @@ export function Creator() {
         }
       }
    `;
-
+  
 
   const textile = useContext(TextileContext)
   const notificationHandler = useContext(NotificationHandlerContext)
@@ -296,19 +298,42 @@ export function Creator() {
   }
 
   function showItem(content){
+    // console.log(content.type);
+    //   console.log( getSrc(content));
+        let url:string =  getSrc(content) || '';
+        const fetchurl = async (url: string) => {
+        console.log(url);
+        const response = await fetch(url);
+        const fileType = await FileType.fromStream(response.body);
+    
+        console.log("this is the filetype", fileType);
+        //=> {ext: 'jpg', mime: 'image/jpeg'}
+    };
+    fetchurl(url);
+    let src = getSrc(content)
     if (content.type.startsWith('image')) {
-      let src = getSrc(content)
+
       if (src)
-        return <Card key={content.ipfs} imgUrl={src} name={content.name}
+        return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description} fileType="image"
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+    } else {
+      return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description} fileType="video"
+      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
     }
 
-    return <li key={content.ipfs}>{content.name}({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
+    return <div  className="relative mb-5 h-80">
+      <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-80 z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center  rounded-2xl border">
+    <div className="border-gray-200 text-center text-white text-xl">
+        <Icon size="5x" name="lock" />
+    </div>
+    <h3 className="w-1/3 text-center text-white mt-10">{content.name}</h3>
+    <p className="w-1/3 text-center text-white mt-4">({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
             {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
               like(content)
-            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}
-          </li>
-
+            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}</p>
+ 
+</div>
+</div>
   }
 
   const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
@@ -389,11 +414,12 @@ export function Creator() {
         }} label="Upgrade"/>
       </div>
       <h1 className="mb-5">Uploaded Contents</h1>
-      <ul>
+      
+      <div className="py-5">
         {
           contents.map((x) => showItem(x))
         }
-      </ul>
+      </div>
     </div>
   );
 }
