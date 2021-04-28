@@ -2,7 +2,6 @@ import {useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-
 import {gql, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
@@ -18,10 +17,10 @@ import {Contract} from "ethers";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
+import {Header} from "./elements/stickyHeader";
 import {Card} from "./components/card";
 import {REPORT_URI} from "./Config";
 import {Icon} from "./icons";
-const FileType = require('file-type/browser');
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -298,21 +297,8 @@ export function Creator() {
   }
 
   function showItem(content){
-    // console.log(content.type);
-    //   console.log( getSrc(content));
-        let url:string =  getSrc(content) || '';
-        const fetchurl = async (url: string) => {
-        console.log(url);
-        const response = await fetch(url);
-        const fileType = await FileType.fromStream(response.body);
-    
-        console.log("this is the filetype", fileType);
-        //=> {ext: 'jpg', mime: 'image/jpeg'}
-    };
-    fetchurl(url);
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
-
       if (src)
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description} fileType="image"
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
@@ -382,14 +368,12 @@ export function Creator() {
   }
 
   return (
-    <div className="flex flex-col max-w-5xl my-0 mx-auto text-center py-5 text-center">
-      <img className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
-      <h3>Contract ID: {id}</h3>
-      <h3>Creator ID: {contract.user}</h3>
-      <h3>Status: {subscription}</h3>
-      {isSelf && (<h3>This is your account</h3>)}
-      <h3>Account: {context.account}</h3>
-      <h3>Superfluid usdcx: {usdcx}</h3>
+    <div>
+    <div className="relative bg-gray-300 w-full h-40 -my-5">
+    <img className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+    </div>
+    <div className="flex flex-col max-w-5xl my-0 pt-24 mx-auto text-center py-5 text-center">
+      <h3 className="text-l font-bold text-gray-800">{contract.user}</h3>
  
       <div className="my-5 mx-auto max-w-lg w-full">
         {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
@@ -413,13 +397,14 @@ export function Creator() {
           convertUSDCx()
         }} label="Upgrade"/>
       </div>
-      <h1 className="mb-5">Uploaded Contents</h1>
+      <h1 className="mb-5 text-2xl uppercase font-bold">Uploaded Contents</h1>
       
       <div className="py-5">
         {
           contents.map((x) => showItem(x))
         }
       </div>
+    </div>
     </div>
   );
 }

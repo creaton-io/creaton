@@ -105,7 +105,7 @@ const ProfileEdit = (props) => {
           <Avatar src={previewSrc}/>
         </div>
       </div>
-      <div className="p-5"><Input type="text" name="username" placeholder="Your Username" value={username}
+      <div className="p-5"><Input type="text" name="username" placeholder="Your Username" label="Enter your username" value={username}
                                   onChange={(event) => {
                                     setUsername(event.target.value)
                                   }}/></div>

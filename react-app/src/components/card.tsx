@@ -16,18 +16,6 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 
 export const Card: FC<ButtonProps> = ({ className,price,name,fileUrl, avatarUrl, fileType, description}) => {
     const [like, setLike] = useState(false);
-    console.log(fileType);
-    // console.log(fileUrl);
-    //     let url:string = fileUrl || '';
-    //     const fetchurl = async (url: string) => {
-    //     console.log(url);
-    //     const response = await fetch(url);
-    //     const fileType = await FileType.fromStream(response.body);
-    
-    //     console.log("this is the filetype", fileType);
-    //     //=> {ext: 'jpg', mime: 'image/jpeg'}
-    // };
-    // fetchurl(url);
     return (
         <div className="mb-5">
             <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
