@@ -4,6 +4,7 @@ import clsx from "clsx";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
     label: string;
+    size?: string;
     theme?: 'primary' | 'secondary' | 'secondary-2',
 }
 
@@ -31,7 +32,7 @@ const secondary2Style = [
     "disabled:bg-grey disabled:text-grey-dark disabled:border-transparent",
 ]
 
-export const Button: FC<ButtonProps> = ({ theme= 'primary', className, label, ...props }) => {
+export const Button: FC<ButtonProps> = ({ theme= 'primary', size= 'full',  className, label, ...props }) => {
     let classes: string[] = [];
 
     switch (theme) {
@@ -46,14 +47,17 @@ export const Button: FC<ButtonProps> = ({ theme= 'primary', className, label, ..
             break;
     }
 
+
+
     return (
         <button
             type="button"
             className={clsx(
-                "text-center w-full items-center px-8 py-4 mb-5",
+                "text-center items-center px-8 py-4 mb-5",
                 "font-medium rounded-full leading-4",
                 ...classes,
-                className
+                className,
+                { "w-full": size === 'full' }
             )}
             {...props}
         >
