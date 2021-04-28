@@ -1,6 +1,7 @@
 const func = async function (hre) {
   let {admin, treasury} = await hre.getNamedAccounts();
-  const {deploy, execute} = hre.deployments;
+  const {deployments, ethers} = hre;
+  const {deploy, execute} = deployments;
   // const useProxy = !hre.network.live;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
@@ -10,8 +11,6 @@ const func = async function (hre) {
   //Superfluid, work in progress
   //1820 contract not necesarry on goerli
 
-  const version = process.env.RELEASE_VERSION || 'v1';
-
   const sf = new SuperfluidSDK.Framework({
     chainId: 5,
     version: 'v1',
@@ -19,6 +18,8 @@ const func = async function (hre) {
     tokens: ['fUSDC'],
   });
   await sf.initialize();
+
+
 
   // TODO don't forget to change this on demand
   const trustedforwarder = "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2";

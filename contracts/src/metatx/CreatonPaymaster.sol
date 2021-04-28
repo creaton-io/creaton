@@ -3,27 +3,34 @@ pragma abicoder v2;
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
-import "../gsn/contracts/forwarder/IForwarder.sol";
-import "../gsn/contracts/BasePaymaster.sol";
+import "../dependency/gsn/contracts/forwarder/IForwarder.sol";
+import "../dependency/gsn/contracts/BasePaymaster.sol";
 
 contract CreatonPaymaster is BasePaymaster {
 
     address public creatonAdmin;
+    address public token;
+    address public stakingContract;
 	mapping(address=>bool) public targets ;   // The target contracts we are willing to pay for
-
-	function setAdmin(address admin) external onlyOwner {
-        creatonAdmin = admin;
-        targets[creatonAdmin] = true;
-	}
 
     function addCreatorContract(address creatorContract) public onlyAdmin {
         targets[creatorContract] = true;
     }
 
-    function addTwitterVerification(address twitterContract) public onlyOwner {
-        targets[twitterContract] = true;
+    function addContract(address _contract) public onlyOwner {
+        targets[_contract] = true;
     }
 
+    constructor (
+        address _token,
+        address _admin,
+        address _stakingContract
+    ) public  {
+        token = _token;
+        creatonAdmin = _admin;
+        targets[creatonAdmin] = true;
+        stakingContract = _stakingContract;
+    }
 
 	function preRelayedCall(
 		GsnTypes.RelayRequest calldata relayRequest,
@@ -35,7 +42,16 @@ contract CreatonPaymaster is BasePaymaster {
 		_verifyForwarder(relayRequest);
 		(signature, approvalData, maxPossibleGas);
 
-		require(targets[relayRequest.request.to]);
+        if (relayRequest.request.to == token){
+            bytes4 sig = abi.decode(relayRequest.request.data[:4], (bytes4));
+            require( sig == bytes4(keccak256("send(address,uint256,bytes)")));
+            address recipient;
+            (recipient, ,) = abi.decode(msg.data[4:], (address,uint256,bytes));
+            require(recipient == stakingContract, "Creaton Paymaster: Only free staking is supported");
+            return (new bytes(0), false);
+        }
+
+		require(targets[relayRequest.request.to], "Creaton Paymaster: Destination contract not supported");
         return (new bytes(0), false);
 	}
 

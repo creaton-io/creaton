@@ -5,7 +5,7 @@
 //// import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 //import "hardhat/console.sol";
 //
-//import "@openzeppelin/contracts/access/Ownable.sol";
+//import "@openzeppelin/contracts/access/OwnableBaseRelayRecipient.sol";
 //import "@openzeppelin/contracts/token/ERC1155/presets/ERC721PresetMinterPauserAutoId.sol";
 //
 //contract VoteInvites is Ownable, EERC721PresetMinterPauserAutoId {

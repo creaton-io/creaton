@@ -2,7 +2,7 @@ pragma solidity ^0.6.6;
 pragma experimental ABIEncoderV2;
 
 import "@chainlink/contracts/src/v0.6/ChainlinkClient.sol";
-import "../gsn/contracts/OwnableBaseRelayRecipient.sol";
+import "../dependency/gsn/contracts/OwnableBaseRelayRecipient.sol";
 import { CBORChainlink } from "@chainlink/contracts/src/v0.6/vendor/CBORChainlink.sol";
 import { BufferChainlink } from "@chainlink/contracts/src/v0.6/vendor/BufferChainlink.sol";
 import {ECDSA} from "../utils/ECDSA.sol";
