@@ -17,6 +17,7 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice);
     event NewSubscriber(address user, uint256 amount);
+    event ProfileUpdate(address user, string jsonData);
 
     // -----------------------------------------
     // Storage
@@ -77,16 +78,17 @@ contract CreatonAdmin is BaseRelayRecipient {
     // Logic 
     // -----------------------------------------
 
-    function deployCreator(string calldata description, uint256 subscriptionPrice) external {
+    function deployCreator(string calldata description, uint256 subscriptionPrice,
+        string memory nftName, string memory nftSymbol) external {
         CreatorProxy creatorContract =
-            new CreatorProxy(
-                creatorBeacon,
-                abi.encodeWithSignature("initialize(address,address,address,address,string,uint256,address)",
-                                        _host, _cfa, _acceptedToken, _msgSender(), description, subscriptionPrice, trustedForwarder)
-            );
+        new CreatorProxy(
+            creatorBeacon,
+            abi.encodeWithSignature("initialize(address,address,address,address,string,uint256,address,string,string)",
+            _host, _cfa, _acceptedToken, _msgSender(), description, subscriptionPrice, trustedForwarder, nftName, nftSymbol)
+        );
 
         address creatorContractAddr = address(creatorContract);
-        require(creatorContractAddr != address (0));
+        require(creatorContractAddr != address(0));
 
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);
@@ -98,6 +100,10 @@ contract CreatonAdmin is BaseRelayRecipient {
     // TODO only be called from twitter contract
     function signUp (address user, string memory twitter) public {
         user2twitter[user] = twitter;
+    }
+
+    function updateProfile(string memory dataJSON) external {
+        emit ProfileUpdate(_msgSender(), dataJSON);
     }
 
     function versionRecipient() external view override  returns (string memory){

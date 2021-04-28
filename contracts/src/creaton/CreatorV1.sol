@@ -85,7 +85,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         address _creator,
         string memory _description,
         uint256 _subscriptionPrice,
-        address _trustedForwarder
+        address _trustedForwarder,
+        string memory nftName,
+        string memory nftSymbol
     ) public payable initializer {
         admin = msg.sender;
 
@@ -107,6 +109,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         adminContract = CreatonAdmin(admin);
         nftFactory = NFTFactory(adminContract.nftFactory());
         trustedForwarder = _trustedForwarder;
+        createPostNFT(nftName, nftSymbol);
     }
 
     // -----------------------------------------
@@ -189,7 +192,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         emit Like(subAddress, _tokenId, approval);
     }
 
-    function createPostNFT(string memory name, string memory symbol) public onlyCreator {
+    function createPostNFT(string memory name, string memory symbol) internal {
         require(postNFT == address(0));
         postNFT = nftFactory.createPostNFT(name, symbol, "", address(this));
         emit PostContract(postNFT);

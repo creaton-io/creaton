@@ -2,18 +2,18 @@ import {Framework} from '@superfluid-finance/js-sdk';
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 
 const SuperfluidContext = createContext<any>(null)
 const SuperfluidProvider = (props) => {
   const [superfluid, setSuperfluid] = useState<any>(null);
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const web3Context = useWeb3React<Web3Provider>()
   async function init() {
     if(!web3Context.library)
       return;
     if(web3Context.chainId !== 5) {
-      errorHandler.setError('Please connect to goerli network')
+      notificationHandler.setNotification({description: 'Please connect to goerli network', type: 'error'})
       return;
     }
     const sf = new Framework({

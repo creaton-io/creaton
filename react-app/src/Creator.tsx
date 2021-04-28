@@ -2,7 +2,6 @@ import {useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-
 import {gql, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
@@ -15,10 +14,14 @@ import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
 import {Contract} from "ethers";
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
+import {Header} from "./elements/stickyHeader";
 import {Card} from "./components/card";
+import {Avatar} from "./components/avatar";
+import {REPORT_URI} from "./Config";
+import {Icon} from "./icons";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -60,17 +63,19 @@ export function Creator() {
           description
           subscriptionPrice
           timestamp
+          profile {
+            data
+          }
         }
       }
    `;
-
-
+  
 
   const textile = useContext(TextileContext)
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
-  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables:{contractAddress:creatorContractAddress}})
+  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}})
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     variables: {
       user: context.account,
@@ -100,8 +105,12 @@ export function Creator() {
   const [downloadCache, setDownloadCache] = useState({})
   const [subscription, setSubscription] = useState('unsubscribed')
   useEffect(() => {
-    if (subscriptionQuery.data && subscriptionQuery.data.subscribers.length > 0)
-      setSubscription(subscriptionQuery.data.subscribers[0].status)
+    if (subscriptionQuery.data) {
+      if (subscriptionQuery.data.subscribers.length > 0)
+        setSubscription(subscriptionQuery.data.subscribers[0].status)
+      else
+        setSubscription("unsubscribed")
+    }
   }, [subscriptionQuery, context])
   let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
   const canDecrypt = (isSelf || subscription === 'subscribed')
@@ -177,14 +186,7 @@ export function Creator() {
     console.log('converted', usdcxBalance, 'usdc to usdcx');
   }
 
-  async function subscribe() {
-    if (!(context.account)) {
-      alert('Connect to metamask')
-      return;
-    }
-    const umbral = new UmbralSubscriber(umbralWasm)
-    await umbral.initMasterkey(context.library!.getSigner(context.account), context.account, false)
-    const result = umbral.getPublicKeyBase64()
+  async function startStreaming() {
     let call;
     const contract = contractQuery.data.creators[0]
     let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
@@ -204,8 +206,8 @@ export function Creator() {
               '0x',
             ).encodeABI(),
             defaultAbiCoder.encode(
-              ['string', 'string'],
-              [result, 'newcypher']
+              ['string'],
+              ['']
             )
           ]
         ),
@@ -296,59 +298,123 @@ export function Creator() {
   }
 
   function showItem(content){
+    let src = getSrc(content)
     if (content.type.startsWith('image')) {
-      let src = getSrc(content)
-      if(src)
-        return <Card key={content.ipfs} imgUrl={src} name={content.name}/>
+      if (src)
+        return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
+                     fileType="image"
+                     avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
+          like(content)
+        }} likeCount={content.likes}/>
+    } else {
+      return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
+                   fileType="video"
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
+        like(content)
+      }} likeCount={content.likes}/>
     }
 
-    return <li key={content.ipfs}>{content.name}({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
+    return <div  className="relative mb-5 h-80">
+      <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-80 z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center  rounded-2xl border">
+    <div className="border-gray-200 text-center text-white text-xl">
+        <Icon size="5x" name="lock" />
+    </div>
+    <h3 className="w-1/3 text-center text-white mt-10">{content.name}</h3>
+    <p className="w-1/3 text-center text-white mt-4">({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
             {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
               like(content)
-            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}
-          </li>
-
+            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}</p>
+ 
+</div>
+</div>
   }
 
   const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
+
+  async function subscribe() {
+    const umbral = new UmbralSubscriber(umbralWasm)
+    await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
+    const result = umbral.getPublicKeyBase64()
+    const receipt = await creatorContract.requestSubscribe(result)
+    await receipt.wait(1)
+    notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
+  }
+
   async function like(content) {
     try {
-        let receipt = await creatorContract.like(content.tokenId, 1);
-      } catch (error) {
-        errorHandler.setError('Could not like content' + error.message);
-        return;
-      }
+      let receipt = await creatorContract.like(content.tokenId, 1);
+    } catch (error) {
+      notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
+    }
+  }
+
+  async function report(content) {
+    try {
+      const message = "I want to report the content with token id " + content.tokenId + " in contract " +
+        creatorContractAddress + " on the Creaton platform.";
+      const signature = await context.library!.getSigner().signMessage(message);
+      const response = await fetch(REPORT_URI, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          signature: signature,
+          tokenId: content.tokenId,
+          contract: creatorContractAddress,
+          signer: context.account
+        })
+      })
+      notificationHandler.setNotification({
+        description: 'Content reported. Thanks for contributing to the platform :)',
+        type: 'success'
+      });
+    } catch (error) {
+      notificationHandler.setNotification({description: 'Could not report content' + error.message, type: 'error'});
+    }
   }
 
   return (
     <div>
-      <h3>Contract ID: {id}</h3>
-      <h3>Creator ID: {contract.user}</h3>
-      <h3>Status: {subscription}</h3>
-      {isSelf && (<h3>This is your account</h3>)}
-      <h3>Account: {context.account}</h3>
-      <h3>Superfluid usdcx: {usdcx}</h3>
-      {(subscription == 'unsubscribed') && (<Button onClick={() => {
-        subscribe()
-      }} label="Subscribe"/>)}
-      <br/>
-      <button onClick={() => {
-        mint()
-      }}>Mint</button>
-      <br/>
-      <button onClick={() => {
-        approveUSDC()
-      }}>Approve</button>
-      <br/>
-      <button onClick={() => {
-        convertUSDCx()
-      }}>Upgrade</button>
-      <h3>Uploaded Contents</h3>
-      <ul>
+    <div className="relative bg-gray-300 w-full h-40 -my-5">
+      <div className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
+            <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+      </div>
+    </div>
+    <div className="flex flex-col max-w-5xl my-0 pt-24 mx-auto text-center py-5 text-center">
+      <h3
+        className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
+ 
+      <div className="my-5 mx-auto max-w-lg w-full">
+        {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
+          subscribe()
+        }} label="Subscribe"/>)}
+        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
+          startStreaming()
+        }} label="Start Streaming"/>)}
+
+        <div className="flex">
+            <Button onClick={() => {
+                  mint()
+                }} label="Mint" theme='secondary-2'/>
+              
+              <Button onClick={() => {
+                approveUSDC()
+              }} label="Approve" theme='secondary-2'/>
+          </div>
+
+        <Button onClick={() => {
+          convertUSDCx()
+        }} label="Upgrade"/>
+      </div>
+      <h1 className="mb-5 text-2xl uppercase font-bold">Uploaded Contents</h1>
+      
+      <div className="py-5">
         {
           contents.map((x) => showItem(x))
         }
-      </ul>
+      </div>
+    </div>
     </div>
   );
 }

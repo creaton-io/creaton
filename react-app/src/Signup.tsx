@@ -8,7 +8,7 @@ import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
 import {useCurrentCreator} from "./Utils";
 import {useContext, useEffect, useState} from "react";
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import Web3Modal from "web3modal";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
@@ -25,13 +25,15 @@ const creatorFactoryContract = new Contract(CreatonAdminContract.address, Creato
 const SignUp = () => {
 
 
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const [signedup, setSignedup] = useState<any>(false)
   const {currentCreator} = useCurrentCreator()
 
   const [creatorName, setCreatorName] = useState("")
   const [subscriptionPrice, setSubscriptionPrice] = useState("5")
+  const [collectionName, setCollectionName] = useState("")
+  const [collectionSymbol, setCollectionSymbol] = useState("")
 
   if (!context.library)
     return (<div>Please connect your wallet</div>)
@@ -45,28 +47,37 @@ const SignUp = () => {
     console.log(creatorFactoryContract)
     // @ts-ignore
     const connectedContract = creatorFactoryContract.connect(library!.getSigner())
-    connectedContract.deployCreator(creatorName, subscriptionPrice)
-      .then(function (response) {
+    connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+      .then(async function (response) {
         setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+        await response.wait(1)
+        notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
       }).catch(function (error) {
-      errorHandler.setError('Failed to signup. ' + error.message)
+      notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
     });
     event.preventDefault();
   }
 
   return (
     <div>
-      <h1>Signup</h1>
       <form onSubmit={submitForm}>
-        <label htmlFor="creatorName">Name</label>
-        <Input type="text" placeholder="John The Creator" value={creatorName} onChange={(event) => {
+        <Input type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
           setCreatorName(event.target.value)
         }}></Input>
-        <label htmlFor="subscriptionPrice">Subscription Price</label>
-        <Input type="number" value={subscriptionPrice} onChange={(event) => {
+
+        <Input type="number" label="Subscription Price per Month" value={subscriptionPrice} onChange={(event) => {
           setSubscriptionPrice(event.target.value)
         }}></Input>
-        <Button type="submit" label="Submit"></Button>
+
+        <Input type="text" label="Collection Name" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
+          setCollectionName(event.target.value)
+        }}></Input>
+
+        <Input type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
+          setCollectionSymbol(event.target.value)
+        }}></Input>
+
+        <Button type="submit" label="Become a Creator"></Button>
       </form>
     </div>
   );

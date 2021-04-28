@@ -10,7 +10,7 @@ const VideoPlayer = (props) => {
       hls.attachMedia(video.current);
     }
   }, [props.url])
-  return (<video ref={video} controls style={{'maxWidth': '300px'} as CSSProperties}/>)
+  return (<video ref={video} controls />)
 }
 
 export {VideoPlayer}

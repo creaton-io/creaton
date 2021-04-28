@@ -2,9 +2,9 @@ import React, {useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator} from "./Utils";
-import {Contract, utils} from "ethers";
+import {Contract} from "ethers";
 import creaton_contracts from './contracts.json'
-import {ErrorHandlerContext} from "./ErrorHandler";
+import {NotificationHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
@@ -12,16 +12,14 @@ import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
 import {ContractForm} from "./ContractForm"
+import {Checkbox} from "./elements/checkbox";
+import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
+import SignUp from "./Signup";
+import {Toggle} from "./elements/toggle";
 
 const CreatorContract = creaton_contracts.Creator
 
-let ARWEAVE_URI
-if (false && process.env.NODE_ENV === 'development')
-  ARWEAVE_URI = 'http://localhost:1984'
-else
-  ARWEAVE_URI = 'https://report.creaton.io'
 
-const ARWEAVE_GATEWAY = 'https://arweave.net/';
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
@@ -68,26 +66,29 @@ const Upload = () => {
   },[currentCreator, context])
 
 
-  const errorHandler = useContext(ErrorHandlerContext)
+  const notificationHandler = useContext(NotificationHandlerContext)
   const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
     return (<div>Not connected</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
-    return (<div>Please signup first. You are not a creator yet.</div>)
+    return (<div className="grid grid-cols-1 place-items-center w-max m-auto"><h3>Please signup first. You are not a creator yet.</h3>
+      <SignUp/></div>)
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
   if (nftContractStatus===undefined)
     return (<div>Checking your nft contract status</div>)
-  console.log(context.library);
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
   async function createNFT(name: string, symbol: string) {
     try {
       await creatorContract.createPostNFT(name, symbol);
-      updateNFTContractStatus();
+      setNftContractStatus('created');
     } catch (error) {
-      errorHandler.setError('Could not create your NFT contract' + error.message);
+      notificationHandler.setNotification({
+        description: 'Could not create your NFT contract' + error.message,
+        type: 'error'
+      });
       return;
     }
   }
@@ -102,7 +103,7 @@ const Upload = () => {
       try {
         encryptedObject = umbral.encrypt(bytes)
       } catch (error) {
-        errorHandler.setError(error.toString())
+        notificationHandler.setNotification({description: error.toString(), type: 'error'})
         return;
       }
       encryptedObject['type'] = file_type
@@ -158,14 +159,19 @@ const Upload = () => {
             tier = 1
           receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
         } catch (error) {
-          errorHandler.setError('Could not upload the content to your contract' + error.message)
+          notificationHandler.setNotification({
+            description: 'Could not upload the content to your contract' + error.message,
+            type: 'error'
+          })
           return;
         }
         setStatus('Upload successful!')
+        await receipt.wait(1)
+        notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'})
         console.log(receipt);
       })
     }).catch(function (error) {
-      errorHandler.setError(error.toString())
+      notificationHandler.setNotification({description: error.toString(), type: 'error'})
     })
   }
 
@@ -256,8 +262,7 @@ const Upload = () => {
   }
 
   if(nftContractStatus==='not-created'){
-    return (<div>
-      <h1>Welcome {currentCreator.description}</h1>
+    return (<div className="grid grid-cols-1 place-items-center">
       <h2>You have not created your NFT contract yet.</h2>
       {status && (<h3>{status}</h3>)}
       <ContractForm createNFT={createNFT}/>
@@ -265,11 +270,8 @@ const Upload = () => {
   }
   else
   return (
-    <div>
-      <h1>Welcome {currentCreator.description}</h1>
-      {status && (<h3>{status}</h3>)}
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="file">Content</label>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto">
+        {status && (<h3>{status}</h3>)}
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
                type="file" ref={fileInput}/>
         <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}>
@@ -278,30 +280,35 @@ const Upload = () => {
           {currentFile ? currentFile.name || "Error" : "No file chosen"}
         </small>
         {(currentFile?.type === 'video/mp4' && ffmpeg !== undefined) &&
-        <div>
-          <label htmlFor="isStreaming">Convert to streaming format?</label>
-          <input type="checkbox" id="isStreaming" name="isStreaming" checked={isStreaming}
-                 onChange={() => {
-                   setIsStreaming(!isStreaming)
-                 }}/>
-        </div>}
-        <br/>
-        <label htmlFor="name">Name</label>
-        <Input type="text" name="name" placeholder="name" value={fileName} onChange={(event) => {
+        <div className="w-full m-5">
+          <label className="float-left">
+            Convert to streaming format
+          </label>
+
+          <div className="float-right"><Toggle state={isStreaming} onClick={(e) => {
+            e.preventDefault()
+            setIsStreaming(!isStreaming)
+          }}/></div>
+        </div>
+        }
+        <Input type="text" name="name" label="Name" placeholder="Title" value={fileName} onChange={(event) => {
           setFileName(event.target.value)
         }}/>
-        <label htmlFor="description">Description</label>
-        <Input type="text" name="description" placeholder="description" value={description} onChange={(event) => {
+        <Input type="text" name="description"  label="Description" placeholder="Description" value={description} onChange={(event) => {
           setDescription(event.target.value)
         }}/>
-        <input type="checkbox" id="encrypted" name="encrypted" checked={uploadEncrypted}
-               onChange={() => {
-                 setUploadEncrypted(!uploadEncrypted)
-               }}/>
-        <label htmlFor="encrypted">Encrypted?</label>
-        <Button type="submit" label="Submit"/>
+        <div className="w-full m-5">
+          <label className="float-left">
+            Only for subscribers
+          </label>
+
+          <div className="float-right"><Toggle state={uploadEncrypted} onClick={(e) => {
+            e.preventDefault()
+            setUploadEncrypted(!uploadEncrypted)
+          }}/></div>
+        </div>
+        <Button type="submit" label="Upload"/>
       </form>
-    </div>
   );
 };
 

@@ -4,6 +4,7 @@ import clsx from "clsx";
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement>{
     className?: string;
     invalid?: boolean;
+    label?: string;
 }
 
 const classes = [
@@ -13,10 +14,14 @@ const classes = [
     "disabled:bg-grey disabled:border-grey"
 ];
 
-export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text', ...attributes }) => {
-
+export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text', label, ...attributes }) => {
     return (
         <div>
+                  {label !== "" 
+                  ? 
+                  <label className="block font-semibold mb-3">{label}</label>
+                     :  <p>No Lbael</p>
+    }
             <input className={clsx(
                 classes,
                 className,
