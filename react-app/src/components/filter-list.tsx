@@ -1,12 +1,13 @@
 import * as React from 'react';
 import { Icon } from '../icons';
+import { Avatar } from './avatar';
 import { Button } from '../elements/button';
 import {Link} from "react-router-dom";
 
 const FilterItem = ({ avatar, title, subtitle, description, count, source, url }) => (
   <Link to={url}>
     <li className="py-4 flex">
-        <img className="h-20 w-20 rounded-full" src={avatar} alt="" />
+        <Avatar size="profile" src={avatar}></Avatar>
         <div className="ml-3">
             <p className="font-bold text-gray-900">{title}</p>
             <p className="text-sm text-gray-700">{subtitle}</p>
