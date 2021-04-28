@@ -291,12 +291,10 @@ const Upload = () => {
           }}/></div>
         </div>
         }
-        <label htmlFor="name" className="place-self-start">Name</label>
-        <Input type="text" name="name" placeholder="Title" value={fileName} onChange={(event) => {
+        <Input type="text" name="name" label="Name" placeholder="Title" value={fileName} onChange={(event) => {
           setFileName(event.target.value)
         }}/>
-        <label htmlFor="description" className="place-self-start mt-3">Description</label>
-        <Input type="text" name="description" placeholder="Description" value={description} onChange={(event) => {
+        <Input type="text" name="description"  label="Description" placeholder="Description" value={description} onChange={(event) => {
           setDescription(event.target.value)
         }}/>
         <div className="w-full m-5">

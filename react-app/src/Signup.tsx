@@ -61,23 +61,19 @@ const SignUp = () => {
   return (
     <div>
       <form onSubmit={submitForm}>
-        <label htmlFor="creatorName">Bio</label>
-        <Input type="text" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
+        <Input type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
           setCreatorName(event.target.value)
         }}></Input>
 
-        <label htmlFor="subscriptionPrice">Subscription Price</label>
-        <Input type="number" value={subscriptionPrice} onChange={(event) => {
+        <Input type="number" label="Subscription Price per Month" value={subscriptionPrice} onChange={(event) => {
           setSubscriptionPrice(event.target.value)
         }}></Input>
 
-        <label>Collection Name</label>
-        <Input type="text" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
+        <Input type="text" label="Collection Name" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
           setCollectionName(event.target.value)
         }}></Input>
 
-        <label>Collection Symbol</label>
-        <Input type="text" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
+        <Input type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
           setCollectionSymbol(event.target.value)
         }}></Input>
 

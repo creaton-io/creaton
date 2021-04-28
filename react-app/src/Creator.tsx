@@ -300,11 +300,17 @@ export function Creator() {
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
       if (src)
-        return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description} fileType="image"
-                     avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+        return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
+                     fileType="image"
+                     avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
+          like(content)
+        }} likeCount={content.likes}/>
     } else {
-      return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description} fileType="video"
-      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+      return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
+                   fileType="video"
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
+        like(content)
+      }} likeCount={content.likes}/>
     }
 
     return <div  className="relative mb-5 h-80">
@@ -373,7 +379,8 @@ export function Creator() {
     <img className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
     </div>
     <div className="flex flex-col max-w-5xl my-0 pt-24 mx-auto text-center py-5 text-center">
-      <h3 className="text-l font-bold text-gray-800">{contract.user}</h3>
+      <h3
+        className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
       <div className="my-5 mx-auto max-w-lg w-full">
         {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {

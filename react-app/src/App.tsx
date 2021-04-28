@@ -32,6 +32,7 @@ import {APOLLO_URI} from "./Config";
 import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
 import {Avatar} from "./components/avatar";
+import {Toggle} from "./elements/toggle";
 
 initFontAwesome()
 
@@ -49,19 +50,24 @@ const paymaster = creaton_contracts.Paymaster
 
 
 const getLibrary = (provider) => {
+  console.log('evaluating getLibrary', provider)
+  const library = new Web3Provider(provider)
+  library.pollingInterval = 12000
+  return library
+}
+
+const getGSNLibrary = (provider) => {
   let paymasterAddress = paymaster.address
-    const config = {
-      paymasterAddress
-    }
-  // @ts-ignore
-  // const gsnProvider = await RelayProvider.newProvider({provider: provider, config}).init();
+  const config = {
+    paymasterAddress
+  }
+  console.log('evaluating getGSNLibrary', provider)
   const gsnProvider = RelayProvider.newProvider({provider: provider, config});
   gsnProvider.init()
   // @ts-ignore
   const gsnLibrary = new Web3Provider(gsnProvider)
-  const library = new Web3Provider(provider)
-  library.pollingInterval = 12000
-  return library
+  gsnLibrary.pollingInterval = 12000
+  return gsnLibrary
 }
 
 function ConnectOrSignup() {
@@ -101,6 +107,14 @@ const Autoconnect = () => {
   return null;
 }
 
+const StakingDetector = (props) => {
+  const {library} = useWeb3React<Web3Provider>()
+  if (props.isGSN) // already switched to GSN
+    return null;
+  //check something with library and call props.setIsGSN(true) if needed
+  return null;
+}
+
 const HeaderButtons = () => {
   const {currentProfile} = useCurrentProfile()
   const {currentCreator} = useCurrentCreator()
@@ -123,12 +137,12 @@ const HeaderButtons = () => {
 }
 
 const App = () => {
-
-
+  const [isGSN, setIsGSN] = useState<boolean>(false);
   return (
     <NotificationHandlerProvider>
       <TextileProvider>
-        <Web3ReactProvider getLibrary={getLibrary}>
+        <Web3ReactProvider getLibrary={isGSN ? getGSNLibrary : getLibrary}>
+          <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/>
           <Autoconnect/>
           <SuperfluidProvider>
             <UmbralWasmProvider>
@@ -137,9 +151,10 @@ const App = () => {
                   <div>
                     <NotificationHandlerContext.Consumer>
                       {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
-                        <Notification type={value.notification.type} description={value.notification.description} close={() => {
-                          value.setNotification(null)
-                        }}/>
+                        <Notification type={value.notification.type} description={value.notification.description}
+                                      close={() => {
+                                        value.setNotification(null)
+                                      }}/>
                       </div>))}
                     </NotificationHandlerContext.Consumer>
 
@@ -152,6 +167,10 @@ const App = () => {
                         </div>
                         <div className="relative pt-6 pb-16 sm:pb-24">
                           <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                            <Toggle state={isGSN} onClick={(e) => {
+                              e.preventDefault()
+                              setIsGSN(!isGSN)
+                            }}/>
                             <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
                               <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
                                 <div className="flex items-center justify-between w-full md:w-auto">
