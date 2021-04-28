@@ -19,6 +19,7 @@ import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Header} from "./elements/stickyHeader";
 import {Card} from "./components/card";
+import {Avatar} from "./components/avatar";
 import {REPORT_URI} from "./Config";
 import {Icon} from "./icons";
 
@@ -376,7 +377,9 @@ export function Creator() {
   return (
     <div>
     <div className="relative bg-gray-300 w-full h-40 -my-5">
-    <img className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+      <div className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
+            <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+      </div>
     </div>
     <div className="flex flex-col max-w-5xl my-0 pt-24 mx-auto text-center py-5 text-center">
       <h3

@@ -4,6 +4,7 @@ import clsx from 'clsx';
 export const Avatar = ({src = '', size = 'large'}: any) => {
   const size_classes = {
     'large': 'w-32 h-32',
+    'profile': 'w-20 h-20',
     'menu':'h-12 w-12',
     'small': 'w-8 h-8'
   }
