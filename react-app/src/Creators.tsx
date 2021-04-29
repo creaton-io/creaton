@@ -7,7 +7,7 @@ import {FilterList} from "./components/filter-list";
 
 const CREATORS_QUERY = gql`
   query {
-  creators(orderBy: timestamp, orderDirection: desc, first: 10) {
+  creators(orderBy: timestamp, orderDirection: desc) {
     id
     user
     creatorContract
