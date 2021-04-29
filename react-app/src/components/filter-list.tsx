@@ -24,7 +24,7 @@ const SearchInput = ({ search }) => {
     const ref = React.useRef<any>(null);
     return (
         <div className="flex">
-            <div className="flex rounded-full p-4 w-full bg-gray-100 items-center">
+            <div className="flex rounded-full p-4 mb-5 w-full bg-gray-100 items-center">
                 <Icon name="search" className="text-gray-500" />
                 <input ref={ref} placeholder="Filter creators" className="w-full bg-transparent focus:outline-none ml-4" onChange={() => search(ref.current?.value)}/>
             </div>
