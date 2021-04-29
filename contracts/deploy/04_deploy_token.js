@@ -28,8 +28,8 @@ const func = async function (hre) {
     log: true
   })
 
-  // console.log("Invoking initializeCustomSuperToken...");
-  // await superTokenFactory.initializeCustomSuperToken(tokenProxy.address);
+  console.log("Invoking initializeCustomSuperToken...");
+  await superTokenFactory.initializeCustomSuperToken(tokenProxy.address);
 
   console.log("Invoking initialize...");
   let receipt = await execute(

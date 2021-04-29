@@ -21,14 +21,16 @@ contract CreatonPaymaster is BasePaymaster {
         targets[_contract] = true;
     }
 
+    function setAdmin(address _admin) public onlyOwner {
+        creatonAdmin = _admin;
+        targets[creatonAdmin] = true;
+    }
+
     constructor (
         address _token,
-        address _admin,
         address _stakingContract
     ) public  {
         token = _token;
-        creatonAdmin = _admin;
-        targets[creatonAdmin] = true;
         stakingContract = _stakingContract;
     }
 

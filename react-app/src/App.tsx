@@ -15,6 +15,7 @@ import SignUp from "./Signup";
 import Upload from "./Upload";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
+import {Staking} from "./Staking";
 import {Creator} from "./Creator";
 import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
@@ -131,6 +132,9 @@ const HeaderButtons = () => {
     {currentProfile && (<Link to="/upload">
       <Button label="Upload" theme="secondary"></Button>
     </Link>)}
+    {currentProfile && (<Link to="/staking">
+      <Button label="Staking" theme="secondary"></Button>
+    </Link>)}
     <Button label="Pitch Deck" theme="secondary-2"></Button>
     <ConnectOrSignup/>
   </div>)
@@ -230,6 +234,9 @@ const App = () => {
                     </Route>
                     <Route path="/twitter-verification">
                       <TwitterVerification/>
+                    </Route>
+                    <Route path="/staking">
+                      <Staking/>
                     </Route>
                   </Switch>
                 </div>
