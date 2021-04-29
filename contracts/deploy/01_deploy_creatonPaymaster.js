@@ -11,7 +11,6 @@ module.exports = async function (hre) {
       from: admin,
       args: [
         createToken.address,
-        creatonAdmin.address,
         stakingContract.address
       ],
       log: true

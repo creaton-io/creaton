@@ -28,7 +28,6 @@ contract CreatonPaymaster is BasePaymaster {
 
     constructor (
         address _token,
-        address _admin,
         address _stakingContract
     ) public  {
         token = _token;
