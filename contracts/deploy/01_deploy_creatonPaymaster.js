@@ -2,8 +2,18 @@ module.exports = async function (hre) {
     let {admin} = await hre.getNamedAccounts();
     const {deploy, execute} = hre.deployments;
 
+    const createToken = await hre.deployments.get("CreatonToken")
+    const creatonAdmin = await hre.deployments.get("CreatonAdmin")
+    const stakingContract = await hre.deployments.get("MetatxStaking")
+
+
     let creatonPaymaster = await deploy('CreatonPaymaster', {
       from: admin,
+      args: [
+        createToken.address,
+        creatonAdmin.address,
+        stakingContract.address
+      ],
       log: true
     });
 

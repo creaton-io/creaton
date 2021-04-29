@@ -54,7 +54,7 @@ async function main(){
   while (true){
     let reward = await stakingContract.earned(creator)
     console.log(reward.toNumber())
-    await sleep(1000)
+    await sleep(2000)
   }
   // console.log("Approving the staking contract...")
   // const tx1 = await waitFor(create.approve(stakingContract.address, ethers.BigNumber.from(2).pow(256).sub(1)));

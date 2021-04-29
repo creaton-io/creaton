@@ -7,6 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol";
 import "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol";
+import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
 import "../utils/Owned.sol";
 
 // Inheritance
@@ -33,6 +34,7 @@ contract MetatxStaking is IMetatxStaking, IERC777Recipient, ReentrancyGuard, Pau
     uint256 public rewardPerTokenStored;
     uint256 public minStake = 5 * 1e18;
     bool public lastPeriod = false;
+    address public trustedForwarder;
 
     mapping(address => uint256) public userRewardPerTokenPaid;
     mapping(address => uint256) public rewards;
@@ -44,10 +46,12 @@ contract MetatxStaking is IMetatxStaking, IERC777Recipient, ReentrancyGuard, Pau
 
     constructor(
         address _owner,
-        address _token
+        address _token,
+        address _trustedForwarder
     ) public Owned(_owner) {
         token = IERC20(_token);
         _erc1820.setInterfaceImplementer(address(this), TOKENS_RECIPIENT_INTERFACE_HASH, address(this));
+        trustedForwarder = _trustedForwarder;
     }
 
     /* ========== VIEWS ========== */
@@ -80,6 +84,10 @@ contract MetatxStaking is IMetatxStaking, IERC777Recipient, ReentrancyGuard, Pau
 
     function getRewardForDuration() external view override returns (uint256) {
         return rewardRate.mul(rewardsDuration);
+    }
+
+    function isTrustedForwarder(address forwarder) public view returns(bool) {
+        return forwarder == trustedForwarder;
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
