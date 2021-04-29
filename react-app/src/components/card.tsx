@@ -24,7 +24,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
 
         {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
           {fileType === "image"
-            ? <img className="w-72 object-fit rounded-xl"
+            ? <img className="w-auto max-w-2xl rounded-xl"
                    src={fileUrl}
                    alt=""/>
             : <VideoPlayer url={fileUrl}/>
