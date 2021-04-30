@@ -52,6 +52,7 @@ let abi = [{
 }]
 const tokenContract = new Contract(creaton_contracts.CreatonToken.address, abi)
 const stakingContract = new Contract(creaton_contracts.CreatonStaking.address, creaton_contracts.CreatonStaking.abi)
+
 const Staking = (props) => {
   const context = useWeb3React<Web3Provider>()
   const notificationHandler = useContext(NotificationHandlerContext)
