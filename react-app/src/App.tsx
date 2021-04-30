@@ -33,7 +33,8 @@ import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
 import {Avatar} from "./components/avatar";
 import {Toggle} from "./elements/toggle";
-import {Web3UtilsProvider} from "./Web3Utils";
+import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
+import Loader from "./elements/loader";
 
 initFontAwesome()
 
@@ -199,50 +200,61 @@ const App = () => {
                               </div>
                               <HeaderButtons/>
                             </nav>
-                </div>
-            </div>
-        </div>
+                          </div>
+                        </div>
+                      </div>
 
                     </div>
 
-
-                    {/*
-            A <Switch> looks through all its children <Route>
-            elements and renders the first one whose path
-            matches the current URL. Use a <Switch> any time
-            you have multiple routes, but you want only one
-            of them to render at a time
-          */}
-                  <Switch>
-                    <Route exact path="/">
-                      <Home/>
-                    </Route>
-                    <Route exact path="/creators">
-                      <Creators/>
-                    </Route>
-                    <Route path="/connect-wallet">
-                      <WalletConnect/>
-                    </Route>
-                    <Route path="/signup">
-                      <ProfileEdit/>
-                    </Route>
-                    <Route path="/upload">
-                      <Upload/>
-                    </Route>
-                    <Route path="/grant">
-                      <Grant/>
-                    </Route>
-                    <Route path="/creator/:id">
-                      <Creator/>
-                    </Route>
-                    <Route path="/twitter-verification">
-                      <TwitterVerification/>
-                    </Route>
-                    <Route path="/staking">
-                      <Staking/>
-                    </Route>
-                  </Switch>
-                </div>
+                    <Web3UtilsContext.Consumer>
+                      {value => {
+                        return (
+                          <div>
+                            {value.isWaiting && (
+                              <div
+                                className="filter grayscale w-full fixed h-full z-30">
+                                <div
+                                  className="h-32 border-2 grid grid-cols-1 w-1/2 m-auto mt-5 place-items-center rounded-full bg-white">
+                                  <Loader/>
+                                  Waiting for transaction confirmation
+                                </div>
+                              </div>)}
+                            <div className={value.isWaiting ? "filter blur-sm" : ""}>
+                              <Switch>
+                                <Route exact path="/">
+                                  <Home/>
+                                </Route>
+                                <Route exact path="/creators">
+                                  <Creators/>
+                                </Route>
+                                <Route path="/connect-wallet">
+                                  <WalletConnect/>
+                                </Route>
+                                <Route path="/signup">
+                                  <ProfileEdit/>
+                                </Route>
+                                <Route path="/upload">
+                                  <Upload/>
+                                </Route>
+                                <Route path="/grant">
+                                  <Grant/>
+                                </Route>
+                                <Route path="/creator/:id">
+                                  <Creator/>
+                                </Route>
+                                <Route path="/twitter-verification">
+                                  <TwitterVerification/>
+                                </Route>
+                                <Route path="/staking">
+                                  <Staking/>
+                                </Route>
+                              </Switch>
+                            </div>
+                          </div>
+                        )
+                      }}
+                    </Web3UtilsContext.Consumer>
+                  </div>
               </Web3UtilsProvider>
               </Router>
             </ApolloProvider>

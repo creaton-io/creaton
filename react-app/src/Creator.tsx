@@ -331,7 +331,9 @@ export function Creator() {
     await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
     const result = umbral.getPublicKeyBase64()
     const receipt = await creatorContract.requestSubscribe(result)
+    web3utils.setIsWaiting(true);
     await receipt.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
   }
 

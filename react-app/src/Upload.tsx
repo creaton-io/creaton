@@ -14,12 +14,14 @@ import {Input} from "./elements/input";
 import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
 import SignUp from "./Signup";
 import {Toggle} from "./elements/toggle";
+import {Web3UtilsContext} from "./Web3Utils";
 
 const CreatorContract = creaton_contracts.Creator
 
 
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
+  const web3utils = useContext(Web3UtilsContext)
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
   const [status, setStatus] = useState("")
@@ -132,7 +134,9 @@ const Upload = () => {
           return;
         }
         setStatus('Upload successful!')
+        web3utils.setIsWaiting(true);
         await receipt.wait(1)
+        web3utils.setIsWaiting(false);
         notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'})
         console.log(receipt);
       })

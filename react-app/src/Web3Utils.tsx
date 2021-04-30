@@ -11,6 +11,7 @@ const Web3UtilsProvider = (props) => {
   const {currentProfile} = useCurrentProfile()
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext)
+  const [isWaiting, setIsWaiting] = useState(false);
 
   async function tryConnect() {
     //TODO: test walletConnect and open up a modal
@@ -36,6 +37,11 @@ const Web3UtilsProvider = (props) => {
   }
 
   return (<Web3UtilsContext.Provider
-    value={{connect: tryConnect, isSignedUp: isSignedUp}}>{props.children}</Web3UtilsContext.Provider>)
+    value={{
+      connect: tryConnect,
+      isSignedUp: isSignedUp,
+      setIsWaiting: setIsWaiting,
+      isWaiting: isWaiting
+    }}>{props.children}</Web3UtilsContext.Provider>)
 }
 export {Web3UtilsContext, Web3UtilsProvider};

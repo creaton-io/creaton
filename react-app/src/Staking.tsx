@@ -7,6 +7,7 @@ import {Contract} from "ethers";
 import {parseUnits, formatEther} from "@ethersproject/units";
 import {Input} from "./elements/input";
 import {NotificationHandlerContext} from "./ErrorHandler";
+import {Web3UtilsContext} from "./Web3Utils";
 
 
 let abi = [{
@@ -56,6 +57,8 @@ const stakingContract = new Contract(creaton_contracts.CreatonStaking.address, c
 const Staking = (props) => {
   const context = useWeb3React<Web3Provider>()
   const notificationHandler = useContext(NotificationHandlerContext)
+  const web3utils = useContext(Web3UtilsContext)
+
   const [inputStakeAmount, setInputStakeAmount] = useState('')
   const [inputUnstakeAmount, setInputUnstakeAmount] = useState('')
   const [createToken, setCreateToken] = useState('')
@@ -102,7 +105,9 @@ const Staking = (props) => {
       })
       return;
     }
+    web3utils.setIsWaiting(true);
     await receipt.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({
       description: 'Staked ' + inputStakeAmount + ' tokens successfully!',
       type: 'success'
@@ -122,7 +127,9 @@ const Staking = (props) => {
       })
       return;
     }
+    web3utils.setIsWaiting(true);
     await receipt.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({
       description: 'Unstaked ' + inputUnstakeAmount + ' tokens successfully!',
       type: 'success'
@@ -142,7 +149,9 @@ const Staking = (props) => {
       })
       return;
     }
+    web3utils.setIsWaiting(true);
     await receipt.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({
       description: 'Reward received!',
       type: 'success'
@@ -162,7 +171,9 @@ const Staking = (props) => {
       })
       return;
     }
+    web3utils.setIsWaiting(true);
     await receipt.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({
       description: 'All staking tokens are withdrawn and rewards are received!',
       type: 'success'

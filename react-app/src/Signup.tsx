@@ -12,6 +12,7 @@ import {NotificationHandlerContext} from "./ErrorHandler";
 import Web3Modal from "web3modal";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
+import {Web3UtilsContext} from "./Web3Utils";
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
@@ -24,7 +25,7 @@ interface Values {
 const creatorFactoryContract = new Contract(CreatonAdminContract.address, CreatonAdminContract.abi)
 const SignUp = () => {
 
-
+  const web3utils = useContext(Web3UtilsContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const context = useWeb3React<Web3Provider>()
   const [signedup, setSignedup] = useState<any>(false)
@@ -50,7 +51,9 @@ const SignUp = () => {
     connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
       .then(async function (response) {
         setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+        web3utils.setIsWaiting(true);
         await response.wait(1)
+        web3utils.setIsWaiting(false);
         notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
       }).catch(function (error) {
       notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
