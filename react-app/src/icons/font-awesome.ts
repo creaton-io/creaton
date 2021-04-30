@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons'
 
 import {
-  fas, faHeart, faEllipsisH, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser, faLock
+  fas, faHeart, faEllipsisH, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser, faLock, faFlag
 } from "@fortawesome/free-solid-svg-icons";
 
 const farIcons = [
@@ -26,7 +26,8 @@ const fasIcons = [
   faCog,
   faQuestion,
   faUser,
-  faLock
+  faLock,
+  faFlag
 ]
 
 const fabIcons = [
@@ -48,6 +49,7 @@ export const iconMap: { [key: string]: any } = {
   'question': ['fas', 'question'],
   'user': ['fas', 'user'],
   'lock': ['fas', 'lock'],
+  'flag': ['fas', 'flag'],
 
   // branding
   'github': ['fab', 'github'],

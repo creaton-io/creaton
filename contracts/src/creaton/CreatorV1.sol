@@ -137,6 +137,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // TODO require subscriber is not subscribes already (sth like that)
     function requestSubscribe(string memory _pubKey) external {
         address _address = _msgSender();
+        require(adminContract.registered_users(_address), "You need to signup in Creaton first");
         require (subscribers[_address].status == Status.unSubscribed, "Subscription Already Requested");
         subscribers[_address] = Subscriber(Status.requestSubscribe);
         emit SubscriberEvent(_address, _pubKey, Status.requestSubscribe);
@@ -184,7 +185,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         require(postNFT != address(0));
         require(Post(postNFT).exists(_tokenId));
         address subAddress = _msgSender();
-        if (post2tier[_tokenId] == Type.encrypted){
+        require(adminContract.registered_users(subAddress), "You need to signup before liking content");
+        if (post2tier[_tokenId] == Type.encrypted) {
             require(subscribers[subAddress].status == Status.subscribed, "Not subscribed");
         }
         require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");

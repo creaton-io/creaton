@@ -11,8 +11,6 @@ import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
 import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
-import {ContractForm} from "./ContractForm"
-import {Checkbox} from "./elements/checkbox";
 import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
 import SignUp from "./Signup";
 import {Toggle} from "./elements/toggle";
@@ -25,7 +23,6 @@ const Upload = () => {
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
   const [status, setStatus] = useState("")
-  const [nftContractStatus, setNftContractStatus] = useState<any>(undefined)
   const [description, setDescription] = useState("")
   const [fileName, setFileName] = useState("")
   const [isStreaming, setIsStreaming] = useState(false);
@@ -48,23 +45,6 @@ const Upload = () => {
   }, [ffmpeg])
   const {loading, error, currentCreator} = useCurrentCreator()
 
-  function updateNFTContractStatus(){
-    if (!context.account || currentCreator === undefined)
-      return;
-    const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
-    creatorContract.postNFT().then((address)=>{
-      if(address === '0x0000000000000000000000000000000000000000'){
-        setNftContractStatus('not-created')
-      }
-      else
-        setNftContractStatus('created')
-    })
-  }
-
-  useEffect(()=>{
-    updateNFTContractStatus();
-  },[currentCreator, context])
-
 
   const notificationHandler = useContext(NotificationHandlerContext)
   const umbralWasm = useContext(UmbralWasmContext)
@@ -77,21 +57,7 @@ const Upload = () => {
       <SignUp/></div>)
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
-  if (nftContractStatus===undefined)
-    return (<div>Checking your nft contract status</div>)
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
-  async function createNFT(name: string, symbol: string) {
-    try {
-      await creatorContract.createPostNFT(name, symbol);
-      setNftContractStatus('created');
-    } catch (error) {
-      notificationHandler.setNotification({
-        description: 'Could not create your NFT contract' + error.message,
-        type: 'error'
-      });
-      return;
-    }
-  }
 
   async function upload(bytes: Uint8Array, file_type: string) {
     let response
@@ -261,14 +227,6 @@ const Upload = () => {
     event.preventDefault()
   }
 
-  if(nftContractStatus==='not-created'){
-    return (<div className="grid grid-cols-1 place-items-center">
-      <h2>You have not created your NFT contract yet.</h2>
-      {status && (<h3>{status}</h3>)}
-      <ContractForm createNFT={createNFT}/>
-    </div>)
-  }
-  else
   return (
       <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto">
         {status && (<h3>{status}</h3>)}

@@ -25,6 +25,7 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     mapping(address => address[]) public creator2contract; 
     mapping(address => address) public contract2creator;
+    mapping(address => bool) public registered_users;
     mapping(address => string) public user2twitter;
 
     address private _host;
@@ -78,6 +79,7 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     function deployCreator(string calldata description, uint256 subscriptionPrice,
         string memory nftName, string memory nftSymbol) external {
+        require(registered_users[_msgSender()], "You need to signup in Creaton before becoming a creator");
         CreatorProxy creatorContract =
         new CreatorProxy(
             creatorBeacon,
@@ -103,6 +105,7 @@ contract CreatonAdmin is BaseRelayRecipient {
     }
 
     function updateProfile(string memory dataJSON) external {
+        registered_users[_msgSender()] = true;
         emit ProfileUpdate(_msgSender(), dataJSON);
     }
 
