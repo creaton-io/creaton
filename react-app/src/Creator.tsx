@@ -304,14 +304,12 @@ export function Creator() {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image"
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-          like(content)
-        }} likeCount={content.likes}/>
+                      like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video"
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-        like(content)
-      }} likeCount={content.likes}/>
+        like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
     }
 
     return <div  className="relative mb-5 h-80">
