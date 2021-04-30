@@ -10,7 +10,7 @@ import {
 } from '@fortawesome/free-brands-svg-icons'
 
 import {
-  fas, faHeart, faEllipsisH, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser, faLock
+  fas, faHeart, faEllipsisH, faTimes, faCheck, faExclamation, faInfo, faCog, faQuestion, faUser, faLock, faFlag
 } from "@fortawesome/free-solid-svg-icons";
 
 const farIcons = [
