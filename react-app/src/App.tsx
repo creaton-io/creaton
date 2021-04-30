@@ -11,7 +11,6 @@ import Home from './Home';
 import WalletConnect from "./WalletConnect";
 import {useWeb3React, Web3ReactProvider} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import SignUp from "./Signup";
 import Upload from "./Upload";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
@@ -34,6 +33,7 @@ import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
 import {Avatar} from "./components/avatar";
 import {Toggle} from "./elements/toggle";
+import {Web3UtilsProvider} from "./Web3Utils";
 
 initFontAwesome()
 
@@ -91,7 +91,7 @@ function ConnectOrSignup() {
   if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
-    return (<Button label="Connect Wallet" onClick={tryConnect}></Button>)
+    return (<div><Button label="Connect Wallet"  theme="secondary" onClick={tryConnect}></Button></div>)
 }
 
 const Autoconnect = () => {
@@ -154,6 +154,7 @@ const App = () => {
             <UmbralWasmProvider>
               <ApolloProvider client={client}>
                 <Router>
+                <Web3UtilsProvider>
                   <div>
                     <NotificationHandlerContext.Consumer>
                       {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
@@ -242,6 +243,7 @@ const App = () => {
                     </Route>
                   </Switch>
                 </div>
+              </Web3UtilsProvider>
               </Router>
             </ApolloProvider>
           </UmbralWasmProvider>

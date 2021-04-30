@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
@@ -22,8 +22,7 @@ import {Card} from "./components/card";
 import {Avatar} from "./components/avatar";
 import {REPORT_URI} from "./Config";
 import {Icon} from "./icons";
-
-const CreatorContract = creaton_contracts.Creator
+import {Web3UtilsContext} from "./Web3Utils";
 
 interface params {
   id: string;
@@ -69,10 +68,11 @@ export function Creator() {
         }
       }
    `;
-  
+
 
   const textile = useContext(TextileContext)
   const notificationHandler = useContext(NotificationHandlerContext)
+  const web3utils = useContext(Web3UtilsContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}})
@@ -247,13 +247,10 @@ export function Creator() {
       await downloadBlob(decrypted, content);
   }
 
-  if (!context.account)
-    return (<div>Connect to metamask</div>)
-  // @ts-ignore
-  if (contentsQuery.loading || subscriptionQuery.loading || contractQuery.loading) {
+  if (contentsQuery.loading || contractQuery.loading) {
     return (<div>Loading</div>)
   }
-  if (contentsQuery.error || subscriptionQuery.error || contractQuery.error) {
+  if (contentsQuery.error || contractQuery.error) {
     return (<div>Error</div>)
   }
   const contents = contentsQuery.data.contents;
@@ -327,9 +324,9 @@ export function Creator() {
 </div>
   }
 
-  const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
-
   async function subscribe() {
+    if (!web3utils.isSignedUp()) return;
+    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
     const umbral = new UmbralSubscriber(umbralWasm)
     await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
     const result = umbral.getPublicKeyBase64()
@@ -339,6 +336,8 @@ export function Creator() {
   }
 
   async function like(content) {
+    if (!web3utils.isSignedUp()) return;
+    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
     try {
       let receipt = await creatorContract.like(content.tokenId, 1);
     } catch (error) {
@@ -363,6 +362,7 @@ export function Creator() {
           signer: context.account
         })
       })
+      await response;
       notificationHandler.setNotification({
         description: 'Content reported. Thanks for contributing to the platform :)',
         type: 'success'
