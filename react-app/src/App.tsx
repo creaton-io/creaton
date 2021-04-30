@@ -89,7 +89,7 @@ function ConnectOrSignup() {
     return (<Link to="/signup">
       <Avatar size="menu" src={currentProfile.image}/></Link>)
   if (active)
-    return (<Link to="/signup"><Button label="SignUp"></Button></Link>)
+    return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
     return (<Button label="Connect Wallet" onClick={tryConnect}></Button>)
 }
