@@ -13,11 +13,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fileType?: string;
   avatarUrl?: string;
   onLike?: any;
+  onReport?: any;
   isLiked?: boolean;
   likeCount?: number;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, likeCount}) => {
+export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount}) => {
   return (
     <div className="mb-5">
       <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
@@ -35,14 +36,16 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                       <h4 className="text-lg font-semibold text-gray-900">
                         {name}
                       </h4>
-                      <div>
-                        <Icon onClick={onLike} name="heart"
-                              className={clsx('cursor-pointer', isLiked ? 'text-red-500' : 'text-grey-dark')}/>
-                              {/* <Icon name="flag"
-                              className={clsx('cursor-pointer text-red-500')}/> */}
-                        <span className="ml-2">
-                          {likeCount}
-                          </span>
+                      <div className="flex justify-between">
+                        <div className=" mr-5 ">
+                          <Icon onClick={onLike} name="heart"
+                                className={clsx('cursor-pointer', isLiked ? 'text-red-500' : 'text-grey-dark')}/>
+                          <span className="ml-2">
+                            {likeCount}
+                            </span>
+                        </div>
+                        <Icon  onClick={onReport} name="flag"
+                              className={clsx('cursor-pointer text-gray-500 mt-1')}/>
                       </div>
                     </div>
 

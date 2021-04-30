@@ -304,14 +304,12 @@ export function Creator() {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image"
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-          like(content)
-        }} likeCount={content.likes}/>
+                      like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video"
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-        like(content)
-      }} likeCount={content.likes}/>
+        like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
     }
 
     return <div  className="relative mb-5 h-80">
@@ -377,7 +375,7 @@ export function Creator() {
   return (
     <div>
     <div className="relative bg-gray-300 w-full h-40 -my-5">
-      <div className="object-cover w-20 h-20 rounded-full border-blue-primary border-2 my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
+      <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
         </div>
