@@ -26,7 +26,8 @@ const fasIcons = [
   faCog,
   faQuestion,
   faUser,
-  faLock
+  faLock,
+  faFlag
 ]
 
 const fabIcons = [
@@ -48,6 +49,7 @@ export const iconMap: { [key: string]: any } = {
   'question': ['fas', 'question'],
   'user': ['fas', 'user'],
   'lock': ['fas', 'lock'],
+  'flag': ['fas', 'flag'],
 
   // branding
   'github': ['fab', 'github'],

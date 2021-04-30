@@ -38,6 +38,8 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                       <div>
                         <Icon onClick={onLike} name="heart"
                               className={clsx('cursor-pointer', isLiked ? 'text-red-500' : 'text-grey-dark')}/>
+                              {/* <Icon name="flag"
+                              className={clsx('cursor-pointer text-red-500')}/> */}
                         <span className="ml-2">
                           {likeCount}
                           </span>

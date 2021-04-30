@@ -135,7 +135,9 @@ const HeaderButtons = () => {
     {currentProfile && (<Link to="/staking">
       <Button label="Staking" theme="secondary"></Button>
     </Link>)}
+    <Link to="/">
     <Button label="Pitch Deck" theme="secondary-2"></Button>
+    </Link>
     <ConnectOrSignup/>
   </div>)
 }
