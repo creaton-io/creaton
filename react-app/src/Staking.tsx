@@ -32,14 +32,15 @@ let abi = [{
       "stateMutability": "nonpayable",
       "type": "function"
     }]
-const token = new Contract("0x76ADB8ea0bfB53242046AD1D6BeE2dDb3C6a866E", abi)
+const token = new Contract("0xdCc5FfBB4d818F84d2717EebCdeD28d066385ea0", abi)
 
 const Staking = (props) => {
   const context = useWeb3React<Web3Provider>()
 
   function stake() {
     const connectedContract = token.connect(context.library!.getSigner())
-    connectedContract.send("0x5c23c5a4F279c6303e83906010429d6E82d49719", parseUnits("5", 18), "0x");
+    let x = connectedContract.send("0x28825b401340d6246B0a4148481FFCA71B8991Bc", parseUnits("5", 18), "0x");
+    console.log(x)
   }
   return (
     <div> Please insert amount to stake

@@ -5,7 +5,7 @@
 // const ethers = hre.ethers;
 
 // @ts-ignore
-let creator: any;
+let admin: any;
 // @ts-ignore
 let stakingContract: any, create: any;
 // let abi = [{"inputs": [
@@ -38,9 +38,9 @@ async function waitFor<T>(p: Promise<{wait: () => Promise<T>}>): Promise<T> {
 
 async function loadAdmin(){
   console.log('load staker');
-  ({creator} = await hre.getNamedAccounts());
-  console.log(creator);
-  stakingContract = await ethers.getContract('MetatxStaking', creator);
+  ({admin} = await hre.getNamedAccounts());
+  console.log(admin);
+  stakingContract = await ethers.getContract('MetatxStaking', admin);
   // create = await ethers.getContractAt(abi, "0x76ADB8ea0bfB53242046AD1D6BeE2dDb3C6a866E", creator);
 }
 
@@ -52,7 +52,7 @@ function sleep(ms: any) {
 async function main(){
   await loadAdmin();
   while (true){
-    let reward = await stakingContract.earned(creator)
+    let reward = await stakingContract.earned(admin)
     console.log(reward.toNumber())
     await sleep(2000)
   }

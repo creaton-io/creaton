@@ -45,10 +45,13 @@ contract CreatonPaymaster is BasePaymaster {
 		(signature, approvalData, maxPossibleGas);
 
         if (relayRequest.request.to == token){
-            bytes4 sig = abi.decode(relayRequest.request.data[:4], (bytes4));
-            require( sig == bytes4(keccak256("send(address,uint256,bytes)")));
-            address recipient;
-            (recipient, ,) = abi.decode(msg.data[4:], (address,uint256,bytes));
+            bytes4 sig =
+            relayRequest.request.data[0] |
+            (bytes4(relayRequest.request.data[1]) >> 8) |
+            (bytes4(relayRequest.request.data[2]) >> 16) |
+            (bytes4(relayRequest.request.data[3]) >> 24);
+            require( sig == bytes4(keccak256("send(address,uint256,bytes)")), "Creaton Paymaster: Signature mismatch");
+            (address recipient, ,) = abi.decode(relayRequest.request.data[4:], (address,uint256,bytes));
             require(recipient == stakingContract, "Creaton Paymaster: Only free staking is supported");
             return (new bytes(0), false);
         }

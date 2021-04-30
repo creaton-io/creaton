@@ -5,9 +5,9 @@ pragma abicoder v2;
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
 import "../metatx/CreatonPaymaster.sol";
-// TODO override _msgSender and _msgData from Context and BaseRelayRecipient
-//import "@openzeppelin/contracts/access/OwnableBaseRelayRecipient.sol";
 import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 
 contract CreatonAdmin is BaseRelayRecipient {
     
@@ -34,12 +34,10 @@ contract CreatonAdmin is BaseRelayRecipient {
     address public treasury;
     int96 public treasury_fee;
 
-
     address public creatorBeacon;
     address public nftFactory;
 
     address payable public paymaster;
-
 
     // -----------------------------------------
     // Constructor
@@ -94,6 +92,8 @@ contract CreatonAdmin is BaseRelayRecipient {
         creator2contract[_msgSender()].push(creatorContractAddr);
         CreatonPaymaster(paymaster).addCreatorContract(creatorContractAddr);
 
+        IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16);
+
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
     }
 
@@ -109,19 +109,5 @@ contract CreatonAdmin is BaseRelayRecipient {
     function versionRecipient() external view override  returns (string memory){
         return "2.1.0";
     }
-
-
-//     function bytesToAddress(bytes memory bys) private pure returns (address addr) {
-//         assembly {
-//           addr := mload(add(bys,20))
-//         }
-//     }
-
-//     function forwardTx(address _target, bytes memory _data) public payable returns (bytes memory) {
-//        require(contract2creator(_target) != address(0), "Non-existent Creator Contract");
-//        (bool success, bytes memory res) = _target.call{value: msg.value}(abi.encodePacked(_data, _msgSender()));
-//        require(success, "TxForwarder#forwardTx:  CALL_FAILED");
-//        return res;
-//     }
     
 }

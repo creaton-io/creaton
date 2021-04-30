@@ -6,16 +6,25 @@ import {
 }
 from "../../dependency/superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/CustomSuperTokenProxyBase.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../../dependency/gsn/contracts/BaseRelayRecipient.sol";
 
 //import { UUPSProxiable } from "@superfluid-finance/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol";
 
 interface INativeSuperToken {
-    function initialize(string calldata name, string calldata symbol, uint256 initialSupply) external;
+    function initialize(string calldata name, string calldata symbol, uint256 initialSupply, address trustedForwarder) external;
 }
 
-contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase{
+contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase, BaseRelayRecipient{
 
-    function initialize(string calldata name, string calldata symbol, uint256 initialSupply)
+    address public trustedForwarder;
+
+    function initialize
+    (
+        string calldata name,
+        string calldata symbol,
+        uint256 initialSupply,
+        address _trustedForwarder
+    )
         external override
     {
         ISuperToken(address(this)).initialize(
@@ -25,7 +34,11 @@ contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase{
             symbol
         );
         ISuperToken(address(this)).selfMint(msg.sender, initialSupply, new bytes(0));
+        trustedForwarder = _trustedForwarder;
     }
 
+    function isTrustedForwarder(address forwarder) public view returns(bool) {
+        return forwarder == trustedForwarder;
+    }
 
 }
