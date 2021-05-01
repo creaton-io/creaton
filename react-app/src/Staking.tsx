@@ -72,6 +72,7 @@ const Staking = (props) => {
   }
 
   function updateStakingValues() {
+    if(!context.library)return;
     const connectedToken = tokenContract.connect(context.library!.getSigner())
     connectedToken.balanceOf(context.account).then(balance => {
       setCreateToken(beautifyAmount(balance))
@@ -88,10 +89,13 @@ const Staking = (props) => {
     })
   }
 
-//Show reward
   useEffect(() => {
-    updateStakingValues();
-  }, [updateStakingValues])
+    updateStakingValues()
+    const interval = setInterval(() => {
+      updateStakingValues()
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [updateStakingValues]);
 
   async function stake() {
     const connectedToken = tokenContract.connect(context.library!.getSigner())
