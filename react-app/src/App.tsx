@@ -75,16 +75,7 @@ const getGSNLibrary = (provider) => {
 function ConnectOrSignup() {
   const {active, activate} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
-
-  async function tryConnect() {
-    //TODO: test walletConnect and open up a modal
-    const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
-    if (await injected.getProvider())
-      activate(injected)
-    else {
-      alert('only injected providers are supported at the moment')
-    }
-  }
+  const web3utils = useContext(Web3UtilsContext)
 
   if (currentProfile)
     return (<Link to="/signup">
@@ -92,7 +83,7 @@ function ConnectOrSignup() {
   if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
-    return (<div><Button label="Connect Wallet"  theme="secondary" onClick={tryConnect}></Button></div>)
+    return (<div><Button label="Connect Wallet" theme="secondary" onClick={web3utils.connect}></Button></div>)
 }
 
 const Autoconnect = () => {
@@ -137,14 +128,54 @@ const HeaderButtons = () => {
       <Button label="Staking" theme="secondary"></Button>
     </Link>)}
     <Link to="/">
-    <Button label="Pitch Deck" theme="secondary-2"></Button>
+      <Button label="Pitch Deck" theme="secondary-2"></Button>
     </Link>
     <ConnectOrSignup/>
   </div>)
 }
 
+function NavigationLink(props) {
+  if (props.to)
+    return (
+      <Link to={props.to}>
+        <div className="p-2 hover:bg-white hover:text-black">
+          {props.label}
+        </div>
+      </Link>)
+  else
+    return (
+      <a href="" onClick={(e) => {
+        e.preventDefault();
+        props.onClick()
+      }}>
+        <div className="p-2 hover:bg-white hover:text-black">
+          {props.label}
+        </div>
+      </a>)
+
+}
+
+function NavigationLinks() {
+  const {currentProfile} = useCurrentProfile()
+  const {currentCreator} = useCurrentCreator()
+  const {active} = useWeb3React()
+  const web3utils = useContext(Web3UtilsContext)
+  return (<div>
+    <NavigationLink to="/" label="Home"/>
+    <NavigationLink to="/creators" label="Creators"/>
+    {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
+    {currentProfile && <NavigationLink to="/upload" label="Upload"/>}
+    {currentProfile && <NavigationLink to="/staking" label="Staking"/>}
+    <NavigationLink to="/" label="Pitch Deck"/>
+    {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}
+    {(!currentProfile && active) && <NavigationLink to="/signup" label="Signup"/>}
+    {(!currentProfile && !active) && <NavigationLink onClick={web3utils.connect} label="Connect Wallet"/>}
+  </div>)
+}
+
 const App = () => {
   const [isGSN, setIsGSN] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState<boolean>(false);
   return (
     <NotificationHandlerProvider>
       <TextileProvider>
@@ -167,13 +198,12 @@ const App = () => {
                     </NotificationHandlerContext.Consumer>
 
                     <div>
-
-                      <div className="relative bg-black overflow-hidden">
+                      <div className="relative bg-black pb-6 overflow-hidden">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
                         </div>
-                        <div className="relative pt-6 pb-16 sm:pb-24">
+                        <div className="relative pt-6  sm:pb-24">
                           <div className="max-w-7xl mx-auto px-4 sm:px-6">
                             <Toggle state={isGSN} onClick={(e) => {
                               e.preventDefault()
@@ -187,6 +217,9 @@ const App = () => {
                                   <div className="-mr-2 flex items-center md:hidden">
                                     <button type="button"
                                             className="bg-gray-50 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                                            onClick={() => {
+                                              setShowMenu(!showMenu)
+                                            }}
                                             aria-expanded="false">
                                       <span className="sr-only">Open main menu</span>
                                       <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -202,6 +235,10 @@ const App = () => {
                             </nav>
                           </div>
                         </div>
+                        <div className="bg-gray text-white md:hidden">
+                          {showMenu && <NavigationLinks/>}
+                        </div>
+
                       </div>
 
                     </div>
