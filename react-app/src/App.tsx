@@ -72,14 +72,17 @@ const getGSNLibrary = (provider) => {
   return gsnLibrary
 }
 
-function ConnectOrSignup() {
-  const {active, activate} = useWeb3React()
+function ConnectOrSignup(props) {
+  const {active} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
   const web3utils = useContext(Web3UtilsContext)
 
   if (currentProfile)
-    return (<Link to="/signup">
-      <Avatar size="menu" src={currentProfile.image}/></Link>)
+    return (<a href="" onClick={(e) => {
+        e.preventDefault();
+        props.onAvatarClick()
+      }}>
+      <Avatar size="menu" src={currentProfile.image}/></a>)
   if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
@@ -111,6 +114,7 @@ const StakingDetector = (props) => {
 const HeaderButtons = () => {
   const {currentProfile} = useCurrentProfile()
   const {currentCreator} = useCurrentCreator()
+  const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   return (<div className="hidden md:flex md:space-x-10 ml-auto">
     <Link to="/">
       <Button label="Home" theme="secondary"></Button>
@@ -118,19 +122,18 @@ const HeaderButtons = () => {
     <Link to="/creators">
       <Button label="Creators" theme="secondary"></Button>
     </Link>
-    {currentCreator && (<Link to="/grant">
-      <Button label="Grant" theme="secondary"></Button>
-    </Link>)}
-    {currentProfile && (<Link to="/upload">
-      <Button label="Upload" theme="secondary"></Button>
-    </Link>)}
     {currentProfile && (<Link to="/staking">
       <Button label="Staking" theme="secondary"></Button>
     </Link>)}
     <Link to="/">
       <Button label="Pitch Deck" theme="secondary-2"></Button>
     </Link>
-    <ConnectOrSignup/>
+    <ConnectOrSignup onAvatarClick={()=>{setShowSubmenu(!showSubmenu)}}/>
+    {showSubmenu && <div className="absolute z-30 top-10 right-0 rounded-lg bg-gray-500 text-white w-48">
+      {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
+      {currentProfile && <NavigationLink to="/upload" label="Upload"/>}
+      {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}
+    </div>}
   </div>)
 }
 
@@ -138,7 +141,7 @@ function NavigationLink(props) {
   if (props.to)
     return (
       <Link to={props.to}>
-        <div className="p-2 hover:bg-white hover:text-black">
+        <div className="p-2 m-2 rounded-lg hover:bg-white hover:text-black">
           {props.label}
         </div>
       </Link>)
@@ -198,12 +201,12 @@ const App = () => {
                     </NotificationHandlerContext.Consumer>
 
                     <div>
-                      <div className="relative bg-black pb-6 overflow-hidden">
+                      <div className="relative bg-black pb-6">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
                         </div>
-                        <div className="relative pt-6  sm:pb-24">
+                        <div className="relative pt-6">
                           <div className="max-w-7xl mx-auto px-4 sm:px-6">
                             <Toggle state={isGSN} onClick={(e) => {
                               e.preventDefault()
