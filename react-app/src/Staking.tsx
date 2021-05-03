@@ -199,25 +199,23 @@ const Staking = (props) => {
       <div>
         Earned token: {earnedToken}
       </div>
-      <div className="grid grid-cols-2 place-items-center">
-        <div>
+      <div className="my-5 mx-auto max-w-md w-full">
+        <div className="flex my-4 justify-between items-center">
           <Input type="number" label={"Balance: " + createToken} placeholder="5" value={inputStakeAmount}
                  onChange={(event) => {
                    setInputStakeAmount(event.target.value)
                  }}></Input>
           <Button type="submit" size="small" onClick={stake} label="Stake"></Button>
         </div>
-        <div>
+        <div className="flex my-4 justify-between items-center">
           <Input type="number" label={"Staked: " + stakedToken} placeholder="5" value={inputUnstakeAmount}
                  onChange={(event) => {
                    setInputUnstakeAmount(event.target.value)
                  }}></Input>
           <Button type="submit" size="small" onClick={unstake} label="Unstake"></Button>
         </div>
-        <div>
+        <div className="flex my-4 justify-between items-center">
           <Button type="submit" size="small" onClick={harvest} label="Harvest"></Button>
-        </div>
-        <div>
           <Button type="submit" size="small" onClick={harvestAndExit} label="Harvest and exit"></Button>
         </div>
       </div>
