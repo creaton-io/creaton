@@ -5,6 +5,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ creaton-io/creaton-mumbai",
+    "deploy-goerli": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ creaton-io/creaton-goerli",
     "create-staging": "graph create --node http://twitter.creaton.io:8020/ creaton-io/creaton",
     "remove-staging": "graph remove --node http://twitter.creaton.io:8020/ creaton-io/creaton",
     "deploy-staging": "graph deploy --node http://twitter.creaton.io:8020/ --ipfs http://twitter.creaton.io:5001 creaton-io/creaton",

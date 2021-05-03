@@ -40,7 +40,13 @@ export function Creator() {
         description
         date
         ipfs
-        likes
+        likers {
+          id
+          approval
+          profile {
+            id
+          }
+        }
         tokenId
         tier
       }
@@ -294,6 +300,14 @@ export function Creator() {
     }
   }
 
+  function countLikes(content){
+    return content.likers.filter((like)=>(like.approval===1)).length;
+  }
+
+  function isLiked(content){
+    return content.likers.some((like)=>(like.approval===1 && like.profile.id===context.account?.toLowerCase()));
+  }
+
   function showItem(content){
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
@@ -301,12 +315,12 @@ export function Creator() {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image"
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-                      like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
+                      like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video"
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-        like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
+        like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     }
 
     return <div  className="relative mb-5 h-80">
@@ -318,7 +332,7 @@ export function Creator() {
     <p className="w-1/3 text-center text-white mt-4">({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
             {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
               like(content)
-            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}</p>
+            }}>Like</button> {countLikes(content)} likes </div>)} {showContent(content)}</p>
  
 </div>
 </div>
@@ -341,7 +355,12 @@ export function Creator() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
     try {
-      let receipt = await creatorContract.like(content.tokenId, 1);
+      let status
+      if(isLiked(content))
+        status = 0;
+      else
+        status = 1;
+      let receipt = await creatorContract.like(content.tokenId, status);
     } catch (error) {
       notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
     }
