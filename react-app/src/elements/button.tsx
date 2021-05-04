@@ -5,7 +5,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     className?: string;
     label: string;
     size?: string;
-    theme?: 'primary' | 'secondary' | 'secondary-2',
+    theme?: 'primary' | 'secondary' | 'secondary-2' | 'focused' | 'unfocused',
 }
 
 const primaryStyle = [
@@ -32,6 +32,14 @@ const secondary2Style = [
     "disabled:bg-grey disabled:text-grey-dark disabled:border-transparent",
 ]
 
+const focusedStyle = [
+  'text-gray-300 hover:bg-gray-700 hover:text-white',
+]
+
+const unfocusedStyle = [
+  "bg-gray-900 text-white",
+]
+
 export const Button: FC<ButtonProps> = ({ theme= 'primary', size= 'full',  className, label, ...props }) => {
     let classes: string[] = [];
 
@@ -42,8 +50,14 @@ export const Button: FC<ButtonProps> = ({ theme= 'primary', size= 'full',  class
         case "secondary-2":
             classes = secondary2Style;
             break;
+        case "focused":
+            classes = focusedStyle;
+            break;
         case "primary":
             classes = primaryStyle;
+            break;
+        case "unfocused":
+            classes = unfocusedStyle;
             break;
     }
 
@@ -53,8 +67,7 @@ export const Button: FC<ButtonProps> = ({ theme= 'primary', size= 'full',  class
         <button
             type="button"
             className={clsx(
-                "text-center items-center px-8 py-4 mb-5",
-                "font-medium rounded-full leading-4",
+                "px-3 py-2 rounded-md text-sm font-medium",
                 ...classes,
                 className,
                 { "w-full": size === 'full' }

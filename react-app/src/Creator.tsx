@@ -396,7 +396,7 @@ export function Creator() {
   return (
     <div>
     <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
-    <div className="relative bg-gray-300 w-full h-40 -my-5">
+    <div className="relative bg-gray-300 w-full h-40">
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
@@ -407,7 +407,7 @@ export function Creator() {
       <h3
         className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
-      <div className="my-5 mx-auto max-w-lg w-full">
+      <div className="my-5 mx-auto max-w-lg w-1/5 space-y-5">
         {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
           subscribe()
         }} label="Subscribe"/>)}
@@ -415,7 +415,7 @@ export function Creator() {
           startStreaming()
         }} label="Start Streaming"/>)}
 
-        <div className="flex">
+        <div className="flex space-x-5">
             <Button onClick={() => {
                   mint()
                 }} label="Mint" theme='secondary-2'/>
