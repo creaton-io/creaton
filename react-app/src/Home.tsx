@@ -79,7 +79,9 @@ function Home() {
                   <div className="flex flex-wrap mb-16 lg:mb-12">
                     <a
                       className="block w-full md:w-auto text-center mb-2 py-4 px-8 md:mr-4 text-sm text-white font-medium leading-normal rounded transition duration-200 to-indigo-700 bg-gradient-to-l from-indigo-500 hover:from-indigo-400 hover:to-indigo-600"
-                      href="https://discord.gg/pPMk9bcarf">Join Discord to get in the waitlist!</a></div>
+                      href="https://discord.gg/pPMk9bcarf">Join Discord to get in the waitlist!</a>
+                  <a className="block w-full md:w-auto text-center mb-2 py-4 px-8 text-sm font-medium rounded border border-indigo-700 hover:border-black hover:bg-gray-100 transition duration-200" href="https://medium.com/creaton/creaton-our-mission-a07a658a92b3">Learn More</a>
+                  </div>
                   <div className="flex flex-wrap items-center justify-center lg:w-96">
                     <div className="flex lg:flex-none justify-center lg:justify-start w-1/5 px-2 mb-12"><a
                       href="https://github.com/creaton-io/creaton?ref=homepage">
