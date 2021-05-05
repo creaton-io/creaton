@@ -4,7 +4,7 @@ import {useState} from "react";
 
 
 
-export default function StakeInputGroup({ label, max }) {
+export default function StakeInputGroup({ label, max, buttonLabel, setStakeAmount }) {
     const [value, setValue] = useState(0)
 
     return (
@@ -25,7 +25,7 @@ export default function StakeInputGroup({ label, max }) {
                         min={0}
                         max={max}
                         value={value}
-                        onChange={(e) => setValue(parseInt(e.target.value) || 0)}
+                        onChange={(e) => setValue(parseInt(setStakeAmount) || 0)}
                     />
                 </div>
                 <button
@@ -40,7 +40,7 @@ export default function StakeInputGroup({ label, max }) {
                         "disabled:bg-grey disabled:text-grey-dark",
                     )}
                 >
-                    Stake
+                    {buttonLabel}
                 </button>
             </div>
         </div>

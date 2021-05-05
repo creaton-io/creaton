@@ -222,7 +222,9 @@ const Staking = (props) => {
           <div className="flex flex-wrap w-full md:divide-x divide-gray-300 ">
             <div className="W-full md:w-1/2 px-5 pt-10 pb-12 box-border">
                   <div className="flex max-w-7xl mx-auto justify-between flex-wrap">
-                      <StakeInputGroup label={"How much to stake?: " + createToken} max={1000} />
+                      <StakeInputGroup buttonLabel="Stake" label={"How much to stake?: " + createToken} max={createToken} setStakeAmount={(event) => {
+                          setInputStakeAmount(event.target.value)
+                        }}  />
                   </div>
                   {/* <Input type="number" label={"How much to stake?: " + createToken} placeholder="5" value={inputStakeAmount}
                         onChange={(event) => {
@@ -233,7 +235,10 @@ const Staking = (props) => {
 
             <div className="W-full md:w-1/2 px-5 pt-10 pb-12 box-border">
             <div className="flex max-w-7xl mx-auto justify-between flex-wrap">
-                    <StakeInputGroup label={"How much to unstake?: " + createToken} max={1000} />
+                    <StakeInputGroup buttonLabel="Unstake" label={"How much to unstake?: " + createToken} max={stakedToken}
+                    setStakeAmount={(event) => {
+                      setInputStakeAmount(event.target.value)
+                    }} />
                   </div>
               {/* <Input type="number" label={"How much to unstake?: " + stakedToken} placeholder="5" value={inputUnstakeAmount}
                     onChange={(event) => {
