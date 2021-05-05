@@ -19,7 +19,13 @@ const Web3UtilsProvider = (props) => {
     //TODO: test walletConnect and open up a modal
     const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
     if (await injected.getProvider())
-      activate(injected)
+      activate(injected, (error => {
+        notificationHandler.setNotification({
+          description: 'Unable to connect to wallet. ' + error.message,
+          type: 'error'
+        });
+      }))
+
     else {
       alert('only injected providers are supported at the moment')
     }

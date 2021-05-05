@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'development') {
   APOLLO_URI = 'http://twitter.creaton.io:8000/subgraphs/name/creaton-io/creaton'
 } else {//staging
   REENCRYPTION_URI = 'https://staging.creaton.io'
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-goerli'
+  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-mumbai'
 }
 //TODO:PRODUCTION CONFIG
 // {

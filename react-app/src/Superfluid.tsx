@@ -12,14 +12,14 @@ const SuperfluidProvider = (props) => {
   async function init() {
     if(!web3Context.library)
       return;
-    if(web3Context.chainId !== 5) {
-      notificationHandler.setNotification({description: 'Please connect to goerli network', type: 'error'})
+    if(web3Context.chainId !== 80001) {
+      notificationHandler.setNotification({description: 'Please connect to mumbai network', type: 'error'})
       return;
     }
     const sf = new Framework({
       ethers: web3Context.library!,
       version: 'v1',
-      chainId: 5,
+      chainId: web3Context.chainId,
       tokens: ["fUSDC"],
     });
     console.log('web3 provider test');
