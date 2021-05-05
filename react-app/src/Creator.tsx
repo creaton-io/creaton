@@ -324,7 +324,7 @@ export function Creator() {
     }
 
     return <Card key={content.ipfs} name={content.name} description={content.description}
-                   date={content.date}
+                   date={content.date} likeCount={countLikes(content)}
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true}/>
   }
 
