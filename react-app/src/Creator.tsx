@@ -323,19 +323,9 @@ export function Creator() {
         like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     }
 
-    return <div  className="relative mb-5 h-80">
-      <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-80 z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center  rounded-2xl border">
-    <div className="border-gray-200 text-center text-white text-xl">
-        <Icon size="5x" name="lock" />
-    </div>
-    <h3 className="w-1/3 text-center text-white mt-10">{content.name}</h3>
-    <p className="w-1/3 text-center text-white mt-4">({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
-            {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
-              like(content)
-            }}>Like</button> {countLikes(content)} likes </div>)} {showContent(content)}</p>
- 
-</div>
-</div>
+    return <Card key={content.ipfs} name={content.name} description={content.description}
+                   date={content.date}
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true}/>
   }
 
   async function subscribe() {
@@ -397,7 +387,7 @@ export function Creator() {
   return (
     <div>
     <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} onSubscribe={subscribe}/>
-    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: "url(https://picsum.photos/1000/300)" }}>
+    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: "url(https://cdn.discordapp.com/attachments/790997156353015868/839540529992958012/banner.png)" }}>
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
@@ -430,7 +420,7 @@ export function Creator() {
         {/*  convertUSDCx()*/}
         {/*}} label="Upgrade"/>*/}
       </div>
-      <h1 className="mb-5 text-2xl uppercase font-bold">Uploaded Contents</h1>
+      <h1 className="mb-5 text-2xl font-bold">Latest posts</h1>
       
       <div className="py-5">
         {
