@@ -3,7 +3,7 @@ import {Button} from "./elements/button";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import creaton_contracts from "./contracts.json";
-import {Contract} from "ethers";
+import {BigNumber, Contract} from "ethers";
 import {parseUnits, formatEther} from "@ethersproject/units";
 import {Input} from "./elements/input";
 import {NotificationHandlerContext} from "./ErrorHandler";
@@ -66,7 +66,10 @@ const Staking = (props) => {
   const [stakedToken, setStakedToken] = useState('')
   const [minStake, setMinStake] = useState('')
   const [earnedToken, setEarnedToken] = useState('')
+  const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(1))
+  const [rewardRate, setRewardRate] = useState<BigNumber>(BigNumber.from(0))
 
+  const APR = rewardRate.div(totalSupply)
   function beautifyAmount(balance) {
     return formatEther(balance)
     // return '' + balance.div(parseUnits('1', 15)).toNumber() / 1000
@@ -87,6 +90,12 @@ const Staking = (props) => {
     })
     connectedStaking.minStake().then(balance => {
       setMinStake(beautifyAmount(balance))
+    })
+    connectedStaking.totalSupply().then(totalSupply => {
+      setTotalSupply(totalSupply)
+    })
+    connectedStaking.rewardRate().then(rewardRate => {
+      setRewardRate(rewardRate)
     })
   }
 
