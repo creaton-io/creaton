@@ -397,7 +397,7 @@ export function Creator() {
   return (
     <div>
     <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
-    <div className="relative bg-gray-300 w-full h-40">
+    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: "url(https://picsum.photos/1000/300)" }}>
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
