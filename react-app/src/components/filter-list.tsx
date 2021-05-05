@@ -28,7 +28,7 @@ const SearchInput = ({ search }) => {
                 <Icon name="search" className="text-gray-500" />
                 <input ref={ref} placeholder="Filter creators" className="w-full bg-transparent focus:outline-none ml-4" onChange={() => search(ref.current?.value)}/>
             </div>
-            <Button label="Search" size="small" className="ml-4 bg-red-600 text-white" onClick={() => search(ref.current?.value)} />
+            <Button label="Search" size="small" className="ml-4 bg-red-600 text-white h-14" onClick={() => search(ref.current?.value)} />
         </div>
     )
 }

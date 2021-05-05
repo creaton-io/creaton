@@ -117,16 +117,22 @@ const HeaderButtons = () => {
   const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   return (<div className="hidden md:flex md:space-x-10 ml-auto">
     <Link to="/">
-      <Button label="Home" theme="secondary"></Button>
+      <Button label="Home" theme="focused"></Button>
     </Link>
     <Link to="/creators">
-      <Button label="Creators" theme="secondary"></Button>
+      <Button label="Creators" theme="unfocused"></Button>
     </Link>
+    {currentCreator && (<Link to="/grant">
+      <Button label="Grant" theme="unfocused"></Button>
+    </Link>)}
+    {currentProfile && (<Link to="/upload">
+      <Button label="Upload" theme="unfocused"></Button>
+    </Link>)}
     {currentProfile && (<Link to="/staking">
-      <Button label="Staking" theme="secondary"></Button>
+      <Button label="Staking" theme="unfocused"></Button>
     </Link>)}
     <Link to="/">
-      <Button label="Pitch Deck" theme="secondary-2"></Button>
+    <Button label="Pitch Deck" theme="unfocused"></Button>
     </Link>
     <ConnectOrSignup onAvatarClick={()=>{setShowSubmenu(!showSubmenu)}}/>
     {showSubmenu && <div className="absolute z-30 top-10 right-0 rounded-lg bg-gray-500 text-white w-48">
@@ -201,19 +207,20 @@ const App = () => {
                     </NotificationHandlerContext.Consumer>
 
                     <div>
-                      <div className="relative bg-black pb-6">
+
+                      <div className="relative bg-gray-800 overflow-hidden">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
                         </div>
-                        <div className="relative pt-6">
+                        <div className="relative pt-6 pb-6 sm:pb-6">
                           <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                            <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
+                              <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
                             <Toggle state={isGSN} onClick={(e) => {
                               e.preventDefault()
                               setIsGSN(!isGSN)
                             }}/>
-                            <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
-                              <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
                                 <div className="flex items-center justify-between w-full md:w-auto">
                                   <a href="#"><span className="sr-only">Workflow</span><img
                                     src="./assets/svgs/logo.svg"/></a>

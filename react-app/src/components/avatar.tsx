@@ -16,6 +16,6 @@ export const Avatar = ({src = '', size = 'large'}: any) => {
     )
   else
     return (
-      <img className={clsx(size_classes[size], "rounded-full", "border-2", "border-blue-primary")} src={src} alt="profile avatar"/>
+      <img className={clsx(size_classes[size], "rounded-full", "border-2", "border-blue-primary", "object-cover")} src={src} alt="profile avatar"/>
     );
 }
