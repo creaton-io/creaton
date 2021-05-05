@@ -5,10 +5,10 @@ import {Avatar} from "./avatar";
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     src?: string;
     link?: string;
-    title?: string;
+    name?: string;
 }
 
-export const StickyHeader: FC<ButtonProps> = ({src, title, link}) => {
+export const StickyHeader: FC<ButtonProps> = ({src, name, link}) => {
     const ref = useRef<any>(null);
 
     useEffect(() => {
@@ -40,7 +40,7 @@ export const StickyHeader: FC<ButtonProps> = ({src, title, link}) => {
                             <div className="flex-shrink-0 flex items-center">
                                 <Avatar size="profile" src={src} />
                             </div>
-                            <h4 className="text-2xl font-semibold ml-4">Just another sticky header</h4>
+                            <h4 className="text-2xl font-semibold ml-4">{{name}}</h4>
                         </div>
                         <div>
                             <Button label="Subscribe" />
