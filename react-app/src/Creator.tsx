@@ -7,7 +7,7 @@ import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
 import {wad4human} from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
-import creaton_contracts from "./contracts.json";
+import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator, UmbralSubscriber} from "./Umbral";

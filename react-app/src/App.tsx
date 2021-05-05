@@ -24,7 +24,7 @@ import TwitterVerification from "./TwitterVerification";
 import Creators from "./Creators";
 import {RelayProvider} from "@opengsn/gsn";
 import {Button} from "./elements/button";
-import creaton_contracts from "./contracts.json";
+import creaton_contracts from "./Contracts";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
 import {InjectedConnector} from "@web3-react/injected-connector";

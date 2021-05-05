@@ -2,7 +2,7 @@ import {Button} from "./elements/button";
 import React, {useContext, useEffect, useState} from "react";
 import {Input} from "./elements/input";
 import {Contract} from "ethers";
-import creaton_contracts from "./contracts.json";
+import creaton_contracts from "./Contracts";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentProfile} from "./Utils";

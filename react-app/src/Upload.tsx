@@ -3,7 +3,7 @@ import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator} from "./Utils";
 import {Contract} from "ethers";
-import creaton_contracts from './contracts.json'
+import creaton_contracts from "./Contracts";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";

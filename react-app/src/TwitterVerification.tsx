@@ -5,7 +5,7 @@ import {BigNumber, ethers} from "ethers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {useContext, useState} from "react";
-import creaton_contracts from './contracts.json'
+import creaton_contracts from "./Contracts";
 import {Contract} from "ethers";
 
 const TwitterVerificationContract = creaton_contracts.TwitterVerification

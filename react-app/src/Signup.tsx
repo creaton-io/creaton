@@ -5,7 +5,7 @@ import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {RelayProvider} from "@opengsn/gsn";
 import {Contract} from "ethers";
-import creaton_contracts from './contracts.json'
+import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
 import {useContext, useEffect, useState} from "react";
 import {NotificationHandlerContext} from "./ErrorHandler";
