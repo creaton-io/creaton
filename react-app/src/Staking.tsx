@@ -191,36 +191,36 @@ const Staking = (props) => {
 
       <div className="bg-gray-200 flex flex-wrap p-8 my-8 mx-auto border-1 rounded-md  max-w-4xl divide-y divide-gray-300">
 
-        <div className="flex divide-x divide-gray-300 w-full ">
+        <div className="block md:flex md:divide-x divide-gray-300 w-full ">
 
-          <div className="w-1/2 h-9 pt-10 pb-12 box-border">
-              <h3 className="font-bold text-center text-6xl">{createToken}</h3>
+          <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
+              <h3 className="font-bold text-center text-6xl mb-5">{createToken}</h3>
               <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Your Balance</h5>
             </div>
                   
-            <div className="w-1/2 h-9 pt-10 pb-12 box-border">
-            <h3 className="font-bold text-center text-6xl">{minStake}</h3>
+            <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
+            <h3 className="font-bold text-center text-6xl mb-5">{minStake}</h3>
             <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Minimum Staked</h5>
             </div>
 
         </div>
 
-        <div className="flex divide-x divide-gray-300 w-full ">
+        <div className="block md:flex md:divide-x divide-gray-300 w-full ">
 
-          <div className="w-1/2 h-9 pt-10 pb-12 box-border">
-            <h3 className="font-bold text-center text-6xl">{stakedToken}</h3>
+          <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
+            <h3 className="font-bold text-center text-6xl mb-5">{stakedToken}</h3>
             <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Staked</h5>
           </div>
             
-          <div className="w-1/2 h-9 pt-10 pb-12 box-border">
-            <h3 className="font-bold text-center text-6xl">{earnedToken}</h3>
+          <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
+            <h3 className="font-bold text-center text-6xl mb-5">{earnedToken}</h3>
             <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Your reward</h5>
           </div>
 
           </div>
 
-          <div className="flex flex-wrap w-full divide-x divide-gray-300 ">
-            <div className="w-1/2 px-5 pt-10 pb-12 box-border">
+          <div className="flex flex-wrap w-full md:divide-x divide-gray-300 ">
+            <div className="W-full md:w-1/2 px-5 pt-10 pb-12 box-border">
                   <div className="flex max-w-7xl mx-auto justify-between flex-wrap">
                       <StakeInputGroup label={"How much to stake?: " + createToken} max={1000} />
                   </div>
@@ -231,7 +231,7 @@ const Staking = (props) => {
                   <Button type="submit" size="small" onClick={stake} label="Stake"></Button> */}
             </div>
 
-            <div className="w-1/2 px-5 pt-10 pb-12 box-border">
+            <div className="W-full md:w-1/2 px-5 pt-10 pb-12 box-border">
             <div className="flex max-w-7xl mx-auto justify-between flex-wrap">
                     <StakeInputGroup label={"How much to unstake?: " + createToken} max={1000} />
                   </div>
