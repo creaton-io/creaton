@@ -40,7 +40,7 @@ export const StickyHeader: FC<ButtonProps> = ({src, name, link}) => {
                             <div className="flex-shrink-0 flex items-center">
                                 <Avatar size="profile" src={src} />
                             </div>
-                            <h4 className="text-2xl font-semibold ml-4">{{name}}</h4>
+                            <h4 className="text-2xl font-semibold ml-4">{name}</h4>
                         </div>
                         <div>
                             <Button label="Subscribe" />
