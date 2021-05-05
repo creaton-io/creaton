@@ -313,12 +313,12 @@ export function Creator() {
     if (content.type.startsWith('image')) {
       if (src)
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
-                     fileType="image"
+                     fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
                       like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
-                   fileType="video"
+                   fileType="video" date={content.date}
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
         like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     }
@@ -367,6 +367,7 @@ export function Creator() {
   }
 
   async function report(content) {
+    if (!web3utils.isSignedUp()) return;
     try {
       const message = "I want to report the content with token id " + content.tokenId + " in contract " +
         creatorContractAddress + " on the Creaton platform.";
@@ -403,7 +404,7 @@ export function Creator() {
         </div>
       </div>
     </div>
-    <div className="flex flex-col max-w-5xl my-0 pt-24 mx-auto text-center py-5 text-center">
+    <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
       <h3
         className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
@@ -415,19 +416,19 @@ export function Creator() {
           startStreaming()
         }} label="Start Streaming"/>)}
 
-        <div className="flex space-x-5">
-            <Button onClick={() => {
-                  mint()
-                }} label="Mint" theme='secondary-2'/>
-              
-              <Button onClick={() => {
-                approveUSDC()
-              }} label="Approve" theme='secondary-2'/>
-          </div>
+        {/*<div className="flex space-x-5">*/}
+        {/*    <Button onClick={() => {*/}
+        {/*          mint()*/}
+        {/*        }} label="Mint" theme='secondary-2'/>*/}
+        {/*      */}
+        {/*      <Button onClick={() => {*/}
+        {/*        approveUSDC()*/}
+        {/*      }} label="Approve" theme='secondary-2'/>*/}
+        {/*  </div>*/}
 
-        <Button onClick={() => {
-          convertUSDCx()
-        }} label="Upgrade"/>
+        {/*<Button onClick={() => {*/}
+        {/*  convertUSDCx()*/}
+        {/*}} label="Upgrade"/>*/}
       </div>
       <h1 className="mb-5 text-2xl uppercase font-bold">Uploaded Contents</h1>
       

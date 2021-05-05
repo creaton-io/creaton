@@ -16,9 +16,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onReport?: any;
   isLiked?: boolean;
   likeCount?: number;
+  date?: string;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount}) => {
+export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, date}) => {
   return (
     <div className="mb-5">
       <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
@@ -48,6 +49,10 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                               className={clsx('cursor-pointer text-gray-500 mt-1')}/>
                       </div>
                     </div>
+
+                <h5 className="text-left text-sm text-gray-400 mb-2">
+                  {(new Date(parseInt(date!))).toLocaleString()}
+                </h5>
 
                 <p className="text-left">
                   {description}
