@@ -396,7 +396,7 @@ export function Creator() {
 
   return (
     <div>
-    <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+    <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} onSubscribe={subscribe}/>
     <div className="relative bg-gray-300 w-full h-40">
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">

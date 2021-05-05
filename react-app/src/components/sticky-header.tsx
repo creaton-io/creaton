@@ -6,9 +6,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     src?: string;
     link?: string;
     name?: string;
+    onSubscribe? : any;
 }
 
-export const StickyHeader: FC<ButtonProps> = ({src, name, link}) => {
+export const StickyHeader: FC<ButtonProps> = ({src, name, link, onSubscribe}) => {
     const ref = useRef<any>(null);
 
     useEffect(() => {
@@ -32,7 +33,7 @@ export const StickyHeader: FC<ButtonProps> = ({src, name, link}) => {
     })
 
     return (
-        <div className="top-0 transition-all ease-in-out z-50 overflow-hidden h-0 duration-500" ref={ref} style={{ transform: "translateY(-100%)" }}>
+        <div className="top-0 transition-all ease-in-out z-40 overflow-hidden h-0 duration-500" ref={ref} style={{ transform: "translateY(-100%)" }}>
             <div className="border-b border-b-gray-200 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
                     <div className="relative flex justify-between items-center">
@@ -43,7 +44,7 @@ export const StickyHeader: FC<ButtonProps> = ({src, name, link}) => {
                             <h4 className="text-2xl font-semibold ml-4">{name}</h4>
                         </div>
                         <div>
-                            <Button label="Subscribe" />
+                            <Button label="Subscribe" onClick={onSubscribe}/>
                         </div>
                     </div>
                 </div>
