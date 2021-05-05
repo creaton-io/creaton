@@ -131,9 +131,6 @@ const HeaderButtons = () => {
     {currentProfile && (<Link to="/staking">
       <Button label="Staking" theme="unfocused"></Button>
     </Link>)}
-    <Link to="/">
-    <Button label="Pitch Deck" theme="unfocused"></Button>
-    </Link>
     <ConnectOrSignup onAvatarClick={()=>{setShowSubmenu(!showSubmenu)}}/>
     {showSubmenu && <div className="absolute z-30 top-10 right-0 rounded-lg bg-gray-500 text-white w-48">
       {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
@@ -175,7 +172,6 @@ function NavigationLinks() {
     {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
     {currentProfile && <NavigationLink to="/upload" label="Upload"/>}
     {currentProfile && <NavigationLink to="/staking" label="Staking"/>}
-    <NavigationLink to="/" label="Pitch Deck"/>
     {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}
     {(!currentProfile && active) && <NavigationLink to="/signup" label="Signup"/>}
     {(!currentProfile && !active) && <NavigationLink onClick={web3utils.connect} label="Connect Wallet"/>}
