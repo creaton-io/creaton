@@ -69,7 +69,10 @@ const Staking = (props) => {
   const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(1))
   const [rewardRate, setRewardRate] = useState<BigNumber>(BigNumber.from(0))
 
-  const APR = rewardRate.div(totalSupply)
+  let APR
+  if (!totalSupply.eq(0))
+    APR = rewardRate.div(totalSupply)
+
   function beautifyAmount(balance) {
     return formatEther(balance)
     // return '' + balance.div(parseUnits('1', 15)).toNumber() / 1000
