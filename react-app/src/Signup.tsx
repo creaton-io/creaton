@@ -63,7 +63,7 @@ const SignUp = () => {
 
   return (
     <div>
-      <form onSubmit={submitForm}>
+      <form onSubmit={submitForm} className="py-10">
         <Input type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
           setCreatorName(event.target.value)
         }}></Input>

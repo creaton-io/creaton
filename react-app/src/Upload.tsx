@@ -11,6 +11,7 @@ import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
 import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
+import {Textarea} from "./elements/textArea";
 import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
 import SignUp from "./Signup";
 import {Toggle} from "./elements/toggle";
@@ -232,7 +233,7 @@ const Upload = () => {
   }
 
   return (
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10">
         {status && (<h3>{status}</h3>)}
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
                type="file" ref={fileInput}/>
@@ -256,7 +257,8 @@ const Upload = () => {
         <Input type="text" name="name" label="Name" placeholder="Title" value={fileName} onChange={(event) => {
           setFileName(event.target.value)
         }}/>
-        <Input type="text" name="description"  label="Description" placeholder="Description" value={description} onChange={(event) => {
+        <Textarea name="description"  label="Description" placeholder="Description" value={description} rows={5}
+          onChange={(event) => {
           setDescription(event.target.value)
         }}/>
         <div className="w-full m-5">

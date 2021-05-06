@@ -251,11 +251,11 @@ const App = () => {
                           <div>
                             {value.isWaiting && (
                               <div
-                                className="filter grayscale w-full fixed h-full z-30">
+                                className="filter grayscale w-full fixed h-full z-30 flex items-center">
                                 <div
-                                  className="h-32 border-2 grid grid-cols-1 w-1/2 m-auto mt-5 place-items-center rounded-full bg-white">
+                                  className="h-32 border-2 grid grid-cols-1 py-7 w-1/2 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-full bg-white">
                                   <Loader/>
-                                  Waiting for transaction confirmation
+                                  <p className="mt-3">Waiting for transaction confirmation</p>
                                 </div>
                               </div>)}
                             <div className={value.isWaiting ? "filter blur-sm" : ""}>
