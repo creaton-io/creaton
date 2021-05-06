@@ -28,15 +28,15 @@ const backgroundImage = {
 
 function Home() {
   return (
-        <div className="relative bg-white overflow-hidden z-40">
-          <div className="relative pt-1">
+        <div className="relative h-screen bg-white overflow-hidden z-40">
+          <div className="relative h-screen -mt-12 pt-1">
             <main>
               <div>
                 <img className="hidden lg:block absolute top-0 left-0 w-1/3 h-full object-cover rounded-br-lg" src="https://static.shuffle.dev/uploads/files/c9/c9d217321b054bd84b6eb32c4472c67a9ff8a86b/pngtree-camouflage-gradient-background-color-mixing-apple-wind-image-34341.jpg" alt=""/>
                 <span className="hidden lg:flex justify-center absolute -mt-12 top-24 clip-24 left-0 w-1/3 h-full object-cover pattern overflow-hidden">
                   <div className="absolute hidden lg:block ">
                     <div className="max-w-full px-4 py-4 mx-auto">
-                      <div className="mt-12 max-w-lg mx-auto grid gap-5 lg:max-w-none">
+                      <div className="mt-16 max-w-lg mx-auto grid gap-5 lg:max-w-none">
                         <div className="flex flex-col rounded-2xl border p-8 overflow-hidden bg-white">
                           <div className="flex-1 bg-white flex flex-col justify-between">
                             <div className="flex items-center justify-between">
@@ -63,7 +63,7 @@ function Home() {
               </div>
               <div className="relative container px-4 mx-auto">
                 <div className="w-full lg:w-3/5 lg:pl-16 ml-auto">
-                  <div className="mt-10 lg:mt-20 max-w-2xl lg:pr-10">
+                  <div className="mt-10 lg:mt-32 max-w-2xl lg:pr-10">
                     <div className="max-w-xl">
                       <h2 className="mb-3 lg:mb-6 text-4xl lg:text-5xl font-semibold">Connect Directly</h2>
                       <h3 className="mb-6 lg:mb-12 text-2xl lg:text-3xl">Engage Fans, Build an Unstoppable Income</h3>
@@ -92,7 +92,7 @@ function Home() {
                     </a></div>
                     <div className="flex lg:flex-none justify-center lg:justify-start w-1/5 px-2 mb-12"><a
                       href="https://twitter.com/creaton_io">
-                      <svg width="24" height="24" className="fill-current text-blue transform scale-150"
+                      <svg width="24" height="24" className="fill-current text-blue-400 transform scale-150"
                            viewBox="0 0 24 24">
                         <path
                           d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
@@ -152,6 +152,14 @@ function Home() {
                   </div>
                  </span>
             </main>
+            <div className="lg:absolute lg:w-2/3 lg:bottom-0 lg:right-0 flex flex-wrap items-center justify-center pl-2 lg:-ml-36">
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-75" src="./assets/images/logo-polygon.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75" src="./assets/images/brand-2.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:pl-4" src="./assets/images/brand-5.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-50" src="./assets/images/brand-3.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-75 lg:-ml-8" src="./assets/images/brand-7.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:-ml-8" src="./assets/images/logo-chainlink.png" alt="" /></div>
+            </div>
           </div>
         </div>
   );
