@@ -152,13 +152,13 @@ function Home() {
                   </div>
                  </span>
             </main>
-            <div className="lg:absolute lg:w-2/3 lg:bottom-0 lg:right-0 flex flex-wrap items-center justify-center pl-2 lg:-ml-36">
-              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-75" src="./assets/images/logo-polygon.png" alt="" /></div>
-              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75" src="./assets/images/brand-2.png" alt="" /></div>
-              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:pl-4" src="./assets/images/brand-5.png" alt="" /></div>
-              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-50" src="./assets/images/brand-3.png" alt="" /></div>
-              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-75 lg:-ml-8" src="./assets/images/brand-7.png" alt="" /></div>
-              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2 mt-8 mb-6"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:-ml-8" src="./assets/images/logo-chainlink.png" alt="" /></div>
+            <div className="lg:absolute lg:w-2/3 lg:bottom-0 lg:right-0 flex flow-row flex-wrap items-center justify-center pl-2 lg:-ml-36">
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-75" src="./assets/images/logo-polygon.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75" src="./assets/images/brand-2.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:pl-4" src="./assets/images/brand-5.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-50" src="./assets/images/brand-3.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 transform scale-75 lg:-ml-8" src="./assets/images/brand-7.png" alt="" /></div>
+              <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:-ml-8" src="./assets/images/logo-chainlink.png" alt="" /></div>
             </div>
           </div>
         </div>
