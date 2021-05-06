@@ -28,8 +28,8 @@ const backgroundImage = {
 
 function Home() {
   return (
-        <div className="relative h-screen bg-white overflow-hidden z-40">
-          <div className="relative h-screen -mt-12 pt-1">
+        <div className="relative h-full bg-white z-40">
+          <div className="relative h-full pt-1">
             <main>
               <div>
                 <img className="hidden lg:block absolute top-0 left-0 w-1/3 h-full object-cover rounded-br-lg" src="https://static.shuffle.dev/uploads/files/c9/c9d217321b054bd84b6eb32c4472c67a9ff8a86b/pngtree-camouflage-gradient-background-color-mixing-apple-wind-image-34341.jpg" alt=""/>
@@ -37,7 +37,7 @@ function Home() {
                   <div className="absolute hidden lg:block ">
                     <div className="max-w-full px-4 py-4 mx-auto">
                       <div className="mt-16 max-w-lg mx-auto grid gap-5 lg:max-w-none">
-                        <div className="flex flex-col rounded-2xl border p-8 overflow-hidden bg-white">
+                        <div className="flex flex-col rounded-2xl border p-8 bg-white">
                           <div className="flex-1 bg-white flex flex-col justify-between">
                             <div className="flex items-center justify-between">
                               <div className="flex-shrink-0">
