@@ -192,7 +192,7 @@ const App = () => {
               <ApolloProvider client={client}>
                 <Router>
                 <Web3UtilsProvider>
-                  <div>
+                  <div className="h-screen flex flex-col">
                     <NotificationHandlerContext.Consumer>
                       {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
                         <Notification type={value.notification.type} description={value.notification.description}
@@ -202,7 +202,7 @@ const App = () => {
                       </div>))}
                     </NotificationHandlerContext.Consumer>
 
-                    <div>
+                    <div className="flex-initial">
 
                       <div className="relative bg-gray-800">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
@@ -248,7 +248,7 @@ const App = () => {
                     <Web3UtilsContext.Consumer>
                       {value => {
                         return (
-                          <div>
+                          <div className="flex-1 flex-grow">
                             {value.isWaiting && (
                               <div
                                 className="filter grayscale w-full fixed h-full z-30 flex items-center">
@@ -258,7 +258,7 @@ const App = () => {
                                   <p className="mt-3">Waiting for transaction confirmation</p>
                                 </div>
                               </div>)}
-                            <div className={value.isWaiting ? "filter blur-sm" : ""}>
+                            <div className={value.isWaiting ? "filter blur-sm h-full" : "h-full"}>
                               <Switch>
                                 <Route exact path="/">
                                   <Home/>
