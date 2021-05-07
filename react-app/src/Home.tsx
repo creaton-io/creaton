@@ -63,7 +63,7 @@ function Home() {
               </div>
               <div className="relative container px-4 mx-auto">
                 <div className="w-full lg:w-3/5 lg:pl-16 ml-auto">
-                  <div className="mt-10 lg:mt-32 max-w-2xl lg:pr-10 margin-overwrite">
+                  <div className="mt-10 lg:mt-20 max-w-2xl lg:pr-10 margin-overwrite">
                     <div className="max-w-xl">
                       <h2 className="mb-3 lg:mb-6 text-4xl lg:text-5xl font-semibold">Connect Directly</h2>
                       <h3 className="mb-6 lg:mb-12 text-2xl lg:text-3xl">Engage Fans, Build an Unstoppable Income</h3>
