@@ -13,7 +13,7 @@ const primaryStyle = [
     "hover:bg-blue",
     "active:bg-blue-dark",
     "focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2",
-    "disabled:bg-grey disabled:text-grey-dark",
+    "disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default",
 ]
 
 const secondaryStyle = [
@@ -21,7 +21,7 @@ const secondaryStyle = [
     "hover:border-blue-primary",
     "active:border-line",
     "focus:outline-none focus:bg-blue-light focus:border-blue-primary focus:ring-4 focus:ring-blue-light",
-    "disabled:bg-grey disabled:text-grey-dark disabled:border-transparent",
+    "disabled:bg-gray-100 disabled:text-gray-900 disabled:border-transparent",
 ]
 
 const secondary2Style = [
@@ -29,7 +29,7 @@ const secondary2Style = [
     "hover:bg-blue-light-150",
     "active:bg-blue-light-200",
     "focus:outline-none focus:bg-blue-light focus:ring-4 focus:ring-blue-light focus:border-blue-primary",
-    "disabled:bg-grey disabled:text-grey-dark disabled:border-transparent",
+    "disabled:bg-gray-100 disabled:text-gray-900 disabled:border-transparent",
 ]
 
 const focusedStyle = [
