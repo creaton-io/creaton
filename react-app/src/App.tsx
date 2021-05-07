@@ -204,7 +204,7 @@ const App = () => {
 
                     <div>
 
-                      <div className="relative bg-gray-800 overflow-hidden">
+                      <div className="relative bg-gray-800">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
