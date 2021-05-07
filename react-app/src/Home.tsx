@@ -28,8 +28,8 @@ const backgroundImage = {
 
 function Home() {
   return (
-        <div className="relative h-full bg-white z-40">
-          <div className="relative h-full pt-1">
+        <div className="relative h-screen bg-white overflow-hidden z-40">
+          <div className="relative h-screen -mt-12 pt-1 homepage-wrapper">
             <main>
               <div>
                 <img className="hidden lg:block absolute top-0 left-0 w-1/3 h-full object-cover rounded-br-lg" src="https://static.shuffle.dev/uploads/files/c9/c9d217321b054bd84b6eb32c4472c67a9ff8a86b/pngtree-camouflage-gradient-background-color-mixing-apple-wind-image-34341.jpg" alt=""/>
@@ -63,7 +63,7 @@ function Home() {
               </div>
               <div className="relative container px-4 mx-auto">
                 <div className="w-full lg:w-3/5 lg:pl-16 ml-auto">
-                  <div className="mt-10 lg:mt-32 max-w-2xl lg:pr-10">
+                  <div className="mt-10 lg:mt-32 max-w-2xl lg:pr-10 margin-overwrite">
                     <div className="max-w-xl">
                       <h2 className="mb-3 lg:mb-6 text-4xl lg:text-5xl font-semibold">Connect Directly</h2>
                       <h3 className="mb-6 lg:mb-12 text-2xl lg:text-3xl">Engage Fans, Build an Unstoppable Income</h3>
