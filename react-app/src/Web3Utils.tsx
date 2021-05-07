@@ -9,7 +9,7 @@ import {FAUCET_URI} from "./Config";
 
 const Web3UtilsContext = createContext<any>(null)
 const Web3UtilsProvider = (props) => {
-  const {activate, account} = useWeb3React()
+  const {activate, account, chainId, library} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext)
@@ -17,7 +17,7 @@ const Web3UtilsProvider = (props) => {
   const superfluid = useContext(SuperfluidContext);
   const [faucetUsed, setFaucetUsed] = useState(false);
   useEffect(() => {
-    if (!account || !superfluid || faucetUsed)
+    if (!account || !superfluid || chainId !== 80001 || faucetUsed)
       return;
     let {usdcx} = superfluid
     usdcx.balanceOf(account).then(async balance => {
@@ -34,7 +34,7 @@ const Web3UtilsProvider = (props) => {
       }
     })
 
-  }, [account, superfluid, faucetUsed])
+  }, [account, superfluid, faucetUsed, notificationHandler, chainId])
 
   async function tryConnect() {
     notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
@@ -70,12 +70,15 @@ const Web3UtilsProvider = (props) => {
     return true;
   }
 
+  const wrongChainId = Boolean(library && chainId !== 80001)
+
   return (<Web3UtilsContext.Provider
     value={{
       connect: tryConnect,
       isSignedUp: isSignedUp,
       setIsWaiting: setIsWaiting,
-      isWaiting: isWaiting
+      isWaiting: isWaiting,
+      disableInteraction: isWaiting || wrongChainId
     }}>{props.children}</Web3UtilsContext.Provider>)
 }
 export {Web3UtilsContext, Web3UtilsProvider};

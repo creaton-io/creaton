@@ -13,7 +13,6 @@ const SuperfluidProvider = (props) => {
     if(!web3Context.library)
       return;
     if(web3Context.chainId !== 80001) {
-      notificationHandler.setNotification({description: 'Please connect to mumbai network', type: 'error'})
       return;
     }
     const sf = new Framework({

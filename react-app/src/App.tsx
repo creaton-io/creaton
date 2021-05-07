@@ -161,6 +161,35 @@ function NavigationLink(props) {
 
 }
 
+function ChainIdChecker(props) {
+  const {library, chainId} = useWeb3React()
+  if (!library || chainId === 80001)
+    return (<div></div>)
+  return (<div
+    className="w-full fixed h-full z-30 flex items-center">
+    <div
+      className="border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">
+      <p className="my-3">Creaton beta uses the mumbai test network.<br/>Please switch to this network</p>
+      <Button label="Switch to Mumbai test network" onClick={() => {
+        library.provider.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            "chainId": "0x13881",
+            "chainName": "Matic Testnet Mumbai",
+            "rpcUrls": ["https://rpc-mumbai.matic.today"],
+            "nativeCurrency": {
+              "name": "tMATIC",
+              "symbol": "tMATIC",
+              "decimals": 18
+            },
+            "blockExplorerUrls": ["https://explorer-mumbai.maticvigil.com/"]
+          }]
+        })
+      }}/>
+    </div>
+  </div>)
+}
+
 function NavigationLinks() {
   const {currentProfile} = useCurrentProfile()
   const {currentCreator} = useCurrentCreator()
@@ -251,14 +280,15 @@ const App = () => {
                           <div className="flex-1 flex-grow">
                             {value.isWaiting && (
                               <div
-                                className="filter grayscale w-full fixed h-full z-30 flex items-center">
+                                className="w-full fixed h-full z-30 flex items-center">
                                 <div
-                                  className="h-32 border-2 grid grid-cols-1 py-7 w-1/2 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-full bg-white">
+                                  className="h-32 border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-full bg-gray-100">
                                   <Loader/>
                                   <p className="mt-3">Waiting for transaction confirmation</p>
                                 </div>
                               </div>)}
-                            <div className={value.isWaiting ? "filter blur-sm h-full" : "h-full"}>
+                            <ChainIdChecker/>
+                            <div className={value.disableInteraction ? "filter blur-sm h-full" : "h-full"}>
                               <Switch>
                                 <Route exact path="/">
                                   <Home/>
