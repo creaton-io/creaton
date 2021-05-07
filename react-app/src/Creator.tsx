@@ -384,9 +384,19 @@ export function Creator() {
     }
   }
 
+  function generateButton(){
+    return (<div>{(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
+          subscribe()
+        }} label="Subscribe"/>)}
+        {(subscription === 'requested_subscribe' && !isSelf) && (<Button disabled={true} label="Subscription Requested"/>)}
+        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
+          startStreaming()
+        }} label="Start Streaming"/>)}</div>)
+  }
+
   return (
     <div>
-    <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} onSubscribe={subscribe}/>
+    <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} button={generateButton()}/>
     <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: "url(https://cdn.discordapp.com/attachments/790997156353015868/839540529992958012/banner.png)" }}>
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
@@ -399,12 +409,7 @@ export function Creator() {
         className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
       <div className="my-5 mx-auto max-w-lg w-1/5 space-y-5">
-        {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
-          subscribe()
-        }} label="Subscribe"/>)}
-        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
-          startStreaming()
-        }} label="Start Streaming"/>)}
+        {generateButton()}
 
         {/*<div className="flex space-x-5">*/}
         {/*    <Button onClick={() => {*/}

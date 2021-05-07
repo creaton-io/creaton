@@ -6,10 +6,10 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
     src?: string;
     link?: string;
     name?: string;
-    onSubscribe? : any;
+    button? : any;
 }
 
-export const StickyHeader: FC<ButtonProps> = ({src, name, link, onSubscribe}) => {
+export const StickyHeader: FC<ButtonProps> = ({src, name, link, button}) => {
     const ref = useRef<any>(null);
 
     useEffect(() => {
@@ -44,7 +44,7 @@ export const StickyHeader: FC<ButtonProps> = ({src, name, link, onSubscribe}) =>
                             <h4 className="text-2xl font-semibold ml-4">{name}</h4>
                         </div>
                         <div>
-                            <Button label="Subscribe" onClick={onSubscribe}/>
+                          {button}
                         </div>
                     </div>
                 </div>

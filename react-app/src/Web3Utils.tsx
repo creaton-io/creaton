@@ -4,6 +4,8 @@ import {InjectedConnector} from "@web3-react/injected-connector";
 import {useHistory} from "react-router-dom";
 import {useCurrentProfile} from "./Utils";
 import {NotificationHandlerContext} from "./ErrorHandler";
+import {SuperfluidContext} from "./Superfluid";
+import {FAUCET_URI} from "./Config";
 
 const Web3UtilsContext = createContext<any>(null)
 const Web3UtilsProvider = (props) => {
@@ -12,6 +14,27 @@ const Web3UtilsProvider = (props) => {
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext)
   const [isWaiting, setIsWaiting] = useState(false);
+  const superfluid = useContext(SuperfluidContext);
+  const [faucetUsed, setFaucetUsed] = useState(false);
+  useEffect(() => {
+    if (!account || !superfluid || faucetUsed)
+      return;
+    let {usdcx} = superfluid
+    usdcx.balanceOf(account).then(async balance => {
+      if (balance.isZero()) {
+        // never turn it to false, if we try to use the faucet and it fails we don't want to retry excessively
+        setFaucetUsed(true);
+        let response = await fetch(FAUCET_URI + '?address=' + account)
+        if (response.ok) {
+          notificationHandler.setNotification({
+            description: 'We just sent some test tokens to your wallet so you can test the platform! Enjoy!',
+            type: 'success'
+          });
+        }
+      }
+    })
+
+  }, [account, superfluid, faucetUsed])
 
   async function tryConnect() {
     notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
@@ -27,7 +50,10 @@ const Web3UtilsProvider = (props) => {
       }))
 
     else {
-      alert('only injected providers are supported at the moment')
+      notificationHandler.setNotification({
+        description: 'Only injected providers (e.g. metamask) are supported at the moment',
+        type: 'error'
+      });
     }
   }
 
