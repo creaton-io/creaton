@@ -125,16 +125,16 @@ const HeaderButtons = () => {
     {currentCreator && (<Link to="/grant">
       <Button label="Grant" theme="unfocused"></Button>
     </Link>)}
-    {currentProfile && (<Link to="/upload">
+    {currentCreator && (<Link to="/upload">
       <Button label="Upload" theme="unfocused"></Button>
     </Link>)}
-    {currentProfile && (<Link to="/staking">
+    {currentCreator && (<Link to="/staking">
       <Button label="Staking" theme="unfocused"></Button>
     </Link>)}
     <ConnectOrSignup onAvatarClick={()=>{setShowSubmenu(!showSubmenu)}}/>
     {showSubmenu && <div className="absolute z-30 top-10 right-0 rounded-lg bg-gray-500 text-white w-48">
       {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
-      {currentProfile && <NavigationLink to="/upload" label="Upload"/>}
+      {currentCreator && <NavigationLink to="/upload" label="Upload"/>}
       {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}
     </div>}
   </div>)
@@ -199,8 +199,8 @@ function NavigationLinks() {
     <NavigationLink to="/" label="Home"/>
     <NavigationLink to="/creators" label="Creators"/>
     {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
-    {currentProfile && <NavigationLink to="/upload" label="Upload"/>}
-    {currentProfile && <NavigationLink to="/staking" label="Staking"/>}
+    {currentCreator && <NavigationLink to="/upload" label="Upload"/>}
+    {currentCreator && <NavigationLink to="/staking" label="Staking"/>}
     {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}
     {(!currentProfile && active) && <NavigationLink to="/signup" label="Signup"/>}
     {(!currentProfile && !active) && <NavigationLink onClick={web3utils.connect} label="Connect Wallet"/>}
@@ -282,7 +282,7 @@ const App = () => {
                               <div
                                 className="w-full fixed h-full z-30 flex items-center">
                                 <div
-                                  className="h-32 border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-full bg-gray-100">
+                                  className="h-32 border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">
                                   <Loader/>
                                   <p className="mt-3">Waiting for transaction confirmation</p>
                                 </div>

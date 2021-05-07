@@ -37,8 +37,8 @@ const Web3UtilsProvider = (props) => {
   }, [account, superfluid, faucetUsed, notificationHandler, chainId])
 
   async function tryConnect() {
-    notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
-    return;
+    // notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
+    // return;
     //TODO: test walletConnect and open up a modal
     const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
     if (await injected.getProvider())
