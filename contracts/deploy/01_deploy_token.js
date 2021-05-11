@@ -10,9 +10,10 @@ const func = async function (hre) {
   let tokenName = "Create";
   let tokenSymbol = "CRT";
   let initialSupply = 20000000;
+  const network = await hre.ethers.provider.getNetwork()
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 5,
+    chainId: network.chainId,
     version: 'v1',
     web3Provider: await hre.web3.currentProvider,
     tokens: ['fUSDC'],
@@ -46,5 +47,5 @@ const func = async function (hre) {
 };
 
 module.exports = func;
-func.id = '04_deploy_creatonAdmin'; // id required to prevent reexecution
+func.id = '01_deploy_creatonAdmin'; // id required to prevent reexecution
 func.tags = ['CreatonToken'];

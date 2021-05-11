@@ -24,6 +24,7 @@ def update_contracts():
         },
     ])['network']
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
+    creaton_admin['address'] = '0x3cC1BEE862d48971808C2dA0207056bf0950E1de'
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
     twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
     paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))

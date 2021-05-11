@@ -41,5 +41,5 @@ const func = async function (hre) {
 };
 
 module.exports = func;
-func.id = '05_deploy_staking'; // id required to prevent reexecution
+func.id = '02_deploy_staking'; // id required to prevent reexecution
 func.tags = ['CreatonStaking'];

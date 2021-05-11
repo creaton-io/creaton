@@ -4,6 +4,7 @@ import '@nomiclabs/hardhat-web3';
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
+import '@openzeppelin/hardhat-upgrades';
 import {Wallet} from '@ethersproject/wallet';
 
 // const mnemonic = process.env.MNEMONIC;
@@ -83,7 +84,7 @@ const config = {
       default: 3,
     },
   },
-  defaultNetwork: 'goerli',
+  defaultNetwork: 'mumbai',
   networks: {
     coverage: {
       url: 'http://localhost:5458',

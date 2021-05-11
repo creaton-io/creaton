@@ -1,4 +1,4 @@
-module.exports = async function (hre) {
+const func = async function (hre) {
     let {admin} = await hre.getNamedAccounts();
     const {deploy, execute} = hre.deployments;
 
@@ -34,4 +34,6 @@ module.exports = async function (hre) {
 
 }
 
-module.exports.tags = ['CreatonPaymaster'];
+module.exports = func;
+func.id = '03_deploy_creatonAdmin'; // id required to prevent reexecution
+func.tags = ['CreatonPaymaster'];

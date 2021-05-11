@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ICreatonAdmin.sol";
 
-contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient, Ownable {
+contract CreatonAdminV1 is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
     
     // -----------------------------------------
     // Events
@@ -25,6 +25,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     // -----------------------------------------
     // Storage
     // -----------------------------------------
+    address owner;
 
     mapping(address => address[]) public creator2contract; 
     mapping(address => address) public contract2creator;
@@ -59,6 +60,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         address payable _paymaster
     ) public payable initializer {
 
+        owner = msg.sender;
+
         assert(host != address(0));
         assert(cfa != address(0));
         assert(acceptedToken != address(0));
@@ -87,8 +90,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         CreatorProxy creatorContract =
         new CreatorProxy(
             creatorBeacon,
-            abi.encodeWithSignature("initialize(address,address,address,address,string,uint256,address,string,string)",
-            _host, _cfa, _acceptedToken, _msgSender(), description, subscriptionPrice, trustedForwarder, nftName, nftSymbol)
+            abi.encodeWithSignature("initialize(address,address,address,address,string,uint256,string,string)",
+            _host, _cfa, _acceptedToken, _msgSender(), description, subscriptionPrice, nftName, nftSymbol)
         );
 
         address creatorContractAddr = address(creatorContract);
@@ -119,31 +122,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         return trustedForwarder;
     }
 
-    function _msgSender() internal virtual override(BaseRelayRecipient, Context) view returns (address ret) {
-        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
-            assembly {
-                ret := shr(96,calldataload(sub(calldatasize(),20)))
-            }
-        } else {
-            return msg.sender;
-        }
-    }
-
-    function _msgData() internal virtual override(BaseRelayRecipient, Context) view returns (bytes memory ret) {
-        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
-            assembly {
-                let ptr := mload(0x40)
-                let size := sub(calldatasize(),20)
-                mstore(ptr, 0x20)
-                mstore(add(ptr,32), size)
-                calldatacopy(add(ptr,64), 0, size)
-                return(ptr, add(size,64))
-            }
-        } else {
-            return msg.data;
-        }
-    }
-
     function versionRecipient() external view override  returns (string memory){
         return "2.1.0";
     }
@@ -157,5 +135,11 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     function updateTrustedForwareder(address _trustedForwarder) public onlyOwner {
         trustedForwarder = _trustedForwarder;
     }
-    
+
+     /* ========== MODIFIERS ========== */
+
+    modifier onlyOwner() {
+        require(msg.sender == owner, "CreatonAdmin: Caller is not owner");
+        _;
+    }
 }

@@ -1,14 +1,13 @@
 const func = async function (hre) {
   let {admin, treasury} = await hre.getNamedAccounts();
   const {ethers, deployments, upgrades} = hre;
-  const {deploy, execute} = deployments;
-  // const useProxy = !hre.network.live;
+  const {execute} = deployments;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
-
+  const network = await hre.ethers.provider.getNetwork()
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: 5,
+    chainId: network.chainId,
     version: 'v1',
     web3Provider: await hre.web3.currentProvider,
     tokens: ['fUSDC'],
@@ -25,6 +24,7 @@ const func = async function (hre) {
 
   const CreatonAdmin = await ethers.getContractFactory("CreatonAdmin");
 
+  console.log('Deploying admin proxy...')
   let adminContract = await upgrades.deployProxy(
     CreatonAdmin,
     [
@@ -40,8 +40,9 @@ const func = async function (hre) {
     ],
     {kind: 'uups'}
   );
+  console.log('admin proxy deployed at:', adminContract.address)
 
-  console.log('Add creaton admin to paymaster')
+  console.log('Add creaton admin to paymaster...')
   let relayHubReceipt = await execute(
       'CreatonPaymaster',
       {from: admin},
@@ -50,3 +51,7 @@ const func = async function (hre) {
   console.log(relayHubReceipt.transactionHash);
 
 }
+
+module.exports = func;
+func.id = '05_deploy_adminProxy'; // id required to prevent reexecution
+func.tags = ['CreatonAdminProxy'];
