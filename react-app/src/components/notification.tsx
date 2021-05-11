@@ -39,7 +39,7 @@ export const Notification = ({ type = 'success', label, icon, description, close
     return (
         <div className={clsx('flex shadow-lg rounded-lg p-6 items-center', defaultSetting.background)} style={{ width: 'fit-content' }}>
             <div className={clsx('flex justify-center items-center rounded-full w-12 h-12 text-lg', defaultSetting.iconClass)}><Icon name={icon || defaultSetting.icon} /></div>
-            <div className="mx-5 w-80">
+            <div className="mx-5 w-40 md:w-80">
                 <h2 className={clsx(' font-semibold text-lg', defaultSetting.titleClass)}>{label || defaultSetting.label}</h2>
                 <div className="text-gray-400 text-xs">{description || 'lorem ipsum dolor sit amet'}</div>
             </div>

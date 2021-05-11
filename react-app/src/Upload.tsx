@@ -3,7 +3,7 @@ import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator} from "./Utils";
 import {Contract} from "ethers";
-import creaton_contracts from './contracts.json'
+import creaton_contracts from "./Contracts";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
 import {UmbralWasmContext} from "./UmbralWasm";
@@ -11,15 +11,18 @@ import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
 import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
+import {Textarea} from "./elements/textArea";
 import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
 import SignUp from "./Signup";
 import {Toggle} from "./elements/toggle";
+import {Web3UtilsContext} from "./Web3Utils";
 
 const CreatorContract = creaton_contracts.Creator
 
 
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
+  const web3utils = useContext(Web3UtilsContext)
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
   const [status, setStatus] = useState("")
@@ -132,7 +135,9 @@ const Upload = () => {
           return;
         }
         setStatus('Upload successful!')
+        web3utils.setIsWaiting(true);
         await receipt.wait(1)
+        web3utils.setIsWaiting(false);
         notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'})
         console.log(receipt);
       })
@@ -228,7 +233,7 @@ const Upload = () => {
   }
 
   return (
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10">
         {status && (<h3>{status}</h3>)}
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
                type="file" ref={fileInput}/>
@@ -252,7 +257,8 @@ const Upload = () => {
         <Input type="text" name="name" label="Name" placeholder="Title" value={fileName} onChange={(event) => {
           setFileName(event.target.value)
         }}/>
-        <Input type="text" name="description"  label="Description" placeholder="Description" value={description} onChange={(event) => {
+        <Textarea name="description"  label="Description" placeholder="Description" value={description} rows={5}
+          onChange={(event) => {
           setDescription(event.target.value)
         }}/>
         <div className="w-full m-5">

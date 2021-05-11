@@ -6,7 +6,7 @@ import {useContext, useState} from "react";
 import {Creator, useCurrentCreator} from "./Utils";
 import {gql, useQuery} from "@apollo/client";
 import {Contract} from "ethers";
-import creaton_contracts from "./contracts.json";
+import creaton_contracts from "./Contracts";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator} from "./Umbral";
 import {Button} from "./elements/button";

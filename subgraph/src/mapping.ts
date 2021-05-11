@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate} from '../generated/CreatonAdmin/CreatonAdmin';
-import {Content, Creator, Profile, Subscriber} from '../generated/schema';
-import {SubscriberEvent, PostContract, NewPost, Like} from '../generated/templates/Creator/Creator';
+import {Content, Creator, Profile, Subscriber, Like} from '../generated/schema';
+import {SubscriberEvent, PostContract, NewPost, Like as LikeEvent} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
 import {DataSourceContext, dataSource, json, Bytes, log} from '@graphprotocol/graph-ts';
 
@@ -90,18 +90,28 @@ export function handleNewPost(event: NewPost): void {
   entity.ipfs = ipfs;
   entity.tokenId = tokenId;
   entity.tier = event.params.contentType;
-  entity.likes = 0;
   entity.save();
 }
 
-export function handleLike(event: Like): void {
+export function handleLike(event: LikeEvent): void {
   let context = dataSource.context();
   let creator_contract = context.getBytes('contract');
   let tokenId = event.params.tokenId;
-  let id = creator_contract.toHex() + "-" + tokenId.toString();
-  let entity = Content.load(id);
-  entity.likes = entity.likes + 1;
-  entity.save();
+  let user = event.params.user;
+  let approval = event.params.approval;
+  let content_id = creator_contract.toHex() + "-" + tokenId.toString();
+  let like_id = content_id + "-" + user.toHex();
+  let like = Like.load(like_id);
+  if (!like) {
+    like = new Like(like_id);
+  }
+  let profile = Profile.load(user.toHex());
+  if (profile) {
+    like.profile = profile.id;
+  }
+  like.approval = approval;
+  like.content = content_id;
+  like.save();
 }
 
 export function handleProfileUpdate(event: ProfileUpdate): void {

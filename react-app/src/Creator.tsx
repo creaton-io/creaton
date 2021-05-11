@@ -7,7 +7,7 @@ import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
 import {wad4human} from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
-import creaton_contracts from "./contracts.json";
+import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator, UmbralSubscriber} from "./Umbral";
@@ -17,8 +17,8 @@ import {Contract} from "ethers";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
-import {Header} from "./elements/stickyHeader";
 import {Card} from "./components/card";
+import {StickyHeader} from './components/sticky-header';
 import {Avatar} from "./components/avatar";
 import {REPORT_URI} from "./Config";
 import {Icon} from "./icons";
@@ -40,7 +40,13 @@ export function Creator() {
         description
         date
         ipfs
-        likes
+        likers {
+          id
+          approval
+          profile {
+            id
+          }
+        }
         tokenId
         tier
       }
@@ -294,34 +300,32 @@ export function Creator() {
     }
   }
 
+  function countLikes(content){
+    return content.likers.filter((like)=>(like.approval===1)).length;
+  }
+
+  function isLiked(content){
+    return content.likers.some((like)=>(like.approval===1 && like.profile.id===context.account?.toLowerCase()));
+  }
+
   function showItem(content){
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
       if (src)
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
-                     fileType="image"
+                     fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-                      like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
+                      like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
-                   fileType="video"
+                   fileType="video" date={content.date}
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-        like(content) }} likeCount={content.likes} onReport= {() => {report(content)}}  />
+        like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     }
 
-    return <div  className="relative mb-5 h-80">
-      <div className="absolute top-0 left-0 right-0 bottom-0 w-full h-80 z-50 overflow-hidden bg-gray-700 opacity-75 flex flex-col items-center justify-center  rounded-2xl border">
-    <div className="border-gray-200 text-center text-white text-xl">
-        <Icon size="5x" name="lock" />
-    </div>
-    <h3 className="w-1/3 text-center text-white mt-10">{content.name}</h3>
-    <p className="w-1/3 text-center text-white mt-4">({content.description}): {(subscription !== 'subscribed' && content.tier > 0) && <span>Encrypted content, only subscribers can see this</span>}
-            {subscription === 'subscribed' && (<div><span>Current Status: {downloadStatus[content.ipfs]}</span><button onClick={() => {
-              like(content)
-            }}>Like</button> {content.likes} likes </div>)} {showContent(content)}</p>
- 
-</div>
-</div>
+    return <Card key={content.ipfs} name={content.name} description={content.description}
+                   date={content.date} likeCount={countLikes(content)}
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true}/>
   }
 
   async function subscribe() {
@@ -331,7 +335,9 @@ export function Creator() {
     await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
     const result = umbral.getPublicKeyBase64()
     const receipt = await creatorContract.requestSubscribe(result)
+    web3utils.setIsWaiting(true);
     await receipt.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
   }
 
@@ -339,13 +345,19 @@ export function Creator() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
     try {
-      let receipt = await creatorContract.like(content.tokenId, 1);
+      let status
+      if(isLiked(content))
+        status = 0;
+      else
+        status = 1;
+      let receipt = await creatorContract.like(content.tokenId, status);
     } catch (error) {
       notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
     }
   }
 
   async function report(content) {
+    if (!web3utils.isSignedUp()) return;
     try {
       const message = "I want to report the content with token id " + content.tokenId + " in contract " +
         creatorContractAddress + " on the Creaton platform.";
@@ -372,42 +384,48 @@ export function Creator() {
     }
   }
 
+  function generateButton(){
+    return (<div>{(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
+          subscribe()
+        }} label="Subscribe"/>)}
+        {(subscription === 'requested_subscribe' && !isSelf) && (<Button disabled={true} label="Subscription Requested"/>)}
+        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
+          startStreaming()
+        }} label="Start Streaming"/>)}</div>)
+  }
+
   return (
     <div>
-    <div className="relative bg-gray-300 w-full h-40 -my-5">
+    <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} button={generateButton()}/>
+    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: "url(https://cdn.discordapp.com/attachments/790997156353015868/839540529992958012/banner.png)" }}>
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
         </div>
       </div>
     </div>
-    <div className="flex flex-col max-w-5xl my-0 pt-24 mx-auto text-center py-5 text-center">
+    <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
       <h3
         className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
-      <div className="my-5 mx-auto max-w-lg w-full">
-        {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
-          subscribe()
-        }} label="Subscribe"/>)}
-        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
-          startStreaming()
-        }} label="Start Streaming"/>)}
+      <div className="my-5 mx-auto max-w-lg w-1/5 space-y-5">
+        {generateButton()}
 
-        <div className="flex">
-            <Button onClick={() => {
-                  mint()
-                }} label="Mint" theme='secondary-2'/>
-              
-              <Button onClick={() => {
-                approveUSDC()
-              }} label="Approve" theme='secondary-2'/>
-          </div>
+        {/*<div className="flex space-x-5">*/}
+        {/*    <Button onClick={() => {*/}
+        {/*          mint()*/}
+        {/*        }} label="Mint" theme='secondary-2'/>*/}
+        {/*      */}
+        {/*      <Button onClick={() => {*/}
+        {/*        approveUSDC()*/}
+        {/*      }} label="Approve" theme='secondary-2'/>*/}
+        {/*  </div>*/}
 
-        <Button onClick={() => {
-          convertUSDCx()
-        }} label="Upgrade"/>
+        {/*<Button onClick={() => {*/}
+        {/*  convertUSDCx()*/}
+        {/*}} label="Upgrade"/>*/}
       </div>
-      <h1 className="mb-5 text-2xl uppercase font-bold">Uploaded Contents</h1>
+      <h1 className="mb-5 text-2xl font-bold">Latest posts</h1>
       
       <div className="py-5">
         {

@@ -72,7 +72,7 @@
   },
   "devDependencies": {
     "@tailwindcss/aspect-ratio": "^0.2.0",
-    "@tailwindcss/postcss7-compat": "^2.0.3",
+    "@tailwindcss/postcss7-compat": "^2.1.2",
     "@tailwindcss/typography": "^0.4.0",
     "@types/react-router-dom": "^5.1.7",
     "autoprefixer": "^9.8.6",
@@ -81,7 +81,7 @@
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^14.0.0",
     "postcss-preset-env": "^6.7.0",
-    "tailwindcss": "npm:@tailwindcss/postcss7-compat@^2.0.3",
+    "tailwindcss": "npm:@tailwindcss/postcss7-compat@2.1.2",
     "@fortawesome/fontawesome-svg-core": "^1.2.34",
     "@fortawesome/free-brands-svg-icons": "^5.15.2",
     "@fortawesome/free-regular-svg-icons": "^5.15.2",

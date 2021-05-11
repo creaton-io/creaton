@@ -2,13 +2,14 @@ import {Button} from "./elements/button";
 import React, {useContext, useEffect, useState} from "react";
 import {Input} from "./elements/input";
 import {Contract} from "ethers";
-import creaton_contracts from "./contracts.json";
+import creaton_contracts from "./Contracts";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentProfile} from "./Utils";
 import {Avatar} from "./components/avatar";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
+import {Web3UtilsContext} from "./Web3Utils";
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React<Web3Provider>()
@@ -18,14 +19,15 @@ const ProfileEdit = (props) => {
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const {currentProfile, refetch} = useCurrentProfile()
   const notificationHandler = useContext(NotificationHandlerContext)
+  const web3utils = useContext(Web3UtilsContext)
+
   useEffect(() => {
     console.log(currentProfile)
     if (currentProfile) {
       setUsername(currentProfile.username)
-      if(currentProfile.image)
+      if (currentProfile.image)
         setPreviewSrc(currentProfile.image)
-    }
-    else{
+    } else {
       setUsername('')
       setPreviewSrc('')
     }
@@ -84,7 +86,9 @@ const ProfileEdit = (props) => {
       });
       return;
     }
+    web3utils.setIsWaiting(true);
     await result.wait(1)
+    web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
     refetch()
   }
