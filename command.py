@@ -24,7 +24,13 @@ def update_contracts():
         },
     ])['network']
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
-    creaton_admin['address'] = '0x3cC1BEE862d48971808C2dA0207056bf0950E1de'
+    creaton_admin['address'] = prompt([
+        {
+            'type': 'input',
+            'name': 'address',
+            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+        },
+    ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
     twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
     paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
@@ -33,6 +39,10 @@ def update_contracts():
     contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator,
                       'TwitterVerification': twitter, 'Paymaster': paymaster, 'CreatonStaking': staking,
                       'CreatonToken': token}
+    for name, contract in contracts_info.items():
+        if name == 'network':
+            continue
+        contracts_info[name] = {'abi': contract['abi'], 'address': contract['address']}  # remove all extra info
     REACT_CONTRACT_PATH = Path('react-app/src/contracts.json')
     json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
     print(f'Updated {REACT_CONTRACT_PATH}')
