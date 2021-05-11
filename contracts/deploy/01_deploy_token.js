@@ -47,5 +47,5 @@ const func = async function (hre) {
 };
 
 module.exports = func;
-func.id = '01_deploy_creatonAdmin'; // id required to prevent reexecution
+func.id = '01_deploy_token'; // id required to prevent reexecution
 func.tags = ['CreatonToken'];

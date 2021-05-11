@@ -12,7 +12,7 @@ import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ICreatonAdmin.sol";
 
-contract CreatonAdminV1 is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
+contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
     
     // -----------------------------------------
     // Events
