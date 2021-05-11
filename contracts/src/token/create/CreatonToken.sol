@@ -11,19 +11,16 @@ import "../../dependency/gsn/contracts/BaseRelayRecipient.sol";
 //import { UUPSProxiable } from "@superfluid-finance/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol";
 
 interface INativeSuperToken {
-    function initialize(string calldata name, string calldata symbol, uint256 initialSupply, address trustedForwarder) external;
+    function initialize(string calldata name, string calldata symbol, uint256 initialSupply) external;
 }
 
-contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase, BaseRelayRecipient{
-
-    address public trustedForwarder;
+contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase{
 
     function initialize
     (
         string calldata name,
         string calldata symbol,
-        uint256 initialSupply,
-        address _trustedForwarder
+        uint256 initialSupply
     )
         external override
     {
@@ -34,11 +31,5 @@ contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase, BaseRelay
             symbol
         );
         ISuperToken(address(this)).selfMint(msg.sender, initialSupply, new bytes(0));
-        trustedForwarder = _trustedForwarder;
     }
-
-    function isTrustedForwarder(address forwarder) public view returns(bool) {
-        return forwarder == trustedForwarder;
-    }
-
 }

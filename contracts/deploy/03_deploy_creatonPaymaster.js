@@ -2,15 +2,14 @@ module.exports = async function (hre) {
     let {admin} = await hre.getNamedAccounts();
     const {deploy, execute} = hre.deployments;
 
-    const createToken = await hre.deployments.get("CreatonToken")
     const stakingContract = await hre.deployments.get("MetatxStaking")
+    const creatonStaking = await hre.deployments.get("MetatxStaking")
     const relayHub = "0x1F3d1C33977957EA41bEdFDcBf7fF64Fd3A3985e"
-    const trustedforwarder = "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2"
+    const trustedforwarder = "0xE041608922d06a4F26C0d4c27d8bCD01daf1f792"
 
     let creatonPaymaster = await deploy('CreatonPaymaster', {
       from: admin,
       args: [
-        createToken.address,
         stakingContract.address
       ],
       log: true

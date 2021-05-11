@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
@@ -7,9 +7,12 @@ import "./CreatorProxy.sol";
 import "../metatx/CreatonPaymaster.sol";
 import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "./ICreatonAdmin.sol";
 
-
-contract CreatonAdmin is BaseRelayRecipient {
+contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient, Ownable {
     
     // -----------------------------------------
     // Events
@@ -25,18 +28,18 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     mapping(address => address[]) public creator2contract; 
     mapping(address => address) public contract2creator;
-    mapping(address => bool) public registered_users;
+    mapping(address => bool) public override registeredUsers;
     mapping(address => string) public user2twitter;
 
     address private _host;
     address private _cfa;
     address private _acceptedToken;
 
-    address public treasury;
-    int96 public treasury_fee;
+    address public override treasury;
+    int96 public override treasuryFee;
 
     address public creatorBeacon;
-    address public nftFactory;
+    address public override nftFactory;
 
     address payable public paymaster;
 
@@ -44,17 +47,18 @@ contract CreatonAdmin is BaseRelayRecipient {
     // Constructor
     // -----------------------------------------
 
-    constructor(
+    function initialize(
         address host,
         address cfa,
         address acceptedToken, // get these from superfluid contracts
         address _treasury,
-        int96 _treasury_fee,
+        int96 _treasuryFee,
         address _creatorBeacon,
         address _nftFactory,
         address _trustedForwarder,
         address payable _paymaster
-    ) {
+    ) public payable initializer {
+
         assert(host != address(0));
         assert(cfa != address(0));
         assert(acceptedToken != address(0));
@@ -64,7 +68,7 @@ contract CreatonAdmin is BaseRelayRecipient {
         _acceptedToken = acceptedToken;
 
         treasury = _treasury;
-        treasury_fee = _treasury_fee;
+        treasuryFee = _treasuryFee;
 
         creatorBeacon = _creatorBeacon;
         nftFactory = _nftFactory;
@@ -79,7 +83,7 @@ contract CreatonAdmin is BaseRelayRecipient {
 
     function deployCreator(string calldata description, uint256 subscriptionPrice,
         string memory nftName, string memory nftSymbol) external {
-        require(registered_users[_msgSender()], "You need to signup in Creaton before becoming a creator");
+        require(registeredUsers[_msgSender()], "You need to signup on Creaton before becoming a creator");
         CreatorProxy creatorContract =
         new CreatorProxy(
             creatorBeacon,
@@ -105,12 +109,53 @@ contract CreatonAdmin is BaseRelayRecipient {
     }
 
     function updateProfile(string memory dataJSON) external {
-        registered_users[_msgSender()] = true;
+        registeredUsers[_msgSender()] = true;
         emit ProfileUpdate(_msgSender(), dataJSON);
+    }
+
+    /* ========== VIEW FUNCTIONS ========== */
+
+    function getTrustedForwarder() public view override returns(address){
+        return trustedForwarder;
+    }
+
+    function _msgSender() internal virtual override(BaseRelayRecipient, Context) view returns (address ret) {
+        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+            assembly {
+                ret := shr(96,calldataload(sub(calldatasize(),20)))
+            }
+        } else {
+            return msg.sender;
+        }
+    }
+
+    function _msgData() internal virtual override(BaseRelayRecipient, Context) view returns (bytes memory ret) {
+        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+            assembly {
+                let ptr := mload(0x40)
+                let size := sub(calldatasize(),20)
+                mstore(ptr, 0x20)
+                mstore(add(ptr,32), size)
+                calldatacopy(add(ptr,64), 0, size)
+                return(ptr, add(size,64))
+            }
+        } else {
+            return msg.data;
+        }
     }
 
     function versionRecipient() external view override  returns (string memory){
         return "2.1.0";
+    }
+
+    /* ========== RESTRICTED FUNCTIONS ========== */
+
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+
+    }
+
+    function updateTrustedForwareder(address _trustedForwarder) public onlyOwner {
+        trustedForwarder = _trustedForwarder;
     }
     
 }

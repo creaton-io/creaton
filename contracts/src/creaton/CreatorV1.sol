@@ -2,11 +2,12 @@
 pragma solidity 0.8.0;
 pragma abicoder v2;
 
-import './CreatonAdmin.sol';
+import './ICreatonAdmin.sol';
 import './NFTFactory.sol';
 import './Post.sol';
 import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 import {
     ISuperfluid,
@@ -25,7 +26,6 @@ import {
 
 
 import { Int96SafeMath } from "../utils/Int96SafeMath.sol";
-
 
 
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
@@ -63,7 +63,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     address public admin;
     address public creator;
-    CreatonAdmin adminContract;
+    ICreatonAdmin adminContract;
     NFTFactory nftFactory;
 
     string public description;
@@ -85,7 +85,6 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         address _creator,
         string memory _description,
         uint256 _subscriptionPrice,
-        address _trustedForwarder,
         string memory nftName,
         string memory nftSymbol
     ) public payable initializer {
@@ -106,9 +105,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         subscriptionPrice = int96(uint96(_subscriptionPrice));
         _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
 
-        adminContract = CreatonAdmin(admin);
+        adminContract = ICreatonAdmin(admin);
         nftFactory = NFTFactory(adminContract.nftFactory());
-        trustedForwarder = _trustedForwarder;
         createPostNFT(nftName, nftSymbol);
     }
 
@@ -118,16 +116,15 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     receive() external payable {}
 
-    // TODO check for msg.sender
-    function withdrawEth() public {
-        (bool success, ) = msg.sender.call{value: (address(this).balance)}("Not admin");
+    function withdrawEth() public onlyCreator {
+        (bool success, ) = _msgSender().call{value: (address(this).balance)}("Not admin");
         require(success, "No balance");
     }
 
-    // function recoverTokens(address _token) external isCreator {
-    //     ERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-    //     ERC20(_token).transfer(msg.sender, ERC20(_token).balanceOf(address(this)));
-    // }
+     function recoverTokens(address _token) external onlyCreator {
+         IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+         IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
+     }
 
     function changeStatus(address _address, Status status) private {
         subscribers[_address].status = status;
@@ -135,15 +132,15 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     }
 
     // TODO require subscriber is not subscribes already (sth like that)
-    function requestSubscribe(string memory _pubKey) external {
+    function requestSubscribe(string memory _pubKey) public {
         address _address = _msgSender();
-        require(adminContract.registered_users(_address), "You need to signup in Creaton first");
+        require(adminContract.registeredUsers(_address), "You need to signup in Creaton first");
         require (subscribers[_address].status == Status.unSubscribed, "Subscription Already Requested");
         subscribers[_address] = Subscriber(Status.requestSubscribe);
         emit SubscriberEvent(_address, _pubKey, Status.requestSubscribe);
     }
 
-    function revokeSubscribe() external {
+    function revokeSubscribe() external onlyCreator {
         address _address = _msgSender();
         require(subscribers[_address].status == Status.requestSubscribe ||
             subscribers[_address].status == Status.pendingSubscribe, "No Subscription Request to Revoke");
@@ -181,11 +178,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         return subscriberCount;
     }
 
-    function like(uint _tokenId, uint approvalEnum) external {
+    function like(uint _tokenId, uint approvalEnum) public {
         require(postNFT != address(0));
         require(Post(postNFT).exists(_tokenId));
         address subAddress = _msgSender();
-        require(adminContract.registered_users(subAddress), "You need to signup before liking content");
+        require(adminContract.registeredUsers(subAddress), "You need to signup before liking content");
         if (post2tier[_tokenId] == Type.encrypted) {
             require(subscribers[subAddress].status == Status.subscribed, "Not subscribed");
         }
@@ -221,6 +218,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function versionRecipient() external view override  returns (string memory){
         return "2.1.0";
+    }
+
+    function isTrustedForwarder(address forwarder) public override view returns(bool) {
+        return forwarder == adminContract.getTrustedForwarder();
     }
 
     // -----------------------------------------
@@ -351,7 +352,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         require(subscribers[context.msgSender].status == Status.pendingSubscribe, "Subscription not Granted");
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
-        int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasury_fee());
+        int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
         int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
         if (subscriberCount == 0){
@@ -379,7 +380,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
-        int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasury_fee());
+        int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
         int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
         (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
@@ -398,7 +399,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
             newCtx = _deleteFlows(ctx);
         } else if (subscriberCount > 0){
             int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
-            int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasury_fee());
+            int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
             int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);

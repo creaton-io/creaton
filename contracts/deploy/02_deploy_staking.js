@@ -4,12 +4,15 @@ const func = async function (hre) {
   // const useProxy = !hre.network.live;
 
   const createToken = await hre.deployments.get("CreatonToken")
+  const trustedforwarder = "0xE041608922d06a4F26C0d4c27d8bCD01daf1f792";
+
 
   let stakingContract = await deploy('MetatxStaking', {
     from: admin,
     args: [
       admin,
-      createToken.address
+      createToken.address,
+      trustedforwarder
     ],
     log: true
   });

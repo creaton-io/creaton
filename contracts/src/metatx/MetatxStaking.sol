@@ -13,7 +13,7 @@ import "../utils/Owned.sol";
 // Inheritance
 import "./IMetatxStaking.sol";
 
-contract MetatxStaking is IMetatxStaking, IERC777Recipient, ReentrancyGuard, Pausable, Owned {
+contract MetatxStaking is IMetatxStaking, BaseRelayRecipient, ReentrancyGuard, Pausable, Owned {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
@@ -45,10 +45,12 @@ contract MetatxStaking is IMetatxStaking, IERC777Recipient, ReentrancyGuard, Pau
 
     constructor(
         address _owner,
-        address _token
+        address _token,
+        address _trustedForwarder
     ) public Owned(_owner) {
         token = IERC20(_token);
         _erc1820.setInterfaceImplementer(address(this), TOKENS_RECIPIENT_INTERFACE_HASH, address(this));
+        trustedForwarder = _trustedForwarder;
     }
 
     /* ========== VIEWS ========== */
@@ -83,62 +85,87 @@ contract MetatxStaking is IMetatxStaking, IERC777Recipient, ReentrancyGuard, Pau
         return rewardRate.mul(rewardsDuration);
     }
 
+    function getMinStake() external view override returns (uint256) {
+        return minStake;
+    }
+
+    function _msgSender() internal override(Context, BaseRelayRecipient) virtual view returns (address ret) {
+        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+            // At this point we know that the sender is a trusted forwarder,
+            // so we trust that the last bytes of msg.data are the verified sender address.
+            // extract sender address from the end of msg.data
+            assembly {
+                ret := shr(96,calldataload(sub(calldatasize(),20)))
+            }
+        } else {
+            return msg.sender;
+        }
+    }
+
+    function _msgData() internal override(Context, BaseRelayRecipient) virtual view returns (bytes memory ret) {
+        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+            // At this point we know that the sender is a trusted forwarder,
+            // we copy the msg.data , except the last 20 bytes (and update the total length)
+            assembly {
+                let ptr := mload(0x40)
+                // copy only size-20 bytes
+                let size := sub(calldatasize(),20)
+                // structure RLP data as <offset> <length> <bytes>
+                mstore(ptr, 0x20)
+                mstore(add(ptr,32), size)
+                calldatacopy(add(ptr,64), 0, size)
+                return(ptr, add(size,64))
+            }
+        } else {
+            return msg.data;
+        }
+    }
+
+    function versionRecipient() external view override  returns (string memory){
+        return "2.1.0";
+    }
+
     /* ========== MUTATIVE FUNCTIONS ========== */
 
-    function _stake(address staker, uint256 amount) internal nonReentrant whenNotPaused updateReward(staker) {
-        require(amount >= minStake, "Creaton Staking: Can't stake less than required minimum");
+    function stake(uint256 amount) public override nonReentrant whenNotPaused updateReward(_msgSender()) {
+        require(amount > 0, "Cannot stake 0");
         _totalSupply = _totalSupply.add(amount);
-        _balances[staker] = _balances[staker].add(amount);
-        emit Staked(staker, amount);
+        _balances[_msgSender()] = _balances[_msgSender()].add(amount);
+        token.safeTransferFrom(_msgSender(), address(this), amount);
+        emit Staked(_msgSender(), amount);
     }
 
-    function tokensReceived(
-        address operator,
-        address from,
-        address to,
-        uint256 amount,
-        bytes calldata userData,
-        bytes calldata operatorData
-    ) external override {
-        require(msg.sender == address(token), "Creaton Staking: Invalid token");
-        _stake(from, amount);
-    }
-
-    function withdraw(uint256 amount) public override nonReentrant updateReward(msg.sender) {
+    function withdraw(uint256 amount) public override nonReentrant updateReward(_msgSender()) {
         require(amount > 0, "Cannot withdraw 0");
         _totalSupply = _totalSupply.sub(amount);
-        _balances[msg.sender] = _balances[msg.sender].sub(amount);
-        token.safeTransfer(msg.sender, amount);
-        emit Withdrawn(msg.sender, amount);
+        _balances[_msgSender()] = _balances[_msgSender()].sub(amount);
+        token.safeTransfer(_msgSender(), amount);
+        emit Withdrawn(_msgSender(), amount);
     }
 
-    function getReward() public override nonReentrant updateReward(msg.sender) {
-        uint256 reward = rewards[msg.sender];
+    function getReward() public override nonReentrant updateReward(_msgSender()) {
+        uint256 reward = rewards[_msgSender()];
         if (reward > 0) {
-            rewards[msg.sender] = 0;
-            token.safeTransferFrom(address(rewardEscrow), msg.sender, reward);
-            emit RewardPaid(msg.sender, reward);
+            rewards[_msgSender()] = 0;
+            token.safeTransferFrom(address(rewardEscrow), _msgSender(), reward);
+            emit RewardPaid(_msgSender(), reward);
         }
     }
 
     function exit() external override {
-        withdraw(_balances[msg.sender]);
+        withdraw(_balances[_msgSender()]);
         getReward();
     }
 
+    // Do not forget to send reward escrow the caller prize
     function halvingRewards() external override updateReward(address(0)) whenNotPaused whenNotLastPeriod {
         if (block.timestamp > periodFinish) {
-            token.safeTransferFrom(address(rewardEscrow), msg.sender, minStake);
+            token.safeTransferFrom(address(rewardEscrow), _msgSender(), minStake);
             if (rewardsDuration == oldRewardsDuration){
                 rewardRate = rewardRate.div(2);
             } else {
                 rewardRate = rewardRate.mul(oldRewardsDuration).div(rewardsDuration).div(2);
                 oldRewardsDuration = rewardsDuration;
-            }
-            uint balance = token.balanceOf(address(rewardEscrow));
-            if (rewardRate >= balance.div(rewardsDuration)) {
-                rewardRate = balance.div(rewardsDuration);
-                lastPeriod = true;
             }
             lastUpdateTime = block.timestamp;
             periodFinish = block.timestamp.add(rewardsDuration);

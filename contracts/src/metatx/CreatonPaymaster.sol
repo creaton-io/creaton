@@ -1,10 +1,11 @@
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 // SPDX-License-Identifier: MIT OR Apache-2.0
 
 import "../dependency/gsn/contracts/forwarder/IForwarder.sol";
 import "../dependency/gsn/contracts/BasePaymaster.sol";
+import "./IMetatxStaking.sol";
 
 contract CreatonPaymaster is BasePaymaster {
 
@@ -27,11 +28,10 @@ contract CreatonPaymaster is BasePaymaster {
     }
 
     constructor (
-        address _token,
         address _stakingContract
     ) public  {
-        token = _token;
         stakingContract = _stakingContract;
+        targets[stakingContract] = true;
     }
 
 	function preRelayedCall(
@@ -44,20 +44,24 @@ contract CreatonPaymaster is BasePaymaster {
 		_verifyForwarder(relayRequest);
 		(signature, approvalData, maxPossibleGas);
 
-        if (relayRequest.request.to == token){
-            bytes4 sig =
-            relayRequest.request.data[0] |
-            (bytes4(relayRequest.request.data[1]) >> 8) |
-            (bytes4(relayRequest.request.data[2]) >> 16) |
-            (bytes4(relayRequest.request.data[3]) >> 24);
-            require( sig == bytes4(keccak256("send(address,uint256,bytes)")), "Creaton Paymaster: Signature mismatch");
-            (address recipient, ,) = abi.decode(relayRequest.request.data[4:], (address,uint256,bytes));
-            require(recipient == stakingContract, "Creaton Paymaster: Only free staking is supported");
+        if (IMetatxStaking(stakingContract).balanceOf(relayRequest.request.from) >= IMetatxStaking(stakingContract).getMinStake()){
+            require(targets[relayRequest.request.to], "Creaton Paymaster: Destination contract not supported");
             return (new bytes(0), false);
         }
 
-		require(targets[relayRequest.request.to], "Creaton Paymaster: Destination contract not supported");
-        return (new bytes(0), false);
+//        if (relayRequest.request.to == stakingContract){
+//            bytes4 sig =
+//            relayRequest.request.data[0] |
+//            (bytes4(relayRequest.request.data[1]) >> 8) |
+//            (bytes4(relayRequest.request.data[2]) >> 16) |
+//            (bytes4(relayRequest.request.data[3]) >> 24);
+//            require( sig == bytes4(keccak256("stake(uint256)")), "Creaton Paymaster: Signature mismatch");
+//            (address recipient, ,) = abi.decode(relayRequest.request.data[4:], (address,uint256,bytes));
+//            require(recipient == stakingContract, "Creaton Paymaster: Only free staking is supported");
+//            return (new bytes(0), false);
+//        }
+
+        revert("Creaton Paymaster: No rules applicable");
 	}
 
 	function postRelayedCall(

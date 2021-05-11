@@ -10,7 +10,6 @@ const func = async function (hre) {
   let tokenName = "Create";
   let tokenSymbol = "CRT";
   let initialSupply = 20000000;
-  const trustedforwarder = "0xd9c1a99e9263B98F3f633a9f1A201FA0AFC2A1c2";
 
   const sf = new SuperfluidSDK.Framework({
     chainId: 5,
@@ -40,8 +39,7 @@ const func = async function (hre) {
       "initialize",
       tokenName,
       tokenSymbol,
-      web3.utils.toWei(String(initialSupply)),
-      trustedforwarder
+      web3.utils.toWei(String(initialSupply))
   );
   console.log(receipt.transactionHash);
 
