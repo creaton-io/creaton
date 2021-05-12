@@ -199,7 +199,7 @@ const ProfileMenu = (props) => {
           {currentCreator &&
           <NavigationLink to="/grant" label="Grant"/>
           }
-          {currentProfile &&
+          {currentCreator &&
           <NavigationLink to="/upload" label="Upload"/>
           }
           {currentProfile &&
