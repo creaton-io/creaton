@@ -297,7 +297,7 @@ function NavigationLink(props) {
 function ChainIdChecker(props) {
   const {library, chainId} = useWeb3React()
   if (!library || chainId === 80001)
-    return (<div></div>)
+    return null;
   return (<div
     className="w-full fixed h-full z-30 flex items-center">
     <div

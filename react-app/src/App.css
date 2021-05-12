@@ -49,15 +49,3 @@
     height: calc(100% - 96px);
   }
 }
-
-@media screen and (max-height: 750px) {
-  .margin-overwrite {
-    margin-top: 80px
-  }
-}
-
-@media screen and (max-height: 700px) {
-  .margin-overwrite {
-    margin-top: 50px
-  }
-}
