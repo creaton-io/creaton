@@ -1,5 +1,5 @@
 import {useWeb3React} from "@web3-react/core";
-import React, {createContext, useContext, useEffect, useState} from "react";
+import React, {createContext, useContext, useEffect, useRef, useState} from "react";
 import {InjectedConnector} from "@web3-react/injected-connector";
 import {useHistory} from "react-router-dom";
 import {useCurrentProfile} from "./Utils";
@@ -15,15 +15,15 @@ const Web3UtilsProvider = (props) => {
   const notificationHandler = useContext(NotificationHandlerContext)
   const [isWaiting, setIsWaiting] = useState(false);
   const superfluid = useContext(SuperfluidContext);
-  const [faucetUsed, setFaucetUsed] = useState(false);
+  const faucetUsed = useRef(false);
   useEffect(() => {
-    if (!account || !superfluid || chainId !== 80001 || faucetUsed)
+    if (!account || !superfluid || chainId !== 80001 || faucetUsed.current)
       return;
     let {usdcx} = superfluid
     usdcx.balanceOf(account).then(async balance => {
-      if (balance.isZero()) {
+      if (!faucetUsed.current && balance.isZero()) {
         // never turn it to false, if we try to use the faucet and it fails we don't want to retry excessively
-        setFaucetUsed(true);
+        faucetUsed.current = true;
         let response = await fetch(FAUCET_URI + '?address=' + account)
         if (response.ok) {
           notificationHandler.setNotification({
@@ -34,7 +34,7 @@ const Web3UtilsProvider = (props) => {
       }
     })
 
-  }, [account, superfluid, faucetUsed, notificationHandler, chainId])
+  }, [account, superfluid, notificationHandler, chainId])
 
   async function tryConnect() {
     // notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
