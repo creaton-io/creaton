@@ -36,14 +36,12 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
             </h4>
             <div className="flex justify-between">
               <div className=" mr-5 ">
-                <Icon onClick={onLike} name="heart"
-                      className={clsx('cursor-pointer', isLiked ? 'text-red-500' : 'text-grey-dark')}/>
+                <Icon name="heart" className={clsx('text-grey-dark')}/>
                 <span className="ml-2">
                             {likeCount}
                             </span>
               </div>
-              <Icon onClick={onReport} name="flag"
-                    className={clsx('cursor-pointer text-gray-500 mt-1')}/>
+              <Icon name="flag" className={clsx('text-gray-500 mt-1')}/>
             </div>
           </div>
 

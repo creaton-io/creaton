@@ -220,7 +220,9 @@ export function Creator() {
       ],
     ];
     const tx = await sf.host.batchCall(call, {from: subscriber});
-    await tx.wait();
+    web3utils.setIsWaiting(true);
+    await tx.wait(1);
+    web3utils.setIsWaiting(false);
     console.log('subscribed');
   }
 
@@ -391,7 +393,7 @@ export function Creator() {
         {(subscription === 'requested_subscribe' && !isSelf) && (<Button disabled={true} label="Subscription Requested"/>)}
         {(subscription === 'pending_subscribe') && (<Button onClick={() => {
           startStreaming()
-        }} label="Start Streaming"/>)}</div>)
+        }} label="Start Subscription"/>)}</div>)
   }
 
   return (
