@@ -25,7 +25,6 @@ const Upload = () => {
   const web3utils = useContext(Web3UtilsContext)
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined)
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
-  const [status, setStatus] = useState("")
   const [description, setDescription] = useState("")
   const [fileName, setFileName] = useState("")
   const [isStreaming, setIsStreaming] = useState(false);
@@ -68,16 +67,17 @@ const Upload = () => {
       const umbral = new UmbralCreator(umbralWasm, currentCreator!.creatorContract)
       await umbral.initMasterkey(context.library!.getSigner(context.account!), currentCreator!.creatorContract, true)
       let encryptedObject;
-      setStatus('Encrypting the file...')
+      web3utils.setIsWaiting('Encrypting the file...')
       try {
         encryptedObject = umbral.encrypt(bytes)
       } catch (error) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'})
+        web3utils.setIsWaiting(false)
         return;
       }
       encryptedObject['type'] = file_type
       console.log(encryptedObject)
-      setStatus('Uploading encrypted content to arweave...')
+      web3utils.setIsWaiting('Uploading encrypted content to arweave...');
       const formData = new FormData();
       formData.append("file", new Blob([JSON.stringify(encryptedObject)], {
         type: "application/json"
@@ -87,7 +87,7 @@ const Upload = () => {
         body: formData
       })
     } else {
-      setStatus('Uploading content to arweave...')
+      web3utils.setIsWaiting('Uploading content to arweave...')
       const formData = new FormData();
       formData.append("file", new Blob([bytes], {
         type: file_type
@@ -120,7 +120,7 @@ const Upload = () => {
       })
       response.text().then(async function (nft_arweave_id) {
         console.log(metadata.ipfs);
-        setStatus('Adding content metadata to your creator contract')
+        web3utils.setIsWaiting('Adding content metadata to your creator contract')
         let receipt;
         try {
           let tier = 0
@@ -132,9 +132,9 @@ const Upload = () => {
             description: 'Could not upload the content to your contract' + error.message,
             type: 'error'
           })
+          web3utils.setIsWaiting(false)
           return;
         }
-        setStatus('Upload successful!')
         web3utils.setIsWaiting(true);
         await receipt.wait(1)
         web3utils.setIsWaiting(false);
@@ -143,6 +143,7 @@ const Upload = () => {
       })
     }).catch(function (error) {
       notificationHandler.setNotification({description: error.toString(), type: 'error'})
+      web3utils.setIsWaiting(false)
     })
   }
 
@@ -180,12 +181,12 @@ const Upload = () => {
 
   async function splitAndEncrypt(file) {
     const status_text = 'Splitting and Encrypting video. Progress: %'
-    setStatus(status_text + 0)
+    web3utils.setIsWaiting(status_text + 0)
     const {name} = file
     ffmpeg.FS('writeFile', name, await fetchFile(file))
     console.log('starting to run transcoding')
     ffmpeg.setProgress((progress) => {
-      setStatus(status_text + (Math.round(progress.ratio * 100)))
+      web3utils.setIsWaiting(status_text + (Math.round(progress.ratio * 100)))
     })
 
     const key = new Uint8Array(16);
@@ -234,7 +235,6 @@ const Upload = () => {
 
   return (
       <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10">
-        {status && (<h3>{status}</h3>)}
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
                type="file" ref={fileInput}/>
         <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}>

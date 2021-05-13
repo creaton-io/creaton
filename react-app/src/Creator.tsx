@@ -396,10 +396,17 @@ export function Creator() {
         }} label="Start Subscription"/>)}</div>)
   }
 
+  function getCoverPhotoUrl(){
+    let cover_url = JSON.parse(contractQuery.data.creators[0].profile.data).cover
+    if(!cover_url)
+      cover_url="https://cdn.discordapp.com/attachments/790997156353015868/839540529992958012/banner.png"
+    return "url("+cover_url+")"
+  }
+
   return (
     <div>
     <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} button={generateButton()}/>
-    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: "url(https://cdn.discordapp.com/attachments/790997156353015868/839540529992958012/banner.png)" }}>
+    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: getCoverPhotoUrl() }}>
       <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>

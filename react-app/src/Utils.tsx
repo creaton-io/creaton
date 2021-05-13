@@ -16,6 +16,7 @@ export interface Creator {
 export interface Profile {
   username: string;
   image: string | null;
+  cover: string | null;
 }
 
 export function useCurrentProfile() {
@@ -45,7 +46,7 @@ export function useCurrentProfile() {
       const matchingProfiles = data.profiles
       if (matchingProfiles.length !== 0) {
         const profile_data = JSON.parse(matchingProfiles[0].data)
-        setCurrentProfile({username: profile_data.username, image: profile_data.image})
+        setCurrentProfile({username: profile_data.username, image: profile_data.image, cover:profile_data.cover})
       }
       else
         setCurrentProfile(undefined)
