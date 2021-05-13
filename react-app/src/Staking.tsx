@@ -107,8 +107,10 @@ const Staking = (props) => {
     const interval = setInterval(() => {
       updateStakingValues()
     }, 5000);
-    return () => clearInterval(interval);
-  }, [updateStakingValues]);
+    return () => {
+      clearInterval(interval)
+    };
+  }, []);
 
   async function stake() {
     const connectedToken = tokenContract.connect(context.library!.getSigner())

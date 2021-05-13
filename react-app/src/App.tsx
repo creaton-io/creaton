@@ -309,7 +309,7 @@ function ChainIdChecker(props) {
           params: [{
             "chainId": "0x13881",
             "chainName": "Matic Testnet Mumbai",
-            "rpcUrls": ["https://rpc-mumbai.matic.today"],
+            "rpcUrls": ["https://rpc-mumbai.maticvigil.com"],
             "nativeCurrency": {
               "name": "tMATIC",
               "symbol": "tMATIC",
