@@ -13,7 +13,7 @@ const Web3UtilsProvider = (props) => {
   const {currentProfile} = useCurrentProfile()
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext)
-  const [isWaiting, setIsWaiting] = useState(false);
+  const [isWaiting, setIsWaiting] = useState<any>(false);
   const superfluid = useContext(SuperfluidContext);
   const faucetUsed = useRef(false);
   useEffect(() => {
@@ -78,7 +78,8 @@ const Web3UtilsProvider = (props) => {
       isSignedUp: isSignedUp,
       setIsWaiting: setIsWaiting,
       isWaiting: isWaiting,
-      disableInteraction: isWaiting || wrongChainId
+      waitingMessage: (isWaiting === true) ? 'Waiting for transaction confirmation' : isWaiting,
+      disableInteraction: (Boolean(isWaiting)) || wrongChainId
     }}>{props.children}</Web3UtilsContext.Provider>)
 }
 export {Web3UtilsContext, Web3UtilsProvider};

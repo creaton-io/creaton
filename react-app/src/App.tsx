@@ -417,7 +417,7 @@ const App = () => {
                                 <div
                                   className="h-32 border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">
                                   <Loader/>
-                                  <p className="mt-3">Waiting for transaction confirmation</p>
+                                  <p className="mt-3">{value.waitingMessage}</p>
                                 </div>
                               </div>)}
                             <ChainIdChecker/>
