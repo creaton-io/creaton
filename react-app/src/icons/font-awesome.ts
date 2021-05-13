@@ -47,6 +47,7 @@ export const iconMap: { [key: string]: any } = {
   'info': ['fas', 'info'],
   'cog': ['fas', 'cog'],
   'question': ['fas', 'question'],
+  'question-circle': ['fas', 'question-circle'],
   'user': ['fas', 'user'],
   'lock': ['fas', 'lock'],
   'flag': ['fas', 'flag'],
