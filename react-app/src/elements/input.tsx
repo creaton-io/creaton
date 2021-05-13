@@ -1,10 +1,13 @@
 import {FC, InputHTMLAttributes} from "react";
 import clsx from "clsx";
+import Tooltip from "./tooltip";
+import {Icon} from "../icons";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement>{
     className?: string;
     invalid?: boolean;
     label?: string;
+    tooltip?: string;
 }
 
 const classes = [
@@ -14,14 +17,19 @@ const classes = [
     "disabled:bg-grey disabled:border-grey"
 ];
 
-export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text', label, ...attributes }) => {
+export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text', label, tooltip, ...attributes }) => {
     return (
         <div>
-                  {label !== "" 
-                  ? 
-                  <label className="block font-semibold mb-3">{label}</label>
-                     :  <p>No Lbael</p>
-    }
+    {label !== "" 
+        ? 
+        <label className="block font-semibold mb-3">{label}</label>
+            :  <p>No Lbael</p>
+        }
+     {
+        tooltip && tooltip.length ? <Tooltip content={<div>{tooltip}</div>} hover>
+            <Icon name="question-circle" className="text-gray-500 mb-1" />
+        </Tooltip> : null
+        }
             <input className={clsx(
                 classes,
                 className,

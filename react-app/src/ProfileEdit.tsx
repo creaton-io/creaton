@@ -153,8 +153,7 @@ const ProfileEdit = (props) => {
       </div>)}
 
 
-      <div className="p-5"><Input type="text" name="username" placeholder="Your Username" label="Enter your username"
-                                  value={username}
+      <div className="p-5"><Input type="text" name="username" placeholder="Your Username" label="Enter your username" value={username} tooltip="Please enter name."
                                   onChange={(event) => {
                                     setUsername(event.target.value)
                                   }}/></div>
