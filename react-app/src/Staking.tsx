@@ -225,7 +225,7 @@ const Staking = (props) => {
             setExpanded(!expanded);
           }}>
             <div className="flex-grow">
-              <img className="inline w-10 h-10 ml-4 p-2 bg-cover" src="./assets/images/HQ4.png"/>
+              <img className="inline w-10 h-10 ml-4 p-2 bg-cover" src="./assets/images/logo.png"/>
               <span>CREATE</span>
             </div>
             <StatItem name="Your Balance" value={createToken}/>
