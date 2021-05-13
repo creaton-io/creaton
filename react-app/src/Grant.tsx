@@ -136,6 +136,15 @@ const Grant = () => {
     return subscriber.status !== 'requested_subscribe'
   })
 
+  const subscribed_subscribers = data.subscribers.filter((subscriber) => {
+    return subscriber.status === 'subscribed'
+  })
+
+  const pending_subscribers = data.subscribers.filter((subscriber) => {
+    return subscriber.status === 'pending_subscribe'
+  })
+
+
   return (
     <div className="grid grid-cols-1 place-items-center">
       {grantStatus.message && <h3>{grantStatus.message}</h3>}
@@ -154,25 +163,40 @@ const Grant = () => {
             <Checkbox label={""} checked={checkedSubscribers.get(subscriber.user) || false} onChange={(e) => {
               setCheckedSubscribers((new Map(checkedSubscribers)).set(subscriber.user, !(checkedSubscribers.get(subscriber.user) || false)))
             }}/>
-            <Avatar size="menu" src={JSON.parse(subscriber.profile.data).image}/> <span
-            className="ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+            <Avatar size="menu" src={JSON.parse(subscriber.profile.data).image}/> <span className="ml-2">{JSON.parse(subscriber.profile.data).username}</span>
           </div>))}
         {Array.from(checkedSubscribers.values()).some((checked) => (checked)) && (<Button onClick={() => {
           grantChecked()
         }}
                                                                                           label={"Grant " + (Array.from(checkedSubscribers.values()).filter((checked) => (checked)).length) + " subscribers"}/>)}
       </div>)}
-      <h3>Subscribers</h3>
-      {other_subscribers.map((subscriber) => (<div key={subscriber.user}>
-        <Avatar size="small"
-                src={JSON.parse(subscriber.profile.data).image}/> {JSON.parse(subscriber.profile.data).username} : {subscriber.status}
-        {subscriber.status === 'subscribed' && (<Button onClick={() => {
-          regrant(subscriber)
-        }} label="Re-Grant"/>)}
-        {subscriber.status === 'pending_unsubscribe' && (<Button onClick={() => {
-          revoke(subscriber)
-        }} label="Revoke"/>)}
+
+      <div className="w-1/2">
+        <h3 className="text-lg">Requested Subscribers</h3>
+      {requested_subscribers.map((subscriber) => (<div key={subscriber.user} className="flex flex-row place-items-center m-2">
+        <Avatar size="menu"
+                src={JSON.parse(subscriber.profile.data).image}/>
+                <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
       </div>))}
+      </div>
+
+      <div className="w-1/2">
+        <h3 className="text-lg">Pending Subscribers</h3>
+      {pending_subscribers.map((subscriber) => (<div key={subscriber.user} className="flex flex-row place-items-center m-2">
+        <Avatar size="menu"
+                src={JSON.parse(subscriber.profile.data).image}/>
+                <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+      </div>))}
+      </div>
+
+      <div className="w-1/2">
+        <h3 className="text-lg">Subscribers</h3>
+      {subscribed_subscribers.map((subscriber) => (<div key={subscriber.user} className="flex flex-row place-items-center m-2">
+        <Avatar size="menu"
+                src={JSON.parse(subscriber.profile.data).image}/>
+                <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+      </div>))}
+      </div>
     </div>
   );
 };
