@@ -34,14 +34,14 @@ export default function Tooltip({ content, children, hover = false }) {
                     ref={setPopperElement}
                     style={styles.popper}
                     {...attributes.popper}
-                    className={clsx("bg-black bg-opacity-50 rounded-md text-white text-center w-full max-w-sm")}
+                    className={clsx("bg-black rounded-md text-white text-center w-full max-w-sm")}
                 >
                     <div className="p-2">
                         {content}
                     </div>
                     <div ref={setArrowElement} style={styles.arrow}>
                         <div className="w-4 overflow-hidden inline-block flex items-center">
-                            <div className="h-3 w-3 bg-black bg-opacity-50 -rotate-45 transform origin-top-left" />
+                            <div className="h-3 w-3 bg-black -rotate-45 transform origin-top-left" />
                         </div>
                     </div>
                 </div> : null,
