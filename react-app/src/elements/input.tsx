@@ -20,16 +20,20 @@ const classes = [
 export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text', label, tooltip, ...attributes }) => {
     return (
         <div>
-    {label !== "" 
+            <div className="flex items-center mb-3">
+            {label !== "" 
         ? 
-        <label className="block font-semibold mb-3">{label}</label>
+        <label className="block font-semibold mr-1.5">{label}</label>
             :  <p>No Lbael</p>
         }
      {
         tooltip && tooltip.length ? <Tooltip content={<div>{tooltip}</div>} hover>
-            <Icon name="question-circle" className="text-gray-500 mb-1" />
+            <Icon name="question-circle" className="text-gray-500 " />
         </Tooltip> : null
         }
+
+            </div>
+    
             <input className={clsx(
                 classes,
                 className,
