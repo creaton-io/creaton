@@ -14,6 +14,7 @@ import {Avatar} from "./components/avatar";
 import {Checkbox} from "./elements/checkbox";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import clsx from "clsx";
+import {Web3UtilsContext} from "./Web3Utils";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -89,6 +90,7 @@ function Tabs({tabs, activeTab, setActiveTab}) {
 const Grant = () => {
   const umbralWasm = useContext(UmbralWasmContext)
   const web3Context = useWeb3React<Web3Provider>()
+  const web3utils = useContext(Web3UtilsContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const [grantStatus, setGrantStatus] = useState({status: '', message: ''})
   const creator = useCurrentCreator().currentCreator
@@ -123,9 +125,11 @@ const Grant = () => {
     umbral.grant(subscriber.pub_key)
       .then(function () {
         const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-        creatorContract.acceptSubscribe(subscriber.user).then(function () {
+        creatorContract.acceptSubscribe(subscriber.user).then(async function (receipt) {
           console.log('Accepted the subscription')
-          setGrantStatus({status: 'done', message: 'Granted'})
+          web3utils.setIsWaiting(true);
+          await receipt.wait(1)
+          web3utils.setIsWaiting(false);
         }).catch((error) => {
           notificationHandler.setNotification({description: 'Could not grant ' + error.message, type: 'error'})
         })
@@ -133,21 +137,25 @@ const Grant = () => {
   }
 
   async function grantChecked() {
-    setGrantStatus({status: 'pending', message: 'Granting  subscribers, please wait'})
     const umbral = await getUmbral()
     let users: any = []
+    web3utils.setIsWaiting("Sending re-encryption keys to the network");
     for (let subscriber of data.subscribers) {
       if (checkedSubscribers.get(subscriber.user)) {
         await umbral.grant(subscriber.pub_key)
         users.push(subscriber.user)
       }
     }
+    web3utils.setIsWaiting(false);
     const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-    creatorContract.bulkAcceptSubscribe(users).then(function () {
+    creatorContract.bulkAcceptSubscribe(users).then(async function (receipt) {
       console.log('Accepted all the subscription')
-      setGrantStatus({status: 'done', message: 'Granted'})
+      web3utils.setIsWaiting(true);
+      await receipt.wait(1)
+      web3utils.setIsWaiting(false);
     }).catch((error) => {
       notificationHandler.setNotification({description: 'Could not grant ' + error.message, type: 'error'})
+      web3utils.setIsWaiting(false);
     })
   }
 
@@ -256,7 +264,7 @@ const Grant = () => {
             </div>))}
           <div className="flex flex-row justify-center">
             <div className="w-1/2 md:w-1/3 m-4">
-              <Button disabled={checkedCount === 0} onClick={() => {
+              <Button onClick={() => {
                 const allChecked = new Map<string, boolean>();
                 requested_subscribers.map((subscriber) => {
                   allChecked.set(subscriber.user, true)
