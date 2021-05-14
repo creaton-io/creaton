@@ -219,7 +219,7 @@ const ProfileMenu = (props) => {
         </div>
         <div className="grid grid-cols-1 divide-y divide-gray-200">
           {currentCreator &&
-          <NavigationLink to="/grant" label="Grant"/>
+          <NavigationLink to="/grant" label="Subscribers"/>
           }
           {currentCreator &&
           <NavigationLink to="/upload" label="Upload"/>
@@ -256,7 +256,7 @@ const HeaderButtons = () => {
       <Button label="Creators" theme="unfocused"></Button>
     </Link>
     {currentCreator && (<Link to="/grant">
-      <Button label="Grant" theme="unfocused"></Button>
+      <Button label="Subscribers" theme="unfocused"></Button>
     </Link>)}
     {currentCreator && (<Link to="/upload">
       <Button label="Upload" theme="unfocused"></Button>
@@ -331,7 +331,7 @@ function NavigationLinks() {
   return (<div>
     <NavigationLink to="/" label="Home"/>
     <NavigationLink to="/creators" label="Creators"/>
-    {currentCreator && <NavigationLink to="/grant" label="Grant"/>}
+    {currentCreator && <NavigationLink to="/grant" label="Subscribers"/>}
     {currentCreator && <NavigationLink to="/upload" label="Upload"/>}
     {currentCreator && <NavigationLink to="/staking" label="Staking"/>}
     {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}

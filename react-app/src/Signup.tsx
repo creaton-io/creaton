@@ -62,7 +62,7 @@ const SignUp = () => {
   }
 
   return (
-    <div>
+    <div className="grid grid-cols-1 place-items-center w-max m-auto">
       <form onSubmit={submitForm} className="py-10">
         <Input type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
           setCreatorName(event.target.value)
@@ -70,17 +70,17 @@ const SignUp = () => {
 
         <Input type="number" label="Subscription Price per Month" value={subscriptionPrice} onChange={(event) => {
           setSubscriptionPrice(event.target.value)
-        }}></Input>
+        }} tooltip="Each subscriber will stream this amount of USDC per month"></Input>
 
-        <Input type="text" label="Collection Name" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
+        <Input  type="text" label="Collection Name" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
           setCollectionName(event.target.value)
-        }}></Input>
+        }} tooltip="This would be the name of your NFT contract"></Input>
 
         <Input type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
           setCollectionSymbol(event.target.value)
-        }}></Input>
+        }} tooltip="This would be the symbol of your NFT contract"></Input>
 
-        <Button type="submit" label="Become a Creator"></Button>
+        <Button className="mt-6" type="submit" label="Become a Creator"></Button>
       </form>
     </div>
   );

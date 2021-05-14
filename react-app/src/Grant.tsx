@@ -13,6 +13,7 @@ import {Button} from "./elements/button";
 import {Avatar} from "./components/avatar";
 import {Checkbox} from "./elements/checkbox";
 import {NotificationHandlerContext} from "./ErrorHandler";
+import clsx from "clsx";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -29,6 +30,62 @@ const SUBSCRIBERS_QUERY = gql`
     }
 `;
 
+function Tabs({tabs, activeTab, setActiveTab}) {
+  return (
+    <div className="w-full mb-3">
+      <div className="sm:hidden">
+        <label htmlFor="tabs" className="sr-only">
+          Select a tab
+        </label>
+        <select
+          id="tabs"
+          name="tabs"
+          className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          defaultValue={tabs.find((tab) => tab.name === activeTab).name}
+        >
+          {tabs.map((tab) => (
+            <option key={tab.name}>{tab.name}</option>
+          ))}
+        </select>
+      </div>
+      <div className="hidden sm:block">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            {tabs.map((tab) => (
+              <a
+                key={tab.name}
+                href="#"
+                className={clsx(
+                  tab.name === activeTab
+                    ? 'border-indigo-500 text-indigo-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
+                  'w-1/3 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm'
+                )}
+                aria-current={tab.name === activeTab ? 'page' : undefined}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setActiveTab(tab.name)
+                }}
+              >
+                {tab.name}
+                <span
+                  className={clsx(
+                    tab.name === activeTab ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-900',
+                    'hidden ml-3 py-0.5 px-2.5 rounded-full text-xs font-medium md:inline-block'
+                  )}
+                >
+                    {tab.count}
+                  </span>
+
+              </a>
+            ))}
+          </nav>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 const Grant = () => {
   const umbralWasm = useContext(UmbralWasmContext)
   const web3Context = useWeb3React<Web3Provider>()
@@ -40,6 +97,7 @@ const Grant = () => {
     pollInterval: 10000,
     variables: {user: creator?.creatorContract}
   });
+  const [activeTab, setActiveTab] = useState('Requested')
 
   if (umbralWasm === null)
     return (<div>Umbral Wasm not loaded</div>)
@@ -144,59 +202,77 @@ const Grant = () => {
     return subscriber.status === 'pending_subscribe'
   })
 
+  const tabs = [
+    {name: 'Requested', count: requested_subscribers.length},
+    {name: 'Pending', count: pending_subscribers.length},
+    {name: 'Subscribed', count: subscribed_subscribers.length},
+  ]
+  const checkedCount = Array.from(checkedSubscribers.values()).filter((checked) => (checked)).length;
+
 
   return (
-    <div className="grid grid-cols-1 place-items-center">
-      {grantStatus.message && <h3>{grantStatus.message}</h3>}
-      {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (<Button onClick={() => {
-        revoke_all()
-      }} label="Revoke all pending_unsubscribe"/>)}
-
-      {requested_subscribers.length === 0 && (<div>
-        <h3>You have no pending subscribers</h3>
-      </div>)}
-
-      {requested_subscribers.length > 0 && (<div>
-        <h3>Check the profiles you want to grant access</h3>
-        {requested_subscribers.map((subscriber) => (
-          <div key={subscriber.user} className="flex flex-row place-items-center place-self-start m-3">
-            <Checkbox label={""} checked={checkedSubscribers.get(subscriber.user) || false} onChange={(e) => {
-              setCheckedSubscribers((new Map(checkedSubscribers)).set(subscriber.user, !(checkedSubscribers.get(subscriber.user) || false)))
-            }}/>
-            <Avatar size="menu" src={JSON.parse(subscriber.profile.data).image}/> <span className="ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+    <div className="w-1/2 m-auto grid grid-cols-1 place-items-start">
+      <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}/>
+      {activeTab === 'Pending' &&
+      (<div>
+        <h3 className="text-md">You have granted access to these profiles, but they haven't started their subscriptions
+          yet.</h3>
+        {pending_subscribers.map((subscriber) => (
+          <div key={subscriber.user} className="flex flex-row place-items-center m-2">
+            <Avatar size="menu"
+                    src={JSON.parse(subscriber.profile.data).image}/>
+            <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
           </div>))}
-        {Array.from(checkedSubscribers.values()).some((checked) => (checked)) && (<Button onClick={() => {
-          grantChecked()
-        }}
-                                                                                          label={"Grant " + (Array.from(checkedSubscribers.values()).filter((checked) => (checked)).length) + " subscribers"}/>)}
+      </div>)
+      }
+      {activeTab === 'Subscribed' &&
+      (<div><h3 className="text-md">These profiles are streaming money to you right now.</h3>
+        {subscribed_subscribers.map((subscriber) => (
+          <div key={subscriber.user} className="flex flex-row place-items-center m-2">
+            <Avatar size="menu"
+                    src={JSON.parse(subscriber.profile.data).image}/>
+            <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+          </div>))}</div>)
+      }
+      {activeTab === 'Requested' && (<div className="w-full">{grantStatus.message && <h3>{grantStatus.message}</h3>}
+        {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (
+          <Button onClick={() => {
+            revoke_all()
+          }} label="Revoke all pending_unsubscribe"/>)}
+
+        {requested_subscribers.length === 0 && (<div>
+          <h3>You have no subscription requests at the moment</h3>
+        </div>)}
+
+        {requested_subscribers.length > 0 && (<div>
+          <h3>Check the profiles you want to grant access</h3>
+          {requested_subscribers.map((subscriber) => (
+            <div key={subscriber.user} className="flex flex-row place-items-center place-self-start m-3">
+              <Checkbox label={""} checked={checkedSubscribers.get(subscriber.user) || false} onChange={(e) => {
+                setCheckedSubscribers((new Map(checkedSubscribers)).set(subscriber.user, !(checkedSubscribers.get(subscriber.user) || false)))
+              }}/>
+              <Avatar size="menu" src={JSON.parse(subscriber.profile.data).image}/> <span
+              className="ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+            </div>))}
+          <div className="flex flex-row justify-center">
+            <div className="w-1/2 md:w-1/3 m-4">
+              <Button disabled={checkedCount === 0} onClick={() => {
+                const allChecked = new Map<string, boolean>();
+                requested_subscribers.map((subscriber) => {
+                  allChecked.set(subscriber.user, true)
+                });
+                setCheckedSubscribers(allChecked)
+              }} label={"Check all profiles"}/>
+            </div>
+            <div className="w-1/2 md:w-1/3 m-4">
+              <Button disabled={checkedCount === 0} onClick={() => {
+                grantChecked()
+              }} label={"Grant " + checkedCount + " subscribers"}/>
+            </div>
+          </div>
+        </div>)}
+
       </div>)}
-
-      <div className="w-1/2">
-        <h3 className="text-lg">Requested Subscribers</h3>
-      {requested_subscribers.map((subscriber) => (<div key={subscriber.user} className="flex flex-row place-items-center m-2">
-        <Avatar size="menu"
-                src={JSON.parse(subscriber.profile.data).image}/>
-                <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
-      </div>))}
-      </div>
-
-      <div className="w-1/2">
-        <h3 className="text-lg">Pending Subscribers</h3>
-      {pending_subscribers.map((subscriber) => (<div key={subscriber.user} className="flex flex-row place-items-center m-2">
-        <Avatar size="menu"
-                src={JSON.parse(subscriber.profile.data).image}/>
-                <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
-      </div>))}
-      </div>
-
-      <div className="w-1/2">
-        <h3 className="text-lg">Subscribers</h3>
-      {subscribed_subscribers.map((subscriber) => (<div key={subscriber.user} className="flex flex-row place-items-center m-2">
-        <Avatar size="menu"
-                src={JSON.parse(subscriber.profile.data).image}/>
-                <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
-      </div>))}
-      </div>
     </div>
   );
 };

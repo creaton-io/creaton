@@ -19,8 +19,8 @@ const classes = [
 
 export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text', label, tooltip, ...attributes }) => {
     return (
-        <div>
-            <div className="flex items-center mb-3">
+        <div className="mb-4">
+            <div className="flex items-center mb-1">
             {label !== "" 
         ? 
         <label className="block font-semibold mr-1.5">{label}</label>

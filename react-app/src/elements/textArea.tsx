@@ -19,7 +19,7 @@ export const Textarea: FC<TextAreaProps> = ({ className, invalid = false, label,
         <div>
                   {label !== "" 
                   ? 
-                  <label className="block font-semibold mb-3">{label}</label>
+                  <label className="block font-semibold mb-1">{label}</label>
                      :  <p>No Lbael</p>
     }
             <textarea className={clsx(

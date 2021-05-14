@@ -34,7 +34,7 @@ export default function Tooltip({ content, children, hover = false }) {
                     ref={setPopperElement}
                     style={styles.popper}
                     {...attributes.popper}
-                    className={clsx("bg-black rounded-md text-white text-center w-full max-w-sm")}
+                    className={clsx("bg-black bg-opacity-80 rounded-md font-xs font-semibold text-white text-center max-w-sm")}
                 >
                     <div className="p-2">
                         {content}

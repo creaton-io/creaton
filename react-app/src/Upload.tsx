@@ -16,6 +16,8 @@ import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
 import SignUp from "./Signup";
 import {Toggle} from "./elements/toggle";
 import {Web3UtilsContext} from "./Web3Utils";
+import {Icon} from "./icons";
+import Tooltip from "./elements/tooltip";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -52,13 +54,10 @@ const Upload = () => {
   const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
     return (<div>Not connected</div>)
-  if (context.account!=='0x640d1Fd422649B4E855A12A6fBf762fc56935793')
-    return (<div>Not allowed</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
-    return (<div className="grid grid-cols-1 place-items-center w-max m-auto"><h3>Please signup first. You are not a creator yet.</h3>
-      <SignUp/></div>)
+    return (<SignUp/>)
   if (!umbralWasm)
     return (<div>Umbral wasm not loaded yet</div>)
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
@@ -264,8 +263,10 @@ const Upload = () => {
           setDescription(event.target.value)
         }}/>
         <div className="w-full m-5">
-          <label className="float-left">
-            Only for subscribers
+          <label className="flex float-left">
+            <span className="mr-1">Only for subscribers</span> <Tooltip content={<div>Title and description of the content are still visible for everyone</div>} hover>
+            <Icon name="question-circle" className="text-gray-500 " />
+        </Tooltip>
           </label>
 
           <div className="float-right"><Toggle state={uploadEncrypted} onClick={(e) => {
