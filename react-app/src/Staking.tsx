@@ -4,6 +4,7 @@ import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import creaton_contracts from "./Contracts";
 import {BigNumber, Contract} from "ethers";
+import clsx from 'clsx';
 import {parseUnits, formatEther} from "@ethersproject/units";
 import {Input} from "./elements/input";
 import {NotificationHandlerContext} from "./ErrorHandler";
@@ -62,6 +63,7 @@ const Staking = (props) => {
 
   const [inputStakeAmount, setInputStakeAmount] = useState('')
   const [inputUnstakeAmount, setInputUnstakeAmount] = useState('')
+  const [expanded, setExpanded] = useState(false);
   const [createToken, setCreateToken] = useState('')
   const [stakedToken, setStakedToken] = useState('')
   const [minStake, setMinStake] = useState('')
@@ -69,9 +71,10 @@ const Staking = (props) => {
   const [totalSupply, setTotalSupply] = useState<BigNumber>(BigNumber.from(1))
   const [rewardRate, setRewardRate] = useState<BigNumber>(BigNumber.from(0))
 
-  let APR
+  let APR = BigNumber.from(0)
   if (!totalSupply.eq(0))
     APR = rewardRate.div(totalSupply)
+
 
   function beautifyAmount(balance) {
     return formatEther(balance)
@@ -79,7 +82,8 @@ const Staking = (props) => {
   }
 
   function updateStakingValues() {
-    if(!context.library)return;
+    if (!context.library) return;
+    console.log('updating values')
     const connectedToken = tokenContract.connect(context.library!.getSigner())
     connectedToken.balanceOf(context.account).then(balance => {
       setCreateToken(beautifyAmount(balance))
@@ -107,8 +111,10 @@ const Staking = (props) => {
     const interval = setInterval(() => {
       updateStakingValues()
     }, 5000);
-    return () => clearInterval(interval);
-  }, [updateStakingValues]);
+    return () => {
+      clearInterval(interval)
+    };
+  }, []);
 
   async function stake() {
     const connectedToken = tokenContract.connect(context.library!.getSigner())
@@ -198,79 +204,96 @@ const Staking = (props) => {
     updateStakingValues()
   }
 
-  return (
-    <div className="">
-
-      <div className="bg-gray-200 flex flex-wrap p-8 my-8 mx-auto border-1 rounded-md  max-w-4xl divide-y divide-gray-300">
-
-        <div className="block md:flex md:divide-x divide-gray-300 w-full ">
-
-          <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
-              <h3 className="font-bold text-center text-6xl mb-5">{createToken}</h3>
-              <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Your Balance</h5>
-            </div>
-                  
-            <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
-            <h3 className="font-bold text-center text-6xl mb-5">{minStake}</h3>
-            <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Minimum Staked</h5>
-            </div>
-
-        </div>
-
-        <div className="block md:flex md:divide-x divide-gray-300 w-full ">
-
-          <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
-            <h3 className="font-bold text-center text-6xl mb-5">{stakedToken}</h3>
-            <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Staked</h5>
-          </div>
-            
-          <div className="W-full md:w-1/2 pt-10 pb-12 box-border">
-            <h3 className="font-bold text-center text-6xl mb-5">{earnedToken}</h3>
-            <h5 className="font-bold text-center text-lg uppercase italic text-gray-700">Your reward</h5>
-          </div>
-
-          </div>
-
-          <div className="flex flex-wrap w-full md:divide-x divide-gray-300 ">
-            <div className="W-full md:w-1/2 px-5 pt-10 pb-12 box-border">
-                  <div className="flex max-w-7xl mx-auto justify-between flex-wrap">
-                      <StakeInputGroup buttonLabel="Stake" label={"How much to stake?: " + createToken} max={createToken} setStakeAmount={(event) => {
-                          setInputStakeAmount(event.target.value)
-                        }}  />
-                  </div>
-                  {/* <Input type="number" label={"How much to stake?: " + createToken} placeholder="5" value={inputStakeAmount}
-                        onChange={(event) => {
-                          setInputStakeAmount(event.target.value)
-                        }}></Input>
-                  <Button type="submit" size="small" onClick={stake} label="Stake"></Button> */}
-            </div>
-
-            <div className="W-full md:w-1/2 px-5 pt-10 pb-12 box-border">
-            <div className="flex max-w-7xl mx-auto justify-between flex-wrap">
-                    <StakeInputGroup buttonLabel="Unstake" label={"How much to unstake?: " + createToken} max={stakedToken}
-                    setStakeAmount={(event) => {
-                      setInputStakeAmount(event.target.value)
-                    }} />
-                  </div>
-              {/* <Input type="number" label={"How much to unstake?: " + stakedToken} placeholder="5" value={inputUnstakeAmount}
-                    onChange={(event) => {
-                      setInputUnstakeAmount(event.target.value)
-                    }}></Input> */}
-                   {/* <Button type="submit" size="small" onClick={unstake} label="Unstake"></Button> */}
-            </div>
-
-            <div className=" my-4 justify-center items-center w-1/2 px-5">
-              <Button type="submit" size="full" onClick={harvest} label="Harvest"></Button>
-            </div>
-
-            <div className=" my-4 justify-center items-center w-1/2 px-5">
-              <Button type="submit" size="full" onClick={harvestAndExit} label="Harvest and exit"></Button>
-            </div>
-       </div>
-         
-      
+  function StatItem(props) {
+    return (<div className="w-40">
+      <div className="text-xs uppercase">
+        {props.name}
       </div>
-      
+      <div>
+        {props.value}
+      </div>
+    </div>)
+  }
+
+  return (
+    <div className="bg-gray-800 h-full border-t-2 border-white border-opacity-40 pt-4">
+      <div className="text-white text-sm font-bold mx-auto max-w-5xl">
+        <h3 className="text-2xl">Staking</h3>
+        <div
+          className={clsx('w-full transition-all my-5 bg-white bg-opacity-5 hover:bg-opacity-10 border-2 border-white overflow-hidden rounded-md', expanded ? 'max-h-screen' : 'max-h-24')}>
+          <div className="h-24 flex flex-row place-items-center cursor-pointer border-b-2" onClick={() => {
+            setExpanded(!expanded);
+          }}>
+            <div className="flex-grow">
+              <img className="inline w-10 h-10 ml-4 p-2 bg-cover" src="./assets/images/logo.png"/>
+              <span>CREATE</span>
+            </div>
+            <StatItem name="Your Balance" value={createToken}/>
+            <StatItem name="Pending Reward" value={earnedToken}/>
+            <StatItem name="Staked" value={stakedToken}/>
+            <StatItem name="APR" value={APR.toString()}/>
+          </div>
+          {expanded && <div className="flex flex-row flex-wrap place-items center">
+            <div className="w-1/2">
+              <StakeInputGroup buttonLabel="Stake" label={"Enter amount to stake: " + createToken} max={createToken}
+                               amount={inputStakeAmount}
+                               setStakeAmount={setInputStakeAmount}
+                               stakeAction={stake}/>
+            </div>
+            <div className="w-1/2">
+              <StakeInputGroup buttonLabel="Unstake" label={"Enter amount to unstake: " + createToken} max={stakedToken}
+                               amount={inputUnstakeAmount}
+                               setStakeAmount={setInputUnstakeAmount}
+                               stakeAction={unstake}/>
+            </div>
+            <div className="w-1/2">
+              <div className="m-2 p-2 border-2 rounded-md  border-white border-opacity-10">
+
+                <div className="block text-sm font-medium text-white font-semibold">
+                  Pending Reward
+                </div>
+                <div className="mt-1 flex justify-between rounded-md shadow-sm">
+                  <div className="flex-grow block text-xl mt-2 font-medium text-white font-semibold">
+                    {earnedToken}
+                  </div>
+                  <button
+                    type="button"
+                    className={clsx(
+                      "inline-flex items-end m-2 px-4 py-4",
+                      "font-medium rounded-md leading-4",
+                      "bg-white bg-opacity-10 text-white",
+                      "hover:bg-opacity-5",
+                      "active:bg-opacity-5",
+                      "focus:outline-none focus:bg-opacity-5 focus:ring-1 focus:ring-white focus:ring-offset-2",
+                      "disabled:bg-grey disabled:text-grey-dark",
+                    )}
+                    onClick={harvest}
+                  >
+                    Harvest
+                  </button>
+                  <button
+                    type="button"
+                    className={clsx(
+                      "inline-flex m-2 items-end px-4 py-4",
+                      "font-medium rounded-md leading-4",
+                      "bg-white bg-opacity-10 text-white",
+                      "hover:bg-opacity-5",
+                      "active:bg-opacity-5",
+                      "focus:outline-none focus:bg-opacity-5 focus:ring-1 focus:ring-white focus:ring-offset-2",
+                      "disabled:bg-grey disabled:text-grey-dark",
+                    )}
+                    onClick={harvestAndExit}
+                  >
+                    Harvest and exit
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>}
+        </div>
+      </div>
       </div>
   )
 }

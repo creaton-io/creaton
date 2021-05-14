@@ -52,6 +52,8 @@ const Upload = () => {
   const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
     return (<div>Not connected</div>)
+  if (context.account!=='0x640d1Fd422649B4E855A12A6fBf762fc56935793')
+    return (<div>Not allowed</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
