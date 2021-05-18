@@ -7,8 +7,7 @@ import 'hardhat-deploy-ethers';
 import '@openzeppelin/hardhat-upgrades';
 import {Wallet} from '@ethersproject/wallet';
 
-// const mnemonic = process.env.MNEMONIC;
-const mnemonic = 'aerobic claim erase pretty real unfold twenty label yard open square universe';
+const mnemonic = process.env.MNEMONIC;
 let accounts;
 let hardhatAccounts;
 

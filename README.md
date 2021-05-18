@@ -45,9 +45,9 @@ Create a `.env` file and set the following env variables in:
 Run `./command.py` and choose `deploy contracts`. After deployment choose to update the contracts as well.
 
 ## Run subgraph docker
-First edit `subgraph/docker-compose.yml` end edit the `etherum` env variable to an alchemy api url in this format:
+First edit `subgraph/docker-compose.yml` end edit the `etherum` env variable to an api url in this format:
 ```
-goerli:https://eth-goerli.alchemyapi.io/v2/<YOUR_TOKEN>
+mumbai:https://polygon-mumbai.infura.io/v3/<YOUR_TOKEN>
 ```
 
 Then run `./command.py` and choose `run subgraph docker`.
