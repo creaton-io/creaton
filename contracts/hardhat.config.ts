@@ -7,7 +7,7 @@ import 'hardhat-deploy-ethers';
 import '@openzeppelin/hardhat-upgrades';
 import {Wallet} from '@ethersproject/wallet';
 
-// const mnemonic = process.env.MNEMONIC;
+// const mnemonic = process..env.MNEMONIC;
 const mnemonic = 'aerobic claim erase pretty real unfold twenty label yard open square universe';
 let accounts;
 let hardhatAccounts;
@@ -28,11 +28,37 @@ if (mnemonic) {
 }
 
 const config = {
-
   solidity: {
     compilers: [
       {
+        version: '^0.8.2',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+      {
+        version: '^0.8.0',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+      {
         version: '0.8.0',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+      {
+        version: '^0.6.0',
         settings: {
           optimizer: {
             enabled: true,
@@ -66,8 +92,8 @@ const config = {
             runs: 2000,
           },
         },
-      }
-    ], 
+      },
+    ],
   },
 
   namedAccounts: {
@@ -112,7 +138,7 @@ const config = {
       accounts,
     },
     goerli: {
-      // url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
+      // url: 'https://eth-goerli.alchemyapi.io/v2/' + process..env.ALCHEMY_TOKEN,
       url: 'https://eth-goerli.alchemyapi.io/v2/' + 'IUpvNP1pJQSpTDx7buvmQTFD6L9aYvUi',
       accounts,
     },

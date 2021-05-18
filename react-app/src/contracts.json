@@ -477,7 +477,7 @@
         "type": "function"
       }
     ],
-    "address": "0x879116e7FBf6e5Cdd392c9386B50b1c4BC84A3CE"
+    "address": "0x525504c04dBf18fb6ef53E54aC8C9586228E14b1"
   },
   "Creator": {
     "abi": [
@@ -1170,26 +1170,257 @@
         "type": "receive"
       }
     ],
-    "address": "0xe9Bd696F6679Ee5916f56D94578CcF6f798191D1"
+    "address": "0x796bD512D92E9Cf75fA210D3bA9D9e7471B4e9a1"
   },
   "TwitterVerification": {
     "abi": [
       {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "previousAdmin",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "newAdmin",
+            "type": "address"
+          }
+        ],
+        "name": "AdminChanged",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "beacon",
+            "type": "address"
+          }
+        ],
+        "name": "BeaconUpgraded",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "creator",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "creatorContract",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "subscriptionPrice",
+            "type": "uint256"
+          }
+        ],
+        "name": "CreatorDeployed",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "NewSubscriber",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "jsonData",
+            "type": "string"
+          }
+        ],
+        "name": "ProfileUpdate",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "implementation",
+            "type": "address"
+          }
+        ],
+        "name": "Upgraded",
+        "type": "event"
+      },
+      {
         "inputs": [
           {
             "internalType": "address",
-            "name": "link",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "contract2creator",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "name": "creator2contract",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "creatorBeacon",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          },
+          {
+            "internalType": "uint256",
+            "name": "subscriptionPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "nftName",
+            "type": "string"
+          },
+          {
+            "internalType": "string",
+            "name": "nftSymbol",
+            "type": "string"
+          }
+        ],
+        "name": "deployCreator",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getTrustedForwarder",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "host",
             "type": "address"
           },
           {
             "internalType": "address",
-            "name": "oracle",
+            "name": "cfa",
             "type": "address"
           },
           {
-            "internalType": "string",
-            "name": "jobId",
-            "type": "string"
+            "internalType": "address",
+            "name": "acceptedToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_treasury",
+            "type": "address"
+          },
+          {
+            "internalType": "int96",
+            "name": "_treasuryFee",
+            "type": "int96"
+          },
+          {
+            "internalType": "address",
+            "name": "_creatorBeacon",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_nftFactory",
+            "type": "address"
           },
           {
             "internalType": "address",
@@ -1197,160 +1428,14 @@
             "type": "address"
           },
           {
-            "internalType": "address",
-            "name": "admin",
+            "internalType": "address payable",
+            "name": "_paymaster",
             "type": "address"
           }
         ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "name": "ChainlinkCancelled",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "name": "ChainlinkFulfilled",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "id",
-            "type": "bytes32"
-          }
-        ],
-        "name": "ChainlinkRequested",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "previousOwner",
-            "type": "address"
-          },
-          {
-            "indexed": true,
-            "internalType": "address",
-            "name": "newOwner",
-            "type": "address"
-          }
-        ],
-        "name": "OwnershipTransferred",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "requestId",
-            "type": "bytes32"
-          },
-          {
-            "indexed": true,
-            "internalType": "bytes32",
-            "name": "username",
-            "type": "bytes32"
-          }
-        ],
-        "name": "RequestTwitterVerificationFulfilled",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "userAddress",
-            "type": "address"
-          },
-          {
-            "indexed": false,
-            "internalType": "string",
-            "name": "username",
-            "type": "string"
-          },
-          {
-            "indexed": false,
-            "internalType": "bool",
-            "name": "result",
-            "type": "bool"
-          }
-        ],
-        "name": "UserSignUpResult",
-        "type": "event"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "_requestId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "_payment",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bytes4",
-            "name": "_callbackFunctionId",
-            "type": "bytes4"
-          },
-          {
-            "internalType": "uint256",
-            "name": "_expiration",
-            "type": "uint256"
-          }
-        ],
-        "name": "cancelRequest",
+        "name": "initialize",
         "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "bytes32",
-            "name": "_requestId",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "bool",
-            "name": "result",
-            "type": "bool"
-          }
-        ],
-        "name": "fulfillVerification",
-        "outputs": [],
-        "stateMutability": "nonpayable",
+        "stateMutability": "payable",
         "type": "function"
       },
       {
@@ -1374,7 +1459,7 @@
       },
       {
         "inputs": [],
-        "name": "owner",
+        "name": "nftFactory",
         "outputs": [
           {
             "internalType": "address",
@@ -1387,64 +1472,78 @@
       },
       {
         "inputs": [],
-        "name": "renounceOwnership",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "uint256",
-            "name": "hash",
-            "type": "uint256"
-          },
-          {
-            "internalType": "string",
-            "name": "username",
-            "type": "string"
-          }
-        ],
-        "name": "requestTwitterVerification",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "string",
-            "name": "source",
-            "type": "string"
-          }
-        ],
-        "name": "stringToBytes32",
+        "name": "paymaster",
         "outputs": [
           {
-            "internalType": "bytes32",
-            "name": "result",
-            "type": "bytes32"
+            "internalType": "address payable",
+            "name": "",
+            "type": "address"
           }
         ],
-        "stateMutability": "pure",
+        "stateMutability": "view",
         "type": "function"
       },
       {
         "inputs": [
           {
             "internalType": "address",
-            "name": "newOwner",
+            "name": "",
             "type": "address"
           }
         ],
-        "name": "transferOwnership",
+        "name": "registeredUsers",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "twitter",
+            "type": "string"
+          }
+        ],
+        "name": "signUp",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "treasury",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "treasuryFee",
+        "outputs": [
+          {
+            "internalType": "int96",
+            "name": "",
+            "type": "int96"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       },
       {
@@ -1463,27 +1562,74 @@
       {
         "inputs": [
           {
-            "internalType": "bytes",
-            "name": "signature",
-            "type": "bytes"
-          },
-          {
-            "internalType": "address",
-            "name": "userAddress",
-            "type": "address"
-          },
-          {
             "internalType": "string",
-            "name": "username",
+            "name": "dataJSON",
             "type": "string"
           }
         ],
-        "name": "verifySignature",
+        "name": "updateProfile",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
+          }
+        ],
+        "name": "updateTrustedForwareder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newImplementation",
+            "type": "address"
+          }
+        ],
+        "name": "upgradeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newImplementation",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "name": "upgradeToAndCall",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "user2twitter",
         "outputs": [
           {
-            "internalType": "bool",
+            "internalType": "string",
             "name": "",
-            "type": "bool"
+            "type": "string"
           }
         ],
         "stateMutability": "view",
@@ -1501,16 +1647,9 @@
         ],
         "stateMutability": "view",
         "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "withdrawLink",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
       }
     ],
-    "address": "0x7F31D8Cf6242169C2AE694008934B2fe5B9f407f"
+    "address": "0x23d0B9b71E15ACb24A18047f2694A72A5D646CEb"
   },
   "Paymaster": {
     "abi": [
@@ -2151,7 +2290,7 @@
         "type": "receive"
       }
     ],
-    "address": "0x329175b952D43858EE29759C00BE1066B1c5E855"
+    "address": "0xa1C4c664581236288946c3827bCcdbb7fC96fFe7"
   },
   "CreatonStaking": {
     "abi": [
@@ -2861,7 +3000,7 @@
         "type": "function"
       }
     ],
-    "address": "0xEF4b57D25dc5397EE88BEeaa34B6CFF92EeaD71E"
+    "address": "0x2d231492ffd3Aaa38227f9493EA9d4bE6F77Fb5B"
   },
   "CreatonToken": {
     "abi": [
@@ -2910,6 +3049,6 @@
         "type": "receive"
       }
     ],
-    "address": "0x00d1d6Df838de39ECD26B44e4b6515110246AD80"
+    "address": "0x5243efA574D22a955d58B4348f61E07032da18d5"
   }
 }

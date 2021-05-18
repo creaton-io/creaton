@@ -1,4 +1,4 @@
-// for vite : import.meta.env
+// for vite : import.meta..env
 interface ImportMeta {
   env: {[name: string]: string};
 }
