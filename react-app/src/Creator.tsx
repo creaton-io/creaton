@@ -80,7 +80,11 @@ export function Creator() {
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const context = useWeb3React<Web3Provider>()
-  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
+  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000, onCompleted: data => updateDisplayOfContents(data)});
+  function updateContentsQuery(){
+    contentsQuery.refetch({user:creatorContractAddress})
+    console.log("\"smart\" refetch was run")
+  }
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}})
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     variables: {
@@ -121,10 +125,13 @@ export function Creator() {
   let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
   const canDecrypt = (isSelf || subscription === 'subscribed')
   useEffect(() => {
-    if (contentsQuery.loading || contentsQuery.error) return;
+    updateDisplayOfContents(contentsQuery)
+  }, [downloadStatus, textile, canDecrypt])
+  function updateDisplayOfContents(contentsQ){
+    if (contentsQ.loading || contentsQ.error) return;
     if (!textile) return;
     if (!canDecrypt) return;
-    const contents = contentsQuery.data.contents;
+    const contents = contentsQ.data.contents;
     if (Object.keys(downloadStatus).length === 0 || !contents) return;
     if (umbralWasm === null) return;
     if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
@@ -143,8 +150,7 @@ export function Creator() {
         break;
       }
     }
-  }, [downloadStatus, textile, canDecrypt])
-
+  }
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
     a.href = data;
@@ -309,7 +315,6 @@ export function Creator() {
   function isLiked(content){
     return content.likers.some((like)=>(like.approval===1 && like.profile.id===context.account?.toLowerCase()));
   }
-
   function showItem(content){
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
@@ -317,7 +322,7 @@ export function Creator() {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-                      like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
+                      like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
@@ -348,14 +353,18 @@ export function Creator() {
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
     try {
       let status
-      if(isLiked(content))
-        status = 0;
+      if(isLiked(content)) //likeStatus =  !likeStatus
+        status = 0; //unlikes content
       else
-        status = 1;
+        status = 1; //sets like to true
       let receipt = await creatorContract.like(content.tokenId, status);
+      await receipt.wait(1)
+      console.log("like value is set to "+status)
     } catch (error) {
       notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
     }
+    //even if the user can't like, we refresh things like new posts, and the like counter
+    updateContentsQuery()
   }
 
   async function report(content) {
