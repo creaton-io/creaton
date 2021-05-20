@@ -80,7 +80,7 @@ export function Creator() {
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const context = useWeb3React<Web3Provider>()
-  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000000});
+  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery(){
     contentsQuery.refetch({user:creatorContractAddress})
     console.log("\"smart\" refetch was run")
