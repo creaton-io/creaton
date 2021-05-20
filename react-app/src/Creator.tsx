@@ -80,7 +80,7 @@ export function Creator() {
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const context = useWeb3React<Web3Provider>()
-  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000, onCompleted: data => updateDisplayOfContents(data)});
+  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000000});
   function updateContentsQuery(){
     contentsQuery.refetch({user:creatorContractAddress})
     console.log("\"smart\" refetch was run")
@@ -124,14 +124,12 @@ export function Creator() {
   }, [subscriptionQuery, context])
   let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
   const canDecrypt = (isSelf || subscription === 'subscribed')
+
   useEffect(() => {
-    updateDisplayOfContents(contentsQuery)
-  }, [downloadStatus, textile, canDecrypt])
-  function updateDisplayOfContents(contentsQ){
-    if (contentsQ.loading || contentsQ.error) return;
+    if (contentsQuery.loading || contentsQuery.error) return;
     if (!textile) return;
     if (!canDecrypt) return;
-    const contents = contentsQ.data.contents;
+    const contents = contentsQuery.data.contents;
     if (Object.keys(downloadStatus).length === 0 || !contents) return;
     if (umbralWasm === null) return;
     if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
@@ -150,7 +148,8 @@ export function Creator() {
         break;
       }
     }
-  }
+  }, [downloadStatus, textile, canDecrypt])
+
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
     a.href = data;
