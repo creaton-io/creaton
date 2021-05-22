@@ -18,6 +18,7 @@ import {Toggle} from "./elements/toggle";
 import {Web3UtilsContext} from "./Web3Utils";
 import {Icon} from "./icons";
 import Tooltip from "./elements/tooltip";
+import {useCanBecomeCreator} from "./Whitelist";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -48,12 +49,15 @@ const Upload = () => {
     }
   }, [ffmpeg])
   const {loading, error, currentCreator} = useCurrentCreator()
+  const canBecomeCreator = useCanBecomeCreator()
 
 
   const notificationHandler = useContext(NotificationHandlerContext)
   const umbralWasm = useContext(UmbralWasmContext)
   if (!context.account)
     return (<div>Not connected</div>)
+  if (!canBecomeCreator)
+    return (<div>Not allowed, you are not whitelisted</div>)
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)

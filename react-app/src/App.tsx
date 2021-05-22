@@ -36,6 +36,7 @@ import {Avatar} from "./components/avatar";
 import {Toggle} from "./elements/toggle";
 import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
 import Loader from "./elements/loader";
+import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
 
 initFontAwesome()
 
@@ -132,6 +133,7 @@ const ProfileMenu = (props) => {
       setMaticBalance(balance);
     })
   }, [library, account])
+  const canBecomeCreator = useCanBecomeCreator()
 
   function formatBalance(balance) {
     if (balance === 'Loading') return balance;
@@ -221,7 +223,7 @@ const ProfileMenu = (props) => {
           {currentCreator &&
           <NavigationLink to="/grant" label="Subscribers"/>
           }
-          {currentCreator &&
+          {canBecomeCreator &&
           <NavigationLink to="/upload" label="Upload"/>
           }
           {currentProfile &&
@@ -233,10 +235,11 @@ const ProfileMenu = (props) => {
 }
 
 const HeaderButtons = () => {
-  const {currentProfile} = useCurrentProfile()
   const {currentCreator} = useCurrentCreator()
   const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   const submenuRef = useRef<any>(null);
+  const canBecomeCreator = useCanBecomeCreator()
+  const isAdmin = useIsAdmin()
   useEffect(() => {
     function handleClickOutside(event) {
       if (submenuRef.current && !(submenuRef.current.contains(event.target))) {
@@ -258,10 +261,10 @@ const HeaderButtons = () => {
     {currentCreator && (<Link to="/grant">
       <Button label="Subscribers" theme="unfocused"></Button>
     </Link>)}
-    {currentCreator && (<Link to="/upload">
+    {canBecomeCreator && (<Link to="/upload">
       <Button label="Upload" theme="unfocused"></Button>
     </Link>)}
-    {currentCreator && (<Link to="/staking">
+    {isAdmin && (<Link to="/staking">
       <Button label="Staking" theme="unfocused"></Button>
     </Link>)}
     <ConnectOrSignup onAvatarClick={() => {
@@ -328,12 +331,14 @@ function NavigationLinks() {
   const {currentCreator} = useCurrentCreator()
   const {active} = useWeb3React()
   const web3utils = useContext(Web3UtilsContext)
+  const canBecomeCreator = useCanBecomeCreator()
+  const isAdmin = useIsAdmin()
   return (<div>
     <NavigationLink to="/" label="Home"/>
     <NavigationLink to="/creators" label="Creators"/>
     {currentCreator && <NavigationLink to="/grant" label="Subscribers"/>}
-    {currentCreator && <NavigationLink to="/upload" label="Upload"/>}
-    {currentCreator && <NavigationLink to="/staking" label="Staking"/>}
+    {canBecomeCreator && <NavigationLink to="/upload" label="Upload"/>}
+    {isAdmin && <NavigationLink to="/staking" label="Staking"/>}
     {currentProfile && <NavigationLink to="/signup" label="My Profile"/>}
     {(!currentProfile && active) && <NavigationLink to="/signup" label="Signup"/>}
     {(!currentProfile && !active) && <NavigationLink onClick={web3utils.connect} label="Connect Wallet"/>}
