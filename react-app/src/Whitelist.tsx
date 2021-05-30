@@ -21,7 +21,7 @@ const whitelist = [
 export function useCanBecomeCreator() {
   const {account} = useWeb3React()
   if (!account) return false;
-  return whitelist.includes(account.toLowerCase())
+  return true
 }
 
 export function useIsAdmin() {
