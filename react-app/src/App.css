@@ -1,3 +1,7 @@
+body, .bg-primary-gradiant {
+  background: linear-gradient(119.05deg, #5A338E 0%, #37255F 15.23%, #281840 35.22%);
+}
+
 .App {
   text-align: center;
 }

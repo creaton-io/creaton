@@ -9,9 +9,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const primaryStyle = [
-    "bg-blue-primary text-white",
-    "hover:bg-blue",
-    "active:bg-blue-dark",
+    "bg-gradient-to-r from-green to-green-dark text-white",
+    "hover:bg-green-dark",
+    "active:bg-green-dark",
     "focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2",
     "disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default",
 ]

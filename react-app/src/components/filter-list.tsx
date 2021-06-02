@@ -5,20 +5,22 @@ import { Button } from '../elements/button';
 import {Link} from "react-router-dom";
 
 const FilterItem = ({ avatar, title, subtitle, description, count, source, url }) => (
+<div className="bg-white bg-opacity-5 mb-4 rounded-xl">
   <Link to={url}>
-    <li className="py-4 flex">
+    <li className="py-4 px-6 flex">
         <Avatar size="profile" src={avatar}></Avatar>
         <div className="ml-3">
-            <p className="font-bold text-gray-900">{title}</p>
-            <p className="text-sm text-gray-700">{subtitle}</p>
+            <p className="font-bold text-white">{title}</p>
+            <p className="text-sm text-white">{subtitle}</p>
             <p className="mt-2 text-sm text-gray-500">{description}</p>
         </div>
         <div className="ml-auto text-center">
-            <p className="font-bold text-gray-900">{count}</p>
-            <p className="mt-2 text-sm text-gray-500">{source}</p>
+            <p className="font-bold text-white">{count}</p>
+            <p className="mt-2 text-sm text-white">{source}</p>
         </div>
     </li>
     </Link>
+</div>
 )
 const SearchInput = ({ search }) => {
     const ref = React.useRef<any>(null);
