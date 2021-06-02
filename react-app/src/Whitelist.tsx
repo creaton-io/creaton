@@ -9,13 +9,19 @@ const whitelist = [
   '0xe0fff1e12c06e04eba836a653487d42b2b336741',
   '0xdae7446a82d09e396a13e08849b3a204b561e5d2',
   '0x8eb97c7dbc3916b1c19768f02da61555f44d51be',
-  '0x0f8540760e4c0dd1ae9a094a5602e8b8ac9b0cd3'
+  '0x0f8540760e4c0dd1ae9a094a5602e8b8ac9b0cd3',
+  '0x4d5e55fd9AF26075173Ac7cbE888B320d7960Fdb',
+  '0x8E5539996a21fa05f7e553Cb43D25F373BA6a1fA',
+  '0x31a9495BFF201741C5FD20146a49D686e043010D',
+  '0x2E717f3e9FAB1014f86c695097Db036376c4ccC6',
+  '0x21Bb7DfB6eCa1902D04969F4E76d182C694CAeDE',
+  '0xf248feEDdC8c27387155ED6C3026B5062fDF4963'
 ]
 
 export function useCanBecomeCreator() {
   const {account} = useWeb3React()
   if (!account) return false;
-  return whitelist.includes(account.toLowerCase())
+  return true
 }
 
 export function useIsAdmin() {
