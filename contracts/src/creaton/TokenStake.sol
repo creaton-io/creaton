@@ -13,7 +13,7 @@ contract CreateStake {
     // Stake the CREATE token 
     constructor(address _owner, uint256 _supply) public {
         // _mint(_owner, _supply);
-
+        
     }
 
     // Internal stakeholders

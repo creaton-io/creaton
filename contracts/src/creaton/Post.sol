@@ -56,4 +56,6 @@ contract Post is Context, AccessControlEnumerable, ERC721URIStorage, ERC721Burna
     function tokenURI(uint256 tokenId) public view virtual override (ERC721URIStorage, ERC721) returns (string memory) {
         return super.tokenURI(tokenId);
     }
+
+    
 }
