@@ -254,6 +254,9 @@ contract Collections is Ownable, Pausable {
 		return pools[pool].cards[card].points;
 	}
 
+    /**
+    * @dev calculates the ammount of points to update!
+    */
 	function earned(address account, uint256 pool) public view returns (uint256) {
 		Pool storage p = pools[pool];
 		uint256 blockTime = block.timestamp;
@@ -262,14 +265,19 @@ contract Collections is Ownable, Pausable {
     console.log("Last Updated: ", p.lastUpdateTime[account]);
     console.log("Reward rate: ", p.rewardRate);
     console.log("Points:", p.points[account]);
-    uint256 earned = balanceOf(account, pool).mul(blockTime.sub(p.lastUpdateTime[account]).mul(p.rewardRate)).div(1e18).add(
+    // we add one to make sure that signed up users always generate points, not just if they add funds.
+    uint256 earned = (balanceOf(account, pool).add(1)).mul(blockTime.sub(p.lastUpdateTime[account]).mul(p.rewardRate)).div(1e18).add(
 				p.points[account]
 			);
     console.log("Earned: ", earned);
 		return earned;
 	}
 
-  function totalSupply() public view returns (uint256) {
+    /**
+    * @dev calculates the total suply of something??
+    * TODO: find out what supply this is counting
+    */
+    function totalSupply() public view returns (uint256) {
 		return _totalSupply;
 	}
 
