@@ -371,7 +371,7 @@ const App = () => {
 
                     <div className="flex-initial">
 
-                      <div className="relative bg-primary-gradiant">
+                      <div className="relative bg-primary-gradient">
                         <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
