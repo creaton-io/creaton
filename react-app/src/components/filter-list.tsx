@@ -41,7 +41,7 @@ export const FilterList = ({ list }) => {
     <div className="relative p-4">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SearchInput search={setSearchValue}/>
-        <ul className="divide-y divide-gray-100">
+        <ul>
           {filteredItems.map((item) => <FilterItem key={item.title} {...item} />)}
         </ul>
       </div>

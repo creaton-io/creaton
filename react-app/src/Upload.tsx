@@ -35,7 +35,7 @@ const Upload = () => {
     const file = event.currentTarget.files[0];
     console.log(file)
     setFileName(file.name)
-    setIsStreaming(false);
+    setIsStreaming(true);
     setCurrentFile(file)
   };
   const fileInput = React.createRef<any>();
@@ -239,18 +239,18 @@ const Upload = () => {
   }
 
   return (
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10">
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10 text-white">
         <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
                type="file" ref={fileInput}/>
         <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}>
         </Button>
-        <small>
+        <small className="text-white">
           {currentFile ? currentFile.name || "Error" : "No file chosen"}
         </small>
         {(currentFile?.type === 'video/mp4' && ffmpeg !== undefined) &&
-        <div className="w-full m-5">
+        <div className="w-full m-5 hidden">
           <label className="float-left">
-            Convert to streaming format
+            Convert to streaming format (fragmented video for faster looading)
           </label>
 
           <div className="float-right"><Toggle state={isStreaming} onClick={(e) => {
@@ -259,10 +259,10 @@ const Upload = () => {
           }}/></div>
         </div>
         }
-        <Input type="text" name="name" label="Name" placeholder="Title" value={fileName} onChange={(event) => {
+        <Input className="text-black" type="text" label="Title" placeholder="Title" value={fileName} onChange={(event) => {
           setFileName(event.target.value)
         }}/>
-        <Textarea name="description"  label="Description" placeholder="Description" value={description} rows={5}
+        <Textarea className="text-black" name="description"  label="Description" placeholder="Description" value={description} rows={5}
           onChange={(event) => {
           setDescription(event.target.value)
         }}/>

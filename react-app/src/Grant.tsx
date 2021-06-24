@@ -58,8 +58,8 @@ function Tabs({tabs, activeTab, setActiveTab}) {
                 href="#"
                 className={clsx(
                   tab.name === activeTab
-                    ? 'border-indigo-500 text-indigo-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200',
+                    ? 'border-indigo-500 text-white'
+                    : 'border-transparent text-purple-300 hover:border-gray-200',
                   'w-1/3 whitespace-nowrap flex py-4 px-1 border-b-2 font-medium text-sm'
                 )}
                 aria-current={tab.name === activeTab ? 'page' : undefined}
@@ -219,25 +219,25 @@ const Grant = () => {
 
 
   return (
-    <div className="w-1/2 m-auto grid grid-cols-1 place-items-start">
+    <div className="w-1/2 m-auto grid grid-cols-1 place-items-start text-white">
       <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}/>
       {activeTab === 'Pending' &&
       (<div>
-        <h3 className="text-md">You have granted access to these profiles, but they haven't started their subscriptions
+        <h3 className="text-md text-white">You have granted access to these profiles, but they haven't started their subscriptions
           yet.</h3>
         {pending_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center m-2">
-            <Avatar size="menu"
+            <Avatar size="medium"
                     src={JSON.parse(subscriber.profile.data).image}/>
-            <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+            <span className="font-bold ml-2 text-white">{JSON.parse(subscriber.profile.data).username}</span>
           </div>))}
       </div>)
       }
       {activeTab === 'Subscribed' &&
-      (<div><h3 className="text-md">These profiles are streaming money to you right now.</h3>
+      (<div><h3 className="text-md text-white">These profiles are streaming money to you right now.</h3>
         {subscribed_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center m-2">
-            <Avatar size="menu"
+            <Avatar size="medium"
                     src={JSON.parse(subscriber.profile.data).image}/>
             <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
           </div>))}</div>)
@@ -249,18 +249,18 @@ const Grant = () => {
           }} label="Revoke all pending_unsubscribe"/>)}
 
         {requested_subscribers.length === 0 && (<div>
-          <h3>You have no subscription requests at the moment</h3>
+          <h3 className="text-white">You have no subscription requests at the moment</h3>
         </div>)}
 
         {requested_subscribers.length > 0 && (<div>
-          <h3>Check the profiles you want to grant access</h3>
+          <h3 className="text-white">Check the profiles you want to grant access</h3>
           {requested_subscribers.map((subscriber) => (
             <div key={subscriber.user} className="flex flex-row place-items-center place-self-start m-3">
               <Checkbox label={""} checked={checkedSubscribers.get(subscriber.user) || false} onChange={(e) => {
                 setCheckedSubscribers((new Map(checkedSubscribers)).set(subscriber.user, !(checkedSubscribers.get(subscriber.user) || false)))
               }}/>
-              <Avatar size="menu" src={JSON.parse(subscriber.profile.data).image}/> <span
-              className="ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+              <Avatar size="medium" src={JSON.parse(subscriber.profile.data).image}/> <span
+              className="ml-2 text-white">{JSON.parse(subscriber.profile.data).username}</span>
             </div>))}
           <div className="flex flex-row justify-center">
             <div className="w-1/2 md:w-1/3 m-4">

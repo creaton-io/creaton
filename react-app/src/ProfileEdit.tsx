@@ -6,7 +6,7 @@ import creaton_contracts from "./Contracts";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
-import {Avatar} from "./components/avatar";
+import {AvatarUpload} from "./components/avatarUpload";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {Web3UtilsContext} from "./Web3Utils";
@@ -135,17 +135,12 @@ const ProfileEdit = (props) => {
              type="file" ref={coverInput}/>
       <div className="flex flex-row">
         <div className="p-5 cursor-pointer" onClick={() => fileInput.current.click()}>
-          <Avatar src={previewSrc}/>
+          <AvatarUpload src={previewSrc}/>
         </div>
       </div>
       {currentCreator && (<div className="flex flex-col">
         <div className="flex-shrink place-self-center p-5">
           <Button label="Upload Cover Photo" type="button" onClick={() => coverInput.current.click()}/>
-        </div>
-        <div className="p-5 max-w-md h-10 overflow-hidden">
-          <div className="max-h-full transform translate-y-1/2">
-          <img className="transform -translate-y-1/2" src={coverSrc}/>
-          </div>
         </div>
       </div>)}
 
