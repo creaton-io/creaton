@@ -5,7 +5,7 @@ import { Button } from '../elements/button';
 import {Link} from "react-router-dom";
 
 const FilterItem = ({ avatar, title, subtitle, description, count, source, url }) => (
-<div className="bg-white bg-opacity-5 mb-4 rounded-xl">
+<div className="bg-white bg-opacity-5 mb-4 rounded-xl shadow-md border-2 border-opacity-10 transition transform hover:shadow-lg">
   <Link to={url}>
     <li className="py-4 px-6 flex">
         <Avatar size="profile" src={avatar}></Avatar>
@@ -25,12 +25,12 @@ const FilterItem = ({ avatar, title, subtitle, description, count, source, url }
 const SearchInput = ({ search }) => {
     const ref = React.useRef<any>(null);
     return (
-        <div className="flex">
-            <div className="flex rounded-full p-4 mb-5 w-full bg-gray-100 items-center">
+        <div className="flex justify-center pt-8 pb-8">
+            <div className="flex rounded-sm bg-white text-white bg-opacity-5 ring-12 ring-black ring-opacity-25 p-3 mb-5 w-2/3 items-center">
                 <Icon name="search" className="text-gray-500" />
-                <input ref={ref} placeholder="Filter creators" className="w-full bg-transparent focus:outline-none ml-4" onChange={() => search(ref.current?.value)}/>
+                <input ref={ref} placeholder="Search creators" className="w-full bg-transparent focus:outline-none ml-4" onChange={() => search(ref.current?.value)}/>
             </div>
-            <Button label="Search" size="small" className="ml-4 bg-red-600 text-white h-14" onClick={() => search(ref.current?.value)} />
+            <Button label="Search" size="small" className="hidden ml-4 bg-red-600 text-white h-14" onClick={() => search(ref.current?.value)} />
         </div>
     )
 }

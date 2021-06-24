@@ -414,8 +414,8 @@ export function Creator() {
   return (
     <div>
     <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} button={generateButton()}/>
-    <div className="relative w-full h-60 bg-cover bg-center" style={{ backgroundImage: getCoverPhotoUrl() }}>
-      <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20">
+    <div className="relative w-full h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
+      <div className="object-cover w-20 h-20 rounded-full  my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20 blur-none">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
         </div>
@@ -423,7 +423,7 @@ export function Creator() {
     </div>
     <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
       <h3
-        className="text-l font-bold text-gray-800">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
+        className="text-l font-bold text-white">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
       <div className="my-5 mx-auto max-w-lg w-1/5 space-y-5">
         {generateButton()}
@@ -442,8 +442,11 @@ export function Creator() {
         {/*  convertUSDCx()*/}
         {/*}} label="Upgrade"/>*/}
       </div>
-      <h1 className="mb-5 text-2xl font-bold">Latest posts</h1>
-      
+      <h1 className="mb-5 text-2xl font-bold text-white">
+        {
+          contents.length === 0 ? "No posts yet!" : "Latest posts"
+        }
+      </h1>
       <div className="py-5">
         {
           contents.map((x) => showItem(x))

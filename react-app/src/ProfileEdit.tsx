@@ -134,10 +134,7 @@ const ProfileEdit = (props) => {
              onChange={(event) => handleCoverSelection(event)} name="file"
              type="file" ref={coverInput}/>
       <div className="flex flex-row">
-        <div className="flex-shrink place-self-center p-5">
-          <Button label="Upload Avatar" type="button" onClick={() => fileInput.current.click()}/>
-        </div>
-        <div className="p-5">
+        <div className="p-5 cursor-pointer" onClick={() => fileInput.current.click()}>
           <Avatar src={previewSrc}/>
         </div>
       </div>
@@ -153,7 +150,7 @@ const ProfileEdit = (props) => {
       </div>)}
 
 
-      <div className="p-5"><Input type="text" name="username" placeholder="Your Username" label="Enter your username" value={username}
+      <div className="p-5 text-white"><Input className="bg-gray-900 text-white" type="text" name="username" placeholder="Your Username" label="Enter your username" value={username}
                                   onChange={(event) => {
                                     setUsername(event.target.value)
                                   }}/></div>

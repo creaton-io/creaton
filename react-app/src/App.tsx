@@ -369,10 +369,10 @@ const App = () => {
                       </div>))}
                     </NotificationHandlerContext.Consumer>
 
-                    <div className="flex-initial">
+                    <div className="flex-initial border-b border-opacity-25">
 
                       <div className="relative bg-primary-gradient">
-                        <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full"
+                        <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full bg-gradient-to-r from-purple-500 to-purple-700"
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
                         </div>
@@ -381,8 +381,9 @@ const App = () => {
                             <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
                               <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
                                 <div className="flex items-center justify-between w-full md:w-auto">
-                                  <a href="#"><span className="sr-only">Workflow</span><img
-                                    src="./assets/svgs/logo.svg"/></a>
+                                  <a href="#"><span className="sr-only">Workflow</span>
+                                    <img src="./assets/svgs/logo.svg"/>
+                                  </a>
                                   <div className="-mr-2 flex items-center md:hidden">
                                     <button type="button"
                                             className="bg-gray-50 rounded-md p-2 inline-flex items-center justify-center text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"

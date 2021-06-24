@@ -62,25 +62,31 @@ const SignUp = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 place-items-center w-max m-auto">
+    <div className="grid grid-cols-1 place-items-center w-max m-auto text-white">
+      <p className="text-5xl pt-12 pb-6">
+        Sign Up As Creator!
+      </p>
+      <p className="text-xl opacity-50">
+        Setup your creator profile so you can upload content and start earning!
+      </p>
       <form onSubmit={submitForm} className="py-10">
-        <Input type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
+        <Input className="bg-gray-900" type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
           setCreatorName(event.target.value)
         }}></Input>
 
-        <Input type="number" label="Subscription Price per Month" value={subscriptionPrice} onChange={(event) => {
+        <Input className="bg-gray-900" type="number" label="Subscription Price per Month" min="1" value={subscriptionPrice} onChange={(event) => {
           setSubscriptionPrice(event.target.value)
         }} tooltip="Each subscriber will stream this amount of USDC per month"></Input>
 
-        <Input  type="text" label="Collection Name" placeholder="My beautiful NFT creations" value={collectionName} onChange={(event) => {
+        <Input className="bg-gray-900" type="text" label="Collection Name" placeholder="My exclusive content" value={collectionName} onChange={(event) => {
           setCollectionName(event.target.value)
         }} tooltip="This would be the name of your NFT contract"></Input>
 
-        <Input type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
+        <Input className="bg-gray-900" type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
           setCollectionSymbol(event.target.value)
         }} tooltip="This would be the symbol of your NFT contract"></Input>
 
-        <Button className="mt-6" type="submit" label="Become a Creator"></Button>
+        <Button className="mt-6 py-3" type="submit" label="Become a Creator"></Button>
       </form>
     </div>
   );

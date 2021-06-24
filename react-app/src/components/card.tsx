@@ -2,6 +2,7 @@ import React, {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
 import clsx from "clsx";
 import {VideoPlayer} from "../VideoPlayer";
+import { Avatar } from './avatar';
 
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -23,23 +24,24 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, date,isEncrypted}) => {
   if(isEncrypted)
   return (<div className="mb-5">
-    <div className="flex flex-col rounded-2xl border overflow-hidden">
+    <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
       <div className="border-gray-200 text-center text-white bg-gray-700 text-xl w-full h-50 m-auto p-10">
         <Icon size="5x" name="lock"/>
       <p className="w-1/2 m-auto text-center text-white mt-4"><span>Encrypted content, only subscribers can see this</span></p>
       </div>
       <div className="p-8">
-        <div className="flex-1 bg-white flex flex-col justify-between">
+        <div className="flex-1 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <h4 className="text-lg font-semibold text-gray-900">
+            <h4 className="text-lg font-semibold text-white">
               {name}
             </h4>
             <div className="flex justify-between">
               <div className=" mr-5 ">
-                <Icon name="heart" className={clsx('text-grey-dark')}/>
-                <span className="ml-2">
-                            {likeCount}
-                            </span>
+              <Icon onClick={onLike} name="heart"
+                className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}/>
+              <span className="ml-2 text-white">
+                {likeCount}
+              </span>
               </div>
               <Icon name="flag" className={clsx('text-gray-500 mt-1')}/>
             </div>
@@ -49,7 +51,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
             {(new Date(parseInt(date!))).toLocaleString()}
           </h5>
 
-          <p className="text-left">
+          <p className="text-left text-white">
             {description}
           </p>
           {price && <div>
@@ -66,7 +68,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
   </div>)
   return (
     <div className="mb-5">
-      <div className="flex flex-col rounded-2xl border p-8 overflow-hidden">
+      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
 
         {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
           {fileType === "image"
@@ -76,18 +78,18 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
             : <VideoPlayer url={fileUrl}/>
     }
               </div>}
-              <div className="flex-1 bg-white flex flex-col justify-between">
+              <div className="flex-1 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-semibold text-gray-900">
+                      <h4 className="text-lg font-semibold text-white">
                         {name}
                       </h4>
                       <div className="flex justify-between">
                         <div className=" mr-5 ">
                           <Icon onClick={onLike} name="heart"
-                                className={clsx('cursor-pointer', isLiked ? 'text-red-500' : 'text-grey-dark')}/>
-                          <span className="ml-2">
+                            className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}/>
+                          <span className="ml-2 text-white">
                             {likeCount}
-                            </span>
+                          </span>
                         </div>
                         <Icon  onClick={onReport} name="flag"
                               className={clsx('cursor-pointer text-gray-500 mt-1')}/>
@@ -98,7 +100,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                   {(new Date(parseInt(date!))).toLocaleString()}
                 </h5>
 
-                <p className="text-left">
+                <p className="text-left text-white">
                   {description}
                 </p>
                   {price && <div>
