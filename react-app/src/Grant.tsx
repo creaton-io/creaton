@@ -33,8 +33,8 @@ const SUBSCRIBERS_QUERY = gql`
 
 function Tabs({tabs, activeTab, setActiveTab}) {
   return (
-    <div className="w-full mb-3">
-      <div className="sm:hidden">
+    <div className="w-full mb-3 text-black">
+      <div className="hidden">
         <label htmlFor="tabs" className="sr-only">
           Select a tab
         </label>
@@ -49,7 +49,7 @@ function Tabs({tabs, activeTab, setActiveTab}) {
           ))}
         </select>
       </div>
-      <div className="hidden sm:block">
+      <div className="block">
         <div className="border-b border-gray-200">
           <nav className="-mb-px flex space-x-8" aria-label="Tabs">
             {tabs.map((tab) => (
@@ -219,11 +219,11 @@ const Grant = () => {
 
 
   return (
-    <div className="w-1/2 m-auto grid grid-cols-1 place-items-start text-white">
+    <div className="w-3/4 sm:w-1/2 pt-8 m-auto grid grid-cols-1 place-items-start text-white">
       <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}/>
       {activeTab === 'Pending' &&
       (<div>
-        <h3 className="text-md text-white">You have granted access to these profiles, but they haven't started their subscriptions
+        <h3 className="text-md text-white pb-4">You have granted access to these profiles, but they haven't started their subscriptions
           yet.</h3>
         {pending_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center m-2">
@@ -234,7 +234,7 @@ const Grant = () => {
       </div>)
       }
       {activeTab === 'Subscribed' &&
-      (<div><h3 className="text-md text-white">These profiles are streaming money to you right now.</h3>
+      (<div><h3 className="text-md text-white pb-4">These profiles are streaming money to you right now!</h3>
         {subscribed_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center m-2">
             <Avatar size="medium"
@@ -249,11 +249,11 @@ const Grant = () => {
           }} label="Revoke all pending_unsubscribe"/>)}
 
         {requested_subscribers.length === 0 && (<div>
-          <h3 className="text-white">You have no subscription requests at the moment</h3>
+          <h3 className="text-white pb-4">You have no subscription requests at the moment</h3>
         </div>)}
 
         {requested_subscribers.length > 0 && (<div>
-          <h3 className="text-white">Check the profiles you want to grant access</h3>
+          <h3 className="text-white pb-4">Check the profiles you want to grant access</h3>
           {requested_subscribers.map((subscriber) => (
             <div key={subscriber.user} className="flex flex-row place-items-center place-self-start m-3">
               <Checkbox label={""} checked={checkedSubscribers.get(subscriber.user) || false} onChange={(e) => {

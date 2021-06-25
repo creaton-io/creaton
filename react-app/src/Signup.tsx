@@ -62,11 +62,11 @@ const SignUp = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 place-items-center w-max m-auto text-white">
-      <p className="text-5xl pt-12 pb-6">
+    <div className="grid grid-cols-1 place-items-center m-auto text-white">
+      <p className="text-5xl pt-12 pb-6 pl-6">
         Sign Up As Creator!
       </p>
-      <p className="text-xl opacity-50">
+      <p className="text-xl opacity-50 pl-6">
         Setup your creator profile so you can upload content and start earning!
       </p>
       <form onSubmit={submitForm} className="py-10">
@@ -86,7 +86,7 @@ const SignUp = () => {
           setCollectionSymbol(event.target.value)
         }} tooltip="This would be the symbol of your NFT contract"></Input>
 
-        <Button className="mt-6 py-3" type="submit" label="Become a Creator"></Button>
+        <Button className="mt-6 py-3 mb-16" type="submit" label="Become a Creator"></Button>
       </form>
     </div>
   );
