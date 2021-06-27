@@ -15,6 +15,7 @@ import {Checkbox} from "./elements/checkbox";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import clsx from "clsx";
 import {Web3UtilsContext} from "./Web3Utils";
+import {Example} from "./components/error-notification";
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -106,7 +107,7 @@ const Grant = () => {
   if (!web3Context.account)
     return (<div>Not connected to MetaMask</div>)
   if (creator === undefined)
-    return (<div>Please signup as a creator</div>)
+    return (<div><Example/></div>)
   if (loading)
     return (<div>Loading subscribers...</div>)
   if (error)

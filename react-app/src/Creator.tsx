@@ -23,6 +23,9 @@ import {Avatar} from "./components/avatar";
 import {REPORT_URI} from "./Config";
 import {Icon} from "./icons";
 import {Web3UtilsContext} from "./Web3Utils";
+import {
+  Link
+} from "react-router-dom";
 
 interface params {
   id: string;
@@ -414,18 +417,23 @@ export function Creator() {
   return (
     <div>
     <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} button={generateButton()}/>
-    <div className="relative w-full sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
+    <div className="relative w-full h-20 sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
       <div className="object-cover w-20 h-20 rounded-full my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20 blur-none">
         <div className="absolute p-0.5 -top-1">
           <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
         </div>
       </div>
+      <Link to="/signup" className="sm:hidden fixed right-0 filter scale-125 border-transparent text-green-500 hover:text-green-700 hover:border-green-300 w-1/5 py-5 px-1 text-center border-b-2 font-medium text-sm">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+        </svg>
+      </Link>
     </div>
     <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
       <h3
         className="text-l font-bold text-white">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
  
-      <div className="my-5 mx-auto max-w-lg w-1/5 space-y-5">
+      <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
         {generateButton()}
 
         {/*<div className="flex space-x-5">*/}

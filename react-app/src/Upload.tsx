@@ -185,13 +185,13 @@ const Upload = () => {
   }
 
   async function splitAndEncrypt(file) {
-    const status_text = 'Splitting and Encrypting video. Progress: %'
+    const status_text = 'Splitting and Encrypting video. Progress: '
     web3utils.setIsWaiting(status_text + 0)
     const {name} = file
     ffmpeg.FS('writeFile', name, await fetchFile(file))
     console.log('starting to run transcoding')
     ffmpeg.setProgress((progress) => {
-      web3utils.setIsWaiting(status_text + (Math.round(progress.ratio * 100)))
+      web3utils.setIsWaiting(status_text + (Math.round(progress.ratio * 100)) + '%')
     })
 
     const key = new Uint8Array(16);
@@ -218,7 +218,7 @@ const Upload = () => {
     if (currentFile !== undefined) {
       let bytes
       let type
-      if (isStreaming) {
+      if (currentFile?.type === 'video/mp4') {
         await splitAndEncrypt(currentFile);
         const text = await uploadChunks()
         console.log('playlist text', text)
