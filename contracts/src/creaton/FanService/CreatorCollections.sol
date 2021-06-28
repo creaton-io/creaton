@@ -290,7 +290,7 @@ contract CreatorCollections is Ownable, Pausable {
 	function earned(address account, uint256 pool) public view returns (uint256) {
 		Pool storage p = pools[pool];
 		uint256 blockTime = block.timestamp;
-    console.log("Balance: ", balanceOf(account, pool));
+    // console.log("Balance: ", balanceOf(account, pool));
     console.log("Blocktime: ", blockTime);
     console.log("Last Updated: ", p.lastUpdateTime[account]);
     console.log("Reward rate: ", p.rewardRate);
@@ -298,9 +298,11 @@ contract CreatorCollections is Ownable, Pausable {
     // we add one to make sure that signed up users always generate points, not just if they add funds.
 
 	// uint256 earned = balanceOf(account, id);
-    uint256 earned = (balanceOf(account, pool).add(1)).mul(blockTime.sub(p.lastUpdateTime[account]).mul(p.rewardRate)).div(1e18).add(
-				p.points[account]
-			);
+	uint256 earned = (1).mul(blockTime.sub(p.lastUpdateTime[account]).mul(11574074074000))
+    // uint256 earned = (balanceOf(account, pool).add(1)).mul(blockTime.sub(p.lastUpdateTime[account]).mul(p.rewardRate)).div(1e18).add(
+	// 			p.points[account]
+	// 		);
+	for
     console.log("Earned: ", earned);
 		return earned;
 	}
