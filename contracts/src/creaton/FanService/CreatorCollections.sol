@@ -9,17 +9,17 @@ import "./FanCollectible.sol";
 contract CreatorCollections is Ownable, Pausable {
 	using SafeMath for uint256;
 
-	IERC20 public token;
+	// IERC20 public token;
 	Collectible public collectible;
 
   uint256 private _totalSupply;
-	// Objects balances [id][address] => balance
 	mapping(uint256 => mapping(address => uint256)) internal _balances;
-	mapping(address => uint256) private _accountBalances;
-	mapping(uint256 => uint256) private _poolBalances;
+	mapping(address => mapping(address => uint256)) private _accountBalances; // Account => tokenType => balance
+
+	// mapping(uint256 => uint256) private _poolBalances;
 
 	struct Card {
-    uint256 id;
+    	uint256 id;
 		uint256 points; // Cost of minting a card in points
 		uint256 releaseTime; // When the card becomes available for minting
 		uint256 mintFee; // Cost of minting a card in eth
@@ -27,24 +27,48 @@ contract CreatorCollections is Ownable, Pausable {
 
 	struct Pool {
 		uint256 periodStart; // When the collection launches and starts accepting staking tokens.
-		uint256 maxStake; // How many tokens you can stake max on the pool. 
-		uint256 rewardRate; // 11574074074000, 1 point per day per staked EMEM
 		uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
 		uint256 spentPoints; // Tally of points spent in this pool
 		uint256 controllerShare; // Revenue share scheme of eth fees collected
 		address artist;
-    string title;
-		mapping(address => uint256) lastUpdateTime;
+    	string title;
+		uint256 balances;
+		uint8 numberOfCoinsAccepted;
+		
+		address[] _tokenAddresses;
+
+		mapping(address => StakingCoins) stakingCoins;
 		mapping(address => uint256) points;
 		mapping(uint256 => Card) cards;
-    uint256 cardsInPool;
-    Card[] cardsArray;
+		mapping(address => uint256) lastUpdateTime; //last time an Account was updated
+    	uint256 cardsInPool;
+
+    	Card[] cardsArray;
+	}
+	struct StakingCoins {
+		// IERC20 tokenAddress; // The token you're accepting.
+		uint256 maxStake; // How many tokens of this type you can stake max on the pool.
+		uint256 rewardRate; // 11574074074000, 1 point per day per staked token.
+		uint256 balance; //the balance of this currency in this pool.
+	}
+	function addAcceptedToken(
+		Pool pool, 
+		address tokenAddress, 
+		uint256 maxStake, 
+		uint256 rewardRate
+	) public {
+		if (rewardRate == 0){
+			rewardRate = 11574074074000;
+		}
+		StakingCoins memory accptedToken = StakingCoins(maxStake, rewardRate, 0); //Initial balance is always 0
+		tokenAddress.push(tokenAddress);
+		pool.stakingCoins[tokenAddress] = AcceptedToken;
 	}
 
 	address public controller;
 	mapping(address => uint256) public pendingWithdrawals;
 	mapping(uint256 => Pool) public pools;
-  uint256 public poolsCount;
+  	uint256 public poolsCount;
 
 	event UpdatedArtist(uint256 poolId, address artist);
 	event PoolAdded(uint256 poolId, address artist, uint256 periodStart, uint256 rewardRate, uint256 maxStake);
@@ -74,16 +98,14 @@ contract CreatorCollections is Ownable, Pausable {
 
 	constructor(
 		address _controller,
-		Collectible _collectibleAddress,
-		IERC20 _tokenAddress
-	)
-  {
+		Collectible _collectibleAddress
+	){
 		controller = _controller;
 		collectible = _collectibleAddress;  
-    token = IERC20(_tokenAddress);
+    	// token = IERC20(_tokenAddress);
 	}
 
-	function stake(uint256 pool, uint256 amount)
+	function stake(uint256 pool, uint256 amount, address _tokenAddress)
 		public
 		poolExists(pool)
 		updateReward(msg.sender, pool)
@@ -91,24 +113,32 @@ contract CreatorCollections is Ownable, Pausable {
 	{
 		Pool storage p = pools[pool];
 		require(block.timestamp >= p.periodStart, "pool not open");
-		require(amount.add(balanceOf(msg.sender, pool)) <= p.maxStake, "stake exceeds max");
+		require(amount.add(_accountBalances[msg.sender][_tokenAddress]) <= p.stakingCoins[_tokenAddresses] || p.stakingCoins[_tokenAddresses] == 0, "over max stake");
 
-		_totalSupply = _totalSupply.add(amount);
-		_poolBalances[pool] = _poolBalances[pool].add(amount);
-		_accountBalances[msg.sender] = _accountBalances[msg.sender].add(amount);
-		_balances[pool][msg.sender] = _balances[pool][msg.sender].add(amount);
-		token.transferFrom(msg.sender, address(this), amount);
+		// _totalSupply = _totalSupply.add(amount);
+		p.balances = p.stakingCoins[_tokenAddresses].balance.add(amount);
+		_accountBalances[msg.sender][_tokenAddress] = _accountBalances[msg.sender].add(amount);
+		IERC20(_tokenAddress).transferFrom(msg.sender, address(this), amount);
+		// token.transferFrom(msg.sender, address(this), amount);
 		emit Staked(msg.sender, pool, amount);
 	}
 
-	function withdraw(uint256 pool, uint256 amount) public poolExists(pool) updateReward(msg.sender, pool) {
+	function withdraw(uint256 pool, uint256 amount, address _tokenAddress) 
+		public 
+		poolExists(pool) 
+		updateReward(msg.sender, pool) 
+	{
 		require(amount > 0, "cannot withdraw 0");
+		require (amount <= _accountBalances[msg.sender][_tokenAddress], "cannot withdraw more than you have");
+		//im removing total supply, i dont *think* its important
+		// _totalSupply = _totalSupply.sub(amount);
 
-		_totalSupply = _totalSupply.sub(amount);
-		_poolBalances[pool] = _poolBalances[pool].sub(amount);
-		_accountBalances[msg.sender] = _accountBalances[msg.sender].sub(amount);
-		_balances[pool][msg.sender] = _balances[pool][msg.sender].sub(amount);
-		token.transfer(msg.sender, amount);
+		pools[pool].stakingCoins[tokenAddress].balance.sub(ammount);
+		_accountBalances[msg.sender][_tokenAddress] = _accountBalances[msg.sender][_tokenAddress].sub(ammount);
+
+		// _balances[pool][msg.sender] = _balances[pool][msg.sender].sub(amount);
+		IERC20(_tokenAddress).transfer(msg.sender, amount);
+		// token.transfer(msg.sender, amount);
 		emit Withdrawn(msg.sender, pool, amount);
 	}
 
@@ -158,18 +188,18 @@ contract CreatorCollections is Ownable, Pausable {
     console.log("Points:", p.points[msg.sender]);
 		
     require(block.timestamp >= c.releaseTime, "card not released");
-		require(p.points[msg.sender] >= c.points, "not enough points");
-		require(msg.value == c.mintFee, "support our artists, send eth");
+	require(p.points[msg.sender] >= c.points, "not enough points");
+	require(msg.value == c.mintFee, "support our artists, send eth");
 
-		if (c.mintFee > 0) {
-			uint256 _controllerShare = msg.value.mul(p.controllerShare).div(1000);
-			uint256 _artistRoyalty = msg.value.sub(_controllerShare);
-			require(_artistRoyalty.add(_controllerShare) == msg.value, "problem with fee");
+	if (c.mintFee > 0) {
+		uint256 _controllerShare = msg.value.mul(p.controllerShare).div(1000);
+		uint256 _artistRoyalty = msg.value.sub(_controllerShare);
+		require(_artistRoyalty.add(_controllerShare) == msg.value, "problem with fee");
 
-			p.feesCollected = p.feesCollected.add(c.mintFee);
-			pendingWithdrawals[controller] = pendingWithdrawals[controller].add(_controllerShare);
-			pendingWithdrawals[p.artist] = pendingWithdrawals[p.artist].add(_artistRoyalty);
-		}
+		p.feesCollected = p.feesCollected.add(c.mintFee);
+		pendingWithdrawals[controller] = pendingWithdrawals[controller].add(_controllerShare);
+		pendingWithdrawals[p.artist] = pendingWithdrawals[p.artist].add(_artistRoyalty);
+	}
 
 		p.points[msg.sender] = p.points[msg.sender].sub(c.points);
 		p.spentPoints = p.spentPoints.add(c.points);
@@ -266,6 +296,8 @@ contract CreatorCollections is Ownable, Pausable {
     console.log("Reward rate: ", p.rewardRate);
     console.log("Points:", p.points[account]);
     // we add one to make sure that signed up users always generate points, not just if they add funds.
+
+	// uint256 earned = balanceOf(account, id);
     uint256 earned = (balanceOf(account, pool).add(1)).mul(blockTime.sub(p.lastUpdateTime[account]).mul(p.rewardRate)).div(1e18).add(
 				p.points[account]
 			);
@@ -274,8 +306,7 @@ contract CreatorCollections is Ownable, Pausable {
 	}
 
     /**
-    * @dev calculates the total suply of something??
-    * TODO: find out what supply this is counting
+    * @dev calculates the total supply of tokens put into this contract
     */
     function totalSupply() public view returns (uint256) {
 		return _totalSupply;
