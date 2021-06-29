@@ -1,54 +1,54 @@
-pragma solidity ^0.8.0;
-import '@openzeppelin/contracts/utils/math/SafeMath.sol';
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+ pragma solidity ^0.8.0;
+ import '@openzeppelin/contracts/utils/math/SafeMath.sol';
+ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+ import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Collectible  is ERC1155, Ownable {
-	using SafeMath for uint256;
+ contract FanCollectible  is ERC1155, Ownable {
+  using SafeMath for uint256;
 
-	address private _minter;
+  address private _minter;
 
-	uint256 private _currentTokenID = 0;
+  uint256 private _currentTokenID = 0;
 
-	mapping(uint256 => address) public creators;
+  mapping(uint256 => address) public creators;
 	mapping(uint256 => uint256) public tokenSupply;
 	mapping(uint256 => uint256) public tokenMaxSupply;
 
-	/**
-	* @dev Throws if called by any account other than the minter.
-	*/
-	modifier onlyMinter() {
-	require(minter() == _msgSender(), "Mintable: caller is not the minter");
-	_;
-	}
+  /**
+  * @dev Throws if called by any account other than the minter.
+  */
+  modifier onlyMinter() {
+    require(minter() == _msgSender(), "Mintable: caller is not the minter");
+    _;
+  }
 
-	function minter() public view virtual returns (address) {
-	return _minter;
-	}
+  function minter() public view virtual returns (address) {
+    return _minter;
+  }
 
-	/**
-	* @dev Transfers ownership of the contract to a new account (`newOwner`).
-	* Can only be called by the current owner.
-	*/
-	function transferMinter(address newMinter) public virtual onlyOwner {
-	require(newMinter != address(0), "Minter: new minter is the zero address");
-	emit MinterTransferred(_minter, newMinter);
-	_minter = newMinter;
-	}
+  /**
+  * @dev Transfers ownership of the contract to a new account (`newOwner`).
+  * Can only be called by the current owner.
+  */
+  function transferMinter(address newMinter) public virtual onlyOwner {
+    require(newMinter != address(0), "Minter: new minter is the zero address");
+    emit MinterTransferred(_minter, newMinter);
+    _minter = newMinter;
+  }
 
-  	event MinterTransferred(address indexed previousMinter, address indexed newMinter);
+  event MinterTransferred(address indexed previousMinter, address indexed newMinter);
 
    
-	constructor(string memory _uri) ERC1155(_uri) 
-  	{}
+  constructor(string memory _uri) ERC1155(_uri) 
+  {}
 
 	/**
-	* @dev Mints some amount of tokens to an address
-	* @param _to          Address of the future owner of the token
-	* @param _id          Token ID to mint
-	* @param _quantity    Amount of tokens to mint
-	* @param _data        Data to pass if receiver is contract
-		*/
+	 * @dev Mints some amount of tokens to an address
+	 * @param _to          Address of the future owner of the token
+	 * @param _id          Token ID to mint
+	 * @param _quantity    Amount of tokens to mint
+	 * @param _data        Data to pass if receiver is contract
+	 */
 	function mint(
 		address _to,
 		uint256 _id,
@@ -62,7 +62,7 @@ contract Collectible  is ERC1155, Ownable {
 	}
 
 
-  	/**
+  /**
 	 * @dev Creates a new token type and assigns _initialSupply to an address
 	 * @param _maxSupply max supply allowed
 	 * @param _initialSupply Optional amount to supply the first owner
