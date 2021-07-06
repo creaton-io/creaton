@@ -8,7 +8,7 @@ import "./FanCollectible.sol";
 
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
-
+    address private newerVersionOfContract;// if this is anything but 0, then there is a newer contract, with, hopefully all of the same data.
     IERC20 public token;// set to the address of USDC, probobly, we dont check...
     FanCollectible public collectible;
 
@@ -215,7 +215,6 @@ contract CreatorCollections is Ownable, Pausable {
     ) public onlyOwner returns (uint256) {
         require(pools[id].periodStart == 0, "pool exists");
 		if (maxStake==0){
-			// *should* round over to 256 1's, i *think* it wont call SafeMath for this... but well see.
 			maxStake = 1e18;
 		}
 
@@ -240,8 +239,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     /**
-     * @dev calculates the total suply of something??
-     * TODO: find out what supply this is counting
+     * @dev calculates the total suply of tokens that are being staked in this contract
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -276,5 +274,20 @@ contract CreatorCollections is Ownable, Pausable {
         require(amount > 0, "nothing to withdraw");
         pendingWithdrawals[msg.sender] = 0;
         payable(msg.sender).transfer(amount);
+    }
+    /**
+    @dev returns the address of a newer version of this contract
+    @return newerVersionOfContract, the address of the newer contract.
+     */
+    function getNewerContract() public returns (address){
+        return newerVersionOfContract;
+    }
+
+    /**
+    @dev sets a new contract as the newerVersionOfContract, if theres a newer contract address, you should use that.
+    @param _newerContract the address of the newer version of this contract.  
+    */
+    function setNewerContract(address _newerContract) onlyOwner {
+        newerVersionOfContract = _newerContract;
     }
 }
