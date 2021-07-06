@@ -9,7 +9,7 @@ import "./FanCollectible.sol";
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
 
-    IERC20 public token;
+    IERC20 public token;// set to the address of USDC, probobly, we dont check...
     FanCollectible public collectible;
 
     uint256 private _totalSupply;
