@@ -16,6 +16,7 @@ contract CreatorCollections is Ownable, Pausable {
     mapping(uint256 => mapping(address => uint256)) internal _balances;
     mapping(address => uint256) private _accountBalances;
     mapping(uint256 => uint256) private _poolBalances;
+    mapping(address => uint256[]) internal accountToPools;// this is just a nicer way of keep track of who owns what pools.
 
     struct Card {
         uint256 id; //Card ID
@@ -157,10 +158,13 @@ contract CreatorCollections is Ownable, Pausable {
      * @param artist the address of the artist.
      */
     function setArtist(uint256 pool, address artist) public onlyOwner {
+        //TODO: make sure that the artist isnt already in control of this
+        //TODO: remove the address from the addressToPools after you call this
         uint256 amount = pendingWithdrawals[artist];
         pendingWithdrawals[artist] = 0;
         pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
         pools[pool].artist = artist;
+        accountToPools[artist].push(pool);
 
         emit UpdatedArtist(pool, artist);
     }
@@ -213,6 +217,10 @@ contract CreatorCollections is Ownable, Pausable {
         address artist,
         string memory title
     ) public onlyOwner returns (uint256) {
+        if (id ==0){
+            //making it so that the id for the pool can be sent as 0, and automatically increments.
+            id = poolsCount;
+        }
         require(pools[id].periodStart == 0, "pool exists");
 		if (maxStake==0){
 			maxStake = 1e18;
@@ -227,6 +235,8 @@ contract CreatorCollections is Ownable, Pausable {
         p.title = title;
 
         poolsCount++;
+
+        accountToPools[artist].push(id);
         emit PoolAdded(id, artist, periodStart, maxStake);
     }
 
@@ -287,7 +297,16 @@ contract CreatorCollections is Ownable, Pausable {
     @dev sets a new contract as the newerVersionOfContract, if theres a newer contract address, you should use that.
     @param _newerContract the address of the newer version of this contract.  
     */
-    function setNewerContract(address _newerContract) onlyOwner {
+    function setNewerContract(address _newerContract) public onlyOwner {
         newerVersionOfContract = _newerContract;
+    }
+
+    /**
+    @dev get the pools an address is the artist of, use this to get all the pool ids.
+    @param artist the address of the artist you want to find the pools of.
+    */
+    function getPoolsForArtist(address artist) public view returns (uint256[] memory){
+        uint256[] memory accountsPools = accountToPools[artist];
+        return accountsPools;
     }
 }
