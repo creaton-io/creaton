@@ -1,6 +1,4 @@
-// SPDX-License-Identifier: MIT
-pragma solidity >0.8.0;
-pragma abicoder v2;
+pragma solidity ^0.8.0;
 
 import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "hardhat/console.sol";
@@ -11,19 +9,38 @@ contract test {
     // Represents a single voter
     struct Voter {
         bool voted; //limit: 1 vote per user
-        uint256 vote;
+        address vote;
     }
 
     // stores a `Voter` struct for each possible address.
     mapping(address => Voter) public voters;
 
+    mapping(address => uint256) public voteCount;
+
     /// Give your vote to a user
-    function vote(uint256 user) public {
+    function vote(address proposal) public {
         Voter storage sender = voters[msg.sender];
         require(!sender.voted, "Already voted.");
         sender.voted = true;
         sender.vote = proposal;
+        voteCount[proposal] += 1;
+        //TODO Can calculate top vote within here, create a new fn dummy
+        topVote(voteCount);
     }
+
+    function unVote(address proposal) public {
+        Voter storage sender = voters[msg.sender];
+        require(!sender.voted, "Already Unvoted");
+        sender.voted = false;
+        sender.vote = proposal;
+        voteCount[proposal] -= 1;
+        //TODO Can calculate top vote within here, create a new fn dummy
+        topVote(voteCount);
+    }
+
+    //     modifier updateTopVote(votedFor address){
+    //   _;
+    //   ~math here that maybe changes who the top votes are for
 
     // -----------------------------------------
     // Getters
@@ -60,17 +77,5 @@ contract test {
         topBalances[i].addr = user;
     }
 
-    // babylonian method from Uniswap v2-core (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)
-    function sqrt(uint256 y) internal pure returns (uint256 z) {
-        if (y > 3) {
-            z = y;
-            uint256 x = y / 2 + 1;
-            while (x < z) {
-                z = x;
-                x = (y / x + x) / 2;
-            }
-        } else if (y != 0) {
-            z = 1;
-        }
-    }
+    function topVote(uint256 newVote) private {}
 }
