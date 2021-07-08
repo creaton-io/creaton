@@ -12,6 +12,9 @@ contract CreatorCollections is Ownable, Pausable {
     IERC20 public token;// set to the address of USDC, probobly, we dont check...
     FanCollectible public collectible;
 
+    uint256 constant controllerShare = 1; // Revenue share scheme of eth fees collected.
+    // this should be 0, but then i have to actually remove the math entirely... so lets keep it at 0.01%
+
     uint256 private _totalSupply;
     mapping(uint256 => mapping(address => uint256)) internal _balances;
     mapping(address => uint256) private _accountBalances;
@@ -29,7 +32,7 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 periodStart; // When the collection launches and starts accepting staking tokens.
         uint256 maxStake; // How many tokens you can stake max on the pool.
         uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
-        uint256 controllerShare; // Revenue share scheme of eth fees collected
+        
         address artist;
         string title;
         mapping(address => uint256) lastUpdateTime;
@@ -138,7 +141,7 @@ contract CreatorCollections is Ownable, Pausable {
         require(msg.value == c.mintFee, "support our artists, send eth");
 
         if (c.mintFee > 0) {
-            uint256 _controllerShare = msg.value.mul(p.controllerShare).div(1000);
+            uint256 _controllerShare = msg.value.mul(controllerShare).div(1000);
             uint256 _artistRoyalty = msg.value.sub(_controllerShare);
             require(_artistRoyalty.add(_controllerShare) == msg.value, "problem with fee");
 
@@ -157,13 +160,15 @@ contract CreatorCollections is Ownable, Pausable {
      * @param pool the pool you are setting an artist for
      * @param artist the address of the artist.
      */
-    function setArtist(uint256 pool, address artist) public onlyOwner {
+    function setArtist(uint256 pool, address artist) public {
+        require(pools[pool].artist == _msgSender() || _msgSender() == owner(), "You Do Not Have Authorization To Change This");
         //TODO: make sure that the artist isnt already in control of this
         //TODO: remove the address from the addressToPools after you call this
         uint256 amount = pendingWithdrawals[artist];
         pendingWithdrawals[artist] = 0;
         pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
         pools[pool].artist = artist;
+        
         accountToPools[artist].push(pool);
 
         emit UpdatedArtist(pool, artist);
@@ -174,10 +179,6 @@ contract CreatorCollections is Ownable, Pausable {
         pendingWithdrawals[controller] = 0;
         pendingWithdrawals[_controller] = pendingWithdrawals[_controller].add(amount);
         controller = _controller;
-    }
-
-    function setControllerShare(uint256 pool, uint256 _controllerShare) public onlyOwner poolExists(pool) {
-        pools[pool].controllerShare = _controllerShare;
     }
 
     /**
@@ -213,7 +214,6 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 id,
         uint256 periodStart,
         uint256 maxStake,
-        uint256 controllerShare,
         address artist,
         string memory title
     ) public onlyOwner returns (uint256) {
@@ -230,7 +230,6 @@ contract CreatorCollections is Ownable, Pausable {
 
         p.periodStart = periodStart;
         p.maxStake = maxStake;
-        p.controllerShare = controllerShare;
         p.artist = artist;
         p.title = title;
 

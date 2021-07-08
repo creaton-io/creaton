@@ -6,37 +6,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract FanCollectible is ERC1155, Ownable {
     using SafeMath for uint256;
 
-    address private _minter;
 
     uint256 private _currentTokenID = 0;
 
     mapping(uint256 => address) public creators;
     mapping(uint256 => uint256) public tokenSupply;
     mapping(uint256 => uint256) public tokenMaxSupply;
-
-    /**
-     * @dev Throws if called by any account other than the minter.
-     */
-    modifier onlyMinter() {
-        require(minter() == _msgSender(), "Mintable: caller is not the minter");
-        _;
-    }
-
-    function minter() public view virtual returns (address) {
-        return _minter;
-    }
-
-    /**
-     * @dev Transfers ownership of the contract to a new account (`newOwner`).
-     * Can only be called by the current owner.
-     */
-    function transferMinter(address newMinter) public virtual onlyOwner {
-        require(newMinter != address(0), "Minter: new minter is the zero address");
-        emit MinterTransferred(_minter, newMinter);
-        _minter = newMinter;
-    }
-
-    event MinterTransferred(address indexed previousMinter, address indexed newMinter);
 
     constructor(string memory _uri) ERC1155(_uri) {}
 
@@ -52,7 +27,7 @@ contract FanCollectible is ERC1155, Ownable {
         uint256 _id,
         uint256 _quantity,
         bytes memory _data
-    ) public onlyMinter {
+    ) public onlyOwner {
         uint256 tokenId = _id;
         require(tokenSupply[tokenId] < tokenMaxSupply[tokenId], "Max supply reached");
         _mint(_to, _id, _quantity, _data);
@@ -73,7 +48,7 @@ contract FanCollectible is ERC1155, Ownable {
         uint256 _initialSupply,
         string calldata _uri,
         bytes calldata _data
-    ) external onlyMinter returns (uint256 tokenId) {
+    ) external onlyOwner returns (uint256 tokenId) {
         require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
         uint256 _id = _getNextTokenID();
         _incrementTokenTypeId();
