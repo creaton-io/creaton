@@ -408,7 +408,7 @@ const App = () => {
                              aria-hidden="true">
                           <div className="relative h-full max-w-7xl mx-auto"></div>
                         </div>
-                        <div className="relative pt-2 pb-2 sm:pt-6 sm:pb-6 bg-gradient-to-r from-purple-500 to-purple-700">
+                        <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4 bg-gradient-to-r from-purple-500 to-purple-700">
                           <div className="max-w-7xl mx-auto px-4 sm:px-6">
                             <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
                               <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
