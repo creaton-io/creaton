@@ -48,33 +48,11 @@ contract test {
         topVote(voteCount);
     }
 
-    //     modifier updateTopVote(votedFor address){
-    //   _;
-    //   ~math here that maybe changes who the top votes are for
-
-    // -----------------------------------------
-    // Getters
-    // -----------------------------------------
-
-    // -----------------------------------------
-    // Math functions
-    // -----------------------------------------
-
-    // Fix topBalances to ensure it works as intended
-
-    function updateTop(address user) private {
-        uint256 i = 0;
-        //Get the index of the current max element
-
-        //TODO: this only works when there's a new top user, doesnt work yet for when the user is already in the top
-        //TODO: also keep track of it when a vote gets deleted as someone thats #10 might get displaced
-        //NOTE: Above problem is that if a creator gets below top 10 there wont be anyone in the #9 and #10 as there's no track of them
-        //so either just always iterate through all of the users, or iterate through all only in the case above.
-        //or simpler, just not accept people withdrawing before the round is over
-        //Best will probably be to only check at the distributeInvites function what the actual top 10 is, and on the front-end just let The Graph do the sorting.
-        for (i; i < topBalances.length; i++) {
-            if (topBalances[i].balance < userBalances[user]) {
-                break;
+    function topVote(uint256 newVote) public {
+        for (uint256 i = 0; i < vote(); i++) {
+            if (vote()[i].voteCount > newVote) {
+                //stuff
+                //return stuff
             }
         }
     }
