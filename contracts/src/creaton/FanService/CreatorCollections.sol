@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "hardhat/console.sol";
 import "./FanCollectible.sol";
+import "./TestingToken.sol";
 
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
