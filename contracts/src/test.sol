@@ -12,10 +12,20 @@ contract test {
         address vote;
     }
 
+    //Add mappinge etc
+    struct Nominee {
+        uint256 voteCount;
+    }
+
+    // A dynamically-sized array of `Nominee` structs.
+    Nominee[] public nominee;
+
     // stores a `Voter` struct for each possible address.
     mapping(address => Voter) public voters;
 
     mapping(address => uint256) public voteCount;
+
+    //TODO create mapping for nominee and fix every method accoridingly
 
     /// Give your vote to a user
     function vote(address proposal) public {
@@ -67,15 +77,5 @@ contract test {
                 break;
             }
         }
-        //Shift the array of position (getting rid of the last element)
-        for (uint256 j = topBalances.length - 1; j > i; j--) {
-            topBalances[j].balance = topBalances[j - 1].balance;
-            topBalances[j].addr = topBalances[j - 1].addr;
-        }
-        //Update the new max element
-        topBalances[i].balance = userBalances[user];
-        topBalances[i].addr = user;
     }
-
-    function topVote(uint256 newVote) private {}
 }
