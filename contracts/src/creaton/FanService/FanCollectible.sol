@@ -21,7 +21,7 @@ contract FanCollectible is ERC1155, Ownable {
      * @dev Throws if called by any account other than the minter.
      */
     modifier onlyMinter() {
-        require(minter() == _msgSender(), "Mintable: caller is not the minter");
+        require(minter() == msg.sender, "Mintable: caller is not the minter");
         _;
     }
 

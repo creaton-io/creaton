@@ -6,15 +6,15 @@ import { ContractFactory } from "ethers";
 import { Console } from "node:console";
 
 
-let FCA: SignerWithAddress;
-let FAC2: SignerWithAddress;
-let FAC3: SignerWithAddress;
-let FCtoken;
-let FCtoken2;
-let hardhatToken: Contract;
-let hht: Contract;
-let TestingToken: ContractFactory;
-let token2: Contract;
+let FCA: SignerWithAddress; //rename
+let FAC2: SignerWithAddress; //what are these
+let FAC3: SignerWithAddress; //names
+let FCtoken; //they mean nothing
+let FCtoken2; //to me
+let hardhatToken: Contract; //and i have to mess with this
+let hht: Contract; //what is the difference between this and ^
+let TestingToken: ContractFactory; //this one genuenly makes sense
+let token2: Contract; // and then???
 let id;
 describe('FanCollectible tokens', function(){
     beforeEach(async function(){
@@ -23,12 +23,13 @@ describe('FanCollectible tokens', function(){
         hardhatToken = await FCtoken.deploy('Pyrocoin');
     });
     it('Check minter\'s address', async function(){
-        //hardhatToken.transferMinter(FCA.address);
+        // hardhatToken.transferMinter(FCA.address);
         expect(await hardhatToken.owner()).to.equal(FCA.address);
     });
     it('Check if create works', async function(){
+        hardhatToken.transferMinter(FCA.address);
         const lol1 = (await hardhatToken.getCurrentTokenID()).toString();
-        const Tid = await hardhatToken.create(10,5,'Pyrocoin',"0x00");
+        const Tid = await hardhatToken.create(1,'Pyrocoin',"0x00");
         const lol2 = (await hardhatToken.getCurrentTokenID()).toString();
         //console.log(Tid);
         expect(lol1).to.not.equal(lol2);
@@ -58,10 +59,10 @@ describe('CreatorCollections', function(){
         const poolsArray = await hht.getPoolsForArtist(FCA.address);
         console.log(poolsArray);
         //expect (await FCA.address).to.equal(hht.collectible);
-        const TokenId = await hht.createCard(1,ethers.utils.parseEther("10000"),10,20,Math.floor(Date.now() / 1000));
-    const cArray = await  hht.getCardsArray(1);
-    console.log(cArray);
-    expect (await cArray.length).to.greaterThan(0);
+        const TokenId = await hht.createCard(1,10,ethers.utils.parseEther("10000"),Math.floor(Date.now() / 1000));
+        const cArray = await  hht.getCardsArray(1);
+        console.log(cArray);
+        expect (await cArray.length).to.greaterThan(0);
     });
 });
 
