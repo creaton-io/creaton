@@ -213,8 +213,8 @@ contract CreatorCollections is Ownable, Pausable {
     ) public onlyOwner poolExists(pool) returns (uint256) {
         
         uint256[] memory tokenIdsGenerated = new uint256[](supply);
-        for (uint256 x =0; x < supply; x++){
-            tokenIdsGenerated[x] = collectible.create(0, "", "");//URI and Data seem important... and most likely are! well! HAVE FUN!
+        for (uint256 x = 0; x < supply; x++){
+            tokenIdsGenerated[x] = collectible.create("", "");//URI and Data seem important... and most likely are! well! HAVE FUN!
             //so this generates all the token IDs that will be used, and makes each one unique.
         }
         pools[pool].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));

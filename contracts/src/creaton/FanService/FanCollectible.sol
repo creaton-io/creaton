@@ -61,17 +61,14 @@ contract FanCollectible is ERC1155, Ownable {
 
     /**
      * @dev Creates a new token type and assigns _initialSupply to an address
-     * @param _initialSupply Optional amount to supply the first owner
      * @param _uri Optional URI for this token type
      * @param _data Optional data to pass if receiver is contract
      * @return tokenId The newly created token ID
      */
     function create(
-        uint256 _initialSupply,
         string calldata _uri,
         bytes calldata _data
     ) external onlyMinter() returns (uint256 tokenId) {
-        require(_initialSupply == 0 || _initialSupply == 1, "Initial supply for art can only be 0 or 1, as there is a max of 1.");
         uint256 _id = _getNextTokenID();
         _incrementTokenTypeId();
         creators[_id] = msg.sender;
@@ -80,9 +77,6 @@ contract FanCollectible is ERC1155, Ownable {
             emit URI(_uri, _id);
         }
 
-        if (_initialSupply == 1) 
-            _mint(msg.sender, _id, _initialSupply, _data);
-        tokenSupply[_id] = _initialSupply;
         return _id;
     }
 
