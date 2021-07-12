@@ -10,9 +10,10 @@ contract FanCollectible is ERC1155, Ownable {
     uint256 private _currentTokenID = 0;
     address private _minter; //I was wrong! this is actually *very* important, and needs to be the address of the controlling contract!
 
-    mapping(uint256 => address) public creators;
-    mapping(uint256 => uint256) public tokenSupply;
-    mapping(uint256 => uint256) public tokenMaxSupply;
+    mapping(uint256 => address) public creators;//tokenID to address of artist.
+    mapping(uint256 => uint256) public tokenSupply;//tokenID to current supply of tokens
+
+
 
     constructor(string memory _uri) ERC1155(_uri) {}
 
@@ -44,37 +45,33 @@ contract FanCollectible is ERC1155, Ownable {
      * @dev Mints some amount of tokens to an address
      * @param _to          Address of the future owner of the token
      * @param _id          Token ID to mint
-     * @param _quantity    Amount of tokens to mint
      * @param _data        Data to pass if receiver is contract
      */
     function mint(
         address _to,
         uint256 _id,
-        uint256 _quantity,
         bytes memory _data
     ) public onlyMinter() {
         uint256 tokenId = _id;
-        require(tokenSupply[tokenId] < tokenMaxSupply[tokenId], "Max supply reached");
-        _mint(_to, _id, _quantity, _data);
-        tokenSupply[_id] = tokenSupply[_id].add(_quantity);
+        require(tokenSupply[tokenId] < 1, "Max supply reached");
+        _mint(_to, _id, 1, _data);
+        tokenSupply[_id] = tokenSupply[_id].add(1);
         // sudocode if it is a standard NFT, mint an nft to them
     }
 
     /**
      * @dev Creates a new token type and assigns _initialSupply to an address
-     * @param _maxSupply max supply allowed
      * @param _initialSupply Optional amount to supply the first owner
      * @param _uri Optional URI for this token type
      * @param _data Optional data to pass if receiver is contract
      * @return tokenId The newly created token ID
      */
     function create(
-        uint256 _maxSupply,
         uint256 _initialSupply,
         string calldata _uri,
         bytes calldata _data
     ) external onlyMinter() returns (uint256 tokenId) {
-        require(_initialSupply <= _maxSupply, "Initial supply cannot be more than max supply");
+        require(_initialSupply == 0 || _initialSupply == 1, "Initial supply for art can only be 0 or 1, as there is a max of 1.");
         uint256 _id = _getNextTokenID();
         _incrementTokenTypeId();
         creators[_id] = msg.sender;
@@ -83,10 +80,9 @@ contract FanCollectible is ERC1155, Ownable {
             emit URI(_uri, _id);
         }
 
-        if (_initialSupply != 0) 
+        if (_initialSupply == 1) 
             _mint(msg.sender, _id, _initialSupply, _data);
         tokenSupply[_id] = _initialSupply;
-        tokenMaxSupply[_id] = _maxSupply;
         return _id;
     }
 

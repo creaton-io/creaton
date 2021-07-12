@@ -15,6 +15,7 @@ contract CreatorCollections is Ownable, Pausable {
     uint256 constant controllerShare = 1; // Revenue share scheme of eth fees collected.
     // this should be 0, but then i have to actually remove the math entirely... so lets keep it at 0.01%
 
+
     uint256 private _totalSupply;
     mapping(uint256 => mapping(address => uint256)) internal _balances;
     mapping(address => uint256) private _accountBalances;
@@ -22,9 +23,10 @@ contract CreatorCollections is Ownable, Pausable {
     mapping(address => uint256[]) internal accountToPools;// this is just a nicer way of keep track of who owns what pools.
 
     struct Card {
-        uint256 id; //Card ID
+        uint256[] ids; //Card IDs. would be singular, but each one needs to be unique.
         uint256 price; // Cost of minting a card in USDC
         uint256 releaseTime; // When the card becomes available for minting
+        uint256 idPointOfNextEmpty;
     }
 
     struct Pool {
@@ -35,7 +37,6 @@ contract CreatorCollections is Ownable, Pausable {
         address artist;
         string title;
         mapping(address => uint256) lastUpdateTime;
-        mapping(uint256 => Card) cards;
         uint256 cardsInPool;
         Card[] cardsArray;
     }
@@ -47,7 +48,7 @@ contract CreatorCollections is Ownable, Pausable {
 
     event UpdatedArtist(uint256 poolId, address artist);
     event PoolAdded(uint256 poolId, address artist, uint256 periodStart, uint256 maxStake);
-    event CardAdded(uint256 poolId, uint256 cardId, uint256 price, uint256 releaseTime);
+    event CardAdded(uint256 poolId, uint256[] cardIds, uint256 price, uint256 releaseTime);
     event Staked(address indexed user, uint256 poolId, uint256 amount);
     event Withdrawn(address indexed user, uint256 poolId, uint256 amount);
     event Transferred(address indexed user, uint256 fromPoolId, uint256 toPoolId, uint256 amount);
@@ -59,7 +60,8 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     modifier cardExists(uint256 pool, uint256 card) {
-        require(pools[pool].cards[card].id > 0, "card does not exists");
+        require(card < pools[pool].cardsArray.length, "card may not exist... these tests are getting weirder");
+        // require(pools[pool].cardsArray[card] != , "card does not exists");
         _;
     }
 
@@ -136,14 +138,14 @@ contract CreatorCollections is Ownable, Pausable {
         cardExists(pool, card)
     {
         Pool storage p = pools[pool];
-        Card memory c = p.cards[card];
+        Card memory c = p.cardsArray[card];
         // console.log("Points needed: ", c.points);
         // console.log("Points:", p.points[msg.sender]);
 
         require(block.timestamp >= c.releaseTime, "card not released");
         // require(p.points[msg.sender] >= c.points, "not enough points");
         require(msg.value == c.price, "support our artists, send USDC");
-
+        require(c.idPointOfNextEmpty<c.ids.length, "Token Is Sold Out");
         
         uint256 _controllerShare = msg.value.mul(controllerShare).div(1000);
         uint256 _artistRoyalty = msg.value.sub(_controllerShare);
@@ -155,7 +157,8 @@ contract CreatorCollections is Ownable, Pausable {
     
 
         _balances[pool][msg.sender] = _balances[pool][msg.sender].sub(c.price);
-        collectible.mint(msg.sender, card, 1, "");
+        collectible.mint(msg.sender, c.ids[c.idPointOfNextEmpty], "");
+        c.idPointOfNextEmpty++;
         emit Redeemed(msg.sender, pool, c.price);
     }
 
@@ -208,17 +211,17 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 price,
         uint256 releaseTime
     ) public onlyOwner poolExists(pool) returns (uint256) {
-        uint256 tokenId = collectible.create(supply, 0, "", "");
-        require(tokenId > 0, "ERC1155 create did not succeed");
-
-        Card storage c = pools[pool].cards[tokenId];
-        c.price = price;
-        c.releaseTime = releaseTime;
-        c.id = tokenId;
-        pools[pool].cardsArray.push(c);
+        
+        uint256[] memory tokenIdsGenerated = new uint256[](supply);
+        for (uint256 x =0; x < supply; x++){
+            tokenIdsGenerated[x] = collectible.create(0, "", "");//URI and Data seem important... and most likely are! well! HAVE FUN!
+            //so this generates all the token IDs that will be used, and makes each one unique.
+        }
+        pools[pool].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
+        
         pools[pool].cardsInPool++;
-        emit CardAdded(pool, tokenId, price, releaseTime);
-        return tokenId;
+        // emit CardAdded(pool, tokenIdsGenerated, price, releaseTime);
+        return pools[pool].cardsInPool-1;
     }
 
     function createPool(
@@ -253,7 +256,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     function cardReleaseTime(uint256 pool, uint256 card) public view returns (uint256) {
-        return pools[pool].cards[card].releaseTime;
+        return pools[pool].cardsArray[card].releaseTime;
     }
 
     /**
