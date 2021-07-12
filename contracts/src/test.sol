@@ -28,8 +28,8 @@ contract test {
     //TODO create mapping for nominee and fix every method accoridingly
     mapping(address => nominee) public nominee;
 
-    // A dynamically-sized array of `Nominee` structs.
-    Nominee[] public nominee;
+    // A fixed array of `Nominee` structs.
+    Nominee[30] public nominee;
 
     /// Give your vote to a user
     function vote(address proposal) public {
@@ -52,16 +52,17 @@ contract test {
         topVote(voteCount);
     }
 
-    function topVote(uint256 newVote) public {
-        for (uint256 i = 1; i < nominee.length(); i++) {
-            if (nominee[i].voteCount > nominee[i - 1] + newVote) {
-                //stuff
-                //return stuff
-                //check top 10 only
-                //Give them money to vote
-                //Streaming it
-                
-            }
+    //returns a new nominee list
+    function topVote(uint256 newVote) public returns (uint newOrder){
+        Nominee[30] public newOrder;
+        count = 0;
+        // nominee.length - 1
+        for (uint256 i = 0; i < 29; i++) {
+            if (nominee[i].voteCount > nominee[i + 1].voteCount) {
+                newOrder[count] = nominee[i];
+                count+=1;
         }
+        }
+        return newOrder[30];
     }
 }
