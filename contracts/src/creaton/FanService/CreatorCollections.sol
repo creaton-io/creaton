@@ -5,7 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "hardhat/console.sol";
 import "./FanCollectible.sol";
-import "./TestingToken.sol";
 
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
@@ -26,7 +25,6 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 id; //Card ID
         uint256 price; // Cost of minting a card in USDC
         uint256 releaseTime; // When the card becomes available for minting
-        uint256 mintFee; // Cost of minting a card in eth
     }
 
     struct Pool {
@@ -49,7 +47,7 @@ contract CreatorCollections is Ownable, Pausable {
 
     event UpdatedArtist(uint256 poolId, address artist);
     event PoolAdded(uint256 poolId, address artist, uint256 periodStart, uint256 maxStake);
-    event CardAdded(uint256 poolId, uint256 cardId, uint256 price, uint256 mintFee, uint256 releaseTime);
+    event CardAdded(uint256 poolId, uint256 cardId, uint256 price, uint256 releaseTime);
     event Staked(address indexed user, uint256 poolId, uint256 amount);
     event Withdrawn(address indexed user, uint256 poolId, uint256 amount);
     event Transferred(address indexed user, uint256 fromPoolId, uint256 toPoolId, uint256 amount);
@@ -62,6 +60,11 @@ contract CreatorCollections is Ownable, Pausable {
 
     modifier cardExists(uint256 pool, uint256 card) {
         require(pools[pool].cards[card].id > 0, "card does not exists");
+        _;
+    }
+
+    modifier onlyOwnerOrArtist(uint256 pool){
+        require(pools[pool].artist == _msgSender() || _msgSender() == owner(), "You Do Not Have Authorization To Change This");
         _;
     }
 
@@ -139,17 +142,17 @@ contract CreatorCollections is Ownable, Pausable {
 
         require(block.timestamp >= c.releaseTime, "card not released");
         // require(p.points[msg.sender] >= c.points, "not enough points");
-        require(msg.value == c.mintFee, "support our artists, send eth");
+        require(msg.value == c.price, "support our artists, send USDC");
 
-        if (c.mintFee > 0) {
-            uint256 _controllerShare = msg.value.mul(controllerShare).div(1000);
-            uint256 _artistRoyalty = msg.value.sub(_controllerShare);
-            require(_artistRoyalty.add(_controllerShare) == msg.value, "problem with fee");
+        
+        uint256 _controllerShare = msg.value.mul(controllerShare).div(1000);
+        uint256 _artistRoyalty = msg.value.sub(_controllerShare);
+        require(_artistRoyalty.add(_controllerShare) == msg.value, "problem with fee");
 
-            p.feesCollected = p.feesCollected.add(c.mintFee);
-            pendingWithdrawals[controller] = pendingWithdrawals[controller].add(_controllerShare);
-            pendingWithdrawals[p.artist] = pendingWithdrawals[p.artist].add(_artistRoyalty);
-        }
+        p.feesCollected = p.feesCollected.add(c.price);
+        pendingWithdrawals[controller] = pendingWithdrawals[controller].add(_controllerShare);
+        pendingWithdrawals[p.artist] = pendingWithdrawals[p.artist].add(_artistRoyalty);
+    
 
         _balances[pool][msg.sender] = _balances[pool][msg.sender].sub(c.price);
         collectible.mint(msg.sender, card, 1, "");
@@ -161,15 +164,25 @@ contract CreatorCollections is Ownable, Pausable {
      * @param pool the pool you are setting an artist for
      * @param artist the address of the artist.
      */
-    function setArtist(uint256 pool, address artist) public {
-        require(pools[pool].artist == _msgSender() || _msgSender() == owner(), "You Do Not Have Authorization To Change This");
-        //TODO: make sure that the artist isnt already in control of this
-        //TODO: remove the address from the addressToPools after you call this
+    function setArtist(
+        uint256 pool, 
+        address artist
+    ) 
+        public 
+        onlyOwnerOrArtist(pool) 
+    {
+        
         uint256 amount = pendingWithdrawals[artist];
         pendingWithdrawals[artist] = 0;
         pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
         pools[pool].artist = artist;
-        
+
+        // this removes the existing artist reference to this... but seems like it will be expensive...
+        for (uint8 x = 0; x < accountToPools[pools[pool].artist].length-1; x++){
+            if (accountToPools[pools[pool].artist][x] == pool){
+                delete accountToPools[pools[pool].artist][x];
+            }
+        }
         accountToPools[artist].push(pool);
 
         emit UpdatedArtist(pool, artist);
@@ -187,14 +200,12 @@ contract CreatorCollections is Ownable, Pausable {
      * @param pool the pool id to add it to
      * @param supply the supply of these to be made
      * @param price the cost of each item in price
-     * @param mintFee the additional cost to mint each card (in ETH?)
      * @param releaseTime the time you can start buying these
      */
     function createCard(
         uint256 pool,
         uint256 supply,
         uint256 price,
-        uint256 mintFee,
         uint256 releaseTime
     ) public onlyOwner poolExists(pool) returns (uint256) {
         uint256 tokenId = collectible.create(supply, 0, "", "");
@@ -203,11 +214,10 @@ contract CreatorCollections is Ownable, Pausable {
         Card storage c = pools[pool].cards[tokenId];
         c.price = price;
         c.releaseTime = releaseTime;
-        c.mintFee = mintFee;
         c.id = tokenId;
         pools[pool].cardsArray.push(c);
         pools[pool].cardsInPool++;
-        emit CardAdded(pool, tokenId, price, mintFee, releaseTime);
+        emit CardAdded(pool, tokenId, price, releaseTime);
         return tokenId;
     }
 
@@ -218,11 +228,12 @@ contract CreatorCollections is Ownable, Pausable {
         address artist,
         string memory title
     ) public onlyOwner returns (uint256) {
-        if (id ==0){
+        require(pools[id].periodStart == 0, "pool exists");
+        if (id == 0){
             //making it so that the id for the pool can be sent as 0, and automatically increments.
             id = poolsCount;
         }
-        require(pools[id].periodStart == 0, "pool exists");
+        
 		if (maxStake==0){
 			maxStake = 1e18;
 		}
@@ -238,10 +249,7 @@ contract CreatorCollections is Ownable, Pausable {
 
         accountToPools[artist].push(id);
         emit PoolAdded(id, artist, periodStart, maxStake);
-    }
-
-    function cardMintFee(uint256 pool, uint256 card) public view returns (uint256) {
-        return pools[pool].cards[card].mintFee;
+        return id;
     }
 
     function cardReleaseTime(uint256 pool, uint256 card) public view returns (uint256) {
@@ -285,6 +293,7 @@ contract CreatorCollections is Ownable, Pausable {
         pendingWithdrawals[msg.sender] = 0;
         payable(msg.sender).transfer(amount);
     }
+
     /**
     @dev returns the address of a newer version of this contract
     @return newerVersionOfContract, the address of the newer contract.
