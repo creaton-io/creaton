@@ -4,16 +4,20 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FanCollectible is ERC1155, Ownable {
-    using SafeMath for uint256;
 
 
     uint256 private _currentTokenID = 0;
     address private _minter; //I was wrong! this is actually *very* important, and needs to be the address of the controlling contract!
+    
+    enum states {
+        UNPURCHASED, 
+        PURCHASED, 
+        PURCHASED_AND_FINALIZED,
+        CONVERTED_TO_ZORA
+    }
 
-    mapping(uint256 => address) public creators;//tokenID to address of artist.
-    mapping(uint256 => uint256) public tokenSupply;//tokenID to current supply of tokens
-
-
+    mapping(uint256 => states) private stateOfCollectibles; //tokenID to state of collectible.
+    mapping(uint256 => string) private collectibleRequestData; //tokenID to data about collectible request.
 
     constructor(string memory _uri) ERC1155(_uri) {}
 
@@ -53,10 +57,10 @@ contract FanCollectible is ERC1155, Ownable {
         bytes memory _data
     ) public onlyMinter() {
         uint256 tokenId = _id;
-        require(tokenSupply[tokenId] < 1, "Max supply reached");
+        require(stateOfCollectibles[_id] == states.UNPURCHASED, "Max supply reached");
         _mint(_to, _id, 1, _data);
-        tokenSupply[_id] = tokenSupply[_id].add(1);
-        // sudocode if it is a standard NFT, mint an nft to them
+        
+        stateOfCollectibles[_id] = states.PURCHASED;
     }
 
     /**
@@ -71,7 +75,7 @@ contract FanCollectible is ERC1155, Ownable {
     ) external onlyMinter() returns (uint256 tokenId) {
         uint256 _id = _getNextTokenID();
         _incrementTokenTypeId();
-        creators[_id] = msg.sender;
+        stateOfCollectibles[_id] = states.UNPURCHASED;
 
         if (bytes(_uri).length > 0) {
             emit URI(_uri, _id);
@@ -85,7 +89,7 @@ contract FanCollectible is ERC1155, Ownable {
      * @return uint256 for the next token ID
      */
     function _getNextTokenID() private view returns (uint256) {
-        return _currentTokenID.add(1);
+        return _currentTokenID+1;
     }
 
     /**
@@ -97,5 +101,30 @@ contract FanCollectible is ERC1155, Ownable {
 
     function getCurrentTokenID() public view returns (uint256) {
         return _currentTokenID;
+    }
+
+    /**
+     * @dev sets the request data for a collectible
+     * @param _id Token ID to set data for
+     * @param _request Data to set (graphQL on ceramic's meta data)
+    */
+    function setRequestData(uint256 _id, string memory _request) onlyMinter() public {
+        require(stateOfCollectibles[_id] != states.PURCHASED_AND_FINALIZED, "Token has already been finalized");
+        // require(stateOfCollectibles[_id] != states.UNPURCHASED, "Token not purchased");
+        require(balanceOf(_msgSender(), _id) >=1, "Token not owned by sender");
+
+        collectibleRequestData[_id] = _request;
+        //TOOD: emit that this data has been set!
+    }
+
+    /**
+    @dev sets the data for a token after it has been approved by the artist
+    @param _id Token ID to set data for
+    @param _data the data link.
+    */
+    function finalizedByArtist(uint256 _id, bytes memory _data) onlyMinter() public {
+        require(stateOfCollectibles[_id] == states.PURCHASED, "Token not purchased");
+
+
     }
 }
