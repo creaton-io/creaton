@@ -12,18 +12,16 @@ contract CreatorCollections is Ownable, Pausable {
     IERC20 public token;// set to the address of USDC, probobly, we dont check...
     FanCollectible public collectible;
 
-    uint256 constant controllerShare = 1; // Revenue share scheme of eth fees collected.
-    // this should be 0, but then i have to actually remove the math entirely... so lets keep it at 0.01%
-
 
     uint256 private _totalSupply;
     mapping(uint256 => mapping(address => uint256)) internal _balances;
     mapping(address => uint256) private _accountBalances;
     mapping(uint256 => uint256) private _poolBalances;
-    mapping(address => uint256[]) internal accountToPools;// this is just a nicer way of keep track of who owns what pools.
+    mapping(address => uint256[]) private accountToPools;// this is just a nicer way of keep track of who owns what pools.
 
     struct Card {
         uint256[] ids; //Card IDs. would be singular, but each one needs to be unique.
+        // IDS can be generated on the fly!!! saving memory and most importantly, gas fees per call!
         uint256 price; // Cost of minting a card in USDC
         uint256 releaseTime; // When the card becomes available for minting
         uint256 idPointOfNextEmpty;
@@ -36,7 +34,6 @@ contract CreatorCollections is Ownable, Pausable {
         
         address artist;
         string title;
-        mapping(address => uint256) lastUpdateTime;
         uint256 cardsInPool;
         Card[] cardsArray;
     }
@@ -80,6 +77,11 @@ contract CreatorCollections is Ownable, Pausable {
         token = IERC20(_tokenAddress);
     }
 
+    function purchase(uint256 _poolID, uint256 _cardID) public{
+        stake(_poolID, pools[_poolID].cardsArray[_cardID].price);
+        redeem(_poolID, _cardID);
+    }
+
     /**
      * @dev stake tokens that are held in escro.
      * @param pool the id of the pool to stake to.
@@ -92,14 +94,14 @@ contract CreatorCollections is Ownable, Pausable {
     {
         Pool storage p = pools[pool];
         require(block.timestamp >= p.periodStart, "pool not open");
-        require(amount.add(balanceOf(msg.sender, pool)) <= p.maxStake, "stake exceeds max");
+        require(amount.add(balanceOf(_msgSender(), pool)) <= p.maxStake, "stake exceeds max");
 
         _totalSupply = _totalSupply.add(amount);
         _poolBalances[pool] = _poolBalances[pool].add(amount);
-        _accountBalances[msg.sender] = _accountBalances[msg.sender].add(amount);
-        _balances[pool][msg.sender] = _balances[pool][msg.sender].add(amount);
-        token.transferFrom(msg.sender, address(this), amount);
-        emit Staked(msg.sender, pool, amount);
+        _accountBalances[_msgSender()] = _accountBalances[_msgSender()].add(amount);
+        _balances[pool][_msgSender()] = _balances[pool][_msgSender()].add(amount);
+        token.transferFrom(_msgSender(), address(this), amount);
+        emit Staked(_msgSender(), pool, amount);
     }
 
     /**
@@ -147,19 +149,16 @@ contract CreatorCollections is Ownable, Pausable {
         require(msg.value == c.price, "support our artists, send USDC");
         require(c.idPointOfNextEmpty<c.ids.length, "Token Is Sold Out");
         
-        uint256 _controllerShare = msg.value.mul(controllerShare).div(1000);
-        uint256 _artistRoyalty = msg.value.sub(_controllerShare);
-        require(_artistRoyalty.add(_controllerShare) == msg.value, "problem with fee");
+        uint256 _artistRoyalty = msg.value;
 
         p.feesCollected = p.feesCollected.add(c.price);
-        pendingWithdrawals[controller] = pendingWithdrawals[controller].add(_controllerShare);
         pendingWithdrawals[p.artist] = pendingWithdrawals[p.artist].add(_artistRoyalty);
     
 
-        _balances[pool][msg.sender] = _balances[pool][msg.sender].sub(c.price);
-        collectible.mint(msg.sender, c.ids[c.idPointOfNextEmpty], "");
+        _balances[pool][_msgSender()] = _balances[pool][_msgSender()].sub(c.price);
+        collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         c.idPointOfNextEmpty++;
-        emit Redeemed(msg.sender, pool, c.price);
+        emit Redeemed(_msgSender(), pool, c.price);
     }
 
     /**
@@ -210,7 +209,12 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 supply,
         uint256 price,
         uint256 releaseTime
-    ) public onlyOwner poolExists(pool) returns (uint256) {
+    ) 
+        public 
+        onlyOwnerOrArtist(pool) 
+        poolExists(pool) 
+        returns (uint256) 
+    {
         
         uint256[] memory tokenIdsGenerated = new uint256[](supply);
         for (uint256 x = 0; x < supply; x++){
@@ -224,6 +228,14 @@ contract CreatorCollections is Ownable, Pausable {
         return pools[pool].cardsInPool-1;
     }
 
+    /**
+    @dev creates a pool.
+    @param id the id of the pool. Must be unique.
+    @param periodStart the time you can start buying these
+    @param maxStake the maximum amount you can stake(if 0, defaults to 1e^18)
+    @param artist the artist that will be paid
+    @param title the title of the pool
+    */
     function createPool(
         uint256 id,
         uint256 periodStart,
@@ -232,11 +244,6 @@ contract CreatorCollections is Ownable, Pausable {
         string memory title
     ) public onlyOwner returns (uint256) {
         require(pools[id].periodStart == 0, "pool exists");
-        if (id == 0){
-            //making it so that the id for the pool can be sent as 0, and automatically increments.
-            id = poolsCount;
-        }
-        
 		if (maxStake==0){
 			maxStake = 1e18;
 		}
@@ -286,10 +293,6 @@ contract CreatorCollections is Ownable, Pausable {
         return pools[id].cardsArray;
     }
 
-    function getLastUpdate(address account, uint256 id) public view returns (uint256) {
-        return pools[id].lastUpdateTime[account];
-    }
-
     function withdrawFee() public {
         uint256 amount = pendingWithdrawals[msg.sender];
         require(amount > 0, "nothing to withdraw");
@@ -320,5 +323,17 @@ contract CreatorCollections is Ownable, Pausable {
     function getPoolsForArtist(address artist) public view returns (uint256[] memory){
         uint256[] memory accountsPools = accountToPools[artist];
         return accountsPools;
+    }
+
+    /**
+    @dev return the data for a FanColectible and then get the money they have staked.
+    @param _pool the pool id
+    @param _fanID the id of the FanCollectible you want to get the data for.
+    @param _data the URI to the data for the FanCollectible.
+    */
+    function getFanCollectibleData(uint256 _pool, uint256 _fanID, string memory _data) public{
+        // Pool p = pools[_pool];
+        // require (p.artist == msg.sender, "not the artist of this pool");
+        //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
     }
 }
