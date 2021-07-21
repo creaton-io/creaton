@@ -5,10 +5,22 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/OwnableBaseRelayRecipient.sol";
 import "@openzeppelin/contracts/token/ERC1155/presets/ERC721PresetMinterPauserAutoId.sol";
 
+import {ISuperfluid, ISuperToken, ISuperAgreement, SuperAppDefinitions} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+//    ToDo Figure out if i need these
+import {IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
+
+import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
+
+import {Int96SafeMath} from "../utils/Int96SafeMath.sol";
+
+//
+
 //Top 30 new ppl get stream open to them
 //Manually call fn, once a week
 
-contract test {
+contract test is SuperAppBase, Initializable, BaseRelayRecipient {
+    using Int96SafeMath for int96;
+
     // Represents a single voter
     struct Voter {
         bool voted; //limit: 1 vote per user
@@ -53,16 +65,106 @@ contract test {
     }
 
     //returns a new nominee list
-    function topVote(uint256 newVote) public returns (uint newOrder){
-        Nominee[30] public newOrder;
+    function topVote(uint256 newVote) public returns (uint256 newOrder) {
+        Nominee[30] newOrder;
         count = 0;
         // nominee.length - 1
         for (uint256 i = 0; i < 29; i++) {
             if (nominee[i].voteCount > nominee[i + 1].voteCount) {
                 newOrder[count] = nominee[i];
-                count+=1;
-        }
+                count += 1;
+            }
         }
         return newOrder[30];
+    }
+
+    /////
+    function recoverTokens(address _token) external onlyCreator {
+        IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
+    }
+
+    // -----------------------------------------
+    // Superfluid Logic
+    // -----------------------------------------
+
+    function _openFlows(
+        bytes calldata ctx,
+        int96 contract2creator,
+        int96 contract2treasury
+    ) private returns (bytes memory newCtx) {
+        // open flow to creator
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
+
+        // open flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.createFlow.selector,
+                _acceptedToken,
+                adminContract.treasury(),
+                contract2treasury,
+                new bytes(0)
+            ),
+            new bytes(0),
+            newCtx
+        );
+    }
+
+    function _updateFlows(
+        bytes calldata ctx,
+        int96 contract2creator,
+        int96 contract2treasury
+    ) private returns (bytes memory newCtx) {
+        // update flow to creator
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
+
+        // update flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.updateFlow.selector,
+                _acceptedToken,
+                adminContract.treasury(),
+                contract2treasury,
+                new bytes(0)
+            ), // call data
+            new bytes(0), // user data
+            newCtx // ctx
+        );
+    }
+
+    function _deleteFlows(bytes calldata ctx) private returns (bytes memory newCtx) {
+        // delete flow to creator
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.deleteFlow.selector, _acceptedToken, address(this), creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
+
+        // delete flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.deleteFlow.selector,
+                _acceptedToken,
+                address(this),
+                adminContract.treasury(),
+                new bytes(0)
+            ), // call data
+            new bytes(0), // user data
+            newCtx // ctx
+        );
     }
 }
