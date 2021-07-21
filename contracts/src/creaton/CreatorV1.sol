@@ -26,7 +26,7 @@ import {
 
 
 import { Int96SafeMath } from "../utils/Int96SafeMath.sol";
-
+import { StreamingDistribution } from "./StreamingDistribution/StreamingDistribution.sol";
 
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     using Int96SafeMath for int96;
@@ -65,7 +65,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     address public creator;
     ICreatonAdmin adminContract;
     NFTFactory nftFactory;
-
+    StreamingDistribution _streamingDistribution; //address of the Streaming distribution contract
+    
     string public description;
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE;
@@ -97,7 +98,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
         _acceptedToken = ISuperToken(acceptedToken);
-        uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
+        uint256 configWord = SuperAppDefinitions.APP_LEVEL_SECOND;
         _host.registerApp(configWord);
 
         creator = _creator;
