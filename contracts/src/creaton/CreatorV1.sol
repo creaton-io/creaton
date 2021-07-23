@@ -26,7 +26,7 @@ import {
 
 
 import { Int96SafeMath } from "../utils/Int96SafeMath.sol";
-import { StreamingDistribution } from "./StreamingDistribution/StreamingDistribution.sol";
+import { StreamingDistribution } from "./StreaminDistribution/StreamingDistribution.sol";
 
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     using Int96SafeMath for int96;
