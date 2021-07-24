@@ -1,4 +1,7 @@
+
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
+pragma abicoder v2;
 
 import {
     ISuperfluid,
@@ -33,12 +36,12 @@ contract StreamingDistribution is
             string memory name,
             string memory symbol
 
-        )
-        ERC777(name,symbol,placeHolder)
+        ) ERC777(name,symbol,placeHolder)
         {
             assert(address(redeemableToken)!= address(0));
             assert(address(host)!= address(0));
             assert(address(ida)!= address(0));
+            
             _redeemableToken = redeemableToken;
             _host = host;
             _ida = ida;

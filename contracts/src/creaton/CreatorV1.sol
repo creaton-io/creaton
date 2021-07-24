@@ -23,7 +23,9 @@ import {
 import {
     SuperAppBase
 } from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
-
+import {
+    IInstantDistributionAgreementV1
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol";
 
 import { Int96SafeMath } from "../utils/Int96SafeMath.sol";
 import { StreamingDistribution } from "./StreaminDistribution/StreamingDistribution.sol";
@@ -57,15 +59,20 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // Storage
     // -----------------------------------------
 
+    //uint32 INDEX_ID = 0; // index id for creator
+    
     ISuperfluid private _host; // host
     IConstantFlowAgreementV1 private _cfa; // the stored constant flow agreement class address
+   // IInstantDistributionAgreementV1 private _ida; //new line
     ISuperToken private _acceptedToken; // accepted token
 
+    
     address public admin;
     address public creator;
     ICreatonAdmin adminContract;
     NFTFactory nftFactory;
     StreamingDistribution _streamingDistribution; //address of the Streaming distribution contract
+    bool private distributorMade = false;
     
     string public description;
     int96 public subscriptionPrice;
@@ -82,21 +89,25 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function initialize(
         address host,
         address cfa,
+        //address ida, //new line
         address acceptedToken,
         address _creator,
         string memory _description,
         uint256 _subscriptionPrice,
         string memory nftName,
-        string memory nftSymbol
+        string memory nftSymbol,
+        StreamingDistribution streamingDistribution
     ) public payable initializer {
         admin = msg.sender;
 
         assert(address(host) != address(0));
         assert(address(cfa) != address(0));
         assert(address(acceptedToken) != address(0));
-
+        assert(address(streamingDistribution) != address(0)); //new line
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
+       // _ida = IInstantDistributionAgreementV1(ida); //new line
+       
         _acceptedToken = ISuperToken(acceptedToken);
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_SECOND;
         _host.registerApp(configWord);
@@ -120,6 +131,17 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function withdrawEth() public onlyCreator {
         (bool success, ) = _msgSender().call{value: (address(this).balance)}("Not admin");
         require(success, "No balance");
+    }
+
+    function makedistributor(
+         StreamingDistribution streamingDistribution,
+        ISuperToken redeemableToken,
+        IInstantDistributionAgreementV1 ida,
+        string memory name,
+        string memory symbol
+    ) external {
+        _streamingDistribution=new StreamingDistribution(redeemableToken,_host,ida,name,symbol);
+        distributorMade = true;
     }
 
      function recoverTokens(address _token) external onlyCreator {
@@ -332,6 +354,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function _addSubscriber(address _address) private {
         subscriberCount += 1;
         changeStatus(_address, Status.subscribed);
+
     }
 
     function _delSubscriber(address _address) private {
