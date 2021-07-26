@@ -18,7 +18,12 @@ contract CreatorCollections is Ownable, Pausable {
     mapping(address => uint256) private _accountBalances;
     mapping(uint256 => uint256) private _poolBalances;
     mapping(address => uint256[]) private accountToPools;// this is just a nicer way of keep track of who owns what pools.
-
+    
+    mapping(uint256 => HoldingTokens) private heldBalances;//tokenID => quantity being held.
+    struct HoldingTokens{
+        uint256 quantityHeld;
+        uint256 pool;
+    }
     struct Card {
         uint256[] ids; //Card IDs. would be singular, but each one needs to be unique.
         // IDS can be generated on the fly!!! saving memory and most importantly, gas fees per call!
@@ -57,8 +62,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     modifier cardExists(uint256 pool, uint256 card) {
-        require(card < pools[pool].cardsArray.length, "card may not exist... these tests are getting weirder");
-        // require(pools[pool].cardsArray[card] != , "card does not exists");
+        require(card < pools[pool].cardsArray.length, "card may not exist");
         _;
     }
 
@@ -141,22 +145,20 @@ contract CreatorCollections is Ownable, Pausable {
     {
         Pool storage p = pools[pool];
         Card memory c = p.cardsArray[card];
-        // console.log("Points needed: ", c.points);
-        // console.log("Points:", p.points[msg.sender]);
 
         require(block.timestamp >= c.releaseTime, "card not released");
-        // require(p.points[msg.sender] >= c.points, "not enough points");
-        require(msg.value == c.price, "support our artists, send USDC");
+        require(_balances[pool][_msgSender()] >= c.price, "not enough tokens stakes");
+
         require(c.idPointOfNextEmpty<c.ids.length, "Token Is Sold Out");
         
-        uint256 _artistRoyalty = msg.value;
 
         p.feesCollected = p.feesCollected.add(c.price);
-        pendingWithdrawals[p.artist] = pendingWithdrawals[p.artist].add(_artistRoyalty);
     
 
         _balances[pool][_msgSender()] = _balances[pool][_msgSender()].sub(c.price);
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
+        heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
+        heldBalances[c.ids[c.idPointOfNextEmpty]].pool = pool;
         c.idPointOfNextEmpty++;
         emit Redeemed(_msgSender(), pool, c.price);
     }
@@ -332,8 +334,10 @@ contract CreatorCollections is Ownable, Pausable {
     @param _data the URI to the data for the FanCollectible.
     */
     function getFanCollectibleData(uint256 _pool, uint256 _fanID, string memory _data) public{
-        // Pool p = pools[_pool];
-        // require (p.artist == msg.sender, "not the artist of this pool");
+        require(_msgSender() == pools[_pool].artist, "not the artist");
+        
+        pendingWithdrawals[_msgSender()] = pendingWithdrawals[_msgSender()].add(heldBalances[_fanID].quantityHeld);
+        heldBalances[_fanID].quantityHeld = 0;
         //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
     }
 }

@@ -83,9 +83,6 @@ describe('Purchasing.', function(){
         //give the accounts some money
         await TestingTokenContract.connect(artistAccount).faucet();
         await TestingTokenContract.connect(fanAccount).faucet();
-        // await TestingTokenContract.connect(fanAccount).faucet();
-        // await TestingTokenContract.connect(fanAccount).faucet();
-        // await TestingTokenContract.connect(fanAccount).faucet();
 
         CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
         CollectionsContract = await CollectionsFactory.deploy(OwnerAccount.address, CollectibleContract.address , TestingTokenContract.address);
@@ -95,22 +92,22 @@ describe('Purchasing.', function(){
         console.log(await (await artistAccount.getBalance()).toString());
         console.log(await fanAccount.getBalance().toString());
         const id = (await CollectionsContract.connect(OwnerAccount).createPool(0, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection"));
-        const TokenId = await CollectionsContract.connect(artistAccount).createCard(0, 10, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
+        const cardID = await CollectionsContract.connect(artistAccount).createCard(0, 10, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
         
         //pretending that this is the web team writing this.
         const artistPools = await CollectionsContract.getPoolsForArtist(artistAccount.address);
-        console.log("hi Pyro, look at the next number");
-        console.log(await artistPools);
+        
+
         console.log((await TestingTokenContract.balanceOf(fanAccount.address)/1e18).toLocaleString());
-        console.log(await TestingTokenContract.balanceOf(artistAccount.address)>= ethers.utils.parseEther("1"));
+        
 
         expect (await artistPools.length).to.equal(1);
-        await CollectionsContract.connect(fanAccount).stake(0, 1);
-        // console.log(CollectionsContract._poolBalances[0]);
-        // console.log(CollectionsContract._accountBalances[fanAccount.address]);
-        await CollectionsContract.connect(fanAccount).redeem(0, TokenId);
-        // await CollectibleContract.connect(fanAccount).stake(0, 1e18);
-        // await CollectibleContract.connect(fanAccount).redeem(0, TokenId);
+
+        await TestingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
+        await CollectionsContract.connect(fanAccount).stake(0, ethers.utils.parseEther("1"));
+
+        await CollectionsContract.connect(fanAccount).redeem(0, 0);
+
     });
 
 });
