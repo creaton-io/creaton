@@ -151,3 +151,40 @@ describe('Purchasing single', function(){
 
     });
 });
+describe('Purchasing multiples', function(){
+    let artistAccount: SignerWithAddress;
+    let fanAccount: SignerWithAddress;
+    let brokeAccount: SignerWithAddress;
+    beforeEach(async function(){
+        [OwnerAccount,artistAccount,fanAccount, brokeAccount] = await ethers.getSigners();
+        
+        // make the testing currency 
+        TestingToken = await ethers.getContractFactory('TestingToken');
+        TestingTokenContract = await TestingToken.deploy(6);
+
+        //give the accounts some money
+        await TestingTokenContract.connect(artistAccount).faucet();
+        await TestingTokenContract.connect(fanAccount).faucet();
+
+        CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
+        CollectionsContract = await CollectionsFactory.deploy(OwnerAccount.address, CollectibleContract.address , TestingTokenContract.address);
+        await CollectibleContract.transferMinter(CollectionsContract.address);
+    });
+    it('100 of 5 cards, 1 pool, 0 Purchased', async function(){
+        const poolId = await CollectionsContract.connect(OwnerAccount).createPool(1, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection");
+        const cardsIds = [];
+        for(let i = 0; i < 5; i++){
+            cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(1, 100, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000)));
+        }
+        expect(cardsIds.length).to.equal(5);
+        // expect(CollectionsContract.getCardsArray[1].length().should.equal(5));
+    });
+    it('5 of 100 cards, 1 pool, 0 purchased', async function(){
+        const poolId = await CollectionsContract.connect(OwnerAccount).createPool(1, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection");
+        const cardsIds = [];
+        for(let i = 0; i < 100; i++){
+            cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(1, 5, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000)));
+        }
+        expect(cardsIds.length).to.equal(100);
+    });
+});

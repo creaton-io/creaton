@@ -45,7 +45,8 @@ contract FanCollectible is ERC1155, Ownable {
     }
 
     event MinterTransferred(address indexed previousMinter, address indexed newMinter);
-
+    event TokenAdded(uint256 indexed tokenID);
+    event RequestDataSet(uint256 indexed tokenID, string indexed collectibleRequestData);
     /**
      * @dev Mints some amount of tokens to an address
      * @param _to          Address of the future owner of the token
@@ -115,6 +116,7 @@ contract FanCollectible is ERC1155, Ownable {
 
         collectibleRequestData[_id] = _request;
         //TOOD: emit that this data has been set!
+        emit RequestDataSet(_id, _request);
     }
 
     /**
