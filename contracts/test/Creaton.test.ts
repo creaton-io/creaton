@@ -1,4 +1,4 @@
-import {expect} from './chai-setup';
+/*import {expect} from './chai-setup';
 import {ethers, deployments} from 'hardhat';
 
 const mockCreator = ['https://utulsa.edu/wp-content/uploads/2018/08/generic-avatar.jpg', 'ETHGlobal', 5];
@@ -76,4 +76,4 @@ describe('Creator', async function () {
       .to.emit(creatorContract, 'NewSubscriber')
       .withArgs(subscriber.address, 5);
   });
-});
+});*/
