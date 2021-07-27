@@ -3,7 +3,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "hardhat/console.sol";
+// import "hardhat/console.sol";
 import "./FanCollectible.sol";
 
 contract CreatorCollections is Ownable, Pausable {
@@ -142,6 +142,7 @@ contract CreatorCollections is Ownable, Pausable {
         payable
         poolExists(pool)
         cardExists(pool, card)
+        returns (uint256)
     {
         Pool storage p = pools[pool];
         Card memory c = p.cardsArray[card];
@@ -161,6 +162,8 @@ contract CreatorCollections is Ownable, Pausable {
         heldBalances[c.ids[c.idPointOfNextEmpty]].pool = pool;
         c.idPointOfNextEmpty++;
         emit Redeemed(_msgSender(), pool, c.price);
+
+        return c.ids[c.idPointOfNextEmpty-1];
     }
 
     /**
@@ -328,16 +331,18 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     /**
-    @dev return the data for a FanColectible and then get the money they have staked.
+    @dev return the data for a FanCollectible and then get the money they have staked.
     @param _pool the pool id
     @param _fanID the id of the FanCollectible you want to get the data for.
     @param _data the URI to the data for the FanCollectible.
     */
-    function getFanCollectibleData(uint256 _pool, uint256 _fanID, string memory _data) public{
+    function setFanCollectibleData(uint256 _pool, uint256 _fanID, bytes memory _data) public{
         require(_msgSender() == pools[_pool].artist, "not the artist");
         
         pendingWithdrawals[_msgSender()] = pendingWithdrawals[_msgSender()].add(heldBalances[_fanID].quantityHeld);
         heldBalances[_fanID].quantityHeld = 0;
+
+        collectible.finalizedByArtist(_fanID, _data);
         //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
     }
 }

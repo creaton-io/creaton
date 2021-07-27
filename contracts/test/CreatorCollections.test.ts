@@ -2,7 +2,7 @@ import { expect } from "./chai-setup";
 import { ethers,deployments } from "hardhat";
 import { Contract } from "@ethersproject/contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { ContractFactory } from "ethers";
+import { BigNumber, ContractFactory } from "ethers";
 import { Console } from "node:console";
 import { Test } from "mocha";
 
@@ -70,11 +70,12 @@ describe('CreatorCollections', function(){
         expect (await cArray.length).to.greaterThan(0);
     });
 });
-describe('Purchasing.', function(){
+describe('Purchasing single', function(){
     let artistAccount: SignerWithAddress;
     let fanAccount: SignerWithAddress;
+    let brokeAccount: SignerWithAddress;
     beforeEach(async function(){
-        [OwnerAccount,artistAccount,fanAccount] = await ethers.getSigners();
+        [OwnerAccount,artistAccount,fanAccount, brokeAccount] = await ethers.getSigners();
         
         // make the testing currency 
         TestingToken = await ethers.getContractFactory('TestingToken');
@@ -89,6 +90,7 @@ describe('Purchasing.', function(){
         await CollectibleContract.transferMinter(CollectionsContract.address);
     });
     it('Single Purchase', async function(){
+        //where everything goes well!
         console.log(await (await artistAccount.getBalance()).toString());
         console.log(await fanAccount.getBalance().toString());
         const id = (await CollectionsContract.connect(OwnerAccount).createPool(0, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection"));
@@ -106,8 +108,46 @@ describe('Purchasing.', function(){
         await TestingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
         await CollectionsContract.connect(fanAccount).stake(0, ethers.utils.parseEther("1"));
 
-        await CollectionsContract.connect(fanAccount).redeem(0, 0);
+        const fanID = await CollectionsContract.connect(fanAccount).redeem(0, 0);
+        await fanID.wait();
+        console.log(fanID.value);
+        console.log("fanId is");
+        console.log(fanID);
+        await CollectibleContract.connect(fanAccount).setRequestData(BigNumber.from(22), "Hello World Image! Please and thank you!");
 
     });
+    it('Single Purchase with wrong amount staked', async function(){
+        console.log(await (await artistAccount.getBalance()).toString());
+        console.log(await fanAccount.getBalance().toString());
+        const id = (await CollectionsContract.connect(OwnerAccount).createPool(0, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection"));
+        const cardID = await CollectionsContract.connect(artistAccount).createCard(0, 10, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
+        
+        //pretending that this is the web team writing this.
+        const artistPools = await CollectionsContract.getPoolsForArtist(artistAccount.address);
+        
 
+        console.log((await TestingTokenContract.balanceOf(fanAccount.address)/1e18).toLocaleString());
+        
+
+        expect (await artistPools.length).to.equal(1);
+
+        await TestingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
+        await CollectionsContract.connect(fanAccount).stake(0, ethers.utils.parseEther("0"));
+        //expect this to throw the error "not enough tokens stakes".
+        await expect(CollectionsContract.connect(fanAccount).redeem(0, 0)).to.revertedWith("not enough tokens stakes");
+
+        // await CollectionsContract.connect(fanAccount).redeem(0, 0).to.be.revertedWith("not enough tokens stakes");
+
+    });
+    it('Single stake without funds', async function(){
+        const id = (await CollectionsContract.connect(OwnerAccount).createPool(0, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection"));
+        const cardID = await CollectionsContract.connect(artistAccount).createCard(0, 10, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
+
+        console.log((await TestingTokenContract.balanceOf(brokeAccount.address)/1e18).toLocaleString());
+        expect(await TestingTokenContract.balanceOf(brokeAccount.address)).to.equal(0);
+
+        await TestingTokenContract.connect(brokeAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
+        await expect(CollectionsContract.connect(brokeAccount).stake(0, ethers.utils.parseEther("1"))).to.revertedWith("VM Exception while processing transaction: revert ERC20: transfer amount exceeds balance");
+
+    });
 });

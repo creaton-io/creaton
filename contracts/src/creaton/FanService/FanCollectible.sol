@@ -2,6 +2,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+// import "hardhat/console.sol";
 
 contract FanCollectible is ERC1155, Ownable {
 
@@ -59,7 +60,6 @@ contract FanCollectible is ERC1155, Ownable {
         uint256 tokenId = _id;
         require(stateOfCollectibles[_id] == states.UNPURCHASED, "Max supply reached");
         _mint(_to, _id, 1, _data);
-        
         stateOfCollectibles[_id] = states.PURCHASED;
     }
 
@@ -108,7 +108,7 @@ contract FanCollectible is ERC1155, Ownable {
      * @param _id Token ID to set data for
      * @param _request Data to set (graphQL on ceramic's meta data)
     */
-    function setRequestData(uint256 _id, string memory _request) onlyMinter() public {
+    function setRequestData(uint256 _id, string memory _request) public {
         require(stateOfCollectibles[_id] != states.PURCHASED_AND_FINALIZED, "Token has already been finalized");
         // require(stateOfCollectibles[_id] != states.UNPURCHASED, "Token not purchased");
         require(balanceOf(_msgSender(), _id) >=1, "Token not owned by sender");
@@ -124,7 +124,7 @@ contract FanCollectible is ERC1155, Ownable {
     */
     function finalizedByArtist(uint256 _id, bytes memory _data) onlyMinter() public {
         require(stateOfCollectibles[_id] == states.PURCHASED, "Token not purchased");
-
+        stateOfCollectibles[_id] = states.PURCHASED_AND_FINALIZED;
 
     }
 }
