@@ -41,8 +41,15 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
 
     Nominee[30] public nominee;
 
+    //This makes sure a user has tokens avaiable in their wallet to vote with
+    modifier AbilityToVote(address _voter) {
+        balance = token.balanceOf(_voter);
+        require(balance > 0);
+        _;
+    }
+
     // Give your vote to a user
-    function vote(address proposal) public {
+    function vote(address proposal) public AbilityToVote(msg.sender) returns (bool) {
         Voter storage sender = voters[msg.sender];
         // require(!sender.voted, "Already voted.");
         // sender.voted = true;
@@ -50,7 +57,7 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
         // voteCount[proposal] += 1;
         //TODO Can calculate top vote within here, create a new fn
         votesReceived = token.balanceOf(msg.sender);
-        voteCount[proposal] += votesRecieved;
+        voteCount[proposal] += votesReceived;
         sender.voted = true;
         sender.vote = proposal;
         // topVote(voteCount);
@@ -80,6 +87,12 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
             }
         }
         return newOrder[30];
+    }
+
+    //Sets when a voting season will come to an end
+    function VotingSeasonEnds(address proposal) internal {
+        require();
+        //
     }
 
     ////
