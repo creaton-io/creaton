@@ -23,7 +23,6 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
 
     // Represents a single voter
     struct Voter {
-        bool voted; //limit: 1 vote per user
         address vote;
     }
 
@@ -58,7 +57,6 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
         //TODO Can calculate top vote within here, create a new fn
         votesReceived = token.balanceOf(msg.sender);
         voteCount[proposal] += votesReceived;
-        sender.voted = true;
         sender.vote = proposal;
         // topVote(voteCount);
         return true;
@@ -66,8 +64,6 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function unVote(address proposal) public {
         Voter storage sender = voters[msg.sender];
-        require(!sender.voted, "Already Unvoted");
-        sender.voted = false;
         sender.vote = proposal;
         voteCount[proposal] -= 1;
         //TODO Can calculate top vote within here, create a new fn
