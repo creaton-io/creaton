@@ -4,6 +4,7 @@ import '@nomiclabs/hardhat-web3';
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
+import 'hardhat-gas-reporter';
 import '@openzeppelin/hardhat-upgrades';
 import {Wallet} from '@ethersproject/wallet';
 
@@ -27,7 +28,12 @@ if (mnemonic) {
 }
 
 const config = {
-
+  gasReporter: {
+    enabled: false, //set to false for faster compile times!
+    currency: 'CAD',
+    // gasPrice: 21
+    coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6'
+  },
   solidity: {
     compilers: [
       {
@@ -92,16 +98,16 @@ const config = {
       default: 3,
     },
   },
-  defaultNetwork: 'mumbai',
+  //defaultNetwork: 'mumbai',
   networks: {
     coverage: {
       url: 'http://localhost:5458',
     },
     hardhat: {
       accounts: hardhatAccounts,
-      forking: {
+     /* forking: {
         url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
-      },
+      },*/
     },
     localhost: {
       url: 'http://localhost:8545',
