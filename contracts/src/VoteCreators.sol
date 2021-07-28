@@ -44,13 +44,17 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
     // Give your vote to a user
     function vote(address proposal) public {
         Voter storage sender = voters[msg.sender];
-        require(!sender.voted, "Already voted.");
+        // require(!sender.voted, "Already voted.");
+        // sender.voted = true;
+        // sender.vote = proposal;
+        // voteCount[proposal] += 1;
+        //TODO Can calculate top vote within here, create a new fn
+        votesReceived = token.balanceOf(msg.sender);
+        voteCount[proposal] += votesRecieved;
         sender.voted = true;
         sender.vote = proposal;
-        voteCount[proposal] += 1;
-        //TODO Can calculate top vote within here, create a new fn
-
-        topVote(voteCount);
+        // topVote(voteCount);
+        return true;
     }
 
     function unVote(address proposal) public {
