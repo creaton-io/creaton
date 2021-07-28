@@ -1,199 +1,172 @@
-// SPDX-License-Identifier: MIT
-pragma solidity >0.8.0;
-pragma abicoder v2;
+pragma solidity ^0.8.0;
 
 import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/OwnableBaseRelayRecipient.sol";
 import "@openzeppelin/contracts/token/ERC1155/presets/ERC721PresetMinterPauserAutoId.sol";
 
-contract VoteCreators is Ownable, EERC721PresetMinterPauserAutoId {
-    // -----------------------------------------
-    // Events
-    // -----------------------------------------
+import {ISuperfluid, ISuperToken, ISuperAgreement, SuperAppDefinitions} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+//    ToDo Figure out if i need these
+import {IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 
-    //TODO: add events for The Graph
+import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
-    // -----------------------------------------
-    // Storage
-    // -----------------------------------------
+import {Int96SafeMath} from "../utils/Int96SafeMath.sol";
 
-    // Help with calculating the winners
-    struct TopBalance {
-        uint256 balance;
-        address addr;
+//
+
+//Top 30 new ppl get stream open to them
+//Manually call fn, once a week
+
+contract test is SuperAppBase, Initializable, BaseRelayRecipient {
+    using Int96SafeMath for int96;
+
+    // Represents a single voter
+    struct Voter {
+        bool voted; //limit: 1 vote per user
+        address vote;
     }
 
-    // Which user voted for who and limit of vote
-    struct Vote {
-        address user;
-        uint256 amount;
+    struct Nominee {
+        uint256 voteCount;
     }
 
-    IERC20 public create = IERC20(0x3dd49f67E9d5Bc4C5E6634b3F70BfD9dc1b6BD74); //TODO: can use wETH before CREATE token is live
+    // stores a `Voter` struct for each possible address.
+    mapping(address => Voter) public voters;
 
-    TopBalance[9] public topBalances;
-    address[9] public winners;
+    mapping(address => uint256) public voteCount;
 
-    uint256 private _totalSupply;
+    //TODO create mapping for nominee and fix every method accoridingly
+    mapping(address => nominee) public nominee;
 
-    //
-    //Change based on new features
-    //
-    mapping(address => uint256) private userBalances;
+    Nominee[30] public nominee;
 
-    mapping(address => uint256) public votes; //Keeps the number of votes an address has.
+    // Give your vote to a user
+    function vote(address proposal) public {
+        Voter storage sender = voters[msg.sender];
+        require(!sender.voted, "Already voted.");
+        sender.voted = true;
+        sender.vote = proposal;
+        voteCount[proposal] += 1;
+        //TODO Can calculate top vote within here, create a new fn
 
-    // -----------------------------------------
-    // Constructor
-    // -----------------------------------------
-
-    //Constructor with NFT metadata that EERC721PresetMinterPauserAutoId needs for minting NFT's
-    constructor(
-        string name,
-        string symbol,
-        string baseURI
-    ) {}
-
-    // -----------------------------------------
-    // Logic
-    // -----------------------------------------
-
-    function voteManually(address user) public onlyHost {
-        votes[msg.sender] = votes[msg.sender].add(1); //give each user another vote
+        topVote(voteCount);
     }
 
-    function nominate(address user) public {
-        require(votes[msg.sender] > 0);
-        votes[msg.sender] = votes[msg.sender].sub(1);
-        votes[user] = votes[user].add(1);
+    function unVote(address proposal) public {
+        Voter storage sender = voters[msg.sender];
+        require(!sender.voted, "Already Unvoted");
+        sender.voted = false;
+        sender.vote = proposal;
+        voteCount[proposal] -= 1;
+        //TODO Can calculate top vote within here, create a new fn
+        topVote(voteCount);
+        recoverTokens(_token);
     }
 
-    //    function register() public {
-    //        //need to have received an invitation once
-    //        require(userInvites[msg.sender] && !userBalances[msg.sender]);
-    //        userBalances[msg.sender] = 0;
-    //    }
-
-    function stake(address user, uint256 amount) public virtual {
-        require(userBalances[user]); //check if user exists
-        //For withdrawing the CREATE tokens later on (either directly at any time but vote wont count, or automatically send back in a loop at the distributeInvites function)
-        _totalSupply = _totalSupply.add(amount);
-
-        //Add vote points to user balance
-        userBalances[user] = userBalances[user].add(amount);
-
-        uni.safeTransferFrom(msg.sender, address(this), amount);
-
-        //to keep track of the voter votes to delete them in case the user withdraws the vote before the round ends
-        Vote memory currentVote;
-        currentVote.user = user;
-        currentVote.amount = amount;
-        voterBalances[voter].push(currentVote);
-
-        //Instead of checking at the end which user has the most votes (too costly), we run an algorithm every time someone voted (check total amount wih 10th top user and either replace or not)
-        updateTop(user);
-    }
-
-    //better to only accept voters to withdraw all votes at once after the round is over, see note in Updatetop
-    function withdraw(address user) public virtual {
-        require(userBalances[user]); //check if user exists
-        //substract specific user amounts from userBalances
-        for (i; i < voterBalances[msg.sender].length; i++) {
-            if (voterBalances[msg.sender][i].user == user) {
-                //return tokens
-                _totalSupply = _totalSupply.sub(voterBalances[msg.sender][i].amount);
-                uni.safeTransfer(msg.sender, voterBalances[msg.sender][i].amount);
-
-                //substract user from total votes of this specific voter
-                userBalance[voterBalances[msg.sender][i].user].sub(voterBalances[msg.sender][i].amount);
-
-                //delete specific vote
-                delete voterBalances[msg.sender][i];
+    //returns a new nominee list
+    function topVote(uint256 newVote) public returns (uint256 newOrder) {
+        Nominee[30] newOrder;
+        count = 0;
+        // nominee.length - 1
+        for (uint256 i = 0; i < 29; i++) {
+            if (nominee[i].voteCount > nominee[i + 1].voteCount) {
+                newOrder[count] = nominee[i];
+                count += 1;
             }
         }
+        return newOrder[30];
     }
 
-    function withdrawAll() public virtual {
-        //for loop to substract votes from all users the user voted on
-        //substract specific user amounts from userBalances
-        for (i; i < voterBalances[msg.sender].length; i++) {
-            //return tokens
-            _totalSupply = _totalSupply.sub(voterBalances[msg.sender][i].amount);
-            voterBalances[msg.sender] = voterBalances[msg.sender].sub(voterBalances[msg.sender][i].amount);
-            uni.safeTransfer(msg.sender, voterBalances[msg.sender][i].amount);
+    ////
 
-            //substract user from total votes of this specific voter
-            userBalance[voterBalances[msg.sender][i].user].sub(voterBalances[msg.sender][i].amount);
-        }
-
-        //delete all votes from user
-        //        delete voterBalances[msg.sender]{}
-        //    }
-    }
-
-    //Finish round
-    // Change to grabbing top ten users and giving them coins
-    function distributeInvites() onlyHost {
-        //TODO: Check the winner list in the creator.sol contract before letting the user sign up
-
-        //loop through the top balance and add them to the winner list (see updateTop note on whether to keep topBalance updated on each vote or to calculate the top 10 in this function once)
-        for (i; i < topBalances.length; i++) {
-            winners[i] = topBalances[i].addr;
-            mint(topBalances.addr); //uses the ERC721PresetMinterPauserAutoId so no ID necesarry, URI gets generated based off the constructor of this contract, the NFT (just for fun) gets send to the top balances
-        }
-        //reset votes
-        delete topBalances;
-        delete voterBalances;
-        delete userBalances;
-
-        //optional TODO: could automatically withdraw all tokens from users at the end of each round instead of having the user do it
+    /////
+    function recoverTokens(address _token) external onlyCreator {
+        IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
     }
 
     // -----------------------------------------
-    // Getters
+    // Superfluid Logic
     // -----------------------------------------
 
-    // -----------------------------------------
-    // Math functions
-    // -----------------------------------------
+    function _openFlows(
+        bytes calldata ctx,
+        int256 contract2creator,
+        int256 contract2treasury
+    ) private returns (bytes memory newCtx) {
+        // open flow to creator
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
 
-    function updateTop(address user) private {
-        uint256 i = 0;
-        //Get the index of the current max element
-
-        //TODO: this only works when there's a new top user, doesnt work yet for when the user is already in the top
-        //TODO: also keep track of it when a vote gets deleted as someone thats #10 might get displaced
-        //NOTE: Above problem is that if a creator gets below top 10 there wont be anyone in the #9 and #10 as there's no track of them
-        //so either just always iterate through all of the users, or iterate through all only in the case above.
-        //or simpler, just not accept people withdrawing before the round is over
-        //Best will probably be to only check at the distributeInvites function what the actual top 10 is, and on the front-end just let The Graph do the sorting.
-        for (i; i < topBalances.length; i++) {
-            if (topBalances[i].balance < userBalances[user]) {
-                break;
-            }
-        }
-        //Shift the array of position (getting rid of the last element)
-        for (uint256 j = topBalances.length - 1; j > i; j--) {
-            topBalances[j].balance = topBalances[j - 1].balance;
-            topBalances[j].addr = topBalances[j - 1].addr;
-        }
-        //Update the new max element
-        topBalances[i].balance = userBalances[user];
-        topBalances[i].addr = user;
+        // open flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.createFlow.selector,
+                _acceptedToken,
+                adminContract.treasury(),
+                contract2treasury,
+                new bytes(0)
+            ),
+            new bytes(0),
+            newCtx
+        );
     }
 
-    // babylonian method from Uniswap v2-core (https://en.wikipedia.org/wiki/Methods_of_computing_square_roots#Babylonian_method)
-    function sqrt(uint256 y) internal pure returns (uint256 z) {
-        if (y > 3) {
-            z = y;
-            uint256 x = y / 2 + 1;
-            while (x < z) {
-                z = x;
-                x = (y / x + x) / 2;
-            }
-        } else if (y != 0) {
-            z = 1;
-        }
+    function _updateFlows(
+        bytes calldata ctx,
+        int96 contract2creator,
+        int96 contract2treasury
+    ) private returns (bytes memory newCtx) {
+        // update flow to creator
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
+
+        // update flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.updateFlow.selector,
+                _acceptedToken,
+                adminContract.treasury(),
+                contract2treasury,
+                new bytes(0)
+            ), // call data
+            new bytes(0), // user data
+            newCtx // ctx
+        );
+    }
+
+    function _deleteFlows(bytes calldata ctx) private returns (bytes memory newCtx) {
+        // delete flow to creator
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.deleteFlow.selector, _acceptedToken, address(this), creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
+
+        // delete flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.deleteFlow.selector,
+                _acceptedToken,
+                address(this),
+                adminContract.treasury(),
+                new bytes(0)
+            ), // call data
+            new bytes(0), // user data
+            newCtx // ctx
+        );
     }
 }
