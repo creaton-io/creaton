@@ -5,15 +5,13 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/access/OwnableBaseRelayRecipient.sol";
 import "@openzeppelin/contracts/token/ERC1155/presets/ERC721PresetMinterPauserAutoId.sol";
 
-import {ISuperfluid, ISuperToken, ISuperAgreement, SuperAppDefinitions} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
-//    ToDo Figure out if i need these
-import {IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
+// import {ISuperfluid, ISuperToken, ISuperAgreement, SuperAppDefinitions} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
+// //    ToDo Figure out if i need these
+// import {IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 
-import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
+// import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
-import {Int96SafeMath} from "../utils/Int96SafeMath.sol";
-
-//
+// import {Int96SafeMath} from "../utils/Int96SafeMath.sol";
 
 //Top 30 new ppl get stream open to them
 //Manually call fn, once a week
@@ -24,6 +22,7 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
     // Represents a single voter
     struct Voter {
         address vote;
+        bool voted;
     }
 
     struct Nominee {
@@ -49,15 +48,13 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
 
     // Give your vote to a user
     function vote(address proposal) public AbilityToVote(msg.sender) returns (bool) {
+        require(sender.voted == false);
         Voter storage sender = voters[msg.sender];
-        // require(!sender.voted, "Already voted.");
-        // sender.voted = true;
-        // sender.vote = proposal;
-        // voteCount[proposal] += 1;
         //TODO Can calculate top vote within here, create a new fn
         votesReceived = token.balanceOf(msg.sender);
         voteCount[proposal] += votesReceived;
         sender.vote = proposal;
+        sender.voted = true;
         // topVote(voteCount);
         return true;
     }
@@ -85,101 +82,111 @@ contract test is SuperAppBase, Initializable, BaseRelayRecipient {
         return newOrder[30];
     }
 
+    //Sets when a voting season will start
+    function VotingSeasonBegins(address proposal) internal {}
+
     //Sets when a voting season will come to an end
     function VotingSeasonEnds(address proposal) internal {
-        require();
+        require(AnnounceWinner(proposal));
+        //set all voter.voted to false
         //
+        //
+        VotingSeasonBegins(proposal);
     }
 
     ////
-
-    /////
-    function recoverTokens(address _token) external onlyCreator {
-        IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-        IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
+    function AnnounceWinner(address proposal) public view returns (bool) {
+        // return proposals[proposal];
     }
+
+    // /////
+    // function recoverTokens(address _token) external onlyCreator {
+    //     IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+    //     IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
+    // }
 
     // -----------------------------------------
     // Superfluid Logic
     // -----------------------------------------
+    //Needed for announcewinner fn
 
-    function _openFlows(
-        bytes calldata ctx,
-        int256 contract2creator,
-        int256 contract2treasury
-    ) private returns (bytes memory newCtx) {
-        // open flow to creator
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
-            new bytes(0),
-            ctx
-        );
+    // function _openFlows(
+    //     bytes calldata ctx,
+    //     int256 contract2creator,
+    //     int256 contract2treasury
+    // ) private returns (bytes memory newCtx) {
+    //     // open flow to creator
+    //     (newCtx, ) = _host.callAgreementWithContext(
+    //         _cfa,
+    //         abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+    //         new bytes(0),
+    //         ctx
+    //     );
 
-        // open flow to treasury
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.createFlow.selector,
-                _acceptedToken,
-                adminContract.treasury(),
-                contract2treasury,
-                new bytes(0)
-            ),
-            new bytes(0),
-            newCtx
-        );
-    }
+    //     // open flow to treasury
+    //     (newCtx, ) = _host.callAgreementWithContext(
+    //         _cfa,
+    //         abi.encodeWithSelector(
+    //             _cfa.createFlow.selector,
+    //             _acceptedToken,
+    //             adminContract.treasury(),
+    //             contract2treasury,
+    //             new bytes(0)
+    //         ),
+    //         new bytes(0),
+    //         newCtx
+    //     );
+    // }
 
-    function _updateFlows(
-        bytes calldata ctx,
-        int96 contract2creator,
-        int96 contract2treasury
-    ) private returns (bytes memory newCtx) {
-        // update flow to creator
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
-            new bytes(0),
-            ctx
-        );
+    // function _updateFlows(
+    //     bytes calldata ctx,
+    //     int96 contract2creator,
+    //     int96 contract2treasury
+    // ) private returns (bytes memory newCtx) {
+    //     // update flow to creator
+    //     (newCtx, ) = _host.callAgreementWithContext(
+    //         _cfa,
+    //         abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+    //         new bytes(0),
+    //         ctx
+    //     );
 
-        // update flow to treasury
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.updateFlow.selector,
-                _acceptedToken,
-                adminContract.treasury(),
-                contract2treasury,
-                new bytes(0)
-            ), // call data
-            new bytes(0), // user data
-            newCtx // ctx
-        );
-    }
+    //     // update flow to treasury
+    //     (newCtx, ) = _host.callAgreementWithContext(
+    //         _cfa,
+    //         abi.encodeWithSelector(
+    //             _cfa.updateFlow.selector,
+    //             _acceptedToken,
+    //             adminContract.treasury(),
+    //             contract2treasury,
+    //             new bytes(0)
+    //         ), // call data
+    //         new bytes(0), // user data
+    //         newCtx // ctx
+    //     );
+    // }
 
-    function _deleteFlows(bytes calldata ctx) private returns (bytes memory newCtx) {
-        // delete flow to creator
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(_cfa.deleteFlow.selector, _acceptedToken, address(this), creator, new bytes(0)),
-            new bytes(0),
-            ctx
-        );
+    // function _deleteFlows(bytes calldata ctx) private returns (bytes memory newCtx) {
+    //     // delete flow to creator
+    //     (newCtx, ) = _host.callAgreementWithContext(
+    //         _cfa,
+    //         abi.encodeWithSelector(_cfa.deleteFlow.selector, _acceptedToken, address(this), creator, new bytes(0)),
+    //         new bytes(0),
+    //         ctx
+    //     );
 
-        // delete flow to treasury
-        (newCtx, ) = _host.callAgreementWithContext(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.deleteFlow.selector,
-                _acceptedToken,
-                address(this),
-                adminContract.treasury(),
-                new bytes(0)
-            ), // call data
-            new bytes(0), // user data
-            newCtx // ctx
-        );
-    }
+    //     // delete flow to treasury
+    //     (newCtx, ) = _host.callAgreementWithContext(
+    //         _cfa,
+    //         abi.encodeWithSelector(
+    //             _cfa.deleteFlow.selector,
+    //             _acceptedToken,
+    //             address(this),
+    //             adminContract.treasury(),
+    //             new bytes(0)
+    //         ), // call data
+    //         new bytes(0), // user data
+    //         newCtx // ctx
+    //     );
+    // }
 }
