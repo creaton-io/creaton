@@ -85,6 +85,7 @@ contract StreamingDistribution is
 
        }
        function dist(uint256 amount) external {
+        _redeemableToken.selfMint(msg.sender,amount,new bytes(0));
         _ida.distribute(_redeemableToken,INDEX_ID,amount, new bytes(0));
        } 
         function balances(address accountinquestion) external returns (uint256){
