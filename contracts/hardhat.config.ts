@@ -92,16 +92,16 @@ const config = {
       default: 3,
     },
   },
-  defaultNetwork: 'mumbai',
+  //defaultNetwork: 'mumbai',
   networks: {
     coverage: {
       url: 'http://localhost:5458',
     },
     hardhat: {
       accounts: hardhatAccounts,
-      forking: {
+      /*forking: {
         url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
-      },
+      },*/
     },
     localhost: {
       url: 'http://localhost:8545',

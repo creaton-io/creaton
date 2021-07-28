@@ -81,6 +81,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     address public postNFT;
     mapping (uint256 => Type) post2tier;
+    uint256 _initialBufferTokens; //Tokens that every user would start with
 
     // -----------------------------------------
     // Initializer
@@ -96,7 +97,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 _subscriptionPrice,
         string memory nftName,
         string memory nftSymbol,
-        StreamingDistribution streamingDistribution
+        StreamingDistribution streamingDistribution,
+        uint256 bufferTokens
     ) public payable initializer {
         admin = msg.sender;
 
@@ -112,6 +114,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_SECOND;
         _host.registerApp(configWord);
 
+        _initialBufferTokens = bufferTokens; //Tokens that every subscriber would start with
         creator = _creator;
         description = _description;
         subscriptionPrice = int96(uint96(_subscriptionPrice));
@@ -139,11 +142,14 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         IInstantDistributionAgreementV1 ida,
         string memory name,
         string memory symbol
-    ) external {
+    ) external onlyCreator {
         _streamingDistribution=new StreamingDistribution(redeemableToken,_host,ida,name,symbol);
         distributorMade = true;
     }
-
+    // Distributes the 'amount' of tokens to the subscriber-base
+    function tokenAirdrop(uint256 amount) external onlyCreator{
+        _streamingDistribution.dist(amount);
+    }
      function recoverTokens(address _token) external onlyCreator {
          IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
          IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
@@ -391,6 +397,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         }
 
         _addSubscriber(context.msgSender);
+        // Hook to distrobute the initial tokens
+        _streamingDistribution.InitialBufferTokens(msg.sender, _initialBufferTokens);
+
     }
 
     function _updateSubscribe(
