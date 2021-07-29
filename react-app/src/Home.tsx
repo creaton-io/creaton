@@ -180,7 +180,7 @@ function Home() {
                   src="./assets/images/brand-7.png" alt=""/></div>
                 <div className="w-1/2 md:w-1/3 lg:w-1/6 px-2"><img
                   className="mx-auto lg:mx-0 filter grayscale contrast-0 opacity-75 lg:-ml-8"
-                  src="./assets/images/logo-chainlink.png" alt=""/></div>
+                  src="https://ardrive.io/wp-content/uploads/2021/01/Arweave-White.png" alt=""/></div>
               </div>
             </div>
               </div>
