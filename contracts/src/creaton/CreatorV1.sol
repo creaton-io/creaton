@@ -81,7 +81,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     address public postNFT;
     mapping (uint256 => Type) post2tier;
-    uint256 _initialBufferTokens; //Tokens that every user would start with
+    uint256 _initialBufferTokens=1; //Tokens that every user would start with
 
     // -----------------------------------------
     // Initializer
@@ -97,15 +97,18 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 _subscriptionPrice,
         string memory nftName,
         string memory nftSymbol,
-        StreamingDistribution streamingDistribution,
-        uint256 bufferTokens
+        //StreamingDistribution streamingDistribution,
+        ISuperToken redeemableToken,
+        IInstantDistributionAgreementV1 ida,
+        string memory name,
+        string memory symbol
     ) public payable initializer {
         admin = msg.sender;
 
         assert(address(host) != address(0));
         assert(address(cfa) != address(0));
         assert(address(acceptedToken) != address(0));
-        assert(address(streamingDistribution) != address(0)); //new line
+        //assert(address(streamingDistribution) != address(0)); //new line
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
        // _ida = IInstantDistributionAgreementV1(ida); //new line
@@ -114,7 +117,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_SECOND;
         _host.registerApp(configWord);
 
-        _initialBufferTokens = bufferTokens; //Tokens that every subscriber would start with
+       // _initialBufferTokens = bufferTokens; //Tokens that every subscriber would start with
         creator = _creator;
         description = _description;
         subscriptionPrice = int96(uint96(_subscriptionPrice));
@@ -123,6 +126,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         adminContract = ICreatonAdmin(admin);
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
+        _makedistributor(redeemableToken,ida,name,symbol);
     }
 
     // -----------------------------------------
@@ -136,15 +140,18 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         require(success, "No balance");
     }
 
-    function makedistributor(
-         StreamingDistribution streamingDistribution,
+    function _makedistributor(
+        // StreamingDistribution streamingDistribution,
         ISuperToken redeemableToken,
         IInstantDistributionAgreementV1 ida,
         string memory name,
         string memory symbol
-    ) external onlyCreator {
+    ) internal {
         _streamingDistribution=new StreamingDistribution(redeemableToken,_host,ida,name,symbol);
         distributorMade = true;
+    }
+    function _changeTokenBuffer(uint256 tokenBuffer) internal {
+        _initialBufferTokens = tokenBuffer;
     }
     // Distributes the 'amount' of tokens to the subscriber-base
     function tokenAirdrop(uint256 amount) external onlyCreator{
