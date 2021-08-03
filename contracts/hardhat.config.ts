@@ -1,12 +1,17 @@
-import 'dotenv';
+import 'dotenv/config';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-web3';
+import "@nomiclabs/hardhat-waffle";
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
 import 'hardhat-gas-reporter';
 import '@openzeppelin/hardhat-upgrades';
 import {Wallet} from '@ethersproject/wallet';
+import "hardhat-contract-sizer";
+import "solidity-coverage";
+import { HardhatUserConfig } from 'hardhat/config';
+
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
@@ -27,7 +32,7 @@ if (mnemonic) {
   }
 }
 
-const config = {
+const config: HardhatUserConfig = {
   gasReporter: {
     enabled: false, //set to false for faster compile times!
     currency: 'CAD',
@@ -105,9 +110,9 @@ const config = {
     },
     hardhat: {
       accounts: hardhatAccounts,
-     /* forking: {
-        url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
-      },*/
+      // forking: {
+      //   url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_TOKEN,
+      // },
     },
     localhost: {
       url: 'http://localhost:8545',
