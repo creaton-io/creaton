@@ -39,6 +39,17 @@ npm install
 Create a `.env` file and set the following env variables in:
 - `INFURA_TOKEN=<infura token to talk to a network>`
 - `MNEMONIC=<mnemonic of the account that will deploy the contract>`
+- `ALCHEMY_TOKEN=<alchemy token to talk to a network>`
+- Superfluid Contracts:
+```
+# Checkout Superfluid Network Directory: https://docs.superfluid.finance/superfluid/networks/networks
+# MUMBAI
+SUPERFLUID_HOST = 0xEB796bdb90fFA0f28255275e16936D25d3418603
+SUPERFLUID_CFA = 0x49e565Ed1bdc17F3d220f72DF0857C26FA83F873
+SUPERFLUID_SUPERTOKENFACTORY = 0x200657E2f123761662567A1744f9ACAe50dF47E6
+SUPERFLUID_RESOLVER = 0x8C54C83FbDe3C59e59dd6E324531FB93d4F504d3
+SUPERFLUID_VERSION = v1
+```
 
 ## Deploy the contracts
 
