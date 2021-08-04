@@ -9,7 +9,7 @@ import "./FanCollectible.sol";
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
     address private newerVersionOfContract;// if this is anything but 0, then there is a newer contract, with, hopefully all of the same data.
-    IERC20 public token;// set to the address of USDC, probobly, we dont check...
+    IERC20 public token;// set to the address of USDC, probably, we don't check...
     FanCollectible public collectible;
 
 
@@ -87,7 +87,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     /**
-     * @dev stake tokens that are held in escro.
+     * @dev stake tokens that are held in escrow.
      * @param pool the id of the pool to stake to.
      * @param amount the amount of the accepted token you wish to stake.
      */
@@ -134,7 +134,7 @@ contract CreatorCollections is Ownable, Pausable {
 
     /**
      * @dev redeem a FanCollectible from a pool and send it to the sender.
-     * @param pool the pool you are redeming from
+     * @param pool the pool you are redeeming from
      * @param card the card from this pool you are redeeming
      */
     function redeem(uint256 pool, uint256 card)
@@ -272,7 +272,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     /**
-     * @dev calculates the total suply of tokens that are being staked in this contract
+     * @dev calculates the total supply of tokens that are being staked in this contract
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;

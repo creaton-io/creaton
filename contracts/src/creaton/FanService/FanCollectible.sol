@@ -111,7 +111,7 @@ contract FanCollectible is ERC1155, Ownable {
     */
     function setRequestData(uint256 _id, string memory _request) public {
         require(stateOfCollectibles[_id] != states.PURCHASED_AND_FINALIZED, "Token has already been finalized");
-        // require(stateOfCollectibles[_id] != states.UNPURCHASED, "Token not purchased");
+        
         require(balanceOf(_msgSender(), _id) >=1, "Token not owned by sender");
 
         collectibleRequestData[_id] = _request;
