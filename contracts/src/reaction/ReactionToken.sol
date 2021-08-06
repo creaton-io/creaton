@@ -18,7 +18,7 @@ import "./ReactionFactory.sol";
 
 contract ReactionToken is Context, ERC20 {
     event Staked(address author, uint256 amount, address stakingTokenAddress, address stakingSuperTokenAddress);
-    event Reacted(address author, address nftAddress, address reactionTokenAddress, uint256 amount, string reactionTokenName, string reactionTokenSymbol);
+    event Reacted(address author, address nftAddress, uint256 tokenId, address reactionTokenAddress, uint256 amount, string reactionTokenName, string reactionTokenSymbol);
 
     ISuperfluid internal _host; // Superfluid host address
     IConstantFlowAgreementV1 internal _cfa; // Superfluid Constant Flow Agreement address
@@ -50,7 +50,7 @@ contract ReactionToken is Context, ERC20 {
         _tokenMetadataURI = tokenMetadataURI;
     }
 
-    function stakeAndMint(uint256 amount, address stakingTokenAddress, address nftAddress) public {
+    function stakeAndMint(uint256 amount, address stakingTokenAddress, address nftAddress, uint256 tokenId) public {
         require(address(stakingTokenAddress) != address(0), "ReactionToken: Staking Token Address can't be 0x");
         require(address(nftAddress) != address(0), "ReactionToken: NFT Address can't be 0x");
 
@@ -76,28 +76,44 @@ contract ReactionToken is Context, ERC20 {
             // Give token Superpowers
             ISuperToken(stakingSuperToken).upgrade(amount);
         }
-
+        
         // Calculate the flow rate
         uint256 secondsInAMonth = 2592000;
         uint256 flowRate = amount/secondsInAMonth; // return the whole stake in one month
 
-        // Create CFA
-        _host.callAgreement(
-            _cfa,
-            abi.encodeWithSelector(
-                _cfa.createFlow.selector,
-                stakingSuperToken,
-                _msgSender(),
-                flowRate,
-                new bytes(0) // placeholder
-            ),
-            new bytes(0)
-        );
+        // Create/Uodate CFA
+        (,int96 outFlowRate, uint256 deposit,) = _cfa.getFlow(ISuperToken(stakingSuperToken), address(this), _msgSender());
+
+        if(outFlowRate > 0){
+            _host.callAgreement(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.updateFlow.selector,
+                    stakingSuperToken,
+                    _msgSender(),
+                    _cfa.getMaximumFlowRateFromDeposit(ISuperToken(stakingSuperToken), deposit),
+                    new bytes(0) // placeholder
+                ),
+                new bytes(0)
+            );
+        }else{
+            _host.callAgreement(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.createFlow.selector,
+                    stakingSuperToken,
+                    _msgSender(),
+                    flowRate,
+                    new bytes(0) // placeholder
+                ),
+                new bytes(0)
+            );
+        }
 
         emit Staked(_msgSender(), amount, stakingTokenAddress, stakingSuperToken);
 
         ERC20 reactionToken = ERC20(address(this));
-        emit Reacted(_msgSender(), nftAddress, address(this), amount, reactionToken.name(), reactionToken.symbol());
+        emit Reacted(_msgSender(), nftAddress, tokenId, address(this), amount, reactionToken.name(), reactionToken.symbol());
     }
 
     function getTokenMetadataURI() public view returns (string memory) {
