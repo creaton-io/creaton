@@ -2,7 +2,7 @@ import {useHistory, useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {gql, useQuery} from "@apollo/client";
+import {ApolloClient, ApolloQueryResult, gql, InMemoryCache, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
 import {wad4human} from "@decentral.ee/web3-helpers";
@@ -20,7 +20,7 @@ import {Button} from "./elements/button";
 import {Card} from "./components/card";
 import {StickyHeader} from './components/sticky-header';
 import {Avatar} from "./components/avatar";
-import {REPORT_URI} from "./Config";
+import {REACTIONS_GRAPHQL_URI, REPORT_URI} from "./Config";
 import {Icon} from "./icons";
 import {Web3UtilsContext} from "./Web3Utils";
 import {
@@ -85,7 +85,6 @@ export function Creator() {
       }
    `;
 
-
   const textile = useContext(TextileContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
@@ -94,6 +93,7 @@ export function Creator() {
   function updateContentsQuery(){
     contentsQuery.refetch({user:creatorContractAddress})
     console.log("\"smart\" refetch was run")
+    updateReactions(creatorContractAddress);
   }
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}})
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
@@ -103,10 +103,13 @@ export function Creator() {
     },
     pollInterval: 10000
   });
+
   const superfluid = useContext(SuperfluidContext);
   const umbralWasm = useContext(UmbralWasmContext)
   const [usdcx, setUsdcx] = useState(0)
   const {currentCreator} = useCurrentCreator()
+
+  const [reactions, setReactions] = useState<Array<any>>();
 
   async function getUsdcx() {
     if (!superfluid)
@@ -160,6 +163,35 @@ export function Creator() {
     }
   }, [downloadStatus, textile, canDecrypt])
 
+  useEffect(() => {
+    if(!creatorContractAddress) return;
+    updateReactions(creatorContractAddress);
+  }, [creatorContractAddress]);
+
+  async function updateReactions(nftAddress: string){
+    const reactionsQuery = `
+      query($nftAddress: Bytes!) {
+        reactions(where: {nft: $nftAddress}) {
+          id
+          amount,
+          nft,
+          tokenId
+          user {
+            address
+          }
+        }
+      }
+    `;
+
+    const client = new ApolloClient({
+      uri: REACTIONS_GRAPHQL_URI,
+      cache: new InMemoryCache()
+    });
+
+    const data = await client.query({query: gql(reactionsQuery), variables: {'nftAddress': nftAddress}});
+    setReactions(data.data.reactions);
+  }
+  
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
     a.href = data;
@@ -331,7 +363,10 @@ export function Creator() {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-                      like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
+                      like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}} 
+                      onReact={() => { react(content) }} 
+                      hasReacted={hasReacted(content)} 
+                      reactCount={countReacted(content)} />
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
@@ -348,7 +383,10 @@ export function Creator() {
 
     return <Card key={content.ipfs} name={content.name} description={content.description}
                    date={content.date} likeCount={countLikes(content)}
-                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true}/>
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true} 
+                   onReact={() => { react(content) }} 
+                   hasReacted={hasReacted(content)} 
+                   reactCount={countReacted(content)}/>
   }
 
   async function subscribe() {
@@ -414,31 +452,22 @@ export function Creator() {
       await reactionTokenContract.stakeAndMint(stakingAmount.toString(), erc20ContractAddr, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
         console.log('Successfully Staked: ', author, amount.toString(), stakingTokenAddress, stakingSuperTokenAddress);
+        updateContentsQuery()
       });
     } catch (error) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-
-    // TODO: even if the user can't react, we refresh things like new posts, and the react counter
-    // updateContentsQuery()
   }
 
-  async function checkAllowance(amount: number, erc20Addr: string, contractAddr: string): Promise<Boolean> {
-    if (!web3utils.isSignedUp()) return false;
-
-    
-    
-    return true;
-  }
-  
-
-  function countReacted(content){
-    return 0;
-    // return content.likers.filter((like)=>(like.approval===1)).length;
+  function countReacted(content): string{
+    if(!reactions) return '0';
+    const count = reactions.filter((r) => (r.tokenId===content.tokenId))
+                           .reduce((sum, current) => sum + +current.amount, 0);
+    return ethers.utils.formatEther(count.toString());
   }
   function hasReacted(content){
-    return false;
-    // return content.likers.some((like)=>(like.approval===1 && like.profile.id===context.account?.toLowerCase()));
+    if(!reactions) return false;
+    return reactions.some((r)=>(r.tokenId===content.tokenId && r.user.address===context.account?.toLowerCase()));
   }
 
   async function report(content) {
