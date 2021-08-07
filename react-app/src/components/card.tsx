@@ -17,11 +17,14 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onReport?: any;
   isLiked?: boolean;
   likeCount?: number;
+  onReact?: any
+  hasReacted?: boolean;
+  reactCount?: number;
   date?: string;
   isEncrypted?: boolean;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, date,isEncrypted}) => {
+export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, reactCount, date,isEncrypted}) => {
   if(isEncrypted)
   return (<div className="mb-5">
     <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
@@ -91,7 +94,13 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                             {likeCount}
                           </span>
                         </div>
-                        <Icon  onClick={onReport} name="flag"
+                        <div className=" mr-5 ">
+                          <button onClick={onReact} className={clsx('cursor-pointer', hasReacted ? 'text-green-500' : 'text-white')}> 
+                            React!
+                          </button>
+                            {reactCount}
+                        </div>
+                        <Icon onClick={onReport} name="flag"
                               className={clsx('cursor-pointer text-gray-500 mt-1')}/>
                       </div>
                     </div>

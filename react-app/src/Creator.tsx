@@ -13,7 +13,7 @@ import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
-import {Contract} from "ethers";
+import {BigNumber, Contract, ethers} from "ethers";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
@@ -30,6 +30,13 @@ import {
 interface params {
   id: string;
 }
+
+//
+// TODO: REMOVE THIS FROM HERE!!!
+//
+const reactionContractAddress: string = '0x0fdCf600fAfBbDedD4A69a550229332906f5FcC7'; // This is an specific ReactionToken address
+const erc20ContractAddr: string = '0xe2ee5f719a12a85dc7cdeb04fad3ebc0ffe185de'; // This is an specific Staking token address
+const amount: number = 10;
 
 export function Creator() {
   let {id} = useParams<params>();
@@ -328,8 +335,15 @@ export function Creator() {
     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
-                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-        like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} 
+                   onLike={() => { like(content) }} 
+                   isLiked={isLiked(content)} 
+                   likeCount={countLikes(content)} 
+                   onReport= {() => {report(content)}} 
+                   onReact={() => { react(content) }} 
+                   hasReacted={hasReacted(content)} 
+                   reactCount={countReacted(content)} 
+              />
     }
 
     return <Card key={content.ipfs} name={content.name} description={content.description}
@@ -367,6 +381,64 @@ export function Creator() {
     }
     //even if the user can't like, we refresh things like new posts, and the like counter
     updateContentsQuery()
+  }
+
+  async function react(content) {
+    if (!web3utils.isSignedUp()) return;
+
+    try {
+      // Allowance
+      const signer = context.library!.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(erc20ContractAddr, creaton_contracts.erc20.abi, signer);
+
+      const preDecimals = await erc20Contract.decimals();
+      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+
+      const allowance = await erc20Contract.allowance(userAddress, reactionContractAddress);
+      if(stakingAmount.gt(allowance)){
+        let tx = await erc20Contract.approve(reactionContractAddress, stakingAmount);
+        await tx.wait();
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+        if(receipt.length == 0){
+          throw Error('Error allowing token for reaction');
+        }
+      }
+      const reactionTokenContract: Contract = new Contract(reactionContractAddress, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+
+      console.log('Stake and minting: ', stakingAmount.toString(), erc20ContractAddr, creatorContractAddress, content.tokenId);
+
+      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), erc20ContractAddr, creatorContractAddress, content.tokenId);
+      reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
+        console.log('Successfully Staked: ', author, amount.toString(), stakingTokenAddress, stakingSuperTokenAddress);
+      });
+    } catch (error) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+
+    // TODO: even if the user can't react, we refresh things like new posts, and the react counter
+    // updateContentsQuery()
+  }
+
+  async function checkAllowance(amount: number, erc20Addr: string, contractAddr: string): Promise<Boolean> {
+    if (!web3utils.isSignedUp()) return false;
+
+    
+    
+    return true;
+  }
+  
+
+  function countReacted(content){
+    return 0;
+    // return content.likers.filter((like)=>(like.approval===1)).length;
+  }
+  function hasReacted(content){
+    return false;
+    // return content.likers.some((like)=>(like.approval===1 && like.profile.id===context.account?.toLowerCase()));
   }
 
   async function report(content) {
