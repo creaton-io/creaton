@@ -97,8 +97,11 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                         <div className=" mr-5 ">
                           {!hasReacted && 
                             <button onClick={onReact} className={clsx('cursor-pointer', 'text-white')}> 
-                              React!
+                              <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
                             </button>
+                          }
+                          {hasReacted && 
+                            <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
                           }
                           <span className="ml-2 text-white">
                             {reactCount}
