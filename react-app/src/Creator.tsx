@@ -36,7 +36,6 @@ interface params {
 //
 const reactionContractAddress: string = '0x0fdCf600fAfBbDedD4A69a550229332906f5FcC7'; // This is an specific ReactionToken address
 const erc20ContractAddr: string = '0xe2ee5f719a12a85dc7cdeb04fad3ebc0ffe185de'; // This is an specific Staking token address
-const amount: number = 10;
 
 export function Creator() {
   let {id} = useParams<params>();
@@ -364,7 +363,7 @@ export function Creator() {
                      fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
                       like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}} 
-                      onReact={() => { react(content) }} 
+                      onReact={(amount) => { react(content, amount) }} 
                       hasReacted={hasReacted(content)} 
                       reactCount={countReacted(content)} />
     } else {
@@ -375,7 +374,7 @@ export function Creator() {
                    isLiked={isLiked(content)} 
                    likeCount={countLikes(content)} 
                    onReport= {() => {report(content)}} 
-                   onReact={() => { react(content) }} 
+                   onReact={(amount) => { react(content, amount) }} 
                    hasReacted={hasReacted(content)} 
                    reactCount={countReacted(content)} 
               />
@@ -384,7 +383,7 @@ export function Creator() {
     return <Card key={content.ipfs} name={content.name} description={content.description}
                    date={content.date} likeCount={countLikes(content)}
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true} 
-                   onReact={() => { react(content) }} 
+                   onReact={(amount) => { react(content, amount) }} 
                    hasReacted={hasReacted(content)} 
                    reactCount={countReacted(content)}/>
   }
@@ -421,7 +420,7 @@ export function Creator() {
     updateContentsQuery()
   }
 
-  async function react(content) {
+  async function react(content, amount) {
     if (!web3utils.isSignedUp()) return;
 
     try {

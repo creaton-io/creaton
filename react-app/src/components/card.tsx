@@ -4,7 +4,6 @@ import clsx from "clsx";
 import {VideoPlayer} from "../VideoPlayer";
 import { Avatar } from './avatar';
 
-
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   price?: number;
@@ -25,6 +24,22 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, reactCount, date,isEncrypted}) => {
+  const [stakingAmount, setStakingAmount] = useState('');
+  function showAmountModal(e){
+    hideAllAmountModal();
+    e.target.parentElement.parentElement.getElementsByClassName("reactAmount")[0].classList.remove("hidden");
+  }
+
+  function hideAllAmountModal(){
+    const modals = document.getElementsByClassName("reactAmount");
+    for(let key in modals){
+      let el = modals[key].classList;
+      if(el){
+        el.add("hidden");
+      }
+    }
+  }
+
   if(isEncrypted)
   return (<div className="mb-5">
     <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
@@ -96,10 +111,29 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                         </div>
                         <div className=" mr-5 ">
                           {!hasReacted && 
-                            <button onClick={onReact} className={clsx('cursor-pointer', 'text-white')}> 
+                            <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
                               <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
-                            </button>
+                            </button> 
                           }
+
+                          <div className="reactAmount hidden" style={{
+                            position: "absolute",
+                            backgroundColor: "rgb(41 25 67 / 70%)",
+                            padding: "14px",
+                            borderRadius: "8px",
+                            right: "10px",
+                            border: "1px solid #473a5f",
+                            marginTop: "5px"
+                          }}>
+                            <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} style={{
+                              background: "#452e6d",
+                              color: "white",
+                              borderRadius: "3px",
+                              padding: "5px 7px"
+                            }} />
+                            <button onClick={() => { if(!isNaN(+stakingAmount)){ onReact(stakingAmount); setTimeout(() => hideAllAmountModal(),2000); }}} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">React!</button>
+                          </div>
+
                           {hasReacted && 
                             <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
                           }
