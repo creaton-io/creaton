@@ -34,7 +34,9 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
             });
 
             if(superTokenBalance.toString() == '0'){
-                setSuperTokenBalance(await superTokenContract.balanceOf(signer.getAddress()));
+                setInterval(async () => {
+                    setSuperTokenBalance(await superTokenContract.balanceOf(signer.getAddress()));
+                }, 1000);
             }
         })();
     }, [web3Context]);
