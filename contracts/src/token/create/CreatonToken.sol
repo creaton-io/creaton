@@ -2,9 +2,10 @@ pragma solidity ^0.8.0;
 
 import {
     ISuperToken,
-    CustomSuperTokenProxyBase
+    CustomSuperTokenBase
 }
-from "../../dependency/superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/CustomSuperTokenProxyBase.sol";
+from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/CustomSuperTokenBase.sol";
+// from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/CustomSuperTokenProxyBase.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../../dependency/gsn/contracts/BaseRelayRecipient.sol";
 
@@ -14,7 +15,7 @@ interface INativeSuperToken {
     function initialize(string calldata name, string calldata symbol, uint256 initialSupply) external;
 }
 
-contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase{
+contract CreatonToken is INativeSuperToken, CustomSuperTokenBase{
 
     function initialize
     (

@@ -52,7 +52,7 @@ describe('CreatorCollections', function(){
         expect (await collectionsContract.totalSupply()).to.equal(0);
     });
     it('Create a pool', async function(){
-        id = (await collectionsContract.createPool(1,Math.floor(Date.now() / 1000),ethers.utils.parseEther("10000"),ownerAccount.address, "My first collection"));
+        let id = (await collectionsContract.createPool(1,Math.floor(Date.now() / 1000),ethers.utils.parseEther("10000"),ownerAccount.address, "My first collection"));
        
         const poolsArray = await collectionsContract.getPoolsForArtist(ownerAccount.address);
         console.log(poolsArray);
