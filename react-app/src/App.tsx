@@ -37,6 +37,7 @@ import {Toggle} from "./elements/toggle";
 import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
 import Loader from "./elements/loader";
 import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
+import { Flows } from './Flows';
 
 initFontAwesome()
 
@@ -228,6 +229,9 @@ const ProfileMenu = (props) => {
           }
           {currentProfile &&
           <NavigationLink to="/signup" label="My Profile"/>
+          }
+          {currentProfile &&
+          <NavigationLink to="/flows" label="My Flows"/>
           }
         </div>
       </div>
@@ -475,6 +479,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/staking">
                                   <Staking/>
+                                </Route>
+                                <Route path="/flows">
+                                  <Flows />
                                 </Route>
                               </Switch>
                             </div>
