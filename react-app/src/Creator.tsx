@@ -462,7 +462,7 @@ export function Creator() {
     if(!reactions) return '0';
     const count = reactions.filter((r) => (r.tokenId===content.tokenId))
                            .reduce((sum, current) => sum + +current.amount, 0);
-    return ethers.utils.formatEther(count.toString());
+    return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping:false}));
   }
   function hasReacted(content){
     if(!reactions) return false;

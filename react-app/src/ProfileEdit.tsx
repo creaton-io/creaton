@@ -10,6 +10,7 @@ import {AvatarUpload} from "./components/avatarUpload";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {Web3UtilsContext} from "./Web3Utils";
+import { UserStakedList } from "./components/user.staked-list";
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React<Web3Provider>()
@@ -124,6 +125,7 @@ const ProfileEdit = (props) => {
   if (!web3Context.library)
     return (<div>Connect your wallet</div>)
   return (
+    <>
     <form onSubmit={updateProfile} className="grid grid-cols-1 place-items-center">
 
       <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
@@ -150,7 +152,13 @@ const ProfileEdit = (props) => {
                                     setUsername(event.target.value)
                                   }}/></div>
       <div><Button type="submit" label={currentProfile ? "Update Profile" : "Sign Up"}/></div>
-    </form>)
+    </form>
+
+    {web3Context.account && 
+      <UserStakedList address={web3Context.account} />
+    }
+
+    </>)
 }
 
 export {ProfileEdit}

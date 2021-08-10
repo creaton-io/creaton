@@ -7,7 +7,7 @@ if (process.env.NODE_ENV === 'development') {
   REENCRYPTION_URI = 'https://staging.creaton.io'
   // APOLLO_URI = 'http://api.graph.io:8000/subgraphs/name/creaton-io/creaton'
   APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-mumbai'
-  REACTIONS_GRAPHQL_URI = 'https://api.studio.thegraph.com/query/2670/reaction_tokens/v0.0.19'
+  REACTIONS_GRAPHQL_URI = 'https://api.studio.thegraph.com/query/2670/reaction_tokens/v0.0.20'
 } else {//staging
   REENCRYPTION_URI = 'https://reencryption.creaton.io'
   APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-mumbai'
