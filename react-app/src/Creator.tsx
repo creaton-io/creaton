@@ -1,8 +1,8 @@
-import {useHistory, useParams} from "react-router-dom";
-import React, {CSSProperties, useContext, useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {ApolloClient, ApolloQueryResult, gql, InMemoryCache, useQuery} from "@apollo/client";
+import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
 import {wad4human} from "@decentral.ee/web3-helpers";
@@ -13,15 +13,14 @@ import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
-import {BigNumber, Contract, ethers} from "ethers";
+import {Contract, ethers} from "ethers";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
 import {StickyHeader} from './components/sticky-header';
 import {Avatar} from "./components/avatar";
-import {REACTIONS_GRAPHQL_URI, REPORT_URI} from "./Config";
-import {Icon} from "./icons";
+import {REACTIONS_GRAPHQL_URI, REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from "./Config";
 import {Web3UtilsContext} from "./Web3Utils";
 import {
   Link
@@ -30,12 +29,6 @@ import {
 interface params {
   id: string;
 }
-
-//
-// TODO: REMOVE THIS FROM HERE!!!
-//
-const reactionContractAddress: string = '0x0fdCf600fAfBbDedD4A69a550229332906f5FcC7'; // This is an specific ReactionToken address
-const erc20ContractAddr: string = '0xe2ee5f719a12a85dc7cdeb04fad3ebc0ffe185de'; // This is an specific Staking token address
 
 export function Creator() {
   let {id} = useParams<params>();
@@ -109,6 +102,8 @@ export function Creator() {
   const {currentCreator} = useCurrentCreator()
 
   const [reactions, setReactions] = useState<Array<any>>();
+  const [reactionErc20Available, setReactionErc20Available] = useState<string>();
+  const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
 
   async function getUsdcx() {
     if (!superfluid)
@@ -163,9 +158,18 @@ export function Creator() {
   }, [downloadStatus, textile, canDecrypt])
 
   useEffect(() => {
-    if(!creatorContractAddress) return;
-    updateReactions(creatorContractAddress);
-  }, [creatorContractAddress]);
+    (async function iife() {
+      const signer = context.library!.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
+      setReactionErc20Symbol(await erc20Contract.symbol());
+
+      if(!creatorContractAddress) return;
+      updateReactions(creatorContractAddress);
+    })();
+  }, [creatorContractAddress, context.library]);
 
   async function updateReactions(nftAddress: string){
     const reactionsQuery = `
@@ -363,10 +367,12 @@ export function Creator() {
                      fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
                       like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}} 
+                      reactionErc20Available={reactionErc20Available}
+                      reactionErc20Symbol={reactionErc20Symbol}
                       onReact={(amount) => { react(content, amount) }} 
                       hasReacted={hasReacted(content)} 
                       reactCount={countReacted(content)} />
-    } else {
+                    } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} 
@@ -374,6 +380,8 @@ export function Creator() {
                    isLiked={isLiked(content)} 
                    likeCount={countLikes(content)} 
                    onReport= {() => {report(content)}} 
+                   reactionErc20Available={reactionErc20Available}
+                   reactionErc20Symbol={reactionErc20Symbol}
                    onReact={(amount) => { react(content, amount) }} 
                    hasReacted={hasReacted(content)} 
                    reactCount={countReacted(content)} 
@@ -383,6 +391,8 @@ export function Creator() {
     return <Card key={content.ipfs} name={content.name} description={content.description}
                    date={content.date} likeCount={countLikes(content)}
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true} 
+                   reactionErc20Available={reactionErc20Available}
+                   reactionErc20Symbol={reactionErc20Symbol}
                    onReact={(amount) => { react(content, amount) }} 
                    hasReacted={hasReacted(content)} 
                    reactCount={countReacted(content)}/>
@@ -428,15 +438,15 @@ export function Creator() {
       const signer = context.library!.getSigner()
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(erc20ContractAddr, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
 
       const preDecimals = await erc20Contract.decimals();
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
       const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
 
-      const allowance = await erc20Contract.allowance(userAddress, reactionContractAddress);
+      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
       if(stakingAmount.gt(allowance)){
-        let tx = await erc20Contract.approve(reactionContractAddress, stakingAmount);
+        let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
         await tx.wait();
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
@@ -444,11 +454,11 @@ export function Creator() {
           throw Error('Error allowing token for reaction');
         }
       }
-      const reactionTokenContract: Contract = new Contract(reactionContractAddress, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
 
-      console.log('Stake and minting: ', stakingAmount.toString(), erc20ContractAddr, creatorContractAddress, content.tokenId);
+      console.log('Stake and minting: ', stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
 
-      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), erc20ContractAddr, creatorContractAddress, content.tokenId);
+      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
         console.log('Successfully Staked: ', author, amount.toString(), stakingTokenAddress, stakingSuperTokenAddress);
         updateContentsQuery()

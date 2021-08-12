@@ -1,8 +1,8 @@
-import React, {ButtonHTMLAttributes, FC, useState} from "react";
+import {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
 import clsx from "clsx";
 import {VideoPlayer} from "../VideoPlayer";
-import { Avatar } from './avatar';
+import { ethers } from "ethers";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -21,9 +21,11 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   reactCount?: string;
   date?: string;
   isEncrypted?: boolean;
+  reactionErc20Available?: string;
+  reactionErc20Symbol?: string;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, reactCount, date,isEncrypted}) => {
+export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, reactCount, date,isEncrypted, reactionErc20Available, reactionErc20Symbol}) => {
   const [stakingAmount, setStakingAmount] = useState('');
   function showAmountModal(e){
     hideAllAmountModal();
@@ -86,7 +88,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
   </div>)
   return (
     <div className="mb-5">
-      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
 
         {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
           {fileType === "image"
@@ -116,22 +118,20 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                             </button> 
                           }
 
-                          <div className="reactAmount hidden" style={{
-                            position: "absolute",
+                          <div className="reactAmount hidden absolute p-3 mt-1 rounded right-2" style={{
                             backgroundColor: "rgb(41 25 67 / 70%)",
-                            padding: "14px",
-                            borderRadius: "8px",
-                            right: "10px",
-                            border: "1px solid #473a5f",
-                            marginTop: "5px"
+                            border: "1px solid #473a5f"
                           }}>
-                            <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} style={{
-                              background: "#452e6d",
-                              color: "white",
-                              borderRadius: "3px",
-                              padding: "5px 7px"
-                            }} />
-                            <button onClick={() => { if(!isNaN(+stakingAmount)){ onReact(stakingAmount); setTimeout(() => hideAllAmountModal(),2000); }}} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">React!</button>
+                            <div>
+                              <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} className="text-white rounded" style={{
+                                background: "#452e6d",
+                                padding: "5px 7px"
+                              }} />
+                              <button onClick={() => { if(!isNaN(+stakingAmount)){ onReact(stakingAmount); setTimeout(() => hideAllAmountModal(),2000); }}} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">React!</button>
+                            </div>
+                            <div className="block text-white text-sm mt-2 font-light">
+                              {reactionErc20Available && Math.round(+ethers.utils.formatEther(reactionErc20Available) * 1e2) / 1e2} {reactionErc20Symbol} available
+                            </div>
                           </div>
 
                           {hasReacted && 
