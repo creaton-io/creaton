@@ -4,6 +4,7 @@ pragma solidity >=0.7.6;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
 
 import {
     IConstantFlowAgreementV1
@@ -27,6 +28,13 @@ contract ReactionToken is Context, ERC20 {
     string internal _tokenMetadataURI; // Metadata url
 
     ReactionFactory internal _reactionFactory;
+
+    struct Flow {
+        address token;
+        uint256 amount;
+    }
+
+    mapping (address => mapping(address => uint256)) private _userStaked; // userAddress => (tokenAddress => amountStaked)
 
     constructor(
         address reactionFactory,
@@ -56,6 +64,9 @@ contract ReactionToken is Context, ERC20 {
 
         ERC20WithTokenInfo stakingToken = ERC20WithTokenInfo(stakingTokenAddress);
 
+        // Store the staked amount
+        _userStaked[_msgSender()][stakingTokenAddress] = _userStaked[_msgSender()][stakingTokenAddress] + amount;
+        
         // Stake everything here
         IERC20(stakingToken).transferFrom(_msgSender(), address(this), amount);
 
@@ -118,5 +129,9 @@ contract ReactionToken is Context, ERC20 {
 
     function getTokenMetadataURI() public view returns (string memory) {
         return _tokenMetadataURI;
+    }
+
+    function getStakedAmount(address user, address stakingToken) public view returns(uint256) {
+        return _userStaked[user][stakingToken];
     }
 }

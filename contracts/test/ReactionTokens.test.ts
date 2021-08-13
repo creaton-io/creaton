@@ -136,12 +136,14 @@ describe("Reaction Tokens", function () {
         receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
         expect(receipt.args.author).to.be.equal(owner.address);
         expect(receipt.args.stakingTokenAddress).to.be.equal(erc20Contract.address);
-        expect(receipt.args.stakingSuperTokenAddress).to.be.properAddress;
+        expect(receipt.args.stakingSuperTokenAddress).to.be.properAddress;  
 
         const firstSuperTokenAddress = receipt.args.stakingSuperTokenAddress;
 
         expect(await reactionTokenContract.balanceOf(erc721Contract.address)).to.equal(stakingAmount);
         
+        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount);
+
         const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", receipt.args.stakingSuperTokenAddress);
 
         await timeTravel(3600); // ONE HOUR LATER ... 🐙
@@ -160,6 +162,7 @@ describe("Reaction Tokens", function () {
 
         await timeTravel(3600*24*30-3600); // ABOUT A MONTH LATER ... 🐙
         expect(+(await superTokenContract.balanceOf(owner.address)).toString()).to.be.closeTo(+stakingAmount.toString(), +ethers.utils.parseEther("1").toString());
+        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount.mul(2));
 
         // Staking & Mint with a different erc20
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
@@ -179,6 +182,8 @@ describe("Reaction Tokens", function () {
 
         // Check the final reaction token balance
         expect(await reactionTokenContract.balanceOf(erc721Contract.address)).to.equal(stakingAmount.mul(3));
+        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount.mul(2));
+        expect(await reactionTokenContract.getStakedAmount(owner.address, diffErc20Contract.address)).to.be.equal(stakingAmount);
     });
 
     it("Should Stake & Mint some reaction tokens using a SuperToken", async function () {
@@ -212,6 +217,8 @@ describe("Reaction Tokens", function () {
         receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
 
+        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount);
+
         const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", receipt.args.stakingSuperTokenAddress);
 
         await timeTravel(3600*24*14); // ABOUT 2 WEEKS LATER ... 🐙
@@ -232,6 +239,7 @@ describe("Reaction Tokens", function () {
         receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
         expect(receipt.args.stakingTokenAddress).to.be.equal(superTokenContract.address);
         expect(receipt.args.stakingSuperTokenAddress).to.be.equal(superTokenContract.address);
+        expect(await reactionTokenContract.getStakedAmount(alice.address, superTokenContract.address)).to.be.equal(superTokenStakingAmount);
     });
 
     it("Should emit Reacted when Stake & Mint", async function () {
