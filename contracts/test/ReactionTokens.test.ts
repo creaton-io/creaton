@@ -133,18 +133,22 @@ describe("Reaction Tokens", function () {
         // Staking
         tx = await reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, 1);
         receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
-        expect(receipt.args.author).to.be.equal(owner.address);
-        expect(receipt.args.stakingTokenAddress).to.be.equal(erc20Contract.address);
-        expect(receipt.args.stakingSuperTokenAddress).to.be.properAddress;  
+        let stakedReceipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
+        expect(stakedReceipt.args.author).to.be.equal(owner.address);
+        expect(stakedReceipt.args.stakingTokenAddress).to.be.equal(erc20Contract.address);
 
-        const firstSuperTokenAddress = receipt.args.stakingSuperTokenAddress;
+        let flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        expect(flowReceipt.args.flow).to.be.properAddress;
+        expect(flowReceipt.args.amount).to.be.equal(stakingAmount);
+        expect(flowReceipt.args.stakingTokenAddress).to.be.equal(erc20Contract.address);
+        expect(flowReceipt.args.recipient).to.be.equal(owner.address);
+        expect(flowReceipt.args.stakingSuperTokenAddress).to.be.properAddress;
+
+        const firstSuperTokenAddress = flowReceipt.args.stakingSuperTokenAddress;
 
         expect(await reactionTokenContract.balanceOf(erc721Contract.address)).to.equal(stakingAmount);
-        
-        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount);
 
-        const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", receipt.args.stakingSuperTokenAddress);
+        const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", firstSuperTokenAddress);
 
         await timeTravel(3600); // ONE HOUR LATER ... 🐙
         const secondsInAMonth = 2592000;
@@ -160,9 +164,8 @@ describe("Reaction Tokens", function () {
         await expect(reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, 1))
             .to.emit(reactionTokenContract, "Staked");
 
-        await timeTravel(3600*24*30-3600); // ABOUT A MONTH LATER ... 🐙
-        expect(+(await superTokenContract.balanceOf(owner.address)).toString()).to.be.closeTo(+stakingAmount.toString(), +ethers.utils.parseEther("1").toString());
-        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount.mul(2));
+        await timeTravel(3600*24*30); // ABOUT A MONTH LATER ... 🐙
+        expect(+(await superTokenContract.balanceOf(owner.address)).toString()).to.be.closeTo(+stakingAmount.mul(2).toString(), +ethers.utils.parseEther("2").toString());
 
         // Staking & Mint with a different erc20
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
@@ -173,17 +176,21 @@ describe("Reaction Tokens", function () {
         // Staking
         tx = await reactionTokenContract.stakeAndMint(stakingAmount, diffErc20Contract.address, erc721Contract.address, 1);
         receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
-        expect(receipt.args.author).to.be.equal(owner.address);
-        expect(receipt.args.stakingTokenAddress).to.be.equal(diffErc20Contract.address);
-        expect(receipt.args.stakingSuperTokenAddress).to.be.properAddress;
+        stakedReceipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
+        expect(stakedReceipt.args.author).to.be.equal(owner.address);
+        expect(stakedReceipt.args.stakingTokenAddress).to.be.equal(diffErc20Contract.address);
+        
+        flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        expect(flowReceipt.args.flow).to.be.properAddress;
+        expect(flowReceipt.args.amount).to.be.equal(stakingAmount);
+        expect(flowReceipt.args.stakingTokenAddress).to.be.equal(diffErc20Contract.address);
+        expect(flowReceipt.args.recipient).to.be.equal(owner.address);
+        expect(flowReceipt.args.stakingSuperTokenAddress).to.be.properAddress;
 
-        expect(receipt.args.stakingSuperTokenAddress).to.be.not.equal(firstSuperTokenAddress);
+        expect(flowReceipt.args.stakingSuperTokenAddress).to.be.not.equal(firstSuperTokenAddress);
 
         // Check the final reaction token balance
         expect(await reactionTokenContract.balanceOf(erc721Contract.address)).to.equal(stakingAmount.mul(3));
-        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount.mul(2));
-        expect(await reactionTokenContract.getStakedAmount(owner.address, diffErc20Contract.address)).to.be.equal(stakingAmount);
     });
 
     it("Should Stake & Mint some reaction tokens using a SuperToken", async function () {
@@ -215,15 +222,13 @@ describe("Reaction Tokens", function () {
         // Staking
         tx = await reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, 1);
         receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
-
-        expect(await reactionTokenContract.getStakedAmount(owner.address, erc20Contract.address)).to.be.equal(stakingAmount);
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
 
         const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", receipt.args.stakingSuperTokenAddress);
 
         await timeTravel(3600*24*14); // ABOUT 2 WEEKS LATER ... 🐙
 
-        // Transfer the supertokens to someone else not have a duplicated CFA
+        // Transfer the supertokens to someone else just in case...
         const superTokenStakingAmount: BigNumber = (await superTokenContract.balanceOf(owner.address));
 
         await expect(superTokenContract.transferFrom(owner.address, alice.address, superTokenStakingAmount))
@@ -236,10 +241,10 @@ describe("Reaction Tokens", function () {
         // Staking
         tx = await reactionTokenContract.connect(alice).stakeAndMint(superTokenStakingAmount, superTokenContract.address, erc721Contract.address, 1);
         receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
-        expect(receipt.args.stakingTokenAddress).to.be.equal(superTokenContract.address);
-        expect(receipt.args.stakingSuperTokenAddress).to.be.equal(superTokenContract.address);
-        expect(await reactionTokenContract.getStakedAmount(alice.address, superTokenContract.address)).to.be.equal(superTokenStakingAmount);
+        let receiptStaked = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
+        let receiptFlow = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        expect(receiptStaked.args.stakingTokenAddress).to.be.equal(superTokenContract.address);
+        expect(receiptFlow.args.stakingSuperTokenAddress).to.be.equal(superTokenContract.address);
     });
 
     it("Should emit Reacted when Stake & Mint", async function () {

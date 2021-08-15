@@ -57,7 +57,6 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
             address(this),
             _sfHost, 
             _sfCfa, 
-            _sfSuperTokenFactory,
             reactionTokenName, 
             reactionTokenSymbol,
             tokenMetadataURI
