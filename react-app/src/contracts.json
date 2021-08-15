@@ -3203,7 +3203,7 @@
         "type": "function"
       }
     ],
-    "address": "0xB693c88b74304BE463A25062796EF65cC5c0A797"
+    "address": "0x0fdCf600fAfBbDedD4A69a550229332906f5FcC7"
   },
   "ReactionToken": {
     "abi": [
@@ -3216,17 +3216,12 @@
           },
           {
             "internalType": "address",
-            "name": "host",
+            "name": "sfHost",
             "type": "address"
           },
           {
             "internalType": "address",
-            "name": "cfa",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "superTokenFactory",
+            "name": "sfCfa",
             "type": "address"
           },
           {
@@ -3271,6 +3266,43 @@
           }
         ],
         "name": "Approval",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "flow",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "stakingTokenAddress",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "stakingSuperTokenAddress",
+            "type": "address"
+          }
+        ],
+        "name": "Flowed",
         "type": "event"
       },
       {
@@ -3341,12 +3373,6 @@
             "indexed": false,
             "internalType": "address",
             "name": "stakingTokenAddress",
-            "type": "address"
-          },
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "stakingSuperTokenAddress",
             "type": "address"
           }
         ],

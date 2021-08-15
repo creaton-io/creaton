@@ -23,33 +23,25 @@ export const Flows: FC = () => {
     }, [web3Context]);
 
     async function getFlows(userAddress: string){
-        // Owner.id is the ReactionToken contract
-        // Token is the Supertoken contract
         const flowsQuery = `
             query($userAddress: Bytes!) {
-                flows(where: {recipient: $userAddress}) {
-                    owner {
-                        id
-                    }
+                stakedFlows(where: {recipient: $userAddress}) {
+                    id
+                    stakingSuperToken
+                    balance
                     flowRate
-                    token {
-                        id
-                        name
-                        symbol
-                        underlyingAddress
-                    }
                 }
             }
         `;
 
         const client = new ApolloClient({
-            uri: "https://api.thegraph.com/subgraphs/name/superfluid-finance/superfluid-mumbai",
+            uri: REACTIONS_GRAPHQL_URI,
             cache: new InMemoryCache()
         });
 
         const data = await client.query({query: gql(flowsQuery), variables: {'userAddress': userAddress.toLowerCase()}});
-        console.log(data);
-        setFlows(data.data.flows);
+console.log(data);
+        setFlows(data.data.stakedFlows);
     }
 
     return (
