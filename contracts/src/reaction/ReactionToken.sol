@@ -20,7 +20,7 @@ import "./StakedFlow.sol";
 contract ReactionToken is Context, ERC20 {
     event Staked(address author, uint256 amount, address stakingTokenAddress);
     event Reacted(address author, address nftAddress, uint256 tokenId, address reactionTokenAddress, uint256 amount, string reactionTokenName, string reactionTokenSymbol);
-    event Flow(address flow, uint256 amount, address stakingTokenAddress, address recipient, address stakingSuperTokenAddress);
+    event Flowed(address flow, uint256 amount, address stakingTokenAddress, address recipient, address stakingSuperTokenAddress);
 
     address private _sfHost; // host
     address private _sfCfa; // the stored constant flow agreement class address
@@ -71,7 +71,7 @@ contract ReactionToken is Context, ERC20 {
 
         // Upsert the stream the staked amount
         address stakingSuperTokenAddress = stakedFlow.flow(amount, stakingTokenAddress, _msgSender());
-        emit Flow(address(stakedFlow), amount, stakingTokenAddress, _msgSender(), stakingSuperTokenAddress); 
+        emit Flowed(address(stakedFlow), amount, stakingTokenAddress, _msgSender(), stakingSuperTokenAddress); 
     }
 
     function getTokenMetadataURI() public view returns (string memory) {

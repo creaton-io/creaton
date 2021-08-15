@@ -137,7 +137,7 @@ describe("Reaction Tokens", function () {
         expect(stakedReceipt.args.author).to.be.equal(owner.address);
         expect(stakedReceipt.args.stakingTokenAddress).to.be.equal(erc20Contract.address);
 
-        let flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        let flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flowed"})[0];
         expect(flowReceipt.args.flow).to.be.properAddress;
         expect(flowReceipt.args.amount).to.be.equal(stakingAmount);
         expect(flowReceipt.args.stakingTokenAddress).to.be.equal(erc20Contract.address);
@@ -180,7 +180,7 @@ describe("Reaction Tokens", function () {
         expect(stakedReceipt.args.author).to.be.equal(owner.address);
         expect(stakedReceipt.args.stakingTokenAddress).to.be.equal(diffErc20Contract.address);
         
-        flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flowed"})[0];
         expect(flowReceipt.args.flow).to.be.properAddress;
         expect(flowReceipt.args.amount).to.be.equal(stakingAmount);
         expect(flowReceipt.args.stakingTokenAddress).to.be.equal(diffErc20Contract.address);
@@ -222,7 +222,7 @@ describe("Reaction Tokens", function () {
         // Staking
         tx = await reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, 1);
         receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Flowed"})[0];
 
         const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", receipt.args.stakingSuperTokenAddress);
 
@@ -242,7 +242,7 @@ describe("Reaction Tokens", function () {
         tx = await reactionTokenContract.connect(alice).stakeAndMint(superTokenStakingAmount, superTokenContract.address, erc721Contract.address, 1);
         receipt = await tx.wait();
         let receiptStaked = receipt.events?.filter((x: any) => {return x.event == "Staked"})[0];
-        let receiptFlow = receipt.events?.filter((x: any) => {return x.event == "Flow"})[0];
+        let receiptFlow = receipt.events?.filter((x: any) => {return x.event == "Flowed"})[0];
         expect(receiptStaked.args.stakingTokenAddress).to.be.equal(superTokenContract.address);
         expect(receiptFlow.args.stakingSuperTokenAddress).to.be.equal(superTokenContract.address);
     });
