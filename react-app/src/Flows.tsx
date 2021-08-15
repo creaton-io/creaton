@@ -40,7 +40,6 @@ export const Flows: FC = () => {
         });
 
         const data = await client.query({query: gql(flowsQuery), variables: {'userAddress': userAddress.toLowerCase()}});
-console.log(data);
         setFlows(data.data.stakedFlows);
     }
 
