@@ -369,7 +369,7 @@ export function Creator() {
                       like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}} 
                       reactionErc20Available={reactionErc20Available}
                       reactionErc20Symbol={reactionErc20Symbol}
-                      onReact={(amount) => { react(content, amount) }} 
+                      onReact={(amount, callback) => { react(content, amount, callback) }} 
                       hasReacted={hasReacted(content)} 
                       reactCount={countReacted(content)} />
                     } else {
@@ -382,7 +382,7 @@ export function Creator() {
                    onReport= {() => {report(content)}} 
                    reactionErc20Available={reactionErc20Available}
                    reactionErc20Symbol={reactionErc20Symbol}
-                   onReact={(amount) => { react(content, amount) }} 
+                   onReact={(amount, callback) => { react(content, amount, callback) }} 
                    hasReacted={hasReacted(content)} 
                    reactCount={countReacted(content)} 
               />
@@ -393,7 +393,7 @@ export function Creator() {
                    avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true} 
                    reactionErc20Available={reactionErc20Available}
                    reactionErc20Symbol={reactionErc20Symbol}
-                   onReact={(amount) => { react(content, amount) }} 
+                   onReact={(amount, callback) => { react(content, amount, callback) }} 
                    hasReacted={hasReacted(content)} 
                    reactCount={countReacted(content)}/>
   }
@@ -430,7 +430,7 @@ export function Creator() {
     updateContentsQuery()
   }
 
-  async function react(content, amount) {
+  async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
     try {
@@ -456,12 +456,10 @@ export function Creator() {
       }
       const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
 
-      console.log('Stake and minting: ', stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
-
       await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
-        console.log('Successfully Staked: ', author, amount.toString(), stakingTokenAddress, stakingSuperTokenAddress);
-        updateContentsQuery()
+        updateContentsQuery();
+        callback();
       });
     } catch (error) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});

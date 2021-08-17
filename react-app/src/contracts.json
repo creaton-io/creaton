@@ -3084,6 +3084,30 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "name": "getStakedFlow",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "contract ERC20WithTokenInfo",
             "name": "_token",
             "type": "address"
@@ -3203,7 +3227,7 @@
         "type": "function"
       }
     ],
-    "address": "0x0fdCf600fAfBbDedD4A69a550229332906f5FcC7"
+    "address": "0x2b5B749a79Ccd598DFF8B292e517C320987D2f0F"
   },
   "ReactionToken": {
     "abi": [
