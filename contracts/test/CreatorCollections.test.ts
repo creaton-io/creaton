@@ -156,11 +156,11 @@ describe('Purchasing multiples', function(){
     let fanAccount: SignerWithAddress;
     let brokeAccount: SignerWithAddress;
     beforeEach(async function(){
-        [OwnerAccount,artistAccount,fanAccount, brokeAccount] = await ethers.getSigners();
+        [OwnerAccount, artistAccount, fanAccount, brokeAccount] = await ethers.getSigners();
         
         // make the testing currency 
         TestingToken = await ethers.getContractFactory('TestingToken');
-        TestingTokenContract = await TestingToken.deploy(6);
+        TestingTokenContract = await TestingToken.connect(fanAccount).deploy(6);
 
         //give the accounts some money
         await TestingTokenContract.connect(artistAccount).faucet();
@@ -186,5 +186,27 @@ describe('Purchasing multiples', function(){
             cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(1, 5, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000)));
         }
         expect(cardsIds.length).to.equal(100);
+    });
+    it('1 of 1 cards, 1 pool, 1 purchased', async function(){
+        const poolId = await CollectionsContract.connect(OwnerAccount).createPool(3, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection");
+        const cardsIds = [];
+        for(let i = 0; i < 1; i++){
+            cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(3, 1, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000)));
+        }
+        expect(cardsIds.length).to.equal(1);
+        await TestingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
+        console.log(await CollectionsContract.connect(fanAccount).purchase(3, 0));
+    });
+    it('5 of 5 cards, 1 pool, 2 purchased', async function(){
+        const poolId = await CollectionsContract.connect(OwnerAccount).createPool(3, Math.floor(Date.now() / 1000), ethers.utils.parseEther("1000000"), artistAccount.address, "My first collection");
+        const cardsIds = [];
+        for(let i = 0; i < 5; i++){
+            cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(3, 5, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000)));
+        }
+        expect(cardsIds.length).to.equal(5);
+        await TestingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
+        console.log(await CollectionsContract.connect(fanAccount).purchase(3, 0));
+        console.log(await CollectionsContract.connect(fanAccount).purchase(3, 1));
+
     });
 });
