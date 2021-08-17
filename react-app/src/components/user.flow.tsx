@@ -34,9 +34,14 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
             });
 
             if(superTokenBalance.toString() == '0'){
+                setSuperTokenBalance(await superTokenContract.balanceOf(signer.getAddress()));
+                const rate = ethers.BigNumber.from(flow.flowRate);
+
                 setInterval(async () => {
-                    setSuperTokenBalance(await superTokenContract.balanceOf(signer.getAddress()));
-                }, 1000);
+                    setSuperTokenBalance(prevValue => {
+                        return prevValue.add(rate.div(10))
+                    });
+                }, 100);
             }
         })();
     }, [web3Context]);

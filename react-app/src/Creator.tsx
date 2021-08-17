@@ -83,9 +83,9 @@ export function Creator() {
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery(){
+    updateReactions(creatorContractAddress);
     contentsQuery.refetch({user:creatorContractAddress})
     console.log("\"smart\" refetch was run")
-    updateReactions(creatorContractAddress);
   }
   const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}})
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
@@ -169,7 +169,7 @@ export function Creator() {
       if(!creatorContractAddress) return;
       updateReactions(creatorContractAddress);
     })();
-  }, [creatorContractAddress, context.library]);
+  }, [contentsQuery, creatorContractAddress, context.library]);
 
   async function updateReactions(nftAddress: string){
     const reactionsQuery = `
@@ -371,7 +371,7 @@ export function Creator() {
                       reactionErc20Symbol={reactionErc20Symbol}
                       onReact={(amount, callback) => { react(content, amount, callback) }} 
                       hasReacted={hasReacted(content)} 
-                      reactCount={countReacted(content)} />
+                      initialReactCount={countReacted(content)} />
                     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
@@ -384,7 +384,7 @@ export function Creator() {
                    reactionErc20Symbol={reactionErc20Symbol}
                    onReact={(amount, callback) => { react(content, amount, callback) }} 
                    hasReacted={hasReacted(content)} 
-                   reactCount={countReacted(content)} 
+                   initialReactCount={countReacted(content)} 
               />
     }
 
@@ -395,7 +395,7 @@ export function Creator() {
                    reactionErc20Symbol={reactionErc20Symbol}
                    onReact={(amount, callback) => { react(content, amount, callback) }} 
                    hasReacted={hasReacted(content)} 
-                   reactCount={countReacted(content)}/>
+                   initialReactCount={countReacted(content)}/>
   }
 
   async function subscribe() {
@@ -564,7 +564,7 @@ export function Creator() {
         }
       </h1>
       <div className="py-5">
-        {
+        {reactions && 
           contents.map((x) => showItem(x))
         }
       </div>

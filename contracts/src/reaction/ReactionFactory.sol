@@ -112,7 +112,7 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
         address stakedFlow = _stakedFlows[user][token];
         if(stakedFlow == address(0)){
             stakedFlow = address(new StakedFlow(address(this), _sfHost, _sfCfa));
-            _stakedFlows[_msgSender()][token] = stakedFlow;
+            _stakedFlows[user][token] = stakedFlow;
         }
 
         return stakedFlow;

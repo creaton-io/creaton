@@ -18,16 +18,20 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   likeCount?: number;
   onReact?: any
   hasReacted?: boolean;
-  reactCount?: string;
+  initialReactCount?: string;
   date?: string;
   isEncrypted?: boolean;
   reactionErc20Available?: string;
   reactionErc20Symbol?: string;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, reactCount, date,isEncrypted, reactionErc20Available, reactionErc20Symbol}) => {
+export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, initialReactCount, date,isEncrypted, reactionErc20Available, reactionErc20Symbol}) => {
+  const ircount: number = (initialReactCount) ? +initialReactCount:0;
+
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
+  const [reactCount, setReactCount] = useState<number>(+ircount);
+
   function showAmountModal(e){
     hideAllAmountModal();
     e.target.parentElement.parentElement.getElementsByClassName("reactAmount")[0].classList.remove("hidden");
@@ -47,7 +51,10 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
     setReacting(true);
     hideAllAmountModal();
     if(!isNaN(+stakingAmount)){ 
-      onReact(stakingAmount, () => setReacting(false));
+      onReact(stakingAmount, () => {
+        setReactCount(+(reactCount+stakingAmount));
+        setReacting(false);
+      });
     }
   }
 

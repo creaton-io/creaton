@@ -45,9 +45,10 @@ export const Flows: FC = () => {
 
     return (
         <>
-            <ul className="mt-14">
-                {flows && flows.map((f,i) => <UserFlow flow={f} key={`UserFlow-${i}`} />)}
+            {flows.length > 0 && <ul className="mt-14">
+                {flows.map((f,i) => <UserFlow flow={f} key={`UserFlow-${i}`} />)}
             </ul>
+            }
         </>
     )
 };
