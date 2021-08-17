@@ -15,6 +15,7 @@ import {
     ISuperTokenFactory
 } from "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
+import "./ReactionFactory.sol";
 import "./StakedFlow.sol";
 
 contract ReactionToken is Context, ERC20 {
@@ -27,9 +28,7 @@ contract ReactionToken is Context, ERC20 {
 
     string internal _tokenMetadataURI; // Metadata url
 
-    address internal _reactionFactory;
-
-    mapping(address => mapping(address => address)) internal _stakedFlows;
+    ReactionFactory internal _reactionFactory;
 
     constructor(
         address reactionFactory,
@@ -43,7 +42,7 @@ contract ReactionToken is Context, ERC20 {
         require(address(sfHost) != address(0), "ReactionToken: Host Address can't be 0x");
         require(address(sfCfa) != address(0), "ReactionToken: CFA Address can't be 0x");
 
-        _reactionFactory = reactionFactory;
+        _reactionFactory = ReactionFactory(reactionFactory);
         _sfHost = sfHost;
         _sfCfa = sfCfa;
 
@@ -55,11 +54,7 @@ contract ReactionToken is Context, ERC20 {
         require(address(nftAddress) != address(0), "ReactionToken: NFT Address can't be 0x");
 
         // Stake everything to the StakedFlow
-        StakedFlow stakedFlow = StakedFlow(_stakedFlows[_msgSender()][stakingTokenAddress]);
-        if(address(stakedFlow) == address(0)){
-            stakedFlow = new StakedFlow(_reactionFactory, _sfHost, _sfCfa);
-            _stakedFlows[_msgSender()][stakingTokenAddress] = address(stakedFlow);
-        }
+        StakedFlow stakedFlow = StakedFlow(_reactionFactory.getStakedFlow(_msgSender(), stakingTokenAddress));
 
         IERC20(stakingTokenAddress).transferFrom(_msgSender(), address(stakedFlow), amount);
         emit Staked(_msgSender(), amount, stakingTokenAddress);
