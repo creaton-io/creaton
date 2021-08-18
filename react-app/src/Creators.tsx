@@ -51,7 +51,8 @@ function Creators() {
       description: creator.description,
       count: creator.subscribers.length,
       source: 'subscribers',
-      url: "/creator/" + creator.creatorContract
+      url: "/creator/" + creator.creatorContract,
+      creatorAddress: creator.id
     }
   })
   return (<FilterList list={items}/>);

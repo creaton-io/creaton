@@ -2,10 +2,10 @@
 pragma solidity 0.8.0;
 pragma abicoder v2;
 
-import './ICreatonAdmin.sol';
-import './NFTFactory.sol';
-import './Post.sol';
-import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
+import "./ICreatonAdmin.sol";
+import "./NFTFactory.sol";
+import "./Post.sol";
+import "../dependency/gsn/BaseRelayRecipient.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
@@ -20,13 +20,9 @@ import {
     IConstantFlowAgreementV1
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
 
-import {
-    SuperAppBase
-} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
+import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
-
-import { Int96SafeMath } from "../utils/Int96SafeMath.sol";
-
+import {Int96SafeMath} from "../utils/Int96SafeMath.sol";
 
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     using Int96SafeMath for int96;
@@ -40,8 +36,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // Structures
     // -----------------------------------------
 
-    enum Status { unSubscribed, requestSubscribe, pendingSubscribe, pendingUnsubscribe, subscribed }
-    enum Approval { neutral, like, dislike }
+    enum Status {unSubscribed, requestSubscribe, pendingSubscribe, pendingUnsubscribe, subscribed}
+    enum Approval {neutral, like, dislike}
     enum Type {free, encrypted}
 
     event SubscriberEvent(address user, string pubKey, Status status);
@@ -69,10 +65,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     string public description;
     int96 public subscriptionPrice;
     int96 private _MINIMUM_FLOW_RATE;
-    mapping (address => Subscriber) public subscribers;
+    mapping(address => Subscriber) public subscribers;
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     address public postNFT;
-    mapping (uint256 => Type) post2tier;
+    mapping(uint256 => Type) post2tier;
 
     // -----------------------------------------
     // Initializer
@@ -121,10 +117,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         require(success, "No balance");
     }
 
-     function recoverTokens(address _token) external onlyCreator {
-         IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-         IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
-     }
+    function recoverTokens(address _token) external onlyCreator {
+        IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
+    }
 
     function changeStatus(address _address, Status status) private {
         subscribers[_address].status = status;
@@ -135,15 +131,18 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function requestSubscribe(string memory _pubKey) public {
         address _address = _msgSender();
         require(adminContract.registeredUsers(_address), "You need to signup in Creaton first");
-        require (subscribers[_address].status == Status.unSubscribed, "Subscription Already Requested");
+        require(subscribers[_address].status == Status.unSubscribed, "Subscription Already Requested");
         subscribers[_address] = Subscriber(Status.requestSubscribe);
         emit SubscriberEvent(_address, _pubKey, Status.requestSubscribe);
     }
 
     function revokeSubscribe() external onlyCreator {
         address _address = _msgSender();
-        require(subscribers[_address].status == Status.requestSubscribe ||
-            subscribers[_address].status == Status.pendingSubscribe, "No Subscription Request to Revoke");
+        require(
+            subscribers[_address].status == Status.requestSubscribe ||
+                subscribers[_address].status == Status.pendingSubscribe,
+            "No Subscription Request to Revoke"
+        );
         changeStatus(_address, Status.unSubscribed);
         delete subscribers[_address];
     }
@@ -160,14 +159,14 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     }
 
     function bulkAcceptSubscribe(address[] memory _addresses) external onlyCreator {
-        for(uint i = 0; i < _addresses.length; i++) {
+        for (uint256 i = 0; i < _addresses.length; i++) {
             require(subscribers[_addresses[i]].status == Status.requestSubscribe, "No Subscription Requested");
             changeStatus(_addresses[i], Status.pendingSubscribe);
         }
     }
 
     function bulkBlockSubscription(address[] memory _addresses) external onlyCreator {
-        for(uint i = 0; i < _addresses.length; i++) {
+        for (uint256 i = 0; i < _addresses.length; i++) {
             require(subscribers[_addresses[i]].status != Status.unSubscribed, "Can't Block Unsubscribed Users");
             changeStatus(_addresses[i], Status.unSubscribed);
             delete subscribers[_addresses[i]];
@@ -178,7 +177,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         return subscriberCount;
     }
 
-    function like(uint _tokenId, uint approvalEnum) public {
+    function like(uint256 _tokenId, uint256 approvalEnum) public {
         require(postNFT != address(0));
         require(Post(postNFT).exists(_tokenId));
         address subAddress = _msgSender();
@@ -197,9 +196,13 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         emit PostContract(postNFT);
     }
 
-    function upload(string memory _metadataURI, string memory _dataJSON, Type contentType) external onlyCreator {
+    function upload(
+        string memory _metadataURI,
+        string memory _dataJSON,
+        Type contentType
+    ) external onlyCreator {
         require(postNFT != address(0));
-        require(contentType ==  Type.free || contentType == Type.encrypted);
+        require(contentType == Type.free || contentType == Type.encrypted);
         uint256 tokenId = Post(postNFT).mint(creator, _metadataURI);
         post2tier[tokenId] = contentType;
         emit NewPost(tokenId, _dataJSON, contentType);
@@ -209,18 +212,15 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // utility
     // -----------------------------------------
 
-    function percentage (
-        int96 num,
-        int96 percent
-    ) public pure returns (int96) {
+    function percentage(int96 num, int96 percent) public pure returns (int96) {
         return num.mul(percent).div(100);
     }
 
-    function versionRecipient() external view override  returns (string memory){
-        return "2.1.0";
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
     }
 
-    function isTrustedForwarder(address forwarder) public override view returns(bool) {
+    function isTrustedForwarderAdmin(address forwarder) public view returns (bool) {
         return forwarder == adminContract.getTrustedForwarder();
     }
 
@@ -230,53 +230,41 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function _openFlows(
         bytes calldata ctx,
-        int96 contract2creator, 
+        int96 contract2creator,
         int96 contract2treasury
-    ) private returns (bytes memory newCtx){
+    ) private returns (bytes memory newCtx) {
         // open flow to creator
-            (newCtx, ) = _host.callAgreementWithContext(
-                _cfa,
-                abi.encodeWithSelector(
-                    _cfa.createFlow.selector,
-                    _acceptedToken,
-                    creator,
-                    contract2creator,
-                    new bytes(0)
-                ),
-                new bytes(0),
-                ctx
-            );
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            new bytes(0),
+            ctx
+        );
 
-            // open flow to treasury
-            (newCtx, ) = _host.callAgreementWithContext(
-                _cfa,
-                abi.encodeWithSelector(
-                    _cfa.createFlow.selector,
-                    _acceptedToken,
-                    adminContract.treasury(),
-                    contract2treasury,
-                    new bytes(0)
-                ),
-                new bytes(0),
-                newCtx
-            );
+        // open flow to treasury
+        (newCtx, ) = _host.callAgreementWithContext(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.createFlow.selector,
+                _acceptedToken,
+                adminContract.treasury(),
+                contract2treasury,
+                new bytes(0)
+            ),
+            new bytes(0),
+            newCtx
+        );
     }
 
     function _updateFlows(
         bytes calldata ctx,
-        int96 contract2creator, 
+        int96 contract2creator,
         int96 contract2treasury
-    ) private returns (bytes memory newCtx){
+    ) private returns (bytes memory newCtx) {
         // update flow to creator
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
-            abi.encodeWithSelector(
-                _cfa.updateFlow.selector,
-                _acceptedToken,
-                creator,
-                contract2creator,
-                new bytes(0)
-            ),
+            abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
             new bytes(0),
             ctx
         );
@@ -296,19 +284,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         );
     }
 
-    function _deleteFlows(
-        bytes calldata ctx
-    ) private returns (bytes memory newCtx) {
+    function _deleteFlows(bytes calldata ctx) private returns (bytes memory newCtx) {
         // delete flow to creator
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
-            abi.encodeWithSelector(
-                _cfa.deleteFlow.selector,
-                _acceptedToken,
-                address(this),
-                creator,
-                new bytes(0)
-            ),
+            abi.encodeWithSelector(_cfa.deleteFlow.selector, _acceptedToken, address(this), creator, new bytes(0)),
             new bytes(0),
             ctx
         );
@@ -339,13 +319,12 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         delete subscribers[_address];
     }
 
-    function _subscribe (
+    function _subscribe(
         bytes calldata ctx,
         address agreementClass,
         bytes32 agreementId,
         bytes calldata cbdata
-    ) private returns (bytes memory newCtx){
-
+    ) private returns (bytes memory newCtx) {
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
         ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
@@ -355,15 +334,17 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
         int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
-        if (subscriberCount == 0){
+        if (subscriberCount == 0) {
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
-        } else if (subscriberCount > 0){
+        } else if (subscriberCount > 0) {
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
-            (, int96 contract2treasuryCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
-            newCtx = _updateFlows(ctx,
-                                contract2creatorCurrent + contract2creatorDelta, 
-                                contract2treasuryCurrent + contract2treasuryDelta
-                                );
+            (, int96 contract2treasuryCurrent, , ) =
+                _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
+            newCtx = _updateFlows(
+                ctx,
+                contract2creatorCurrent + contract2creatorDelta,
+                contract2treasuryCurrent + contract2treasuryDelta
+            );
         }
 
         _addSubscriber(context.msgSender);
@@ -374,8 +355,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         address agreementClass,
         bytes32 agreementId,
         bytes calldata cbdata
-    ) private returns (bytes memory newCtx){
-
+    ) private returns (bytes memory newCtx) {
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
 
@@ -385,30 +365,31 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
         (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
         (, int96 contract2treasuryCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
-        newCtx = _updateFlows(ctx,
-                              contract2creatorCurrent + contract2creatorDelta, 
-                              contract2treasuryCurrent + contract2treasuryDelta
-                             );
+        newCtx = _updateFlows(
+            ctx,
+            contract2creatorCurrent + contract2creatorDelta,
+            contract2treasuryCurrent + contract2treasuryDelta
+        );
     }
 
-    function _unsubscribe (
-        bytes calldata ctx
-    ) private returns (bytes memory newCtx){
+    function _unsubscribe(bytes calldata ctx) private returns (bytes memory newCtx) {
         address sender = _host.decodeCtx(ctx).msgSender;
-        if (subscriberCount == 1){
+        if (subscriberCount == 1) {
             newCtx = _deleteFlows(ctx);
-        } else if (subscriberCount > 0){
+        } else if (subscriberCount > 0) {
             int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
             int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
             int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
 
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
-            (, int96 contract2treasuryCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
+            (, int96 contract2treasuryCurrent, , ) =
+                _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
 
-            newCtx = _updateFlows(ctx,
-                                  contract2creatorCurrent + contract2creatorDelta, 
-                                  contract2treasuryCurrent + contract2treasuryDelta
-                                 );
+            newCtx = _updateFlows(
+                ctx,
+                contract2creatorCurrent + contract2creatorDelta,
+                contract2treasuryCurrent + contract2treasuryDelta
+            );
         }
 
         _delSubscriber(sender);
@@ -421,30 +402,21 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function beforeAgreementCreated(
         ISuperToken superToken,
         address agreementClass,
-        bytes32 /*agreementId*/,
-        bytes calldata /*agreementData*/,
+        bytes32, /*agreementId*/
+        bytes calldata, /*agreementData*/
         bytes calldata ctx
-    )
-        external view override
-        onlyHost
-        onlyExpected(superToken, agreementClass)
-        returns (bytes memory cbdata)
-    {
+    ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
         cbdata = new bytes(0);
     }
 
     function afterAgreementCreated(
-        ISuperToken /* superToken */,
+        ISuperToken, /* superToken */
         address agreementClass,
         bytes32 agreementId,
-        bytes calldata /*agreementData*/,
+        bytes calldata, /*agreementData*/
         bytes calldata cbdata,
         bytes calldata ctx
-    )
-        external override
-        onlyHost
-        returns (bytes memory newCtx)
-    {
+    ) external override onlyHost returns (bytes memory newCtx) {
         return _subscribe(ctx, agreementClass, agreementId, cbdata);
     }
 
@@ -452,62 +424,45 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         ISuperToken superToken,
         address agreementClass,
         bytes32 agreementId,
-        bytes calldata /*agreementData*/,
+        bytes calldata, /*agreementData*/
         bytes calldata /*ctx*/
-    )
-        external view override
-        onlyHost
-        onlyExpected(superToken, agreementClass)
-        returns (bytes memory cbdata)
-    {
+    ) external view override onlyHost onlyExpected(superToken, agreementClass) returns (bytes memory cbdata) {
         cbdata = new bytes(0);
     }
 
     function afterAgreementUpdated(
-        ISuperToken /* superToken */,
+        ISuperToken, /* superToken */
         address agreementClass,
         bytes32 agreementId,
-        bytes calldata /*agreementData*/,
+        bytes calldata, /*agreementData*/
         bytes calldata cbdata,
         bytes calldata ctx
-    )
-        external override
-        onlyHost
-        returns (bytes memory newCtx)
-    {
+    ) external override onlyHost returns (bytes memory newCtx) {
         return _updateSubscribe(ctx, agreementClass, agreementId, cbdata);
     }
 
     function beforeAgreementTerminated(
         ISuperToken superToken,
         address agreementClass,
-        bytes32 /*agreementId*/,
-        bytes calldata /*agreementData*/,
+        bytes32, /*agreementId*/
+        bytes calldata, /*agreementData*/
         bytes calldata /*ctx*/
-    )
-        external view override
-        onlyHost
-        returns (bytes memory cbdata)
-    {
+    ) external view override onlyHost returns (bytes memory cbdata) {
         // According to the app basic law, we should never revert in a termination callback
         if (!_isSameToken(superToken) || !_isCFAv1(agreementClass)) return abi.encode(true);
         return abi.encode(false);
     }
 
     function afterAgreementTerminated(
-        ISuperToken /* superToken */,
-        address /* agreementClass */,
-        bytes32 /* agreementId */,
-        bytes calldata /*agreementData*/,
+        ISuperToken, /* superToken */
+        address, /* agreementClass */
+        bytes32, /* agreementId */
+        bytes calldata, /*agreementData*/
         bytes calldata cbdata,
         bytes calldata ctx
-    )
-        external override
-        onlyHost
-        returns (bytes memory newCtx)
-    {
+    ) external override onlyHost returns (bytes memory newCtx) {
         // According to the app basic law, we should never revert in a termination callback
-        (bool shouldIgnore) = abi.decode(cbdata, (bool));
+        bool shouldIgnore = abi.decode(cbdata, (bool));
         if (shouldIgnore) return ctx;
         return _unsubscribe(ctx);
     }
@@ -517,8 +472,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     }
 
     function _isCFAv1(address agreementClass) private view returns (bool) {
-        return ISuperAgreement(agreementClass).agreementType()
-            == keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
+        return
+            ISuperAgreement(agreementClass).agreementType() ==
+            keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
     }
 
     // -----------------------------------------
@@ -540,5 +496,4 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         require(_msgSender() == creator, "Not the creator");
         _;
     }
-
 }

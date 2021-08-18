@@ -4,7 +4,7 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ creaton-io/creaton-mumbai",
+    "deploy": "graph deploy --access-token d257ee6e53f34674b3a506657a276cbf --node https://api.thegraph.com/deploy/ creaton-io/creaton-dao",
     "deploy-goerli": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ creaton-io/creaton-goerli",
     "create-staging": "graph create --node http://twitter.creaton.io:8020/ creaton-io/creaton",
     "remove-staging": "graph remove --node http://twitter.creaton.io:8020/ creaton-io/creaton",
@@ -14,7 +14,7 @@
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 creaton-io/creaton"
   },
   "dependencies": {
-    "@graphprotocol/graph-cli": "0.19.0",
-    "@graphprotocol/graph-ts": "0.19.0"
+    "@graphprotocol/graph-cli": "0.21.1",
+    "@graphprotocol/graph-ts": "0.20.0"
   }
 }

@@ -6,6 +6,7 @@ import creaton_contracts from "./Contracts";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
+import {CeramicStore} from "./stores/ceramicStore";
 import {AvatarUpload} from "./components/avatarUpload";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
@@ -24,6 +25,7 @@ const ProfileEdit = (props) => {
   const {currentCreator} = useCurrentCreator()
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
+  const [ceramic, setCeramic] = useState<CeramicStore | null>(null);
 
   useEffect(() => {
     console.log(currentProfile)
@@ -66,6 +68,9 @@ const ProfileEdit = (props) => {
     event.preventDefault()
     const payload = {
       'username': username
+    }
+    if(ceramic) {
+      ceramic.updateProfile(payload.username, "test description hardcoded");
     }
     if (currentFile) {
       const buf = await currentFile.arrayBuffer();

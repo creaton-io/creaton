@@ -3,7 +3,7 @@ import * as React from 'react';
 import {Formik, Field, Form, FormikHelpers} from 'formik';
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {RelayProvider} from "@opengsn/gsn";
+import {RelayProvider} from "@opengsn/provider";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";

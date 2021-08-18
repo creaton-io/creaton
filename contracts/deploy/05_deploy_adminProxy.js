@@ -4,53 +4,55 @@ const func = async function (hre) {
   const {execute} = deployments;
 
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
-  const network = await hre.ethers.provider.getNetwork()
+  //const network = await hre.ethers.provider.getNetwork();
 
   const sf = new SuperfluidSDK.Framework({
-    chainId: network.chainId,
+    ethers: ethers.provider,
     version: 'v1',
-    web3Provider: await hre.web3.currentProvider,
-    tokens: ['fUSDC'],
+    tokens: ['USDC'],
   });
   await sf.initialize();
 
-  // TODO don't forget to change this on demand
-  const trustedforwarder = "0xE041608922d06a4F26C0d4c27d8bCD01daf1f792"
-  const beaconContract = await hre.deployments.get("CreatorBeacon")
-  const nftFactory = await hre.deployments.get("NFTFactory")
-  const paymasterContract = await hre.deployments.get("CreatonPaymaster")
-  const treasuryFee = 90;
-  const usdcx = sf.tokens.fUSDCx;
+  function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
 
-  const CreatonAdmin = await ethers.getContractFactory("CreatonAdmin");
+  // TODO don't forget to change this on demand, different trustedForwarder for each network
+  const trustedforwarder = '0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d';
+  const beaconContract = await hre.deployments.get('CreatorBeacon');
+  const nftFactory = await hre.deployments.get('NFTFactory');
+  const paymasterContract = await hre.deployments.get('CreatonPaymaster');
+  const treasuryFee = 98;
+  //const usdcx = sf.tokens.USDCx; //todo: real Matic USDC on mainnet https://polygonscan.com/address/0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174
 
-  console.log('Deploying admin proxy...')
+  //console.log('usdcx Address:', usdcx.address);
+
+  const CreatonAdmin = await ethers.getContractFactory('CreatonAdmin');
+  console.log('Deploying admin proxy...');
   let adminContract = await upgrades.deployProxy(
     CreatonAdmin,
     [
       sf.host.address,
       sf.agreements.cfa.address,
-      usdcx.address,
+      '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
       treasury,
       treasuryFee,
       beaconContract.address,
       nftFactory.address,
       trustedforwarder,
-      paymasterContract.address
+      paymasterContract.address,
     ],
     {kind: 'uups'}
   );
-  console.log('admin proxy deployed at:', adminContract.address)
-
-  console.log('Add creaton admin to paymaster...')
-  let relayHubReceipt = await execute(
-      'CreatonPaymaster',
-      {from: admin},
-      "setAdmin",
-      adminContract.address);
+  console.log('admin proxy deployed at:', adminContract.address);
+  await sleep(10000);
+  console.log('Add creaton admin to paymaster...');
+  let relayHubReceipt = await execute('CreatonPaymaster', {from: admin}, 'setAdmin', adminContract.address);
+  await sleep(10000);
   console.log(relayHubReceipt.transactionHash);
-
-}
+};
 
 module.exports = func;
 func.id = '05_deploy_adminProxy'; // id required to prevent reexecution

@@ -19,13 +19,13 @@ const SuperfluidProvider = (props) => {
       ethers: web3Context.library!,
       version: 'v1',
       chainId: web3Context.chainId,
-      tokens: ["fUSDC"],
+      tokens: ["USDC"],
     });
     console.log('web3 provider test');
     await sf.initialize();
-    const usdcAddress = await sf.resolver.get('tokens.fUSDC');
-    const usdc = await sf.contracts.TestToken.at(sf.tokens.fUSDC.address);
-    const usdcx = sf.tokens.fUSDCx;
+    const usdcAddress = await sf.resolver.get('tokens.USDC');
+    const usdc = await sf.contracts.TestToken.at(sf.tokens.USDC.address);
+    const usdcx = sf.tokens.USDCx;
     setSuperfluid({sf, usdc, usdcx});
     // app = await ethers.getContractAt('Creator', contractAddr, subscriber);
   }

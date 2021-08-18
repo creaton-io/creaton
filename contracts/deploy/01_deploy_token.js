@@ -1,4 +1,5 @@
 const func = async function (hre) {
+  /*
   let {admin} = await hre.getNamedAccounts();
   const {deploy, execute} = hre.deployments;
   // const useProxy = !hre.network.live;
@@ -7,10 +8,10 @@ const func = async function (hre) {
   const Superfluid_ABI = require('@superfluid-finance/js-sdk/src/abi');
 
   const abi = Superfluid_ABI.IERC20;
-  let tokenName = "Create";
-  let tokenSymbol = "CRT";
+  let tokenName = 'Create';
+  let tokenSymbol = 'CREATE';
   let initialSupply = 20000000;
-  const network = await hre.ethers.provider.getNetwork()
+  const network = await hre.ethers.provider.getNetwork();
 
   const sf = new SuperfluidSDK.Framework({
     chainId: network.chainId,
@@ -20,30 +21,28 @@ const func = async function (hre) {
   });
   await sf.initialize();
 
-  const superTokenFactory = await sf.contracts.ISuperTokenFactory.at(
-            await sf.host.getSuperTokenFactory.call()
-  );
-
+  const superTokenFactory = await sf.contracts.ISuperTokenFactory.at(await sf.host.getSuperTokenFactory.call());
+  console.log(admin);
   let tokenProxy = await deploy('CreatonToken', {
     from: admin,
-    log: true
-  })
+    log: true,
+  });
 
   // This has to be called just once
-  console.log("Invoking initializeCustomSuperToken...");
+  console.log('Invoking initializeCustomSuperToken...');
   await superTokenFactory.initializeCustomSuperToken(tokenProxy.address);
 
-  console.log("Invoking initialize...");
+  console.log('Invoking initialize...');
   let receipt = await execute(
-      'CreatonToken',
-      {from: admin},
-      "initialize",
-      tokenName,
-      tokenSymbol,
-      web3.utils.toWei(String(initialSupply))
+    'CreatonToken',
+    {from: admin},
+    'initialize',
+    tokenName,
+    tokenSymbol,
+    web3.utils.toWei(String(initialSupply))
   );
   console.log(receipt.transactionHash);
-
+*/
 };
 
 module.exports = func;

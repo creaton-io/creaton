@@ -3,27 +3,25 @@ pragma solidity ^0.8.0;
 import {
     ISuperToken,
     CustomSuperTokenProxyBase
-}
-from "../../dependency/superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/CustomSuperTokenProxyBase.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../../dependency/gsn/contracts/BaseRelayRecipient.sol";
+} from "../../dependency/superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/CustomSuperTokenProxyBase.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 //import { UUPSProxiable } from "@superfluid-finance/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol";
 
 interface INativeSuperToken {
-    function initialize(string calldata name, string calldata symbol, uint256 initialSupply) external;
-}
-
-contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase{
-
-    function initialize
-    (
+    function initialize(
         string calldata name,
         string calldata symbol,
         uint256 initialSupply
-    )
-        external override
-    {
+    ) external;
+}
+
+contract CreatonToken is INativeSuperToken, CustomSuperTokenProxyBase {
+    function initialize(
+        string calldata name,
+        string calldata symbol,
+        uint256 initialSupply
+    ) external override {
         ISuperToken(address(this)).initialize(
             IERC20(address(0x0)), // no underlying/wrapped token
             18, // shouldn't matter if there's no wrapped token

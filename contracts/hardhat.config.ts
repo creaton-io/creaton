@@ -1,17 +1,17 @@
 import 'dotenv/config';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-web3';
-import "@nomiclabs/hardhat-waffle";
+import '@nomiclabs/hardhat-waffle';
 import 'hardhat/config';
 import 'hardhat-deploy';
 import 'hardhat-deploy-ethers';
 import 'hardhat-gas-reporter';
 import '@openzeppelin/hardhat-upgrades';
+import '@openzeppelin/hardhat-defender';
 import {Wallet} from '@ethersproject/wallet';
-import "hardhat-contract-sizer";
-import "solidity-coverage";
-import { HardhatUserConfig } from 'hardhat/config';
-
+import 'hardhat-contract-sizer';
+import 'solidity-coverage';
+import {HardhatUserConfig} from 'hardhat/config';
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
@@ -31,13 +31,19 @@ if (mnemonic) {
     });
   }
 }
-
+/**
+ * @type import('hardhat/config').HardhatUserConfig
+ */
 const config: HardhatUserConfig = {
+  defender: {
+    apiKey: '4ZWQXK75DWT1QxDqSPTGzbU9uu3ZetzZ',
+    apiSecret: '5gu1MrsvEoWfiiCafGeBytuoUmaSRoWt4NAed1gepL4pJNTqzNSjVB7MdhZSj3SW',
+  },
   gasReporter: {
     enabled: false, //set to false for faster compile times!
     currency: 'CAD',
     // gasPrice: 21
-    coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6'
+    coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6',
   },
   solidity: {
     compilers: [
@@ -85,8 +91,8 @@ const config: HardhatUserConfig = {
             runs: 2000,
           },
         },
-      }
-    ], 
+      },
+    ],
   },
 
   namedAccounts: {
@@ -103,7 +109,7 @@ const config: HardhatUserConfig = {
       default: 3,
     },
   },
-  //defaultNetwork: 'mumbai',
+  defaultNetwork: 'matic',
   networks: {
     coverage: {
       url: 'http://localhost:5458',
@@ -119,7 +125,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     staging: {
-      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
+      url: 'https://matic-mumbai--jsonrpc.datahub.figment.io/apikey/b18eeebf0e846833370317d99a5b3151',
       accounts,
     },
     rinkeby: {
@@ -139,8 +145,8 @@ const config: HardhatUserConfig = {
       url: 'https://matic-mumbai.p2pify.com',
       accounts,
     },
-    mainnet: {
-      url: 'https://mainnet.infura.io/v3/' + process.env.INFURA_TOKEN,
+    matic: {
+      url: 'https://matic-mainnet--jsonrpc.datahub.figment.io/apikey/' + process.env.FIGMENT_TOKEN,
       accounts,
     },
   },

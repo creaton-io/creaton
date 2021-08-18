@@ -12,3 +12,5 @@ deployments/goerli
 
 .vscode/*
 !.vscode/settings.json.default
+
+package-lock.json

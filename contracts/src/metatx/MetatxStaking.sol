@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/introspection/IERC1820Registry.sol";
 import "@openzeppelin/contracts/token/ERC777/IERC777Recipient.sol";
-import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
+import "../dependency/gsn/BaseRelayRecipient.sol";
 import "../utils/Owned.sol";
 
 // Inheritance
@@ -20,7 +20,7 @@ contract MetatxStaking is IMetatxStaking, BaseRelayRecipient, ReentrancyGuard, P
     /* ========== ERC1820 RECIPIENT REGISTRY ========== */
 
     IERC1820Registry private _erc1820 = IERC1820Registry(0x1820a4B7618BdE71Dce8cdc73aAB6C95905faD24);
-    bytes32 constant private TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
+    bytes32 private constant TOKENS_RECIPIENT_INTERFACE_HASH = keccak256("ERC777TokensRecipient");
 
     /* ========== STATE VARIABLES ========== */
 
@@ -78,7 +78,10 @@ contract MetatxStaking is IMetatxStaking, BaseRelayRecipient, ReentrancyGuard, P
     }
 
     function earned(address account) public view override returns (uint256) {
-        return _balances[account].mul(rewardPerToken().sub(userRewardPerTokenPaid[account])).div(1e18).add(rewards[account]);
+        return
+            _balances[account].mul(rewardPerToken().sub(userRewardPerTokenPaid[account])).div(1e18).add(
+                rewards[account]
+            );
     }
 
     function getRewardForDuration() external view override returns (uint256) {
@@ -89,40 +92,29 @@ contract MetatxStaking is IMetatxStaking, BaseRelayRecipient, ReentrancyGuard, P
         return minStake;
     }
 
-    function _msgSender() internal override(Context, BaseRelayRecipient) virtual view returns (address ret) {
-        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
+    function _msgSender() internal view virtual override(Context, BaseRelayRecipient) returns (address ret) {
+        if (msg.data.length >= 20 && isTrustedForwarder(msg.sender)) {
             // At this point we know that the sender is a trusted forwarder,
             // so we trust that the last bytes of msg.data are the verified sender address.
             // extract sender address from the end of msg.data
             assembly {
-                ret := shr(96,calldataload(sub(calldatasize(),20)))
+                ret := shr(96, calldataload(sub(calldatasize(), 20)))
             }
         } else {
-            return msg.sender;
+            ret = msg.sender;
         }
     }
 
-    function _msgData() internal override(Context, BaseRelayRecipient) virtual view returns (bytes memory ret) {
-        if (msg.data.length >= 24 && isTrustedForwarder(msg.sender)) {
-            // At this point we know that the sender is a trusted forwarder,
-            // we copy the msg.data , except the last 20 bytes (and update the total length)
-            assembly {
-                let ptr := mload(0x40)
-                // copy only size-20 bytes
-                let size := sub(calldatasize(),20)
-                // structure RLP data as <offset> <length> <bytes>
-                mstore(ptr, 0x20)
-                mstore(add(ptr,32), size)
-                calldatacopy(add(ptr,64), 0, size)
-                return(ptr, add(size,64))
-            }
+    function _msgData() internal view virtual override(Context, BaseRelayRecipient) returns (bytes memory ret) {
+        if (msg.data.length >= 20 && isTrustedForwarder(msg.sender)) {
+            return msg.data[0:msg.data.length - 20];
         } else {
             return msg.data;
         }
     }
 
-    function versionRecipient() external view override  returns (string memory){
-        return "2.1.0";
+    function versionRecipient() external view override returns (string memory) {
+        return "2.2.3-matic";
     }
 
     /* ========== MUTATIVE FUNCTIONS ========== */
@@ -161,7 +153,7 @@ contract MetatxStaking is IMetatxStaking, BaseRelayRecipient, ReentrancyGuard, P
     function halvingRewards() external override updateReward(address(0)) whenNotPaused whenNotLastPeriod {
         if (block.timestamp > periodFinish) {
             token.safeTransferFrom(address(rewardEscrow), _msgSender(), minStake);
-            if (rewardsDuration == oldRewardsDuration){
+            if (rewardsDuration == oldRewardsDuration) {
                 rewardRate = rewardRate.div(2);
             } else {
                 rewardRate = rewardRate.mul(oldRewardsDuration).div(rewardsDuration).div(2);
@@ -232,7 +224,7 @@ contract MetatxStaking is IMetatxStaking, BaseRelayRecipient, ReentrancyGuard, P
     /* ========== EVENTS ========== */
 
     event RewardHalved(uint256 periodFinish);
-    event RewardStarted (uint256 rewardRate);
+    event RewardStarted(uint256 rewardRate);
     event Staked(address indexed user, uint256 amount);
     event Withdrawn(address indexed user, uint256 amount);
     event RewardPaid(address indexed user, uint256 reward);

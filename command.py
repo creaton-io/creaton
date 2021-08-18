@@ -14,15 +14,16 @@ def run_command(command):
 
 def update_contracts():
     BASE_PATH = Path('contracts/deployments')
-    networks = list(os.listdir(BASE_PATH))
-    network = prompt([
-        {
-            'type': 'list',
-            'name': 'network',
-            'message': 'Which network?',
-            'choices': networks
-        },
-    ])['network']
+    #networks = list(os.listdir(BASE_PATH))
+    #network = prompt([
+    #    {
+    #        'type': 'list',
+    #        'name': 'network',
+    #        'message': 'Which network?',
+    #        'choices': networks
+    #    },
+    #])['network']
+    network = 'matic'
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
     creaton_admin['address'] = prompt([
         {
@@ -32,13 +33,16 @@ def update_contracts():
         },
     ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
-    twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
+    #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
     paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
-    staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
-    token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
+    #staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
+    #token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
     contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator,
-                      'TwitterVerification': twitter, 'Paymaster': paymaster, 'CreatonStaking': staking,
-                      'CreatonToken': token}
+                      #'TwitterVerification': twitter,
+                      'Paymaster': paymaster
+                      #'CreatonStaking': staking,
+                      #'CreatonToken': token
+                      }
     for name, contract in contracts_info.items():
         if name == 'network':
             continue
@@ -94,6 +98,11 @@ def deploy_contracts():
     if yesno('Update the contract addresses in subgraph and react?'):
         return update_contracts()
 
+def deploy_contracts_matic():
+    run_command('npm run matic:contracts')
+    if yesno('Update the contract addresses in subgraph and react?'):
+        return update_contracts()
+
 
 def main():
     question = [
@@ -116,7 +125,7 @@ def main():
 
     subproject = prompt(question)['subproject']
     if subproject == 'deploy contracts':
-        return deploy_contracts()
+        return deploy_contracts_matic()
     if subproject == 'update contracts':
         return update_contracts()
 

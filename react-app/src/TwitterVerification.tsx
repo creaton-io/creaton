@@ -1,3 +1,4 @@
+
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import * as React from "react";
@@ -5,6 +6,7 @@ import {BigNumber, ethers} from "ethers";
 import {Field, Form, Formik, FormikHelpers} from "formik";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {useContext, useState} from "react";
+/*
 import creaton_contracts from "./Contracts";
 import {Contract} from "ethers";
 
@@ -72,7 +74,7 @@ const TwitterVerification = () => {
       hash;
     return (
       <div>
-        {/*<h1>Please Tweet Out Your Verification Link</h1>*/}
+        {/*<h1>Please Tweet Out Your Verification Link</h1>*//*}
           <a href={link} onClick={tweetClicked} target="_blank">Tweet your verification
            code</a>
       </div>
@@ -128,4 +130,15 @@ const TwitterVerification = () => {
   )
 }
 
+*/
+
+//disabled Twitterverification for now
+const TwitterVerification = () => {
+  const context = useWeb3React<Web3Provider>()
+  const notificationHandler = useContext(NotificationHandlerContext)
+
+  return (
+    <div></div>
+  )
+};
 export default TwitterVerification;

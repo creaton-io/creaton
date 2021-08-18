@@ -5,15 +5,14 @@ pragma abicoder v2;
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
 import "../metatx/CreatonPaymaster.sol";
-import "../dependency/gsn/contracts/BaseRelayRecipient.sol";
-import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../dependency/gsn/BaseRelayRecipient.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ICreatonAdmin.sol";
 
 contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
-    
     // -----------------------------------------
     // Events
     // -----------------------------------------
@@ -27,7 +26,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     // -----------------------------------------
     address owner;
 
-    mapping(address => address[]) public creator2contract; 
+    mapping(address => address[]) public creator2contract;
     mapping(address => address) public contract2creator;
     mapping(address => bool) public override registeredUsers;
     mapping(address => string) public user2twitter;
@@ -59,7 +58,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         address _trustedForwarder,
         address payable _paymaster
     ) public payable initializer {
-
         owner = msg.sender;
 
         assert(host != address(0));
@@ -81,18 +79,31 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     }
 
     // -----------------------------------------
-    // Logic 
+    // Logic
     // -----------------------------------------
 
-    function deployCreator(string calldata description, uint256 subscriptionPrice,
-        string memory nftName, string memory nftSymbol) external {
+    function deployCreator(
+        string calldata description,
+        uint256 subscriptionPrice,
+        string memory nftName,
+        string memory nftSymbol
+    ) external {
         require(registeredUsers[_msgSender()], "You need to signup on Creaton before becoming a creator");
         CreatorProxy creatorContract =
-        new CreatorProxy(
-            creatorBeacon,
-            abi.encodeWithSignature("initialize(address,address,address,address,string,uint256,string,string)",
-            _host, _cfa, _acceptedToken, _msgSender(), description, subscriptionPrice, nftName, nftSymbol)
-        );
+            new CreatorProxy(
+                creatorBeacon,
+                abi.encodeWithSignature(
+                    "initialize(address,address,address,address,string,uint256,string,string)",
+                    _host,
+                    _cfa,
+                    _acceptedToken,
+                    _msgSender(),
+                    description,
+                    subscriptionPrice,
+                    nftName,
+                    nftSymbol
+                )
+            );
 
         address creatorContractAddr = address(creatorContract);
         require(creatorContractAddr != address(0));
@@ -101,13 +112,13 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         creator2contract[_msgSender()].push(creatorContractAddr);
         CreatonPaymaster(paymaster).addCreatorContract(creatorContractAddr);
 
-        IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16);
+        //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
 
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
     }
 
     // TODO only be called from twitter contract
-    function signUp (address user, string memory twitter) public {
+    function signUp(address user, string memory twitter) public {
         user2twitter[user] = twitter;
     }
 
@@ -118,25 +129,23 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
 
     /* ========== VIEW FUNCTIONS ========== */
 
-    function getTrustedForwarder() public view override returns(address){
+    function getTrustedForwarder() public view override returns (address) {
         return trustedForwarder;
     }
 
-    function versionRecipient() external view override  returns (string memory){
-        return "2.1.0";
+    function versionRecipient() external view override returns (string memory) {
+        return "2.2.3-matic";
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
-    }
-
-    function updateTrustedForwareder(address _trustedForwarder) public onlyOwner {
+    function updateTrustedForwarder(address _trustedForwarder) public onlyOwner {
         trustedForwarder = _trustedForwarder;
     }
 
-     /* ========== MODIFIERS ========== */
+    /* ========== MODIFIERS ========== */
 
     modifier onlyOwner() {
         require(msg.sender == owner, "CreatonAdmin: Caller is not owner");

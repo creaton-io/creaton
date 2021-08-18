@@ -10,13 +10,13 @@ contract RewardEscrow is Owned {
 
     IERC20 public token;
     address public staking;
-    uint256 public infAllowance = 2 ** 256 - 1;
+    uint256 public infAllowance = 2**256 - 1;
 
-    constructor (
+    constructor(
         address _owner,
         address _token,
         address _staking
-    ) public Owned(_owner){
+    ) public Owned(_owner) {
         staking = _staking;
         token = IERC20(_token);
         token.approve(staking, infAllowance);

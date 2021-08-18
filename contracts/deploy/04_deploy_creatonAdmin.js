@@ -3,27 +3,33 @@ const func = async function (hre) {
   const {deployments} = hre;
   const {deploy} = deployments;
 
+  /*
+  console.log('NFTFactory Deploy');
   await deploy('NFTFactory', {
     from: admin,
-    log:true
+    log: true,
   });
 
-  let implemetationContract = await deploy ('CreatorV1', {
+  console.log('CreatorV1');
+  let implementationContract = await deploy('CreatorV1', {
     from: admin,
-    log: true
+    log: true,
   });
 
-  await deploy ('CreatorBeacon', {
+  console.log('CreatorBeaconnnn');
+  await deploy('CreatorBeacon', {
     from: admin,
-    args: [implemetationContract.address],
-    log: true
-  });
+    args: [implementationContract.address],
+    log: true,
+  });*/
 
+  console.log('CreatorAdmin');
   await deploy('CreatonAdmin', {
     from: admin,
-    log: true
+    log: true,
   });
 
+  console.log('CreatorAdmin deployed');
 };
 
 module.exports = func;

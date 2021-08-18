@@ -130,7 +130,7 @@ export function Creator() {
 
   useEffect(() => {
     if (contentsQuery.loading || contentsQuery.error) return;
-    if (!textile) return;
+    //if (!textile) return;
     if (!canDecrypt) return;
     const contents = contentsQuery.data.contents;
     if (Object.keys(downloadStatus).length === 0 || !contents) return;
