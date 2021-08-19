@@ -127,7 +127,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                             {likeCount}
                           </span>
                         </div>
-                        <div className=" mr-5 ">
+                        {/* <div className=" mr-5 ">
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
                               <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
@@ -168,7 +168,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                           <span className="ml-2 text-white">
                             {reactCount}
                           </span>
-                        </div>
+                        </div> */}
                         <Icon onClick={onReport} name="flag"
                               className={clsx('cursor-pointer text-gray-500 mt-1')}/>
                       </div>

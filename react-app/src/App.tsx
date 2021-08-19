@@ -255,9 +255,9 @@ const ProfileMenu = (props) => {
           {currentProfile &&
           <NavigationLink to="/signup" label="My Profile"/>
           }
-          {currentProfile &&
+          {/* {currentProfile &&
           <NavigationLink to="/flows" label="My Flows"/>
-          }
+          } */}
         </div>
       </div>
     </div>)
