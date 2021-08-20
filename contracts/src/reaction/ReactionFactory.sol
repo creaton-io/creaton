@@ -12,6 +12,7 @@ import {
 import "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/misc/IResolver.sol";
 
 import "./ReactionToken.sol";
+import "./StakedFlow.sol";
 
 contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
     using EnumerableSet for EnumerableSet.AddressSet;
@@ -29,6 +30,8 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
     mapping (address => address) public superTokenRegistry;  // token registry for non-official tokens
 
     EnumerableSet.AddressSet private superTokensSet; // Registry supertokens
+
+    mapping(address => mapping(address => address)) internal _stakedFlows;
 
     event Initialized(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string sfVersion);
     event ReactionDeployed(address creator, address reactionContractAddr, string reactionTokenName, string reactionTokenSymbol, string tokenMetadataURI);
@@ -57,7 +60,6 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
             address(this),
             _sfHost, 
             _sfCfa, 
-            _sfSuperTokenFactory,
             reactionTokenName, 
             reactionTokenSymbol,
             tokenMetadataURI
@@ -104,6 +106,16 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
             superTokenRegistry[address(_token)] = address(superToken);
             superTokensSet.add(address(superToken));
         }
+    }
+
+    function getStakedFlow(address user, address token) public returns (address){
+        address stakedFlow = _stakedFlows[user][token];
+        if(stakedFlow == address(0)){
+            stakedFlow = address(new StakedFlow(address(this), _sfHost, _sfCfa));
+            _stakedFlows[user][token] = stakedFlow;
+        }
+
+        return stakedFlow;
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
