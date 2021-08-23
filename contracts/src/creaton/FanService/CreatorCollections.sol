@@ -3,7 +3,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "./FanCollectible.sol";
 
 contract CreatorCollections is Ownable, Pausable {
@@ -81,13 +81,41 @@ contract CreatorCollections is Ownable, Pausable {
         token = IERC20(_tokenAddress);
     }
 
-    function purchase(uint256 _poolID, uint256 _cardID) public{
-        stake(_poolID, pools[_poolID].cardsArray[_cardID].price);
-        redeem(_poolID, _cardID);
+    function purchase(uint256 _poolID, uint256 _cardID) 
+        public
+        whenNotPaused()
+        cardExists(_poolID, _cardID)
+    returns (uint256){
+        Pool storage p = pools[_poolID];
+        Card memory c = p.cardsArray[_cardID];
+        require(block.timestamp >= p.periodStart, "pool not open");
+        require(c.price.add(balanceOf(_msgSender(), _poolID)) <= p.maxStake, "stake exceeds max");
+        
+        require(c.idPointOfNextEmpty<c.ids.length, "Token Is Sold Out");
+        if (_accountBalances[_msgSender()] >= c.price){
+            return _redeem(_poolID, _cardID);
+        }
+        uint256 moreToTake = c.price - _accountBalances[_msgSender()];
+        _totalSupply = _totalSupply.add(moreToTake);
+
+        _poolBalances[_poolID] = _poolBalances[_poolID].add(moreToTake);
+        _accountBalances[_msgSender()] = 0;
+        _balances[_poolID][_msgSender()] = 0;
+        token.transferFrom(_msgSender(), address(this), moreToTake);
+
+        p.feesCollected = p.feesCollected.add(c.price);
+    
+        collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
+        heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
+        heldBalances[c.ids[c.idPointOfNextEmpty]].pool = _poolID;
+        c.idPointOfNextEmpty++;
+        emit Redeemed(_msgSender(), _poolID, c.price);
+
+        return c.ids[c.idPointOfNextEmpty-1];
     }
 
     /**
-     * @dev stake tokens that are held in escro.
+     * @dev stake tokens that are held in escrow.
      * @param pool the id of the pool to stake to.
      * @param amount the amount of the accepted token you wish to stake.
      */
@@ -134,7 +162,7 @@ contract CreatorCollections is Ownable, Pausable {
 
     /**
      * @dev redeem a FanCollectible from a pool and send it to the sender.
-     * @param pool the pool you are redeming from
+     * @param pool the pool you are redeeming from
      * @param card the card from this pool you are redeeming
      */
     function redeem(uint256 pool, uint256 card)
@@ -151,11 +179,23 @@ contract CreatorCollections is Ownable, Pausable {
         require(_balances[pool][_msgSender()] >= c.price, "not enough tokens stakes");
 
         require(c.idPointOfNextEmpty<c.ids.length, "Token Is Sold Out");
-        
+
+        return _redeem(pool, card);
+    }
+    /**
+     * @dev private version of redeem, only use if you have checked that redeem should work!
+     * @param pool the pool you are redeeming from
+     * @param card the card from this pool you are redeeming
+     */
+    function _redeem(uint256 pool, uint256 card)
+        private
+        returns (uint256)
+    {
+        Pool storage p = pools[pool];
+        Card memory c = p.cardsArray[card];
 
         p.feesCollected = p.feesCollected.add(c.price);
     
-
         _balances[pool][_msgSender()] = _balances[pool][_msgSender()].sub(c.price);
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
@@ -230,6 +270,8 @@ contract CreatorCollections is Ownable, Pausable {
         
         pools[pool].cardsInPool++;
         // emit CardAdded(pool, tokenIdsGenerated, price, releaseTime);
+        // console.log(pools[pool].cardsInPool-1);
+        // console.log(tokenIdsGenerated);
         return pools[pool].cardsInPool-1;
     }
 
