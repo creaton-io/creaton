@@ -115,7 +115,6 @@ contract FanCollectible is ERC1155, Ownable {
         require(balanceOf(_msgSender(), _id) >=1, "Token not owned by sender");
 
         collectibleRequestData[_id] = _request;
-        //TOOD: emit that this data has been set!
         emit RequestDataSet(_id, _request);
     }
 
@@ -127,6 +126,7 @@ contract FanCollectible is ERC1155, Ownable {
     function finalizedByArtist(uint256 _id, bytes memory _data) onlyMinter() public {
         require(stateOfCollectibles[_id] == states.PURCHASED, "Token not purchased");
         stateOfCollectibles[_id] = states.PURCHASED_AND_FINALIZED;
+        //assume the data has modified the NFT, even thought it hasn't *really*
 
     }
 }
