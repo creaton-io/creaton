@@ -66,8 +66,8 @@ describe("Reaction Tokens", function () {
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
-
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI);
+        const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
         
@@ -115,8 +115,8 @@ describe("Reaction Tokens", function () {
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
-        
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI);
+        const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -205,8 +205,8 @@ describe("Reaction Tokens", function () {
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
-        
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI);
+        const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -259,8 +259,8 @@ describe("Reaction Tokens", function () {
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
-        
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI);
+        const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -287,5 +287,80 @@ describe("Reaction Tokens", function () {
             reactionTokenName,
             reactionTokenSymbol
         );
+    });
+
+    it("Should restrict staking to specific token", async function () {
+        // Deploy Reaction Factory
+        const contractFactory = await ethers.getContractFactory("ReactionFactory");
+        const reactionFactoryContract: Contract = await contractFactory.deploy();
+
+        // Init Factory
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+            .to.emit(reactionFactoryContract, "Initialized");
+
+        const contractFactory2 = await ethers.getContractFactory("DummyErc20");
+        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"));
+
+        // Deploy new Reaction Token
+        const reactionTokenName: string = 'Like';
+        const reactionTokenSymbol: string = 'LIKE';
+        const stakingTokenAddress: string = diffErc20Contract.address;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
+
+        let reactionTokenContractAddr: Address = receipt.args.reactionContractAddr;
+        expect(reactionTokenContractAddr).to.be.properAddress;
+
+        const reactionTokenContract = await ethers.getContractAt("ReactionToken", reactionTokenContractAddr);
+                
+        const stakingAmount: BigNumber = ethers.utils.parseEther("1000");
+
+        // Staking
+        const tokenId = 3;
+        await expect(reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, tokenId))
+            .to.be.revertedWith("ReactionToken: Invalid Staking Token");
+        
+        // Approve tokens sending
+        await expect(diffErc20Contract.approve(reactionTokenContract.address, stakingAmount))
+            .to.emit(diffErc20Contract, "Approval");
+
+        // Staking
+        await expect(reactionTokenContract.stakeAndMint(stakingAmount, diffErc20Contract.address, erc721Contract.address, tokenId))
+            .to.emit(reactionTokenContract, "Staked");
+    });
+
+    it("Reaction recipient could be any address", async function () {
+        // Deploy Reaction Factory
+        const contractFactory = await ethers.getContractFactory("ReactionFactory");
+        const reactionFactoryContract: Contract = await contractFactory.deploy();
+
+        // Init Factory
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+            .to.emit(reactionFactoryContract, "Initialized");
+
+        // Deploy new Reaction Token
+        const reactionTokenName: string = 'Like';
+        const reactionTokenSymbol: string = 'LIKE';
+        const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
+
+        let reactionTokenContractAddr: Address = receipt.args.reactionContractAddr;
+        expect(reactionTokenContractAddr).to.be.properAddress;
+
+        const reactionTokenContract = await ethers.getContractAt("ReactionToken", reactionTokenContractAddr);
+                
+        // Approve tokens sending
+        const stakingAmount: BigNumber = ethers.utils.parseEther("1000");
+        await expect(erc20Contract.approve(reactionTokenContract.address, stakingAmount))
+            .to.emit(erc20Contract, "Approval");
+
+        // Staking
+        await expect(reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, owner.address, 0))
+            .to.emit(reactionTokenContract, "Staked");
+        
+        expect(await reactionTokenContract.balanceOf(owner.address)).to.equal(stakingAmount);
     });
 });

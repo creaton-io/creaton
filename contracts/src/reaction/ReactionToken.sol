@@ -20,11 +20,13 @@ import "./StakedFlow.sol";
 
 contract ReactionToken is Context, ERC20 {
     event Staked(address author, uint256 amount, address stakingTokenAddress);
-    event Reacted(address author, address nftAddress, uint256 tokenId, address reactionTokenAddress, uint256 amount, string reactionTokenName, string reactionTokenSymbol);
+    event Reacted(address author, address reactionRecipientAddress, uint256 tokenId, address reactionTokenAddress, uint256 amount, string reactionTokenName, string reactionTokenSymbol);
     event Flowed(address flow, uint256 amount, address stakingTokenAddress, address recipient, address stakingSuperTokenAddress);
 
     address private _sfHost; // host
     address private _sfCfa; // the stored constant flow agreement class address
+
+    address private _stakingTokenAddress; // If 0x, all tokens will be accepted to stake
 
     string internal _tokenMetadataURI; // Metadata url
 
@@ -34,6 +36,7 @@ contract ReactionToken is Context, ERC20 {
         address reactionFactory,
         address sfHost, 
         address sfCfa, 
+        address stakingTokenAddress,
         string memory reactionTokenName, 
         string memory reactionTokenSymbol,
         string memory tokenMetadataURI
@@ -46,12 +49,19 @@ contract ReactionToken is Context, ERC20 {
         _sfHost = sfHost;
         _sfCfa = sfCfa;
 
+        _stakingTokenAddress = stakingTokenAddress;
+
         _tokenMetadataURI = tokenMetadataURI;
     }
 
-    function stakeAndMint(uint256 amount, address stakingTokenAddress, address nftAddress, uint256 tokenId) public {
+    function stakeAndMint(uint256 amount, address stakingTokenAddress, address reactionRecipientAddress, uint256 tokenId) public {
         require(address(stakingTokenAddress) != address(0), "ReactionToken: Staking Token Address can't be 0x");
-        require(address(nftAddress) != address(0), "ReactionToken: NFT Address can't be 0x");
+        require(address(reactionRecipientAddress) != address(0), "ReactionToken: reactionRecipient Address can't be 0x");
+
+        // Verify if the staking token is correct
+        if(_stakingTokenAddress != address(0)){
+            require(address(stakingTokenAddress) == address(_stakingTokenAddress), "ReactionToken: Invalid Staking Token");
+        }
 
         // Stake everything to the StakedFlow
         StakedFlow stakedFlow = StakedFlow(_reactionFactory.getStakedFlow(_msgSender(), stakingTokenAddress));
@@ -59,10 +69,10 @@ contract ReactionToken is Context, ERC20 {
         IERC20(stakingTokenAddress).transferFrom(_msgSender(), address(stakedFlow), amount);
         emit Staked(_msgSender(), amount, stakingTokenAddress);
 
-        // Mint the reaction token straight to the NFT
-        _mint(nftAddress, amount);
+        // Mint the reaction token straight to the Recipient
+        _mint(reactionRecipientAddress, amount);
         ERC20 reactionToken = ERC20(address(this));
-        emit Reacted(_msgSender(), nftAddress, tokenId, address(this), amount, reactionToken.name(), reactionToken.symbol());
+        emit Reacted(_msgSender(), reactionRecipientAddress, tokenId, address(this), amount, reactionToken.name(), reactionToken.symbol());
 
         // Upsert the stream the staked amount
         address stakingSuperTokenAddress = stakedFlow.flow(amount, stakingTokenAddress, _msgSender());
@@ -71,5 +81,9 @@ contract ReactionToken is Context, ERC20 {
 
     function getTokenMetadataURI() public view returns (string memory) {
         return _tokenMetadataURI;
+    }
+
+    function getStakingTokenAddress() public view returns (address) {
+        return _stakingTokenAddress;
     }
 }

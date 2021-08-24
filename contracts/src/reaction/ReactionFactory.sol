@@ -34,7 +34,7 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
     mapping(address => mapping(address => address)) internal _stakedFlows;
 
     event Initialized(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string sfVersion);
-    event ReactionDeployed(address creator, address reactionContractAddr, string reactionTokenName, string reactionTokenSymbol, string tokenMetadataURI);
+    event ReactionDeployed(address creator, address reactionContractAddr, string reactionTokenName, string reactionTokenSymbol, string tokenMetadataURI, address stakingTokenAddress);
 
     function initialize(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string memory sfVersion) public payable initializer {
         require(address(sfHost) != address(0), "ReactionFactory: Host Address can't be 0x");
@@ -55,11 +55,12 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
         emit Initialized(_sfHost, _sfCfa, _sfSuperTokenFactory, _sfResolver, _sfVersion);
     }
 
-    function deployReaction(string memory reactionTokenName, string memory reactionTokenSymbol, string memory tokenMetadataURI) external returns (address){
+    function deployReaction(string memory reactionTokenName, string memory reactionTokenSymbol, string memory tokenMetadataURI, address stakingTokenAddress) external returns (address){
         ReactionToken reactionContract = new ReactionToken(
             address(this),
             _sfHost, 
-            _sfCfa, 
+            _sfCfa,
+            stakingTokenAddress,
             reactionTokenName, 
             reactionTokenSymbol,
             tokenMetadataURI
@@ -67,7 +68,7 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
 
         address reactionContractAddr = address(reactionContract);
 
-        emit ReactionDeployed(_msgSender(), reactionContractAddr, reactionTokenName, reactionTokenSymbol, tokenMetadataURI);
+        emit ReactionDeployed(_msgSender(), reactionContractAddr, reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
 
         return reactionContractAddr;
     }
