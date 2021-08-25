@@ -159,7 +159,8 @@ export function Creator() {
 
   useEffect(() => {
     (async function iife() {
-      const signer = context.library!.getSigner()
+      if(!context.library) return;
+      const signer = context.library.getSigner()
       const userAddress = await signer.getAddress();
 
       const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
