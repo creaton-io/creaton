@@ -37,7 +37,8 @@ const config: HardhatUserConfig = {
     enabled: false, //set to false for faster compile times!
     currency: 'CAD',
     gasPrice: 44,
-    coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6'
+    coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6',
+    showTimeSpent: true
   },
   solidity: {
     compilers: [

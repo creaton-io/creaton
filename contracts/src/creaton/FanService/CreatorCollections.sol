@@ -115,8 +115,8 @@ contract CreatorCollections is Ownable, Pausable {
      * @param artist the address of the artist.
      */
     function setArtist(uint256 pool, address artist) public onlyOwnerOrArtist(pool) {
-        uint256 amount = pendingWithdrawals[artist];
-        pendingWithdrawals[artist] = 0;
+        uint256 amount = pendingWithdrawals[pool.artist];
+        pendingWithdrawals[pool.artist] = 0;
         pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
         pools[pool].artist = artist;
 

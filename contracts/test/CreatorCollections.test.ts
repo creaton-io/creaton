@@ -200,8 +200,8 @@ describe('Checking Payment to artist works correctly', function(){
         await CollectibleContract.transferMinter(CollectionsContract.address);
     });
     it('1 fulfilled purchase', async function(){
-        let startingArtistBalance = testingTokenContract.balanceOf(artistAccount.address);
-        let startingFanBalance = testingTokenContract.balanceOf(fanAccount.address);
+        let startingArtistBalance = await testingTokenContract.balanceOf(artistAccount.address);
+        let startingFanBalance = await testingTokenContract.balanceOf(fanAccount.address);
         const poolId = await CollectionsContract.connect(artistAccount).createPool(3, Math.floor(Date.now() / 1000), "My first collection");
         let cardID = await CollectionsContract.connect(artistAccount).createCard(3, 5, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
@@ -212,10 +212,12 @@ describe('Checking Payment to artist works correctly', function(){
         await CollectibleContract.connect(fanAccount).setRequestData(1068, "hello world");
         await CollectionsContract.connect(artistAccount).setFanCollectibleData(3, 1068, "0xabcdef");
 
+        //testing that artists get their money
         await CollectionsContract.connect(artistAccount).withdrawFee();
+        expect(await testingTokenContract.balanceOf(artistAccount.address)).to.equal(startingArtistBalance.add(ethers.utils.parseEther("0.98")));
 
-        expect(await testingTokenContract.balanceOf(artistAccount.address) > startingArtistBalance);
-        // expect(await testingTokenContract.balanceOf(artistAccount.address) > startingArtistBalance);
-
+        //check the ownerAccount balance is .2 testing tokens more than starting balance
+        await CollectionsContract.connect(OwnerAccount).getCreatonCut(OwnerAccount.address);
+        expect(await testingTokenContract.balanceOf(OwnerAccount.address)).to.equal(ethers.utils.parseEther("0.02"));
     });
 });
