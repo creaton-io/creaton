@@ -10,6 +10,7 @@ contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
     uint256 private creatonBalance;
     uint256 constant CREATON_PERCENTAGE = 2;
+    uint256 constant ARTIST_PERCENTAGE = 100 - CREATON_PERCENTAGE;
 
     address private newerVersionOfContract; // if this is anything but 0, then there is a newer contract, with, hopefully all of the same data.
     IERC20 public token; // set to the address of USDC, probably, we don't check...
@@ -115,8 +116,8 @@ contract CreatorCollections is Ownable, Pausable {
      * @param artist the address of the artist.
      */
     function setArtist(uint256 pool, address artist) public onlyOwnerOrArtist(pool) {
-        uint256 amount = pendingWithdrawals[pool.artist];
-        pendingWithdrawals[pool.artist] = 0;
+        uint256 amount = pendingWithdrawals[pools[pool].artist];
+        pendingWithdrawals[pools[pool].artist] = 0;
         pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
         pools[pool].artist = artist;
 
@@ -208,7 +209,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     function withdrawFee() public {
-        uint256 amount = pendingWithdrawals[_msgSender()].mul(100 - CREATON_PERCENTAGE).div(100);
+        uint256 amount = pendingWithdrawals[_msgSender()].mul(ARTIST_PERCENTAGE).div(100);
         require(amount > 0, "nothing to withdraw");
         creatonBalance = creatonBalance.add(pendingWithdrawals[_msgSender()].mul(CREATON_PERCENTAGE).div(100));
         pendingWithdrawals[_msgSender()] = 0;

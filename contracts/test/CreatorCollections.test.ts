@@ -202,10 +202,10 @@ describe('Checking Payment to artist works correctly', function(){
     it('1 fulfilled purchase', async function(){
         let startingArtistBalance = await testingTokenContract.balanceOf(artistAccount.address);
         let startingFanBalance = await testingTokenContract.balanceOf(fanAccount.address);
-        const poolId = await CollectionsContract.connect(artistAccount).createPool(3, Math.floor(Date.now() / 1000), "My first collection");
-        let cardID = await CollectionsContract.connect(artistAccount).createCard(3, 5, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
+        await CollectionsContract.connect(artistAccount).createPool(3, Math.floor(Date.now() / 1000), "My first collection");
+        await CollectionsContract.connect(artistAccount).createCard(3, 5, ethers.utils.parseEther("1"), Math.floor(Date.now() / 1000));
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        let purchaseData = await CollectionsContract.connect(fanAccount).purchase(3, 0);
+        await CollectionsContract.connect(fanAccount).purchase(3, 0);
         expect(await testingTokenContract.balanceOf(fanAccount.address) < startingFanBalance);
         expect(await testingTokenContract.balanceOf(artistAccount.address) == startingArtistBalance);
         //1068 *should* be gotten by the Graph API, but instead it is hardcoded to whatever the ID would be after running this code.
