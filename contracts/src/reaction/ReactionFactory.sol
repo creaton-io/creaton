@@ -55,7 +55,7 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
         emit Initialized(_sfHost, _sfCfa, _sfSuperTokenFactory, _sfResolver, _sfVersion);
     }
 
-    function deployReaction(string memory reactionTokenName, string memory reactionTokenSymbol, string memory tokenMetadataURI, address stakingTokenAddress) external returns (address){
+    function deployReaction(string memory reactionTokenName, string memory reactionTokenSymbol, string memory tokenMetadataURI, address stakingTokenAddress, uint8 monthDistributionPercentage) external returns (address){
         ReactionToken reactionContract = new ReactionToken(
             address(this),
             _sfHost, 
@@ -63,7 +63,8 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
             stakingTokenAddress,
             reactionTokenName, 
             reactionTokenSymbol,
-            tokenMetadataURI
+            tokenMetadataURI,
+            monthDistributionPercentage
         );
 
         address reactionContractAddr = address(reactionContract);
@@ -109,10 +110,10 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
         }
     }
 
-    function getStakedFlow(address user, address token) public returns (address){
+    function getStakedFlow(address user, address token, uint8 monthDistributionPercentage) public returns (address){
         address stakedFlow = _stakedFlows[user][token];
         if(stakedFlow == address(0)){
-            stakedFlow = address(new StakedFlow(address(this), _sfHost, _sfCfa));
+            stakedFlow = address(new StakedFlow(address(this), _sfHost, _sfCfa, monthDistributionPercentage));
             _stakedFlows[user][token] = stakedFlow;
         }
 

@@ -12,7 +12,7 @@ export const Governance: FC = () => {
 
     const [createAmount, setCreateAmount] = useState<number>(0)
     const [sgtAmount, setSgtAmount] = useState<number>(0)
-    const [sgtSymbol, setSgtSymbol] = useState<string>('')
+    const [sgtSymbol, setSgtSymbol] = useState<string>('GOV')
     const [submitting, setSubmitting] = useState<boolean>(false)
 
     async function handleSubmit(e) {
@@ -65,9 +65,9 @@ export const Governance: FC = () => {
 
     return (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10 text-white">
-            <h3 className="text-5xl pt-12 pb-6 text-white">Mint $CREATE governance token</h3>
+            <h3 className="text-5xl pt-12 pb-6 text-white">Mint $GOV governance token</h3>
             
-            <div className="p-5 text-white">
+            {/* <div className="p-5 text-white">
                 <div className="mb-4">
                     <div className="flex items-center mb-1">
                         <label className="block font-semibold mr-1.5">Token:</label>
@@ -77,7 +77,7 @@ export const Governance: FC = () => {
                         <option value="DEV">Development</option>
                     </select>
                 </div>
-            </div>
+            </div> */}
 
             <div className="p-5 text-white">
                 <Input onChange={(e) => handleInputChange(e)} className="bg-gray-900 text-white" type="text" name="amount" placeholder="Amount" label="Enter the amount"/>

@@ -27,6 +27,7 @@ contract ReactionToken is Context, ERC20 {
     address private _sfCfa; // the stored constant flow agreement class address
 
     address private _stakingTokenAddress; // If 0x, all tokens will be accepted to stake
+    uint8 private _monthDistributionPercentage; // Monthly percentage to be returned (0-100)
 
     string internal _tokenMetadataURI; // Metadata url
 
@@ -39,18 +40,21 @@ contract ReactionToken is Context, ERC20 {
         address stakingTokenAddress,
         string memory reactionTokenName, 
         string memory reactionTokenSymbol,
-        string memory tokenMetadataURI
+        string memory tokenMetadataURI,
+        uint8 monthDistributionPercentage
     ) ERC20(reactionTokenName, reactionTokenSymbol) {
         require(address(reactionFactory) != address(0), "ReactionToken: Reaction Factory can't be 0x");
         require(address(sfHost) != address(0), "ReactionToken: Host Address can't be 0x");
         require(address(sfCfa) != address(0), "ReactionToken: CFA Address can't be 0x");
+        require(monthDistributionPercentage < 101, "ReactionToken: monthDistributionPercentage must be between 0 and 100");
+        require(monthDistributionPercentage > 0, "ReactionToken: monthDistributionPercentage must be between 0 and 100");
 
         _reactionFactory = ReactionFactory(reactionFactory);
         _sfHost = sfHost;
         _sfCfa = sfCfa;
 
         _stakingTokenAddress = stakingTokenAddress;
-
+        _monthDistributionPercentage = monthDistributionPercentage;
         _tokenMetadataURI = tokenMetadataURI;
     }
 
@@ -64,7 +68,7 @@ contract ReactionToken is Context, ERC20 {
         }
 
         // Stake everything to the StakedFlow
-        StakedFlow stakedFlow = StakedFlow(_reactionFactory.getStakedFlow(_msgSender(), stakingTokenAddress));
+        StakedFlow stakedFlow = StakedFlow(_reactionFactory.getStakedFlow(_msgSender(), stakingTokenAddress, _monthDistributionPercentage));
 
         IERC20(stakingTokenAddress).transferFrom(_msgSender(), address(stakedFlow), amount);
         emit Staked(_msgSender(), amount, stakingTokenAddress);

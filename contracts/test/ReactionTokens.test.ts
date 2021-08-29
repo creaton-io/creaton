@@ -67,7 +67,8 @@ describe("Reaction Tokens", function () {
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
         const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        const monthDistributionPercentage: number = 100;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress, monthDistributionPercentage);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
         
@@ -116,7 +117,8 @@ describe("Reaction Tokens", function () {
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
         const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        const monthDistributionPercentage: number = 100;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress, monthDistributionPercentage);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -206,7 +208,8 @@ describe("Reaction Tokens", function () {
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
         const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        const monthDistributionPercentage: number = 100;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress, monthDistributionPercentage);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -260,7 +263,8 @@ describe("Reaction Tokens", function () {
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
         const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        const monthDistributionPercentage: number = 100;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress, monthDistributionPercentage);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -289,7 +293,7 @@ describe("Reaction Tokens", function () {
         );
     });
 
-    it("Should restrict staking to specific token", async function () {
+    it("Should restrict staking and setup flowRate to specific token", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
         const reactionFactoryContract: Contract = await contractFactory.deploy();
@@ -305,7 +309,8 @@ describe("Reaction Tokens", function () {
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
         const stakingTokenAddress: string = diffErc20Contract.address;
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        const monthDistributionPercentage: number = 25;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress, monthDistributionPercentage);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
@@ -326,8 +331,14 @@ describe("Reaction Tokens", function () {
             .to.emit(diffErc20Contract, "Approval");
 
         // Staking
-        await expect(reactionTokenContract.stakeAndMint(stakingAmount, diffErc20Contract.address, erc721Contract.address, tokenId))
-            .to.emit(reactionTokenContract, "Staked");
+        tx = await reactionTokenContract.stakeAndMint(stakingAmount, diffErc20Contract.address, erc721Contract.address, tokenId);
+        receipt = await tx.wait();
+        let flowReceipt = receipt.events?.filter((x: any) => {return x.event == "Flowed"})[0];
+        const superTokenAddress = flowReceipt.args.stakingSuperTokenAddress;
+        const superTokenContract = await ethers.getContractAt("@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol:ISuperToken", superTokenAddress);
+
+        await timeTravel(3600*24*30); // ABOUT A MONTH LATER ... 🐙    
+        expect(+(await superTokenContract.balanceOf(owner.address)).toString()).to.be.closeTo(+stakingAmount.div(4).toString(), +ethers.utils.parseEther("1").toString());
     });
 
     it("Reaction recipient could be any address", async function () {
@@ -343,7 +354,8 @@ describe("Reaction Tokens", function () {
         const reactionTokenName: string = 'Like';
         const reactionTokenSymbol: string = 'LIKE';
         const stakingTokenAddress: string = '0x0000000000000000000000000000000000000000';
-        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress);
+        const monthDistributionPercentage: number = 100;
+        let tx = await reactionFactoryContract.deployReaction(reactionTokenName, reactionTokenSymbol, tokenMetadataURI, stakingTokenAddress, monthDistributionPercentage);
         let receipt = await tx.wait();
         receipt = receipt.events?.filter((x: any) => {return x.event == "ReactionDeployed"})[0];
 
