@@ -24,18 +24,24 @@ contract StakedFlow is Context {
 
     ReactionFactory internal _reactionFactory;
 
+    uint8 internal _monthDistributionPercentage;
+
     constructor(
         address reactionFactory,
         address host, 
-        address cfa
+        address cfa,
+        uint8 monthDistributionPercentage
     ) {
         require(address(reactionFactory) != address(0), "StakedFlow: Reaction Factory can't be 0x");
         require(address(host) != address(0), "StakedFlow: Host Address can't be 0x");
         require(address(cfa) != address(0), "StakedFlow: CFA Address can't be 0x");
+        require(monthDistributionPercentage < 101, "StakedFlow: monthDistributionPercentage must be between 0 and 100");
+        require(monthDistributionPercentage > 0, "StakedFlow: monthDistributionPercentage must be between 0 and 100");
 
         _reactionFactory = ReactionFactory(reactionFactory);
         _host = ISuperfluid(host);
         _cfa =  IConstantFlowAgreementV1(cfa);
+        _monthDistributionPercentage = monthDistributionPercentage;
     }
 
     function flow(uint256 amount, address stakingTokenAddress, address recipient) public returns (address){
@@ -63,7 +69,7 @@ contract StakedFlow is Context {
         // Calculate the flow rate
         uint256 secondsInAMonth = 2592000;
         uint256 balance = ISuperToken(stakingSuperToken).balanceOf(address(this));
-        uint256 flowRate = balance/secondsInAMonth; // return the whole stake in one month
+        uint256 flowRate = (balance*_monthDistributionPercentage)/(secondsInAMonth*100);
 
         // Create/Uodate CFA
         (, int96 outFlowRate,,) = _cfa.getFlow(ISuperToken(stakingSuperToken), address(this), recipient);

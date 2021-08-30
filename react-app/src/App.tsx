@@ -38,6 +38,7 @@ import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
 import Loader from "./elements/loader";
 import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
 import { Flows } from './Flows';
+import { Governance } from './Governance';
 import { Contract, ethers } from 'ethers';
 
 initFontAwesome()
@@ -507,6 +508,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/flows">
                                   <Flows />
+                                </Route>
+                                <Route path="/governance">
+                                  <Governance />
                                 </Route>
                               </Switch>
                             </div>

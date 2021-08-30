@@ -3015,6 +3015,12 @@
             "internalType": "string",
             "name": "tokenMetadataURI",
             "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "stakingTokenAddress",
+            "type": "address"
           }
         ],
         "name": "ReactionDeployed",
@@ -3068,6 +3074,11 @@
             "internalType": "string",
             "name": "tokenMetadataURI",
             "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "stakingTokenAddress",
+            "type": "address"
           }
         ],
         "name": "deployReaction",
@@ -3227,7 +3238,7 @@
         "type": "function"
       }
     ],
-    "address": "0x67b7184DbE8791EBC4dcD43fd9F51AaD4F14a79d"
+    "address": ""
   },
   "ReactionToken": {
     "abi": [
@@ -3246,6 +3257,11 @@
           {
             "internalType": "address",
             "name": "sfCfa",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "stakingTokenAddress",
             "type": "address"
           },
           {
@@ -3341,7 +3357,7 @@
           {
             "indexed": false,
             "internalType": "address",
-            "name": "nftAddress",
+            "name": "reactionRecipientAddress",
             "type": "address"
           },
           {
@@ -3534,6 +3550,19 @@
       },
       {
         "inputs": [],
+        "name": "getStakingTokenAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
         "name": "getTokenMetadataURI",
         "outputs": [
           {
@@ -3596,7 +3625,7 @@
           },
           {
             "internalType": "address",
-            "name": "nftAddress",
+            "name": "reactionRecipientAddress",
             "type": "address"
           },
           {
