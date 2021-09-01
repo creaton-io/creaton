@@ -54,17 +54,17 @@ export interface EncryptedObject {
 
 
 export class TextileStore {
-  private identity: PrivateKey;
+  private identity!: PrivateKey;
   private keyInfo: KeyInfo;
-  private user: Users;
-  private client: Client;
+  private user!: Users;
+  private client!: Client;
   private keyInfoOptions: WithKeyInfoOptions;
-  private bucketInfo: {
+  private bucketInfo!: {
     bucket: Buckets;
     bucketKey: string;
     privBucketKey: string;
   };
-  private threadID: ThreadID;
+  private threadID!: ThreadID;
   private ipfsGateway = 'https://hub.textile.io';
 
   constructor() {
@@ -100,7 +100,7 @@ export class TextileStore {
         const identityString = identity.toString();
         localStorage.setItem('identity-creaton', identityString);
         return identity;
-      } catch (err) {
+      } catch (err: any) {
         return err.message;
       }
     }

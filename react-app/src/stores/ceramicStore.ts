@@ -26,7 +26,7 @@ interface SecretNotes {
 }
 
 export class CeramicStore {
-  authProvider: AuthProvider
+  authProvider!: AuthProvider
 
   async authenticate(): Promise<string> {
     const [ceramic, provider] = await Promise.all([createCeramic(), getProvider()])

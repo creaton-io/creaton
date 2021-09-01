@@ -1,5 +1,5 @@
 import production_contracts from "./contracts-production.json";
-import development_contracts from "./contracts.json";
+import development_contracts from "./contracts-mumbai.json";
 
 let creaton_contracts
 if (process.env.NODE_ENV === 'development') {

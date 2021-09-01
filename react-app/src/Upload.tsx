@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from "react";
-import {useWeb3React} from "@web3-react/core";
+import {useWeb3React} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator} from "./Utils";
 import {Contract} from "ethers";
@@ -19,6 +19,7 @@ import {Web3UtilsContext} from "./Web3Utils";
 import {Icon} from "./icons";
 import Tooltip from "./elements/tooltip";
 import {useCanBecomeCreator} from "./Whitelist";
+import LitJsSdk from 'lit-js-sdk'
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -59,7 +60,6 @@ const Upload = () => {
   if (!canBecomeCreator)
     return (<div>Not allowed, you are not whitelisted</div>)
   if (loading) return (<p>Loading...</p>);
-  if (error) return (<p>Error :(</p>);
   if (currentCreator === undefined)
     return (<SignUp/>)
   if (!umbralWasm)
@@ -68,29 +68,48 @@ const Upload = () => {
 
   async function upload(bytes: Uint8Array, file_type: string) {
     let response
-    if (uploadEncrypted) {
-      const umbral = new UmbralCreator(umbralWasm, currentCreator!.creatorContract)
-      await umbral.initMasterkey(context.library!.getSigner(context.account!), currentCreator!.creatorContract, true)
-      let encryptedObject;
+    if (uploadEncrypted && currentCreator !== undefined) {
       web3utils.setIsWaiting('Encrypting the file...')
+      let zipBlobFile = bytes;
       try {
-        encryptedObject = umbral.encrypt(bytes)
-      } catch (error) {
+        var litNode = await new LitJsSdk.LitNodeClient()
+        await litNode.connect();
+        const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+        const subConditions = [
+          {
+            contractAddress: currentCreator.creatorContract,
+            standardContractType: 'Creaton',
+            chain: "mumbai",
+            method: 'subscribers',
+            parameters: [
+              ':userAddress',
+            ],
+            returnValueTest: {
+              comparator: '=',
+              value: 'true'
+            }
+          }
+        ]
+        const { zipBlob, encryptedSymmetricKey } = LitJsSdk.encryptFileAndZipWithMetadata({authSig: authSig, accessControlConditions: subConditions, chain: "mumbai", file: bytes, litNodeClient: litNode, readme: "This is a Creaton encrypted file"});
+        zipBlobFile = zipBlob;
+      } catch (error: any) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'})
         web3utils.setIsWaiting(false)
         return;
       }
-      encryptedObject['type'] = file_type
-      console.log(encryptedObject)
+      //zipBlobFile['type'] = file_type
+      console.log(zipBlobFile)
       web3utils.setIsWaiting('Uploading encrypted content to arweave...');
       const formData = new FormData();
-      formData.append("file", new Blob([JSON.stringify(encryptedObject)], {
+      formData.append("file", new Blob([JSON.stringify(zipBlobFile)], {
         type: "application/json"
       }));
       response = await fetch(ARWEAVE_URI + '/upload', {
         method: 'POST',
         body: formData
       })
+
+
     } else {
       web3utils.setIsWaiting('Uploading content to arweave...')
       const formData = new FormData();
@@ -132,7 +151,7 @@ const Upload = () => {
           if (uploadEncrypted)
             tier = 1
           receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
-        } catch (error) {
+        } catch (error: any) {
           notificationHandler.setNotification({
             description: 'Could not upload the content to your contract' + error.message,
             type: 'error'

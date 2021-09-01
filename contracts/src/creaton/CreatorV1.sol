@@ -36,12 +36,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // Structures
     // -----------------------------------------
 
-    enum Status {unSubscribed, requestSubscribe, pendingSubscribe, pendingUnsubscribe, subscribed}
-    enum Approval {neutral, like, dislike}
+    enum Status {unSubscribed, subscribed}
     enum Type {free, encrypted}
 
-    event SubscriberEvent(address user, string pubKey, Status status);
-    event Like(address user, uint256 tokenId, Approval approval);
+    event SubscriberEvent(address user, Status status);
     event NewPost(uint256 tokenId, string jsonData, Type contentType);
     event PostContract(address nftContract);
 
@@ -124,70 +122,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function changeStatus(address _address, Status status) private {
         subscribers[_address].status = status;
-        emit SubscriberEvent(_address, "", status);
-    }
-
-    // TODO require subscriber is not subscribes already (sth like that)
-    function requestSubscribe(string memory _pubKey) public {
-        address _address = _msgSender();
-        require(adminContract.registeredUsers(_address), "You need to signup in Creaton first");
-        require(subscribers[_address].status == Status.unSubscribed, "Subscription Already Requested");
-        subscribers[_address] = Subscriber(Status.requestSubscribe);
-        emit SubscriberEvent(_address, _pubKey, Status.requestSubscribe);
-    }
-
-    function revokeSubscribe() external onlyCreator {
-        address _address = _msgSender();
-        require(
-            subscribers[_address].status == Status.requestSubscribe ||
-                subscribers[_address].status == Status.pendingSubscribe,
-            "No Subscription Request to Revoke"
-        );
-        changeStatus(_address, Status.unSubscribed);
-        delete subscribers[_address];
-    }
-
-    function acceptSubscribe(address _address) external onlyCreator {
-        require(subscribers[_address].status == Status.requestSubscribe, "No subscription requested");
-        changeStatus(_address, Status.pendingSubscribe);
-    }
-
-    function blockSubscription(address _address) external onlyCreator {
-        require(subscribers[_address].status != Status.unSubscribed, "Can't Block Unsubscribed Users");
-        changeStatus(_address, Status.unSubscribed);
-        delete subscribers[_address];
-    }
-
-    function bulkAcceptSubscribe(address[] memory _addresses) external onlyCreator {
-        for (uint256 i = 0; i < _addresses.length; i++) {
-            require(subscribers[_addresses[i]].status == Status.requestSubscribe, "No Subscription Requested");
-            changeStatus(_addresses[i], Status.pendingSubscribe);
-        }
-    }
-
-    function bulkBlockSubscription(address[] memory _addresses) external onlyCreator {
-        for (uint256 i = 0; i < _addresses.length; i++) {
-            require(subscribers[_addresses[i]].status != Status.unSubscribed, "Can't Block Unsubscribed Users");
-            changeStatus(_addresses[i], Status.unSubscribed);
-            delete subscribers[_addresses[i]];
-        }
+        emit SubscriberEvent(_address, status);
     }
 
     function getSubscriberCount() public view returns (uint256) {
         return subscriberCount;
-    }
-
-    function like(uint256 _tokenId, uint256 approvalEnum) public {
-        require(postNFT != address(0));
-        require(Post(postNFT).exists(_tokenId));
-        address subAddress = _msgSender();
-        require(adminContract.registeredUsers(subAddress), "You need to signup before liking content");
-        if (post2tier[_tokenId] == Type.encrypted) {
-            require(subscribers[subAddress].status == Status.subscribed, "Not subscribed");
-        }
-        require(approvalEnum < 3 && approvalEnum >= 0, "Invalid approval enum");
-        Approval approval = Approval(approvalEnum);
-        emit Like(subAddress, _tokenId, approval);
     }
 
     function createPostNFT(string memory name, string memory symbol) internal {
@@ -328,7 +267,6 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
         ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
-        require(subscribers[context.msgSender].status == Status.pendingSubscribe, "Subscription not Granted");
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());

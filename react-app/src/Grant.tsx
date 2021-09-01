@@ -1,6 +1,6 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
-import {useWeb3React} from "@web3-react/core";
+import {useWeb3React} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useContext, useState} from "react";
 import {Creator, useCurrentCreator} from "./Utils";
@@ -23,7 +23,6 @@ const SUBSCRIBERS_QUERY = gql`
       query GET_SUBSCRIBERS($user: Bytes!) {
       subscribers(where: { creatorContract: $user }) {
         user
-        pub_key
         status
         profile {
           data
@@ -161,7 +160,7 @@ const Grant = () => {
   }
 
   async function revoke_all() {
-    setGrantStatus({status: 'pending', message: 'Reovking all pending unsubscribers, please wait'})
+    setGrantStatus({status: 'pending', message: 'Revoking all pending unsubscribers, please wait'})
     const umbral = await getUmbral()
     let users: any = []
     for (let subscriber of data.subscribers) {
@@ -212,8 +211,6 @@ const Grant = () => {
   })
 
   const tabs = [
-    {name: 'Requested', count: requested_subscribers.length},
-    {name: 'Pending', count: pending_subscribers.length},
     {name: 'Subscribed', count: subscribed_subscribers.length},
   ]
   const checkedCount = Array.from(checkedSubscribers.values()).filter((checked) => (checked)).length;
@@ -221,67 +218,15 @@ const Grant = () => {
 
   return (
     <div className="w-3/4 sm:w-1/2 pt-8 m-auto grid grid-cols-1 place-items-start text-white">
-      <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab}/>
-      {activeTab === 'Pending' &&
-      (<div>
-        <h3 className="text-md text-white pb-4">You have granted access to these profiles, but they haven't started their subscriptions
-          yet.</h3>
-        {pending_subscribers.map((subscriber) => (
-          <div key={subscriber.user} className="flex flex-row place-items-center m-2">
-            <Avatar size="medium"
-                    src={JSON.parse(subscriber.profile.data).image}/>
-            <span className="font-bold ml-2 text-white">{JSON.parse(subscriber.profile.data).username}</span>
-          </div>))}
-      </div>)
-      }
-      {activeTab === 'Subscribed' &&
-      (<div><h3 className="text-md text-white pb-4">These profiles are streaming money to you right now!</h3>
+
+      <div><h3 className="text-md text-white pb-4">{subscribed_subscribers.length !== 0 ? "These profiles are streaming money to you right now!" : "No one is subscribed to you yet, but don't worry, soon!"}</h3>
         {subscribed_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center m-2">
             <Avatar size="medium"
                     src={JSON.parse(subscriber.profile.data).image}/>
             <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
-          </div>))}</div>)
-      }
-      {activeTab === 'Requested' && (<div className="w-full">{grantStatus.message && <h3>{grantStatus.message}</h3>}
-        {data.subscribers.some((subscriber) => (subscriber.status === 'pending_unsubscribe')) && (
-          <Button onClick={() => {
-            revoke_all()
-          }} label="Revoke all pending_unsubscribe"/>)}
+          </div>))}</div>
 
-        {requested_subscribers.length === 0 && (<div>
-          <h3 className="text-white pb-4">You have no subscription requests at the moment</h3>
-        </div>)}
-
-        {requested_subscribers.length > 0 && (<div>
-          <h3 className="text-white pb-4">Check the profiles you want to grant access</h3>
-          {requested_subscribers.map((subscriber) => (
-            <div key={subscriber.user} className="flex flex-row place-items-center place-self-start m-3">
-              <Checkbox label={""} checked={checkedSubscribers.get(subscriber.user) || false} onChange={(e) => {
-                setCheckedSubscribers((new Map(checkedSubscribers)).set(subscriber.user, !(checkedSubscribers.get(subscriber.user) || false)))
-              }}/>
-              <Avatar size="medium" src={JSON.parse(subscriber.profile.data).image}/> <span
-              className="ml-2 text-white">{JSON.parse(subscriber.profile.data).username}</span>
-            </div>))}
-          <div className="flex flex-row justify-center">
-            <div className="w-1/2 md:w-1/3 m-4">
-              <Button onClick={() => {
-                const allChecked = new Map<string, boolean>();
-                requested_subscribers.map((subscriber) => {
-                  allChecked.set(subscriber.user, true)
-                });
-                setCheckedSubscribers(allChecked)
-              }} label={"Check all profiles"}/>
-            </div>
-            <div className="w-1/2 md:w-1/3 m-4">
-              <Button disabled={checkedCount === 0} onClick={() => {
-                grantChecked()
-              }} label={"Grant " + checkedCount + " subscribers"}/>
-            </div>
-          </div>
-        </div>)}
-
-      </div>)}
     </div>
   );
 };

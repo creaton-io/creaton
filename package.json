@@ -28,7 +28,7 @@
     "// GOERLI : deploy to goerli": "",
     "goerli:contracts": "dotenv -e .env.goerli -e .env -- npm --prefix contracts run goerli:deploy",
     "// Mumbai : deploy to goerli": "",
-    "mumbai:contracts": "dotenv -e .env.mumbai -e .env -- npm --prefix contracts run mumbai:deploy",
+    "mumbai:contracts": "dotenv -e .env.staging -- npm --prefix contracts run mumbai:deploy",
     "matic:contracts": "dotenv -e .env -- npm --prefix contracts run matic:deploy"
   }
 }

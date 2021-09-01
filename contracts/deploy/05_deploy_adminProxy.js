@@ -9,7 +9,7 @@ const func = async function (hre) {
   const sf = new SuperfluidSDK.Framework({
     ethers: ethers.provider,
     version: 'v1',
-    tokens: ['USDC'],
+    tokens: ['fUSDC'],
   });
   await sf.initialize();
 

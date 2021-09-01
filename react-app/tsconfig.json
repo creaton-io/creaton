@@ -17,12 +17,15 @@
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "noImplicitAny": false,
-    "strictPropertyInitialization": false,
+    "strictPropertyInitialization": true,
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx"
   },
   "include": [
     "src"
+  ],
+  "exclude": [
+    "src/web3-react/*"
   ]
 }

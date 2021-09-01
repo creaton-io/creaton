@@ -3,7 +3,7 @@ import React, {useContext, useEffect, useState} from "react";
 import {Input} from "./elements/input";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
-import {useWeb3React} from "@web3-react/core";
+import {useWeb3React} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
 import {CeramicStore} from "./stores/ceramicStore";
@@ -112,7 +112,7 @@ const ProfileEdit = (props) => {
     let result
     try {
       result = await connectedContract.updateProfile(JSON.stringify(payload))
-    } catch (error) {
+    } catch (error: any) {
       notificationHandler.setNotification({
         description: 'Could not create your profile' + error.message,
         type: 'error'

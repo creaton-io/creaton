@@ -1,6 +1,6 @@
 import {useHistory, useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
-import {useWeb3React} from "@web3-react/core";
+import {useWeb3React} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {gql, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
@@ -362,7 +362,7 @@ export function Creator() {
       let receipt = await creatorContract.like(content.tokenId, status);
       await receipt.wait(1)
       console.log("like value is set to "+status)
-    } catch (error) {
+    } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
     }
     //even if the user can't like, we refresh things like new posts, and the like counter
@@ -392,7 +392,7 @@ export function Creator() {
         description: 'Content reported. Thanks for contributing to the platform :)',
         type: 'success'
       });
-    } catch (error) {
+    } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not report content' + error.message, type: 'error'});
     }
   }

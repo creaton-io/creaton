@@ -9,7 +9,7 @@ import './App.css';
 import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
 import Home from './Home';
 import WalletConnect from "./WalletConnect";
-import {useWeb3React, Web3ReactProvider} from "@web3-react/core";
+import {useWeb3React, Web3ReactProvider} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import Upload from "./Upload";
 import {formatEther} from "@ethersproject/units";
@@ -28,7 +28,7 @@ import {Button} from "./elements/button";
 import creaton_contracts from "./Contracts";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
-import {InjectedConnector} from "@web3-react/injected-connector";
+import {InjectedConnector} from "./web3-react/injected-connector";
 import {APOLLO_URI} from "./Config";
 import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
@@ -37,6 +37,7 @@ import {Toggle} from "./elements/toggle";
 import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
 import Loader from "./elements/loader";
 import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
+import WalletModal from "./components/walletModal";
 
 initFontAwesome()
 
@@ -89,7 +90,9 @@ function ConnectOrSignup(props) {
   if (active)
     return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
   else
-    return (<div><Button label="Connect Wallet" theme="secondary" onClick={web3utils.connect}></Button></div>)
+    return (<div>
+      <WalletModal></WalletModal>
+    </div>)
 }
 
 const Autoconnect = () => {
@@ -98,7 +101,7 @@ const Autoconnect = () => {
   useEffect(() => {
     async function connectWalletIfAvailable() {
       if (!active && ((await injected.getProvider()).selectedAddress))
-        activate(injected)
+        activate(injected);
     }
 
     connectWalletIfAvailable()

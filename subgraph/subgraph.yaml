@@ -1,12 +1,12 @@
-specVersion: 0.0.2
+specVersion: 0.0.3
 schema:
   file: ./schema.graphql
 dataSources:
   - kind: ethereum/contract
     name: CreatonAdmin
-    network: matic
+    network: mumbai
     source:
-      address: "0xEA5F6A57747082Ad6D9B50BcE8D7334A34bd4799" #CreatonAdminAddress Do not remove this comment
+      address: "0xD2e936712dc45c388Eb9302fb43D71923d5d3bF2" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 13489903
     mapping:
@@ -27,7 +27,7 @@ dataSources:
 templates:
   - kind: ethereum/contract
     name: Creator
-    network: matic
+    network: mumbai
     source:
       abi: Creator
     mapping:
@@ -41,7 +41,7 @@ templates:
         - name: Creator
           file: ./abis/Creator.json
       eventHandlers:
-        - event: SubscriberEvent(address,string,uint8)
+        - event: SubscriberEvent(address,uint8)
           handler: handleSubscriberEvent
         - event: NewPost(uint256,string,uint8)
           handler: handleNewPost

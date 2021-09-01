@@ -1,5 +1,5 @@
 
-import {useWeb3React} from "@web3-react/core";
+import {useWeb3React} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import * as React from "react";
 import {BigNumber, ethers} from "ethers";

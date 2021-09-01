@@ -1,5 +1,5 @@
 import React from 'react'
-import {Web3ReactProvider, useWeb3React, UnsupportedChainIdError} from '@web3-react/core'
+import {Web3ReactProvider, useWeb3React, UnsupportedChainIdError} from './web3-react/core'
 import {
   InjectedConnector,
   NoEthereumProviderError,
@@ -29,7 +29,6 @@ import {Web3Provider} from '@ethersproject/providers'
 //   torus
 // } from '../connectors'
 
-const POLLING_INTERVAL = 12000
 const RPC_URLS: { [chainId: number]: string } = {
   1: process.env.RPC_URL_1 as string,
   4: process.env.RPC_URL_4 as string
@@ -39,7 +38,7 @@ const walletconnect = new WalletConnectConnector({
   rpc: {1: RPC_URLS[1]},
   bridge: 'https://bridge.walletconnect.org',
   qrcode: true,
-  pollingInterval: POLLING_INTERVAL
+  pollingInterval: 12000
 })
 const frame = new FrameConnector({supportedChainIds: [1]})
 

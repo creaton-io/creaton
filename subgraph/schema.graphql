@@ -21,7 +21,6 @@ type Subscriber @entity {
   profile: Profile
   creatorContract: Bytes!
   user: Bytes!
-  pub_key: String!
   status: String!
 }
 

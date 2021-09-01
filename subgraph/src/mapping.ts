@@ -42,13 +42,9 @@ export function handleSubscriberEvent(event: SubscriberEvent): void {
     subscriber.user = subscriber_user;
     subscriber.creatorContract = context.getBytes('contract');
   }
-  if (event.params.pubKey.length > 0) subscriber.pub_key = event.params.pubKey;
   let status = 'undefined';
   if (event.params.status == 0) status = 'unsubscribed';
-  if (event.params.status == 1) status = 'requested_subscribe';
-  if (event.params.status == 2) status = 'pending_subscribe';
-  if (event.params.status == 3) status = 'pending_unsubscribe';
-  if (event.params.status == 4) status = 'subscribed';
+  if (event.params.status == 1) status = 'subscribed';
   subscriber.status = status;
   let profile = Profile.load(subscriber_user.toHex());
   if (profile) {
@@ -62,7 +58,7 @@ export function handleNewPost(event: NewPost): void {
   let creator_id = context.getString('user');
   let creator_contract = context.getBytes('contract');
   let tokenId = event.params.tokenId;
-  let id = creator_contract.toHex() + "-" + tokenId.toString()
+  let id = creator_contract.toHex() + '-' + tokenId.toString();
   let json_str = event.params.jsonData;
   let data: Bytes = <Bytes>Bytes.fromUTF8(json_str);
   let metadata = json.fromBytes(data).toObject();
@@ -99,8 +95,8 @@ export function handleLike(event: LikeEvent): void {
   let tokenId = event.params.tokenId;
   let user = event.params.user;
   let approval = event.params.approval;
-  let content_id = creator_contract.toHex() + "-" + tokenId.toString();
-  let like_id = content_id + "-" + user.toHex();
+  let content_id = creator_contract.toHex() + '-' + tokenId.toString();
+  let like_id = content_id + '-' + user.toHex();
   let like = Like.load(like_id);
   if (!like) {
     like = new Like(like_id);

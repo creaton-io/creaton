@@ -11,6 +11,45 @@ import os
 def run_command(command):
     os.system(command)
 
+def update_contracts_mumbai():
+    BASE_PATH = Path('contracts/deployments')
+    #networks = list(os.listdir(BASE_PATH))
+    #network = prompt([
+    #    {
+    #        'type': 'list',
+    #        'name': 'network',
+    #        'message': 'Which network?',
+    #        'choices': networks
+    #    },
+    #])['network']
+    network = 'mumbai'
+    creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
+    creaton_admin['address'] = prompt([
+        {
+            'type': 'input',
+            'name': 'address',
+            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+        },
+    ])['address']
+    creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
+    #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
+    paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
+    #staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
+    #token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator,
+                      #'TwitterVerification': twitter,
+                      'Paymaster': paymaster
+                      #'CreatonStaking': staking,
+                      #'CreatonToken': token
+                      }
+    for name, contract in contracts_info.items():
+        if name == 'network':
+            continue
+        contracts_info[name] = {'abi': contract['abi'], 'address': contract['address']}  # remove all extra info
+    REACT_CONTRACT_PATH = Path('react-app/src/contracts-mumbai.json')
+    json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
+    print(f'Updated {REACT_CONTRACT_PATH}')
+    update_subgraph(creaton_admin, creator, network)
 
 def update_contracts():
     BASE_PATH = Path('contracts/deployments')
@@ -23,7 +62,7 @@ def update_contracts():
     #        'choices': networks
     #    },
     #])['network']
-    network = 'matic'
+    network = 'mumbai'
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
     creaton_admin['address'] = prompt([
         {
@@ -93,12 +132,12 @@ def update_subgraph(creaton_admin, creator, network):
         run_command('cd subgraph && npm run deploy-local')
 
 
-def deploy_contracts():
+def deploy_contracts_mumbai():
     run_command('npm run mumbai:contracts')
     if yesno('Update the contract addresses in subgraph and react?'):
-        return update_contracts()
+        return update_contracts_mumbai()
 
-def deploy_contracts_matic():
+def deploy_contracts():
     run_command('npm run matic:contracts')
     if yesno('Update the contract addresses in subgraph and react?'):
         return update_contracts()
@@ -116,7 +155,9 @@ def main():
                 'react-app',
                 Separator(),
                 'deploy contracts',
+                'deploy contracts mumbai testnet',
                 'update contracts',
+                'update contracts mumbai testnet',
                 'run subgraph docker',
                 'run re-encryption server',
             ]
@@ -124,10 +165,17 @@ def main():
     ]
 
     subproject = prompt(question)['subproject']
+    if subproject == 'deploy contracts mumbai testnet':
+        return deploy_contracts_mumbai()
+
     if subproject == 'deploy contracts':
-        return deploy_contracts_matic()
+        return deploy_contracts()
+
     if subproject == 'update contracts':
         return update_contracts()
+
+    if subproject == 'update contracts mumbai testnet':
+        return update_contracts_mumbai()
 
     if subproject == 'run subgraph docker':
         run_command('cd subgraph && docker-compose up')

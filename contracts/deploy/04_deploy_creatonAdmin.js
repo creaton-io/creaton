@@ -3,7 +3,6 @@ const func = async function (hre) {
   const {deployments} = hre;
   const {deploy} = deployments;
 
-  /*
   console.log('NFTFactory Deploy');
   await deploy('NFTFactory', {
     from: admin,
@@ -21,7 +20,7 @@ const func = async function (hre) {
     from: admin,
     args: [implementationContract.address],
     log: true,
-  });*/
+  });
 
   console.log('CreatorAdmin');
   await deploy('CreatonAdmin', {

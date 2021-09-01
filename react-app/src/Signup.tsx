@@ -1,7 +1,7 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
 import {Formik, Field, Form, FormikHelpers} from 'formik';
-import {useWeb3React} from "@web3-react/core";
+import {useWeb3React} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {RelayProvider} from "@opengsn/provider";
 import {Contract} from "ethers";
