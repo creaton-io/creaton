@@ -462,7 +462,7 @@ export function Creator() {
         updateContentsQuery();
         callback();
       });
-    } catch (error) {
+    } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
   }
