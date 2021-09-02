@@ -128,6 +128,8 @@ const ProfileMenu = (props) => {
   const [usdcBalance, setUsdcBalance] = useState<any>('Loading')
   const [maticBalance, setMaticBalance] = useState<any>('Loading')
   const [createBalance, setCreateBalance] = useState<any>('Loading')
+  const [wrappingUsdc, setWrappingUsdc] = useState<boolean>(false)
+  const [unwrappingUsdcx, setUnwrappingUsdcx] = useState<boolean>(false)
   const {account, library} = useWeb3React()
   useEffect(() => {
     usdcx.balanceOf(account).then(balance => {
@@ -196,27 +198,33 @@ const ProfileMenu = (props) => {
   }
 
   async function unwrapUsdcx(){
-    let tx = await usdcx.approve(usdc.address, usdcxBalance);
+    setUnwrappingUsdcx(true);
+
+    let tx =  await usdcx.downgrade(usdcxBalance);
     await tx.wait();
     
-    tx =  await usdcx.downgrade(usdcxBalance);
-    await tx.wait();
-
     setUsdcxBalance(await usdcx.balanceOf(account));
     setUsdcBalance(await usdc.balanceOf(account));
+    setUnwrappingUsdcx(false);
   }
 
-  async function wrapUsdc(){  
-    let tx = await usdc.approve(usdcx.address, usdcBalance);
-    await tx.wait();
+  async function wrapUsdc(){
+    setWrappingUsdc(true);
+
+    let tx;
+    if(await usdc.allowance(account, usdcx.address) < usdcBalance){
+      tx = await usdc.approve(usdcx.address, usdcBalance);
+      await tx.wait();
+    }
     
     tx =  await usdcx.upgrade(usdcBalance);
     await tx.wait();
-
+    
     setUsdcxBalance(await usdcx.balanceOf(account));
     setUsdcBalance(await usdc.balanceOf(account));
+    setWrappingUsdc(false);
   }
-
+  
   return (
     <div>
       <div className="px-5 mb-4">
@@ -252,7 +260,11 @@ const ProfileMenu = (props) => {
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
                 <div className="-mt-1 font-bold text-black">{formatBalance(usdcxBalance)} USDCx</div>
-                {usdcxBalance > 0 && <button onClick={unwrapUsdcx}>UnWrap</button> }
+                {!unwrappingUsdcx && usdcxBalance > 0 && <button onClick={unwrapUsdcx}>UnWrap</button> }
+                {unwrappingUsdcx && <span><svg className="inline-block animate-spin mb-1 mr-2 h-4 w-4 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>UnWrapping SuperToken...</span>}
               </div>
             </div>
             <div className="flex">
@@ -283,7 +295,11 @@ const ProfileMenu = (props) => {
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
                 <div className="-mt-1 font-bold text-black">{formatBalance(usdcBalance)} USDC</div>
-                {usdcBalance > 0 && <button onClick={wrapUsdc}>Wrap as SuperToken</button> }
+                {!wrappingUsdc && usdcBalance > 0 && <button onClick={wrapUsdc}>Wrap as SuperToken</button> }
+                {wrappingUsdc && <span><svg className="inline-block animate-spin mb-1 mr-2 h-4 w-4 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>Wrapping as SuperToken...</span>}
               </div>
             </div>
             <div className="flex">
