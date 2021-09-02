@@ -128,6 +128,7 @@ const ProfileEdit = (props) => {
 
   if (!web3Context.library)
     return (<div>Connect your wallet</div>)
+
   return (
     <form onSubmit={updateProfile} className="grid grid-cols-1 place-items-center">
 

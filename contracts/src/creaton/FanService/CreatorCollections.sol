@@ -8,19 +8,19 @@ import "./FanCollectible.sol";
 
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
-    address private newerVersionOfContract;// if this is anything but 0, then there is a newer contract, with, hopefully all of the same data.
-    IERC20 public token;// set to the address of USDC, probobly, we dont check...
-    FanCollectible public collectible;
+    uint256 private creatonBalance;
+    uint256 constant CREATON_PERCENTAGE = 2;
+    uint256 constant ARTIST_PERCENTAGE = 100 - CREATON_PERCENTAGE;
 
+    address private newerVersionOfContract; // if this is anything but 0, then there is a newer contract, with, hopefully all of the same data.
+    IERC20 public token; // set to the address of USDC, probably, we don't check...
+    FanCollectible private collectible;
 
     uint256 private _totalSupply;
-    mapping(uint256 => mapping(address => uint256)) internal _balances;
-    mapping(address => uint256) private _accountBalances;
-    mapping(uint256 => uint256) private _poolBalances;
-    mapping(address => uint256[]) private accountToPools;// this is just a nicer way of keep track of who owns what pools.
-    
-    mapping(uint256 => HoldingTokens) private heldBalances;//tokenID => quantity being held.
-    struct HoldingTokens{
+    mapping(address => uint256[]) private accountToPools; // this is just a nicer way of keep track of who owns what pools.
+
+    mapping(uint256 => HoldingTokens) private heldBalances; //tokenID => quantity being held.
+    struct HoldingTokens {
         uint256 quantityHeld;
         uint256 pool;
     }
@@ -34,9 +34,7 @@ contract CreatorCollections is Ownable, Pausable {
 
     struct Pool {
         uint256 periodStart; // When the collection launches and starts accepting staking tokens.
-        uint256 maxStake; // How many tokens you can stake max on the pool.
         uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
-        
         address artist;
         string title;
         uint256 cardsInPool;
@@ -49,7 +47,7 @@ contract CreatorCollections is Ownable, Pausable {
     uint256 public poolsCount;
 
     event UpdatedArtist(uint256 poolId, address artist);
-    event PoolAdded(uint256 poolId, address artist, uint256 periodStart, uint256 maxStake);
+    event PoolAdded(uint256 poolId, address artist, uint256 periodStart);
     event CardAdded(uint256 poolId, uint256[] cardIds, uint256 price, uint256 releaseTime);
     event Staked(address indexed user, uint256 poolId, uint256 amount);
     event Withdrawn(address indexed user, uint256 poolId, uint256 amount);
@@ -66,8 +64,11 @@ contract CreatorCollections is Ownable, Pausable {
         _;
     }
 
-    modifier onlyOwnerOrArtist(uint256 pool){
-        require(pools[pool].artist == _msgSender() || _msgSender() == owner(), "You Do Not Have Authorization To Change This");
+    modifier onlyOwnerOrArtist(uint256 pool) {
+        require(
+            pools[pool].artist == _msgSender() || _msgSender() == owner(),
+            "You Do Not Have Authorization To Change This"
+        );
         _;
     }
 
@@ -81,112 +82,48 @@ contract CreatorCollections is Ownable, Pausable {
         token = IERC20(_tokenAddress);
     }
 
-    function purchase(uint256 _poolID, uint256 _cardID) public{
-        stake(_poolID, pools[_poolID].cardsArray[_cardID].price);
-        redeem(_poolID, _cardID);
-    }
-
-    /**
-     * @dev stake tokens that are held in escro.
-     * @param pool the id of the pool to stake to.
-     * @param amount the amount of the accepted token you wish to stake.
-     */
-    function stake(uint256 pool, uint256 amount)
+    function purchase(uint256 _poolID, uint256 _cardID)
         public
-        poolExists(pool)
-        whenNotPaused()
-    {
-        Pool storage p = pools[pool];
-        require(block.timestamp >= p.periodStart, "pool not open");
-        require(amount.add(balanceOf(_msgSender(), pool)) <= p.maxStake, "stake exceeds max");
-
-        _totalSupply = _totalSupply.add(amount);
-        _poolBalances[pool] = _poolBalances[pool].add(amount);
-        _accountBalances[_msgSender()] = _accountBalances[_msgSender()].add(amount);
-        _balances[pool][_msgSender()] = _balances[pool][_msgSender()].add(amount);
-        token.transferFrom(_msgSender(), address(this), amount);
-        emit Staked(_msgSender(), pool, amount);
-    }
-
-    /**
-     * @dev withdraw an amount from the senders stake
-     * @param pool the pool you are withdrawing from
-     * @param amount the amount you are withdrawing
-     */
-    function withdraw(uint256 pool, uint256 amount) public poolExists(pool){
-        require(amount > 0, "cannot withdraw 0");
-
-        _totalSupply = _totalSupply.sub(amount);
-        _poolBalances[pool] = _poolBalances[pool].sub(amount);
-        _accountBalances[msg.sender] = _accountBalances[msg.sender].sub(amount);
-        _balances[pool][msg.sender] = _balances[pool][msg.sender].sub(amount);
-        token.transfer(msg.sender, amount);
-        emit Withdrawn(msg.sender, pool, amount);
-    }
-
-    /**
-     * @dev withdraws all from a pool
-     * @param pool the pool you are withdrawing all from
-     */
-    function exit(uint256 pool) external {
-        withdraw(pool, balanceOf(msg.sender, pool));
-    }
-
-    /**
-     * @dev redeem a FanCollectible from a pool and send it to the sender.
-     * @param pool the pool you are redeming from
-     * @param card the card from this pool you are redeeming
-     */
-    function redeem(uint256 pool, uint256 card)
-        public
-        payable
-        poolExists(pool)
-        cardExists(pool, card)
+        whenNotPaused
+        cardExists(_poolID, _cardID)
         returns (uint256)
     {
-        Pool storage p = pools[pool];
-        Card memory c = p.cardsArray[card];
+        Pool storage p = pools[_poolID];
+        Card memory c = p.cardsArray[_cardID];
+        require(block.timestamp >= p.periodStart, "pool not open");
 
-        require(block.timestamp >= c.releaseTime, "card not released");
-        require(_balances[pool][_msgSender()] >= c.price, "not enough tokens stakes");
+        require(c.idPointOfNextEmpty < c.ids.length, "Token Is Sold Out");
 
-        require(c.idPointOfNextEmpty<c.ids.length, "Token Is Sold Out");
-        
+        uint256 moreToTake = c.price;
+        _totalSupply = _totalSupply.add(moreToTake);
+
+        token.transferFrom(_msgSender(), address(this), moreToTake);
 
         p.feesCollected = p.feesCollected.add(c.price);
-    
-
-        _balances[pool][_msgSender()] = _balances[pool][_msgSender()].sub(c.price);
+        // console.log(c.ids[c.idPointOfNextEmpty]);
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
-        heldBalances[c.ids[c.idPointOfNextEmpty]].pool = pool;
+        heldBalances[c.ids[c.idPointOfNextEmpty]].pool = _poolID;
         c.idPointOfNextEmpty++;
-        emit Redeemed(_msgSender(), pool, c.price);
-
-        return c.ids[c.idPointOfNextEmpty-1];
+        emit Redeemed(_msgSender(), _poolID, c.price);
+        return c.ids[c.idPointOfNextEmpty - 1];
     }
+
 
     /**
      * @dev set the artist for the given pool.
      * @param pool the pool you are setting an artist for
      * @param artist the address of the artist.
      */
-    function setArtist(
-        uint256 pool, 
-        address artist
-    ) 
-        public 
-        onlyOwnerOrArtist(pool) 
-    {
-        
-        uint256 amount = pendingWithdrawals[artist];
-        pendingWithdrawals[artist] = 0;
+    function setArtist(uint256 pool, address artist) public onlyOwnerOrArtist(pool) {
+        uint256 amount = pendingWithdrawals[pools[pool].artist];
+        pendingWithdrawals[pools[pool].artist] = 0;
         pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
         pools[pool].artist = artist;
 
         // this removes the existing artist reference to this... but seems like it will be expensive...
-        for (uint8 x = 0; x < accountToPools[pools[pool].artist].length-1; x++){
-            if (accountToPools[pools[pool].artist][x] == pool){
+        for (uint8 x = 0; x < accountToPools[pools[pool].artist].length - 1; x++) {
+            if (accountToPools[pools[pool].artist][x] == pool) {
                 delete accountToPools[pools[pool].artist][x];
             }
         }
@@ -214,56 +151,41 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 supply,
         uint256 price,
         uint256 releaseTime
-    ) 
-        public 
-        onlyOwnerOrArtist(pool) 
-        poolExists(pool) 
-        returns (uint256) 
-    {
-        
+    ) public onlyOwnerOrArtist(pool) poolExists(pool) returns (uint256) {
         uint256[] memory tokenIdsGenerated = new uint256[](supply);
-        for (uint256 x = 0; x < supply; x++){
-            tokenIdsGenerated[x] = collectible.create("", "");//URI and Data seem important... and most likely are! well! HAVE FUN!
+        for (uint256 x = 0; x < supply; x++) {
+            tokenIdsGenerated[x] = collectible.create("", ""); //URI and Data seem important... and most likely are! well! HAVE FUN!
             //so this generates all the token IDs that will be used, and makes each one unique.
         }
         pools[pool].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
-        
+
         pools[pool].cardsInPool++;
-        // emit CardAdded(pool, tokenIdsGenerated, price, releaseTime);
-        return pools[pool].cardsInPool-1;
+        return pools[pool].cardsInPool - 1;
     }
 
     /**
     @dev creates a pool.
     @param id the id of the pool. Must be unique.
     @param periodStart the time you can start buying these
-    @param maxStake the maximum amount you can stake(if 0, defaults to 1e^18)
-    @param artist the artist that will be paid
     @param title the title of the pool
     */
     function createPool(
         uint256 id,
         uint256 periodStart,
-        uint256 maxStake,
-        address artist,
         string memory title
-    ) public onlyOwner returns (uint256) {
+    ) public returns (uint256) {
         require(pools[id].periodStart == 0, "pool exists");
-		if (maxStake==0){
-			maxStake = 1e18;
-		}
 
         Pool storage p = pools[id];
 
         p.periodStart = periodStart;
-        p.maxStake = maxStake;
-        p.artist = artist;
+        p.artist = _msgSender();
         p.title = title;
 
         poolsCount++;
 
-        accountToPools[artist].push(id);
-        emit PoolAdded(id, artist, periodStart, maxStake);
+        accountToPools[_msgSender()].push(id);
+        emit PoolAdded(id, _msgSender(), periodStart);
         return id;
     }
 
@@ -278,18 +200,6 @@ contract CreatorCollections is Ownable, Pausable {
         return _totalSupply;
     }
 
-    function balanceOfAccount(address account) public view returns (uint256) {
-        return _accountBalances[account];
-    }
-
-    function balanceOfPool(uint256 id) public view returns (uint256) {
-        return _poolBalances[id];
-    }
-
-    function balanceOf(address account, uint256 id) public view returns (uint256) {
-        return _balances[id][account];
-    }
-
     function cardsInPool(uint256 id) public view returns (uint256) {
         return pools[id].cardsInPool;
     }
@@ -299,17 +209,18 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     function withdrawFee() public {
-        uint256 amount = pendingWithdrawals[msg.sender];
+        uint256 amount = pendingWithdrawals[_msgSender()].mul(ARTIST_PERCENTAGE).div(100);
         require(amount > 0, "nothing to withdraw");
-        pendingWithdrawals[msg.sender] = 0;
-        payable(msg.sender).transfer(amount);
+        creatonBalance = creatonBalance.add(pendingWithdrawals[_msgSender()].mul(CREATON_PERCENTAGE).div(100));
+        pendingWithdrawals[_msgSender()] = 0;
+        token.transfer(_msgSender(), amount);
     }
 
     /**
     @dev returns the address of a newer version of this contract
     @return newerVersionOfContract, the address of the newer contract.
      */
-    function getNewerContract() public returns (address){
+    function getNewerContract() public returns (address) {
         return newerVersionOfContract;
     }
 
@@ -325,7 +236,7 @@ contract CreatorCollections is Ownable, Pausable {
     @dev get the pools an address is the artist of, use this to get all the pool ids.
     @param artist the address of the artist you want to find the pools of.
     */
-    function getPoolsForArtist(address artist) public view returns (uint256[] memory){
+    function getPoolsForArtist(address artist) public view returns (uint256[] memory) {
         uint256[] memory accountsPools = accountToPools[artist];
         return accountsPools;
     }
@@ -336,13 +247,22 @@ contract CreatorCollections is Ownable, Pausable {
     @param _fanID the id of the FanCollectible you want to get the data for.
     @param _data the URI to the data for the FanCollectible.
     */
-    function setFanCollectibleData(uint256 _pool, uint256 _fanID, bytes memory _data) public{
+    function setFanCollectibleData(
+        uint256 _pool,
+        uint256 _fanID,
+        bytes memory _data
+    ) public {
         require(_msgSender() == pools[_pool].artist, "not the artist");
-        
+
         pendingWithdrawals[_msgSender()] = pendingWithdrawals[_msgSender()].add(heldBalances[_fanID].quantityHeld);
         heldBalances[_fanID].quantityHeld = 0;
 
         collectible.finalizedByArtist(_fanID, _data);
         //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
+    }
+
+    function getCreatonCut(address recipient) public onlyOwner {
+        token.transfer(recipient, creatonBalance);
+        creatonBalance = 0;
     }
 }
