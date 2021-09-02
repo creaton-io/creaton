@@ -25,7 +25,7 @@ const SuperfluidProvider = (props) => {
     await sf.initialize();
     const usdcAddress = await sf.resolver.get('tokens.fUSDC');
     const usdc = await sf.contracts.TestToken.at(sf.tokens.fUSDC.address);
-    const usdcx = sf.tokens.USDCx;
+    const usdcx = sf.tokens.fUSDCx;
     setSuperfluid({sf, usdc, usdcx});
     // app = await ethers.getContractAt('Creator', contractAddr, subscriber);
   }
