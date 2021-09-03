@@ -1,9 +1,8 @@
-import React, {ButtonHTMLAttributes, FC, useState} from "react";
+import {ButtonHTMLAttributes, FC, useState} from "react";
 import {Icon} from "../icons";
 import clsx from "clsx";
 import {VideoPlayer} from "../VideoPlayer";
-import { Avatar } from './avatar';
-
+import { ethers } from "ethers";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -17,11 +16,48 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onReport?: any;
   isLiked?: boolean;
   likeCount?: number;
+  onReact?: any
+  hasReacted?: boolean;
+  initialReactCount?: string;
   date?: string;
   isEncrypted?: boolean;
+  reactionErc20Available?: string;
+  reactionErc20Symbol?: string;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, date,isEncrypted}) => {
+export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, initialReactCount, date,isEncrypted, reactionErc20Available, reactionErc20Symbol}) => {
+  const ircount: number = (initialReactCount) ? +initialReactCount:0;
+
+  const [stakingAmount, setStakingAmount] = useState('');
+  const [reacting, setReacting] = useState(false);
+  const [reactCount, setReactCount] = useState<number>(+ircount);
+
+  function showAmountModal(e){
+    hideAllAmountModal();
+    e.target.parentElement.parentElement.getElementsByClassName("reactAmount")[0].classList.remove("hidden");
+  }
+
+  function hideAllAmountModal(){
+    const modals = document.getElementsByClassName("reactAmount");
+    for(let key in modals){
+      let el = modals[key].classList;
+      if(el){
+        el.add("hidden");
+      }
+    }
+  }
+
+  function reactClick(){
+    setReacting(true);
+    hideAllAmountModal();
+    if(!isNaN(+stakingAmount)){ 
+      onReact(stakingAmount, () => {
+        setReactCount(+(reactCount+stakingAmount));
+        setReacting(false);
+      });
+    }
+  }
+
   if(isEncrypted)
   return (<div className="mb-5">
     <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
@@ -68,7 +104,7 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
   </div>)
   return (
     <div className="mb-5">
-      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
 
         {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
           {fileType === "image"
@@ -91,7 +127,49 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                             {likeCount}
                           </span>
                         </div>
-                        <Icon  onClick={onReport} name="flag"
+                        {/* <div className=" mr-5 ">
+                          {!reacting && !hasReacted && 
+                            <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
+                              <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
+                            </button> 
+                          }
+
+                          <div className="reactAmount hidden absolute p-3 mt-1 rounded right-2" style={{
+                            backgroundColor: "rgb(41 25 67 / 70%)",
+                            border: "1px solid #473a5f"
+                          }}>
+                            
+                            {!reacting && <>
+                              <div>
+                                <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} className="text-white rounded" style={{
+                                  background: "#452e6d",
+                                  padding: "5px 7px"
+                                }} />
+                                <button onClick={reactClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
+                                  React!
+                                </button>                              
+                              </div>
+                              <div className="block text-white text-sm mt-2 font-light">
+                                {reactionErc20Available && Math.round(+ethers.utils.formatEther(reactionErc20Available) * 1e2) / 1e2} {reactionErc20Symbol} available
+                              </div>
+                            </>
+                            }
+                          </div>
+
+                          {!reacting && hasReacted && 
+                            <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
+                          }
+                          { reacting && 
+                            <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          }
+                          <span className="ml-2 text-white">
+                            {reactCount}
+                          </span>
+                        </div> */}
+                        <Icon onClick={onReport} name="flag"
                               className={clsx('cursor-pointer text-gray-500 mt-1')}/>
                       </div>
                     </div>

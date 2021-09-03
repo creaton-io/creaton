@@ -29,7 +29,7 @@ import creaton_contracts from "./Contracts";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
 import {InjectedConnector} from "@web3-react/injected-connector";
-import {APOLLO_URI} from "./Config";
+import {APOLLO_URI, REACTION_ERC20} from "./Config";
 import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
 import {Avatar} from "./components/avatar";
@@ -37,6 +37,9 @@ import {Toggle} from "./elements/toggle";
 import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
 import Loader from "./elements/loader";
 import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
+import { Flows } from './Flows';
+import { Governance } from './Governance';
+import { Contract, ethers } from 'ethers';
 
 initFontAwesome()
 
@@ -120,6 +123,7 @@ const ProfileMenu = (props) => {
   const {usdcx} = useContext(SuperfluidContext);
   const [usdcxBalance, setUsdcxBalance] = useState<any>('Loading')
   const [maticBalance, setMaticBalance] = useState<any>('Loading')
+  const [createBalance, setCreateBalance] = useState<any>('Loading')
   const {account, library} = useWeb3React()
   useEffect(() => {
     usdcx.balanceOf(account).then(balance => {
@@ -134,6 +138,17 @@ const ProfileMenu = (props) => {
     })
   }, [library, account])
   const canBecomeCreator = useCanBecomeCreator()
+
+  // useEffect(() => {
+  //   (async function iife() {
+  //     const signer = library!.getSigner()
+  //     const userAddress = await signer.getAddress();
+
+  //     const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+  //     let balance = (await erc20Contract.balanceOf(userAddress)).toString();      
+  //     setCreateBalance(balance);
+  //   })();
+  // }, [account])
 
   function formatBalance(balance) {
     if (balance === 'Loading') return balance;
@@ -199,6 +214,18 @@ const ProfileMenu = (props) => {
             <div className="flex">
             </div>
           </div>
+          {/* <div className="flex mb-4 px-5">
+            <div className="flex flex-row flex-auto items-center">
+              <div className="mr-4 bg-white w-9 h-9 flex justify-center items-center rounded bg-opacity-25">
+              </div>
+              <div>
+                <div className="text-sm text-purple-500">Balance:</div>
+                <div className="-mt-1 font-bold text-black">{formatBalance(createBalance)} CREATE</div>
+              </div>
+            </div>
+            <div className="flex">
+            </div>
+          </div> */}
           <div className="flex mb-4 px-5">
             <div className="flex flex-row flex-auto items-center">
               <div className="mr-4 bg-white w-9 h-9 flex justify-center items-center rounded bg-opacity-25">
@@ -229,6 +256,9 @@ const ProfileMenu = (props) => {
           {currentProfile &&
           <NavigationLink to="/signup" label="My Profile"/>
           }
+          {/* {currentProfile &&
+          <NavigationLink to="/flows" label="My Flows"/>
+          } */}
         </div>
       </div>
     </div>)
@@ -475,6 +505,12 @@ const App = () => {
                                 </Route>
                                 <Route path="/staking">
                                   <Staking/>
+                                </Route>
+                                <Route path="/flows">
+                                  <Flows />
+                                </Route>
+                                <Route path="/governance">
+                                  <Governance />
                                 </Route>
                               </Switch>
                             </div>

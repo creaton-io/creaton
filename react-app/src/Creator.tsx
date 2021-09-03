@@ -1,8 +1,8 @@
-import {useHistory, useParams} from "react-router-dom";
-import React, {CSSProperties, useContext, useEffect, useState} from "react";
+import {useParams} from "react-router-dom";
+import {CSSProperties, useContext, useEffect, useState} from "react";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
-import {gql, useQuery} from "@apollo/client";
+import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
 import {parseUnits} from '@ethersproject/units';
 import {wad4human} from "@decentral.ee/web3-helpers";
@@ -13,15 +13,14 @@ import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 import {TextileContext} from "./TextileProvider";
 import {Base64} from "js-base64";
-import {Contract} from "ethers";
+import {Contract, ethers} from "ethers";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
 import {StickyHeader} from './components/sticky-header';
 import {Avatar} from "./components/avatar";
-import {REPORT_URI} from "./Config";
-import {Icon} from "./icons";
+import {REACTIONS_GRAPHQL_URI, REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from "./Config";
 import {Web3UtilsContext} from "./Web3Utils";
 import {
   Link
@@ -78,13 +77,13 @@ export function Creator() {
       }
    `;
 
-
   const textile = useContext(TextileContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery(){
+    updateReactions(creatorContractAddress);
     contentsQuery.refetch({user:creatorContractAddress})
     console.log("\"smart\" refetch was run")
   }
@@ -96,10 +95,15 @@ export function Creator() {
     },
     pollInterval: 10000
   });
+
   const superfluid = useContext(SuperfluidContext);
   const umbralWasm = useContext(UmbralWasmContext)
   const [usdcx, setUsdcx] = useState(0)
   const {currentCreator} = useCurrentCreator()
+
+  const [reactions, setReactions] = useState<Array<any>>();
+  const [reactionErc20Available, setReactionErc20Available] = useState<string>();
+  const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
 
   async function getUsdcx() {
     if (!superfluid)
@@ -153,6 +157,45 @@ export function Creator() {
     }
   }, [downloadStatus, textile, canDecrypt])
 
+  useEffect(() => {
+    (async function iife() {
+      if(!context.library) return;
+      const signer = context.library.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
+      setReactionErc20Symbol(await erc20Contract.symbol());
+
+      if(!creatorContractAddress) return;
+      updateReactions(creatorContractAddress);
+    })();
+  }, [contentsQuery, creatorContractAddress, context.library]);
+
+  async function updateReactions(nftAddress: string){
+    const reactionsQuery = `
+      query($nftAddress: Bytes!) {
+        reactions(where: {nft: $nftAddress}) {
+          id
+          amount,
+          nft,
+          tokenId
+          user {
+            address
+          }
+        }
+      }
+    `;
+
+    const client = new ApolloClient({
+      uri: REACTIONS_GRAPHQL_URI,
+      cache: new InMemoryCache()
+    });
+
+    const data = await client.query({query: gql(reactionsQuery), variables: {'nftAddress': nftAddress}});
+    setReactions(data.data.reactions);
+  }
+  
   function downloadURL(data, fileName) {
     const a = document.createElement('a');
     a.href = data;
@@ -324,17 +367,36 @@ export function Creator() {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image" date={content.date}
                      avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-                      like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
-    } else {
+                      like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}} 
+                      reactionErc20Available={reactionErc20Available}
+                      reactionErc20Symbol={reactionErc20Symbol}
+                      onReact={(amount, callback) => { react(content, amount, callback) }} 
+                      hasReacted={hasReacted(content)} 
+                      initialReactCount={countReacted(content)} />
+                    } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
-                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-        like(content) }} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}}  />
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} 
+                   onLike={() => { like(content) }} 
+                   isLiked={isLiked(content)} 
+                   likeCount={countLikes(content)} 
+                   onReport= {() => {report(content)}} 
+                   reactionErc20Available={reactionErc20Available}
+                   reactionErc20Symbol={reactionErc20Symbol}
+                   onReact={(amount, callback) => { react(content, amount, callback) }} 
+                   hasReacted={hasReacted(content)} 
+                   initialReactCount={countReacted(content)} 
+              />
     }
 
     return <Card key={content.ipfs} name={content.name} description={content.description}
                    date={content.date} likeCount={countLikes(content)}
-                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true}/>
+                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true} 
+                   reactionErc20Available={reactionErc20Available}
+                   reactionErc20Symbol={reactionErc20Symbol}
+                   onReact={(amount, callback) => { react(content, amount, callback) }} 
+                   hasReacted={hasReacted(content)} 
+                   initialReactCount={countReacted(content)}/>
   }
 
   async function subscribe() {
@@ -367,6 +429,53 @@ export function Creator() {
     }
     //even if the user can't like, we refresh things like new posts, and the like counter
     updateContentsQuery()
+  }
+
+  async function react(content, amount, callback) {
+    if (!web3utils.isSignedUp()) return;
+
+    try {
+      // Allowance
+      const signer = context.library!.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+
+      const preDecimals = await erc20Contract.decimals();
+      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+
+      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
+      if(stakingAmount.gt(allowance)){
+        let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
+        await tx.wait();
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+        if(receipt.length == 0){
+          throw Error('Error allowing token for reaction');
+        }
+      }
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+
+      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
+      reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
+        updateContentsQuery();
+        callback();
+      });
+    } catch (error) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+  }
+
+  function countReacted(content): string{
+    if(!reactions) return '0';
+    const count = reactions.filter((r) => (r.tokenId===content.tokenId))
+                           .reduce((sum, current) => sum + +current.amount, 0);
+    return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping:false}));
+  }
+  function hasReacted(content){
+    if(!reactions) return false;
+    return reactions.some((r)=>(r.tokenId===content.tokenId && r.user.address===context.account?.toLowerCase()));
   }
 
   async function report(content) {
@@ -456,7 +565,7 @@ export function Creator() {
         }
       </h1>
       <div className="py-5">
-        {
+        {reactions && 
           contents.map((x) => showItem(x))
         }
       </div>
