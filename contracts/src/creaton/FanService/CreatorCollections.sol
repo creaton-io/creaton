@@ -3,7 +3,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "./FanCollectible.sol";
 
 contract CreatorCollections is Ownable, Pausable {
@@ -81,8 +81,6 @@ contract CreatorCollections is Ownable, Pausable {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
     }
-
-    function purchase(uint256 _poolID, uint256 _cardID)
         public
         whenNotPaused
         cardExists(_poolID, _cardID)
@@ -101,6 +99,7 @@ contract CreatorCollections is Ownable, Pausable {
 
         p.feesCollected = p.feesCollected.add(c.price);
         // console.log(c.ids[c.idPointOfNextEmpty]);
+        
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
         heldBalances[c.ids[c.idPointOfNextEmpty]].pool = _poolID;
@@ -160,7 +159,6 @@ contract CreatorCollections is Ownable, Pausable {
         pools[pool].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
 
         pools[pool].cardsInPool++;
-        return pools[pool].cardsInPool - 1;
     }
 
     /**
