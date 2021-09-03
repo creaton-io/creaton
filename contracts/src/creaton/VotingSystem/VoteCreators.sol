@@ -40,22 +40,22 @@ contract VoteCreators is SuperAppBase {
 
     mapping(address => uint256) public voteCount;
 
-    //TODO create mapping for nominee and fix every method accoridingly
+    //TODO create mapping for nominee and fix every method accordingly
     mapping(address => Nominee) public nominee;
 
     mapping(address => IERC20) public recoverTokens;
 
     // Nominee[30] public nominee;
 
-    //This makes sure a user has tokens avaiable in their wallet to vote with
-    modifier AbilityToVote(address _voter) {
+    //This makes sure a user has tokens available in their wallet to vote with
+    modifier canVote(address _voter) {
         uint256 balance = token.balanceOf(_voter);
         require(balance > 0);
         _;
     }
 
     // Give your vote to a user
-    function vote(address proposal) public AbilityToVote(msg.sender) returns (bool) {
+    function vote(address proposal) public canVote(msg.sender) returns (bool) {
         // require(sender.voted == false);
         Voter storage sender = voters[msg.sender];
         //TODO Can calculate top vote within here, create a new fn
@@ -76,21 +76,6 @@ contract VoteCreators is SuperAppBase {
         // recoverTokens(token);
     }
 
-    //returns a new nominee list
-
-    // function topVote(uint256 newVote) public returns (uint256 newOrder) {
-    //     Nominee[30] memory newOrder;
-    //     uint256 count = 0;
-    //     // nominee.length - 1
-    //     for (uint256 i = 0; i < 29; i++) {
-    //         if (nominee[i].voteCount > nominee[i + 1].voteCount) {
-    //             newOrder[count] = nominee[i];
-    //             count += 1;
-    //         }
-    //     }
-    //     return newOrder[30];
-    // }
-
     //Sets when a voting season will start
     function VotingSeasonBegins(address proposal) internal {}
 
@@ -108,6 +93,11 @@ contract VoteCreators is SuperAppBase {
         // return proposals[proposal];
     }
 
+
+//&&&& WHY IS THIS HERE?
+//&&&& why do we still need this? we have a versioning system?
+
+
     // /////
     // function recoverTokens(address _token) external onlyCreator {
     //     IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
@@ -117,7 +107,7 @@ contract VoteCreators is SuperAppBase {
     // -----------------------------------------
     // Superfluid Logic
     // -----------------------------------------
-    //Needed for announcewinner fn
+    //Needed for announce winner fn
 
     // function _openFlows(
     //     bytes calldata ctx,

@@ -35,7 +35,7 @@ describe('Vote with coin', function () {
     let num: number;
     beforeEach(async function () {
         let testingTokenFactory = await ethers.getContractFactory('TestingToken');
-        testingToken = await testingTokenFactory.deploy(6);
+        testingToken = await testingTokenFactory.deploy(0);
         // let testingTokenAddress = testingToken.address();
 
 
@@ -46,6 +46,7 @@ describe('Vote with coin', function () {
     });
 
     it('Vote with 1 coin', async function () {
+        //needs superfluid to see if it worked
         await testingToken.connect(testingAccount1).faucet();
         expect(await testingToken.balanceOf(testingAccount1.address)).to.equal(ethers.utils.parseEther('1000'));
 

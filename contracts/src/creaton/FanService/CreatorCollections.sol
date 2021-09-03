@@ -49,9 +49,7 @@ contract CreatorCollections is Ownable, Pausable {
     event UpdatedArtist(uint256 poolId, address artist);
     event PoolAdded(uint256 poolId, address artist, uint256 periodStart);
     event CardAdded(uint256 poolId, uint256[] cardIds, uint256 price, uint256 releaseTime);
-    event Staked(address indexed user, uint256 poolId, uint256 amount);
-    event Withdrawn(address indexed user, uint256 poolId, uint256 amount);
-    event Transferred(address indexed user, uint256 fromPoolId, uint256 toPoolId, uint256 amount);
+
     event Redeemed(address indexed user, uint256 poolId, uint256 amount);
 
     modifier poolExists(uint256 id) {
@@ -194,7 +192,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     /**
-     * @dev calculates the total suply of tokens that are being staked in this contract
+     * @dev calculates the total supply of tokens that are being staked in this contract
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -208,6 +206,9 @@ contract CreatorCollections is Ownable, Pausable {
         return pools[id].cardsArray;
     }
 
+    /**
+     * @dev called by the artist for them to get their money out of the contract!   
+     */
     function withdrawFee() public {
         uint256 amount = pendingWithdrawals[_msgSender()].mul(ARTIST_PERCENTAGE).div(100);
         require(amount > 0, "nothing to withdraw");
@@ -229,6 +230,7 @@ contract CreatorCollections is Ownable, Pausable {
     @param _newerContract the address of the newer version of this contract.  
     */
     function setNewerContract(address _newerContract) public onlyOwner {
+        //TODO: make this use an emit event to let the frontend team know theres a newer version of this contract.
         newerVersionOfContract = _newerContract;
     }
 
