@@ -6,9 +6,9 @@ import { BigNumber, ContractFactory } from "ethers";
 import { Console } from "node:console";
 import { Test } from "mocha";
 
-let collectibleFactory;
-let collectibleContract: Contract;
-let ownerAccount: SignerWithAddress;
+let voteFactory;
+let voteContract: Contract;
+
 let testingAccount1: SignerWithAddress;
 let testingAccount2: SignerWithAddress;
 
@@ -18,10 +18,10 @@ describe('Deploying coin', function () {
         let testingToken = await testingTokenFactory.deploy(6);
         // let testingTokenAddress = testingToken.address();
 
-        [ownerAccount, testingAccount1, testingAccount2] = await ethers.getSigners();
-        collectibleFactory = await ethers.getContractFactory('VoteCreators');
-        collectibleContract = await collectibleFactory.deploy();
-        await collectibleContract.initialize(testingToken.address);
+        [testingAccount1, testingAccount2] = await ethers.getSigners();
+        voteFactory = await ethers.getContractFactory('VoteCreators');
+        voteContract = await voteFactory.deploy();
+        await voteContract.initialize(testingToken.address);
     });
     it('Check ability to vote', async function () {
         console.log('works');
@@ -39,18 +39,18 @@ describe('Vote with coin', function () {
         // let testingTokenAddress = testingToken.address();
 
 
-        [ownerAccount, testingAccount1, testingAccount2] = await ethers.getSigners();
-        collectibleFactory = await ethers.getContractFactory('VoteCreators');
-        collectibleContract = await collectibleFactory.deploy();
-        await collectibleContract.initialize(testingToken.address);
+        [testingAccount1, testingAccount2] = await ethers.getSigners();
+        voteFactory = await ethers.getContractFactory('VoteCreators');
+        voteContract = await voteFactory.deploy();
+        await voteContract.initialize(testingToken.address);
     });
 
     it('Vote with 1 coin', async function () {
         await testingToken.connect(testingAccount1).faucet();
-        expect(await testingToken.balanceOf(testingAccount1.address) > 0);
+        expect(await testingToken.balanceOf(testingAccount1.address)).to.equal(ethers.utils.parseEther('1000'));
 
         console.log(await testingToken.balanceOf(testingAccount1.address));
-        // expect(true);//Temp test case
+
 
     })
 
@@ -66,19 +66,18 @@ describe('Vote with no coin', function () {
         // let testingTokenAddress = testingToken.address();
 
 
-        [ownerAccount, testingAccount1, testingAccount2] = await ethers.getSigners();
-        collectibleFactory = await ethers.getContractFactory('VoteCreators');
-        collectibleContract = await collectibleFactory.deploy();
-        await collectibleContract.initialize(testingToken.address);
+        [testingAccount1, testingAccount2] = await ethers.getSigners();
+        voteFactory = await ethers.getContractFactory('VoteCreators');
+        voteContract = await voteFactory.deploy();
+        await voteContract.initialize(testingToken.address);
     });
 
     it('Try to vote with no coins', async function () {
         // expect(await testingToken.totalSupply()).to.equal(0);
-        await testingToken.connect(testingAccount2).faucet();
+        // await testingToken.connect(testingAccount2).faucet();
+        // console.log(await testingToken.balanceOf(testingAccount2.address));
+        expect(await testingToken.balanceOf(testingAccount2.address)).to.equal(ethers.utils.parseEther("0.0")); //For some reason this is true
 
-        expect(await testingToken.balanceOf(testingAccount2.address) > 0); //For some reason this is true
-
-        console.log(await testingToken.balanceOf(testingAccount2.address));
 
         console.log(await testingToken.balanceOf(testingAccount1.address));
         console.log((await testingAccount2.getBalance()).toString());
@@ -98,10 +97,10 @@ describe('Unvote', function () {
         // let testingTokenAddress = testingToken.address();
 
 
-        [ownerAccount, testingAccount1, testingAccount2] = await ethers.getSigners();
-        collectibleFactory = await ethers.getContractFactory('VoteCreators');
-        collectibleContract = await collectibleFactory.deploy();
-        await collectibleContract.initialize(testingToken.address);
+        [testingAccount1, testingAccount2] = await ethers.getSigners();
+        voteFactory = await ethers.getContractFactory('VoteCreators');
+        voteContract = await voteFactory.deploy();
+        await voteContract.initialize(testingToken.address);
     });
 
     it('unvote 1 coin', async function () {
