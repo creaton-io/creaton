@@ -81,6 +81,8 @@ contract CreatorCollections is Ownable, Pausable {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
     }
+    
+    function purchase(uint256 _poolID, uint256 _cardID)
         public
         whenNotPaused
         cardExists(_poolID, _cardID)
