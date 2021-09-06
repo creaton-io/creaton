@@ -85,6 +85,31 @@
       "address": "0xD2e936712dc45c388Eb9302fb43D71923d5d3bF2",
       "txHash": "0x9c4bde62eda995669ad9485985d510d4ac65095b8227b01921d93aa6287a4251",
       "kind": "uups"
+    },
+    {
+      "address": "0x943Ac9f9EB861Ee227d3e9e1F6ebAee47b787FaC",
+      "txHash": "0xd566d25d563920ef80ad205778ad5e026660dea7f823fab13d9aa6ca34d8471e",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4A299cD39d02C5ebc9326a274e732761dE1d5DB2",
+      "txHash": "0x1f107f4443dc676caa6157841588e5c2768508b952cdff470c647ca06cbd209d",
+      "kind": "uups"
+    },
+    {
+      "address": "0x673b5c93FB6097A0c25c4eb90c6753901b30a5bE",
+      "txHash": "0x121171d36c75256093314ea51b3423a4c6e55698ee7bc3686d182f32d20d8f09",
+      "kind": "uups"
+    },
+    {
+      "address": "0x3301fb2d6b5172b853Ac0e7467a73026FA2c8742",
+      "txHash": "0xf95a0f6ae1dba68077ff928301480608f568317b23fca540809abfb97f985214",
+      "kind": "uups"
+    },
+    {
+      "address": "0x8629D6e815d980679b323e5af57A137441d7fe6e",
+      "txHash": "0x901f484224ed6cc3a0c560d7bf2a6cb8a0082769645101ade31a59bd8bbe13b6",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -622,6 +647,441 @@
           },
           "t_string_storage": {
             "label": "string"
+          },
+          "t_int96": {
+            "label": "int96"
+          },
+          "t_address_payable": {
+            "label": "address payable"
+          }
+        }
+      }
+    },
+    "1c4c48398fea457bc82afa58bc7fa00fcf99ca42dd8352041e5f91cbf0714574": {
+      "address": "0x6FdA597b0B8da2c7BF6Fb6Ad0a986C82a06aef37",
+      "txHash": "0xc26b7c0b06280e5e426b92ed9a27e95a3bc2ac47c96e9f7a7fd714b6194f733e",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:26"
+          },
+          {
+            "contract": "BaseRelayRecipient",
+            "label": "trustedForwarder",
+            "type": "t_address",
+            "src": "src\\dependency\\gsn2\\contracts\\BaseRelayRecipient.sol:13"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "owner",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:34"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creator2contract",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:36"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "contract2creator",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:37"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "registeredUsers",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:38"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "user2twitter",
+            "type": "t_mapping(t_address,t_string_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:39"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_host",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:41"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_cfa",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:42"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_acceptedToken",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:43"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "superFluid",
+            "type": "t_contract(ISuperfluid)9800",
+            "src": "src\\creaton\\CreatonAdminV1.sol:45"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasury",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:47"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasuryFee",
+            "type": "t_int96",
+            "src": "src\\creaton\\CreatonAdminV1.sol:48"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creatorBeacon",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:50"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "nftFactory",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:51"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "paymaster",
+            "type": "t_address_payable",
+            "src": "src\\creaton\\CreatonAdminV1.sol:53"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_string_storage)": {
+            "label": "mapping(address => string)"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_contract(ISuperfluid)9800": {
+            "label": "contract ISuperfluid"
+          },
+          "t_int96": {
+            "label": "int96"
+          },
+          "t_address_payable": {
+            "label": "address payable"
+          }
+        }
+      }
+    },
+    "1c7b285adfc790903e1825acbc339cb25f650fdc7b09e21bb4f29280f0dacd26": {
+      "address": "0x0582361510c641883F5fDDe5A16BE31b713D1515",
+      "txHash": "0x47dc2f4c229f2be2d7e3aa28b288ef33cddcc7749f0373af6b8e53ac7e831bf7",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:26"
+          },
+          {
+            "contract": "BaseRelayRecipient",
+            "label": "trustedForwarder",
+            "type": "t_address",
+            "src": "src\\dependency\\gsn2\\contracts\\BaseRelayRecipient.sol:13"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "owner",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:34"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creator2contract",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:36"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "contract2creator",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:37"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "registeredUsers",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:38"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "user2twitter",
+            "type": "t_mapping(t_address,t_string_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:39"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_host",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:41"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_cfa",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:42"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_acceptedToken",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:43"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "superFluid",
+            "type": "t_contract(ISuperfluid)9800",
+            "src": "src\\creaton\\CreatonAdminV1.sol:45"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasury",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:47"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasuryFee",
+            "type": "t_int96",
+            "src": "src\\creaton\\CreatonAdminV1.sol:48"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creatorBeacon",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:50"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "nftFactory",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:51"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "paymaster",
+            "type": "t_address_payable",
+            "src": "src\\creaton\\CreatonAdminV1.sol:53"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_string_storage)": {
+            "label": "mapping(address => string)"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_contract(ISuperfluid)9800": {
+            "label": "contract ISuperfluid"
+          },
+          "t_int96": {
+            "label": "int96"
+          },
+          "t_address_payable": {
+            "label": "address payable"
+          }
+        }
+      }
+    },
+    "b1f6d728a7a48590a1c8d2e0b1847e713b60970843e6574a5a3e92cdeabab71a": {
+      "address": "0xc8AC9C5a6356d17a687495b0e3C36Cfd69C33dc8",
+      "txHash": "0x6af9ece73701dd19e80f67d556bd68f8f9c378d5e7edc4a04b7541c495534e64",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:26"
+          },
+          {
+            "contract": "BaseRelayRecipient",
+            "label": "trustedForwarder",
+            "type": "t_address",
+            "src": "src\\dependency\\gsn2\\contracts\\BaseRelayRecipient.sol:13"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "owner",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:34"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creator2contract",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:36"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "contract2creator",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:37"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "registeredUsers",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:38"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "user2twitter",
+            "type": "t_mapping(t_address,t_string_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:39"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_host",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:41"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_cfa",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:42"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_acceptedToken",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:43"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "superFluid",
+            "type": "t_contract(ISuperfluid)9800",
+            "src": "src\\creaton\\CreatonAdminV1.sol:45"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasury",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:47"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasuryFee",
+            "type": "t_int96",
+            "src": "src\\creaton\\CreatonAdminV1.sol:48"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creatorBeacon",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:50"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "nftFactory",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:51"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "paymaster",
+            "type": "t_address_payable",
+            "src": "src\\creaton\\CreatonAdminV1.sol:53"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_string_storage)": {
+            "label": "mapping(address => string)"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_contract(ISuperfluid)9800": {
+            "label": "contract ISuperfluid"
           },
           "t_int96": {
             "label": "int96"

@@ -1852,9 +1852,6 @@
         "type": "receive"
       }
     ],
-<<<<<<< HEAD
-    "address": "0x105bF3556a1184A029294A012eA26436fd6bb428"
-=======
     "address": "0x329175b952D43858EE29759C00BE1066B1c5E855"
   },
   "CreatonStaking": {
@@ -5190,6 +5187,5 @@
         "type": "function"
       }
     ]
->>>>>>> 4bb2780e68faa497d9a2ad226a01f955f1aa7adc
   }
 }

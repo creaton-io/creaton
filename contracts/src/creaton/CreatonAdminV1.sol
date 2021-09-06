@@ -4,13 +4,20 @@ pragma abicoder v2;
 
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
+import "./CreatorV1.sol";
 import "../metatx/CreatonPaymaster.sol";
 import "../dependency/gsn/BaseRelayRecipient.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "./ICreatonAdmin.sol";
+import {
+    ISuperfluid,
+    ISuperToken,
+    ISuperAgreement,
+    SuperAppDefinitions,
+    ISuperApp
+} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
     // -----------------------------------------
@@ -34,6 +41,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     address private _host;
     address private _cfa;
     address private _acceptedToken;
+
+    ISuperfluid public superFluid;
 
     address public override treasury;
     int96 public override treasuryFee;
@@ -68,6 +77,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         _cfa = cfa;
         _acceptedToken = acceptedToken;
 
+        superFluid = ISuperfluid(_host);
+
         treasury = _treasury;
         treasuryFee = _treasuryFee;
 
@@ -88,25 +99,25 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         string memory nftName,
         string memory nftSymbol
     ) external {
-        require(registeredUsers[_msgSender()], "You need to signup on Creaton before becoming a creator");
-        CreatorProxy creatorContract =
-            new CreatorProxy(
-                creatorBeacon,
-                abi.encodeWithSignature(
-                    "initialize(address,address,address,address,string,uint256,string,string)",
-                    _host,
-                    _cfa,
-                    _acceptedToken,
-                    _msgSender(),
-                    description,
-                    subscriptionPrice,
-                    nftName,
-                    nftSymbol
-                )
+        //require(registeredUsers[_msgSender()], "You need to signup on Creaton before becoming a creator"); //can use Ceramic for profiles in the future
+        CreatorV1 creatorContract =
+            new CreatorV1(
+                _host,
+                _cfa,
+                _acceptedToken,
+                _msgSender(),
+                description,
+                subscriptionPrice,
+                nftName,
+                nftSymbol
             );
+
+        uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
 
         address creatorContractAddr = address(creatorContract);
         require(creatorContractAddr != address(0));
+
+        superFluid.registerAppByFactory(ISuperApp(creatorContractAddr), configWord);
 
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);

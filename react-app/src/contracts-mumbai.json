@@ -350,6 +350,19 @@
       },
       {
         "inputs": [],
+        "name": "superFluid",
+        "outputs": [
+          {
+            "internalType": "contract ISuperfluid",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
         "name": "treasury",
         "outputs": [
           {
@@ -477,35 +490,10 @@
         "type": "function"
       }
     ],
-    "address": "0xD2e936712dc45c388Eb9302fb43D71923d5d3bF2"
+    "address": "0x673b5c93FB6097A0c25c4eb90c6753901b30a5bE"
   },
   "Creator": {
     "abi": [
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "indexed": false,
-            "internalType": "uint256",
-            "name": "tokenId",
-            "type": "uint256"
-          },
-          {
-            "indexed": false,
-            "internalType": "enum CreatorV1.Approval",
-            "name": "approval",
-            "type": "uint8"
-          }
-        ],
-        "name": "Like",
-        "type": "event"
-      },
       {
         "anonymous": false,
         "inputs": [
@@ -1093,7 +1081,7 @@
         "type": "receive"
       }
     ],
-    "address": "0x5A269c3239B0Ec53593f6665A7B423E938FdFCd5"
+    "address": "0x74F8820c91cdDC2d0630B63c22294b7Ab2A856DC"
   },
   "Paymaster": {
     "abi": [

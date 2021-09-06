@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.0;
+pragma solidity ^0.8.0;
 pragma abicoder v2;
 
 import "./ICreatonAdmin.sol";
@@ -22,10 +22,7 @@ import {
 
 import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
-import {Int96SafeMath} from "../utils/Int96SafeMath.sol";
-
-contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
-    using Int96SafeMath for int96;
+contract CreatorV1 is SuperAppBase, BaseRelayRecipient {
     // -----------------------------------------
     // Errors
     // -----------------------------------------
@@ -72,7 +69,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // Initializer
     // -----------------------------------------
 
-    function initialize(
+    constructor(
         address host,
         address cfa,
         address acceptedToken,
@@ -81,7 +78,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 _subscriptionPrice,
         string memory nftName,
         string memory nftSymbol
-    ) public payable initializer {
+    ) payable {
         admin = msg.sender;
 
         assert(address(host) != address(0));
@@ -97,7 +94,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         creator = _creator;
         description = _description;
         subscriptionPrice = int96(uint96(_subscriptionPrice));
-        _MINIMUM_FLOW_RATE = subscriptionPrice.mul(1e18).div(3600 * 24 * 30);
+        _MINIMUM_FLOW_RATE = (subscriptionPrice * 1e18) / (3600 * 24 * 30);
 
         adminContract = ICreatonAdmin(admin);
         nftFactory = NFTFactory(adminContract.nftFactory());
@@ -152,7 +149,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
 
     function percentage(int96 num, int96 percent) public pure returns (int96) {
-        return num.mul(percent).div(100);
+        return (num * percent) / 100;
     }
 
     function versionRecipient() external view virtual override returns (string memory) {
@@ -270,7 +267,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
-        int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
+        int96 contract2treasuryDelta = contractFlowRate - contract2creatorDelta;
 
         if (subscriberCount == 0) {
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
@@ -299,7 +296,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
-        int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
+        int96 contract2treasuryDelta = contractFlowRate - contract2creatorDelta;
 
         (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
         (, int96 contract2treasuryCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());
@@ -317,7 +314,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         } else if (subscriberCount > 0) {
             int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
             int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
-            int96 contract2treasuryDelta = contractFlowRate.sub(contract2creatorDelta);
+            int96 contract2treasuryDelta = contractFlowRate - contract2creatorDelta;
 
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
             (, int96 contract2treasuryCurrent, , ) =
@@ -420,13 +417,13 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
 
     modifier onlyHost() {
-        require(msg.sender == address(_host), "LotterySuperApp: support only one host");
+        require(msg.sender == address(_host), "CreatonSuperApp: support only one host");
         _;
     }
 
     modifier onlyExpected(ISuperToken superToken, address agreementClass) {
-        require(_isSameToken(superToken), "LotterySuperApp: not accepted token");
-        require(_isCFAv1(agreementClass), "LotterySuperApp: only CFAv1 supported");
+        require(_isSameToken(superToken), "CreatonSuperApp: not accepted token");
+        require(_isCFAv1(agreementClass), "CreatonSuperApp: only CFAv1 supported");
         _;
     }
 

@@ -35,16 +35,7 @@ type Content @entity {
   ipfs: String!
   tier: Int!
   tokenId: BigInt!
-  likers: [Like!]! @derivedFrom(field: "content")
 }
-
-type Like @entity {
-  id: ID!
-  content: Content!
-  profile: Profile!
-  approval: Int!
-}
-
 
 
 

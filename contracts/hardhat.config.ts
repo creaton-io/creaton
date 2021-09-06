@@ -12,6 +12,7 @@ import {Wallet} from '@ethersproject/wallet';
 import 'hardhat-contract-sizer';
 import 'solidity-coverage';
 import {HardhatUserConfig} from 'hardhat/config';
+import '@tenderly/hardhat-tenderly';
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
@@ -38,6 +39,10 @@ const config: HardhatUserConfig = {
   defender: {
     apiKey: '4ZWQXK75DWT1QxDqSPTGzbU9uu3ZetzZ',
     apiSecret: '5gu1MrsvEoWfiiCafGeBytuoUmaSRoWt4NAed1gepL4pJNTqzNSjVB7MdhZSj3SW',
+  },
+  tenderly: {
+    project: 'Creaton',
+    username: 'Aer0xander',
   },
   gasReporter: {
     enabled: false, //set to false for faster compile times!
@@ -110,23 +115,23 @@ const config: HardhatUserConfig = {
       default: 3,
     },
   },
-  defaultNetwork: 'matic',
+  defaultNetwork: 'hardhat',
   networks: {
     coverage: {
       url: 'http://localhost:5458',
     },
     hardhat: {
       accounts: hardhatAccounts,
-      // forking: {
-      //   url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_TOKEN,
-      // },
+      forking: {
+        url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+      },
     },
     localhost: {
       url: 'http://localhost:8545',
       accounts,
     },
     staging: {
-      url: 'https://matic-mumbai--jsonrpc.datahub.figment.io/apikey/b18eeebf0e846833370317d99a5b3151',
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
       accounts,
     },
     rinkeby: {

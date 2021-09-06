@@ -4,31 +4,46 @@ const func = async function (hre) {
   const {deploy} = deployments;
 
   console.log('NFTFactory Deploy');
-  await deploy('NFTFactory', {
+  const nftFactory = await deploy('NFTFactory', {
     from: admin,
     log: true,
   });
 
-  console.log('CreatorV1');
-  let implementationContract = await deploy('CreatorV1', {
-    from: admin,
-    log: true,
+  await hre.tenderly.verify({
+    name: 'NFTFactory',
+    address: nftFactory.address,
   });
 
-  console.log('CreatorBeaconnnn');
-  await deploy('CreatorBeacon', {
-    from: admin,
-    args: [implementationContract.address],
-    log: true,
-  });
+  // console.log('CreatorV1');
+  // let implementationContract = await deploy('CreatorV1', {
+  //   from: admin,
+  //   log: true,
+  // });
+
+  // console.log('CreatorBeaconnnn');
+  // await deploy('CreatorBeacon', {
+  //   from: admin,
+  //   args: [implementationContract.address],
+  //   log: true,
+  // });
 
   console.log('CreatorAdmin');
-  await deploy('CreatonAdmin', {
+  const creatonAdmin = await deploy('CreatonAdmin', {
     from: admin,
     log: true,
   });
 
   console.log('CreatorAdmin deployed');
+
+  await hre.tenderly.verify({
+    name: 'CreatonAdmin',
+    address: creatonAdmin.address,
+  });
+
+  await hre.tenderly.push({
+    name: 'CreatonAdmin',
+    address: creatonAdmin.address,
+  });
 };
 
 module.exports = func;

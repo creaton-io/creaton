@@ -6,6 +6,7 @@ const func = async function (hre) {
   const SuperfluidSDK = require('@superfluid-finance/js-sdk');
   //const network = await hre.ethers.provider.getNetwork();
 
+  //TODO change on demand for mumbai or mainnet
   const sf = new SuperfluidSDK.Framework({
     ethers: ethers.provider,
     version: 'v1',
@@ -36,7 +37,7 @@ const func = async function (hre) {
     [
       sf.host.address,
       sf.agreements.cfa.address,
-      '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', //accepted token ($CREATE)
       treasury,
       treasuryFee,
       beaconContract.address,
@@ -52,6 +53,36 @@ const func = async function (hre) {
   let relayHubReceipt = await execute('CreatonPaymaster', {from: admin}, 'setAdmin', adminContract.address);
   await sleep(10000);
   console.log(relayHubReceipt.transactionHash);
+
+  await hre.tenderly.verify({
+    name: 'CreatonAdmin',
+    address: CreatonAdmin.address,
+  });
+
+  await hre.tenderly.verify({
+    name: 'paymasterContract',
+    address: paymasterContract.address,
+  });
+
+  await hre.tenderly.verify({
+    name: 'adminContractProxy',
+    address: adminContract.address,
+  });
+
+  await hre.tenderly.push({
+    name: 'CreatonAdmin',
+    address: CreatonAdmin.address,
+  });
+
+  await hre.tenderly.push({
+    name: 'paymasterContract',
+    address: paymasterContract.address,
+  });
+
+  await hre.tenderly.push({
+    name: 'adminContract Proxy',
+    address: adminContract.address,
+  });
 };
 
 module.exports = func;
