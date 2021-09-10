@@ -54,6 +54,9 @@ const func = async function (hre) {
   await sleep(10000);
   console.log(relayHubReceipt.transactionHash);
 
+  console.log('sf.host.address', sf.host.address);
+  console.log('sf.agreements.cfa.address', sf.agreements.cfa.address);
+
   await hre.tenderly.verify({
     name: 'CreatonAdmin',
     address: CreatonAdmin.address,

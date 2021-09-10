@@ -22,7 +22,7 @@ import {
 
 import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
-contract CreatorV1 is SuperAppBase, BaseRelayRecipient {
+contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Errors
     // -----------------------------------------
@@ -69,7 +69,7 @@ contract CreatorV1 is SuperAppBase, BaseRelayRecipient {
     // Initializer
     // -----------------------------------------
 
-    constructor(
+    function initialize(
         address host,
         address cfa,
         address acceptedToken,
@@ -78,7 +78,7 @@ contract CreatorV1 is SuperAppBase, BaseRelayRecipient {
         uint256 _subscriptionPrice,
         string memory nftName,
         string memory nftSymbol
-    ) payable {
+    ) public payable initializer {
         admin = msg.sender;
 
         assert(address(host) != address(0));
@@ -88,8 +88,8 @@ contract CreatorV1 is SuperAppBase, BaseRelayRecipient {
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
         _acceptedToken = ISuperToken(acceptedToken);
-        uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
-        _host.registerApp(configWord);
+        //uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
+        //_host.registerApp(configWord);
 
         creator = _creator;
         description = _description;
@@ -268,6 +268,8 @@ contract CreatorV1 is SuperAppBase, BaseRelayRecipient {
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
         int96 contract2treasuryDelta = contractFlowRate - contract2creatorDelta;
+
+        _acceptedToken.transfer(creator, uint256(uint96(subscriptionPrice)));
 
         if (subscriberCount == 0) {
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);

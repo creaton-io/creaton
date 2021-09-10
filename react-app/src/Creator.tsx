@@ -42,13 +42,6 @@ export function Creator() {
         description
         date
         ipfs
-        likers {
-          id
-          approval
-          profile {
-            id
-          }
-        }
         tokenId
         tier
       }
@@ -135,42 +128,42 @@ export function Creator() {
   useEffect(() => {
     if (contentsQuery.loading || contentsQuery.error) return;
     //if (!textile) return;
-    if (!canDecrypt) return;
-    const contents = contentsQuery.data.contents;
-    if (Object.keys(downloadStatus).length === 0 || !contents) return;
-    if (umbralWasm === null) return;
-    if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
-      console.log('already downloading some stuff')
-      return;
-    }
-    for (let content of contents) {
-      if (content.tier == 0) continue;
-      if (downloadStatus[content.ipfs] === 'pending') {
-        setDownloadStatus({...downloadStatus, [content.ipfs]: 'downloading'})
-        decrypt(content).then((decrypted) => {
-          console.log('decrypted promise result', decrypted)
-          setDownloadCache({...downloadCache, [content.ipfs]: decrypted})
-          setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
-        })
-        break;
-      }
-    }
+    // if (!canDecrypt) return;
+    // const contents = contentsQuery.data.contents;
+    // if (Object.keys(downloadStatus).length === 0 || !contents) return;
+    // if (umbralWasm === null) return;
+    // if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
+    //   console.log('already downloading some stuff')
+    //   return;
+    // }
+    // for (let content of contents) {
+    //   if (content.tier == 0) continue;
+    //   if (downloadStatus[content.ipfs] === 'pending') {
+    //     setDownloadStatus({...downloadStatus, [content.ipfs]: 'downloading'})
+    //     decrypt(content).then((decrypted) => {
+    //       console.log('decrypted promise result', decrypted)
+    //       setDownloadCache({...downloadCache, [content.ipfs]: decrypted})
+    //       setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
+    //     })
+    //     break;
+    //   }
+    // }
   }, [downloadStatus, textile, canDecrypt])
 
-  useEffect(() => {
-    (async function iife() {
-      if(!context.library) return;
-      const signer = context.library.getSigner()
-      const userAddress = await signer.getAddress();
+  // useEffect(() => {
+  //   (async function iife() {
+  //     if(!context.library) return;
+  //     const signer = context.library.getSigner()
+  //     const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
-      setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
-      setReactionErc20Symbol(await erc20Contract.symbol());
+  //     const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+  //     setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
+  //     setReactionErc20Symbol(await erc20Contract.symbol());
 
-      if(!creatorContractAddress) return;
-      updateReactions(creatorContractAddress);
-    })();
-  }, [contentsQuery, creatorContractAddress, context.library]);
+  //     if(!creatorContractAddress) return;
+  //     updateReactions(creatorContractAddress);
+  //   })();
+  // }, [contentsQuery, creatorContractAddress, context.library]);
 
   async function updateReactions(nftAddress: string){
     const reactionsQuery = `
@@ -310,7 +303,7 @@ export function Creator() {
     return (<div>Loading</div>)
   }
   if (contentsQuery.error || contractQuery.error) {
-    return (<div>Error</div>)
+    return (<div>{contentsQuery.error}</div>)
   }
   const contents = contentsQuery.data.contents;
   if (Object.keys(downloadStatus).length === 0 && contents.length > 0) {
@@ -353,21 +346,13 @@ export function Creator() {
     }
   }
 
-  function countLikes(content){
-    return content.likers.filter((like)=>(like.approval===1)).length;
-  }
-
-  function isLiked(content){
-    return content.likers.some((like)=>(like.approval===1 && like.profile.id===context.account?.toLowerCase()));
-  }
   function showItem(content){
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
       if (src)
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image" date={content.date}
-                     avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} onLike={() => {
-                      like(content)}} isLiked={isLiked(content)} likeCount={countLikes(content)} onReport= {() => {report(content)}} 
+                     avatarUrl="" onReport= {() => {report(content)}} 
                       reactionErc20Available={reactionErc20Available}
                       reactionErc20Symbol={reactionErc20Symbol}
                       onReact={(amount, callback) => { react(content, amount, callback) }} 
@@ -376,10 +361,7 @@ export function Creator() {
                     } else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
-                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image} 
-                   onLike={() => { like(content) }} 
-                   isLiked={isLiked(content)} 
-                   likeCount={countLikes(content)} 
+                   avatarUrl=""
                    onReport= {() => {report(content)}} 
                    reactionErc20Available={reactionErc20Available}
                    reactionErc20Symbol={reactionErc20Symbol}
@@ -390,8 +372,9 @@ export function Creator() {
     }
 
     return <Card key={content.ipfs} name={content.name} description={content.description}
-                   date={content.date} likeCount={countLikes(content)}
-                   avatarUrl={JSON.parse(contractQuery.data.creators[0].profile.data).image}  isEncrypted={true} 
+                   date={content.date}
+                   avatarUrl=""
+                   isEncrypted={true} 
                    reactionErc20Available={reactionErc20Available}
                    reactionErc20Symbol={reactionErc20Symbol}
                    onReact={(amount, callback) => { react(content, amount, callback) }} 
@@ -410,25 +393,6 @@ export function Creator() {
     await receipt.wait(1)
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
-  }
-
-  async function like(content) {
-    if (!web3utils.isSignedUp()) return;
-    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
-    try {
-      let status
-      if(isLiked(content)) //likeStatus =  !likeStatus
-        status = 0; //unlikes content
-      else
-        status = 1; //sets like to true
-      let receipt = await creatorContract.like(content.tokenId, status);
-      await receipt.wait(1)
-      console.log("like value is set to "+status)
-    } catch (error: any) {
-      notificationHandler.setNotification({description: 'Could not like content' + error.message, type: 'error'});
-    }
-    //even if the user can't like, we refresh things like new posts, and the like counter
-    updateContentsQuery()
   }
 
   async function react(content, amount, callback) {
@@ -525,11 +489,11 @@ export function Creator() {
 
   return (
     <div>
-    <StickyHeader name={JSON.parse(contractQuery.data.creators[0].profile.data).username} src={JSON.parse(contractQuery.data.creators[0].profile.data).image} button={generateButton()}/>
+    <StickyHeader name={contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).username : contractQuery.data.creators[0].id} src={ contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).image : ""} button={generateButton()}/>
     <div className="relative w-full h-20 sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
       <div className="object-cover w-20 h-20 rounded-full my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20 blur-none">
         <div className="absolute p-0.5 -top-1">
-          <Avatar size="profile" src={JSON.parse(contractQuery.data.creators[0].profile.data).image}/>
+          <Avatar size="profile" src={contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).image : ""}/>
         </div>
       </div>
       <Link to="/signup" className="sm:hidden fixed right-0 filter scale-125 border-transparent text-green-500 hover:text-green-700 hover:border-green-300 w-1/5 py-5 px-1 text-center border-b-2 font-medium text-sm">
@@ -540,12 +504,12 @@ export function Creator() {
     </div>
     <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
       <h3
-        className="text-l font-bold text-white">{JSON.parse(contractQuery.data.creators[0].profile.data).username}</h3>
+        className="text-l font-bold text-white">{contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).username : contractQuery.data.creators[0].id}</h3>
  
       <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
         {generateButton()}
 
-        {/*<div className="flex space-x-5">*/}
+        {/*TODO add if statement if testnet <div className="flex space-x-5">*/}
         {/*    <Button onClick={() => {*/}
         {/*          mint()*/}
         {/*        }} label="Mint" theme='secondary-2'/>*/}
@@ -565,7 +529,7 @@ export function Creator() {
         }
       </h1>
       <div className="py-5">
-        {reactions && 
+        {//reactions && 
           contents.map((x) => showItem(x))
         }
       </div>

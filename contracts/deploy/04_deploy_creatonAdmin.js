@@ -14,18 +14,18 @@ const func = async function (hre) {
     address: nftFactory.address,
   });
 
-  // console.log('CreatorV1');
-  // let implementationContract = await deploy('CreatorV1', {
-  //   from: admin,
-  //   log: true,
-  // });
+  console.log('CreatorV1');
+  let implementationContract = await deploy('CreatorV1', {
+    from: admin,
+    log: true,
+  });
 
-  // console.log('CreatorBeaconnnn');
-  // await deploy('CreatorBeacon', {
-  //   from: admin,
-  //   args: [implementationContract.address],
-  //   log: true,
-  // });
+  console.log('CreatorBeaconnnn');
+  await deploy('CreatorBeacon', {
+    from: admin,
+    args: [implementationContract.address],
+    log: true,
+  });
 
   console.log('CreatorAdmin');
   const creatonAdmin = await deploy('CreatonAdmin', {

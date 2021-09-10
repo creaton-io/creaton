@@ -100,16 +100,20 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         string memory nftSymbol
     ) external {
         //require(registeredUsers[_msgSender()], "You need to signup on Creaton before becoming a creator"); //can use Ceramic for profiles in the future
-        CreatorV1 creatorContract =
-            new CreatorV1(
-                _host,
-                _cfa,
-                _acceptedToken,
-                _msgSender(),
-                description,
-                subscriptionPrice,
-                nftName,
-                nftSymbol
+        CreatorProxy creatorContract =
+            new CreatorProxy(
+                creatorBeacon,
+                abi.encodeWithSignature(
+                    "initialize(address,address,address,address,string,uint256,string,string)",
+                    _host,
+                    _cfa,
+                    _acceptedToken,
+                    _msgSender(),
+                    description,
+                    subscriptionPrice,
+                    nftName,
+                    nftSymbol
+                )
             );
 
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;

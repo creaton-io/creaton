@@ -9,7 +9,7 @@ import {Web3Provider} from "@ethersproject/providers";
 
 const CREATORS_QUERY = gql`
   query {
-  creators(orderBy: timestamp, orderDirection: desc) {
+  creators(orderBy: timestamp, orderDirection: asc) {
     id
     user
     creatorContract
@@ -45,8 +45,8 @@ function Creators() {
       }
     }
     return {
-      avatar: JSON.parse(creator.profile.data).image,
-      title: JSON.parse(creator.profile.data).username,
+      avatar: creator.profile !== null ? JSON.parse(creator.profile.data).image : "",
+      title: creator.profile !== null ? JSON.parse(creator.profile.data).username : creator.id,
       subtitle: subtitle,
       description: creator.description,
       count: creator.subscribers.length,

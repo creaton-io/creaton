@@ -128,7 +128,7 @@ def update_subgraph(creaton_admin, creator, network):
         f.write(''.join(converted_lines))
     print(f'Updated {yaml_path}')
 
-    if yesno('Redeploy the contracts locally?'):
+    if yesno('Deploy on Mumbai Subgraph?'):
         run_command('cd subgraph && npm run deploy')
 
 
