@@ -3,6 +3,7 @@ import {Icon} from "../icons";
 import clsx from "clsx";
 import {VideoPlayer} from "../VideoPlayer";
 import { ethers } from "ethers";
+import {Parser as HtmlToReactParser} from "html-to-react";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -58,6 +59,9 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
     }
   }
 
+  const htmlToReactParser = new HtmlToReactParser();
+  const descriptionReactElement = htmlToReactParser.parse(description);
+
   if(isEncrypted)
   return (<div className="mb-5">
     <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
@@ -87,9 +91,10 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
             {(new Date(parseInt(date!))).toLocaleString()}
           </h5>
 
-          <p className="text-left text-white">
-            {description}
-          </p>
+          {/* <p className="text-left text-white"> */}
+          {descriptionReactElement}
+          {/* </p> */}
+
           {price && <div>
                         <span className="text-xs">
                             Subscribe for
@@ -107,13 +112,10 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
       <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
 
         {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
-          {fileType === "image"
-            ? <img className="w-auto max-w-2xl rounded-xl"
-                   src={fileUrl}
-                   alt=""/>
-            : <VideoPlayer url={fileUrl}/>
-    }
-              </div>}
+          {fileType === "image" && <img className="w-auto max-w-2xl rounded-xl" src={fileUrl} alt=""/> }
+          {fileType === "video" && <VideoPlayer url={fileUrl}/> }
+
+        </div>}
               <div className="flex-1 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
                       <h4 className="text-lg font-semibold text-white">
@@ -178,9 +180,10 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                   {(new Date(parseInt(date!))).toLocaleString()}
                 </h5>
 
-                <p className="text-left text-white">
-                  {description}
-                </p>
+                <div className="text-left text-white">
+                  {descriptionReactElement}
+                </div>
+
                   {price && <div>
                         <span className="text-xs">
                             Subscribe for
