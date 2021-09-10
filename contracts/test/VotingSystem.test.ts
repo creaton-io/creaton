@@ -43,6 +43,7 @@ describe('Vote with coin', function () {
         voteFactory = await ethers.getContractFactory('VoteCreators');
         voteContract = await voteFactory.deploy();
         await voteContract.initialize(testingToken.address);
+
     });
 
     it('Vote with 1 coin', async function () {
@@ -51,7 +52,21 @@ describe('Vote with coin', function () {
         expect(await testingToken.balanceOf(testingAccount1.address)).to.equal(ethers.utils.parseEther('1000'));
 
         console.log(await testingToken.balanceOf(testingAccount1.address));
+        console.log("This should connect the account and allow user to vote")
 
+        // console.log(await voteContract.vote(testingAccount1.address));
+        expect(await testingToken.balanceOf(testingAccount2.address)).to.equal(ethers.utils.parseEther('0.0'));
+
+
+        //WHYYYYY is it reverting
+        console.log("\n");
+        // console.log(await testingToken.connect(testingAccount1).vote(testingAccount2.address))
+        await voteContract.vote(testingAccount1.address);
+
+
+
+        // console.log("Balance of the test account")
+        // expect(await testingToken.balanceOf(testingAccount2.address)).to.equal(ethers.utils.parseEther('1000'));
 
     })
 
