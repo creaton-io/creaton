@@ -156,28 +156,28 @@ export function Creator() {
     }
   }, [downloadStatus, canDecrypt])
 
-  // useEffect(() => {
-  //   (async function iife() {
-  //     if(!context.library) return;
-  //     const signer = context.library.getSigner()
-  //     const userAddress = await signer.getAddress();
+  useEffect(() => {
+    (async function iife() {
+      if(!context.library) return;
+      const signer = context.library.getSigner()
+      const userAddress = await signer.getAddress();
 
-  //     const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
-  //     setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
-  //     setReactionErc20Symbol(await erc20Contract.symbol());
+      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
+      setReactionErc20Symbol(await erc20Contract.symbol());
 
-  //     if(!creatorContractAddress) return;
-  //     updateReactions(creatorContractAddress);
-  //   })();
-  // }, [contentsQuery, creatorContractAddress, context.library]);
+      if(!creatorContractAddress) return;
+      updateReactions(creatorContractAddress);
+    })();
+  }, [contentsQuery, creatorContractAddress, context.library]);
 
   async function updateReactions(nftAddress: string){
     const reactionsQuery = `
       query($nftAddress: Bytes!) {
-        reactions(where: {nft: $nftAddress}) {
+        reactions(where: {reactionRecipientAddress: $nftAddress}) {
           id
           amount,
-          nft,
+          reactionRecipientAddress,
           tokenId
           user {
             address
@@ -377,38 +377,24 @@ export function Creator() {
 
   function showItem(content){
     let src = getSrc(content)
+
+    let fileType;
     if (content.type.startsWith('image')) {
-      if (src) {
-        return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
-                     fileType="image" date={content.date}
-                     avatarUrl="" onReport= {() => {report(content)}} 
-                      reactionErc20Available={reactionErc20Available}
-                      reactionErc20Symbol={reactionErc20Symbol}
-                      onReact={(amount, callback) => { react(content, amount, callback) }} 
-                      hasReacted={hasReacted(content)} 
-                      initialReactCount={countReacted(content)} />
-                    }} else {
-      return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
-                   fileType="video" date={content.date}
-                   avatarUrl=""
-                   onReport= {() => {report(content)}} 
-                   reactionErc20Available={reactionErc20Available}
-                   reactionErc20Symbol={reactionErc20Symbol}
-                   onReact={(amount, callback) => { react(content, amount, callback) }} 
-                   hasReacted={hasReacted(content)} 
-                   initialReactCount={countReacted(content)} 
-              />
+      fileType = "image";
+    }else if (content.type == "text") {
+      fileType = "text";
+    }else{
+      fileType = "video";
     }
 
-    return <Card key={content.ipfs} name={content.name} description={content.description}
-                   date={content.date}
-                   avatarUrl=""
-                   isEncrypted={true} 
-                   reactionErc20Available={reactionErc20Available}
-                   reactionErc20Symbol={reactionErc20Symbol}
-                   onReact={(amount, callback) => { react(content, amount, callback) }} 
-                   hasReacted={hasReacted(content)} 
-                   initialReactCount={countReacted(content)}/>
+    return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
+      fileType={fileType} date={content.date}
+      avatarUrl="" onReport= {() => {report(content)}} 
+      reactionErc20Available={reactionErc20Available}
+      reactionErc20Symbol={reactionErc20Symbol}
+      onReact={(amount, callback) => { react(content, amount, callback) }} 
+      hasReacted={hasReacted(content)} 
+      initialReactCount={countReacted(content)} />
   }
 
   async function subscribe() {
@@ -554,7 +540,7 @@ export function Creator() {
         }
       </h1>
       <div className="py-5">
-        {//reactions && 
+        {reactions && 
           contents.map((x) => showItem(x))
         }
       </div>

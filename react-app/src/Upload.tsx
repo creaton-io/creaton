@@ -21,6 +21,8 @@ import {Icon} from "./icons";
 import Tooltip from "./elements/tooltip";
 import {useCanBecomeCreator} from "./Whitelist";
 import LitJsSdk from 'lit-js-sdk'
+import { ExecutableDefinitionsRule } from "graphql";
+import { Editor } from '@tinymce/tinymce-react'; 
 
 const CreatorContract = creaton_contracts.Creator
 
@@ -248,6 +250,8 @@ const Upload = () => {
         //TODO: figure out how to make splitted videos work
       }
       upload(await currentFile, type)
+    }else{
+      //upload((new TextEncoder()).encode(""), "text");
     }
   }
 
@@ -258,37 +262,67 @@ const Upload = () => {
 
   return (
       <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10 text-white">
-        <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
-               type="file" ref={fileInput}/>
-        <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}>
-        </Button>
-        <small className="text-white">
-          {currentFile ? currentFile.name || "Error" : "No file chosen"}
-        </small>
-        {(currentFile?.type === 'video/mp4' && ffmpeg !== undefined) &&
-        <div className="w-full m-5 hidden">
-          <label className="float-left">
-            Convert to streaming format (fragmented video for faster looading)
-          </label>
-
-          <div className="float-right"><Toggle state={isStreaming} onClick={(e) => {
-            e.preventDefault()
-            setIsStreaming(!isStreaming)
-          }}/></div>
+        <div className="w-full">
+          <Input className="text-black w-full" type="text" label="Title" placeholder="Title" value={fileName} onChange={(event) => {
+            setFileName(event.target.value)
+          }}/>
         </div>
-        }
-        <Input className="text-black" type="text" label="Title" placeholder="Title" value={fileName} onChange={(event) => {
-          setFileName(event.target.value)
-        }}/>
-        <Textarea className="text-black" name="description"  label="Description" placeholder="Description" value={description} rows={5}
-          onChange={(event) => {
-          setDescription(event.target.value)
-        }}/>
+
+        <div className="w-full m-5">
+          <div className="flex items-center mb-1">
+            <label className="block font-semibold mb-1">Description</label>
+          </div>
+          <Editor
+            apiKey="onu4668y0hkvss8rf10j9bfaz4ijluey87k92e4z0fqstj6w"
+            initialValue="<p></p>"
+            init={{
+              height: 500,
+              menubar: false,
+              plugins: [
+                'advlist autolink lists link image', 
+                'charmap print preview anchor help',
+                'searchreplace visualblocks code',
+                'insertdatetime media table paste wordcount'
+              ],
+              toolbar:
+                'undo redo | formatselect | bold italic | \
+                alignleft aligncenter alignright | \
+                bullist numlist outdent indent | help'
+            }}
+            onChange={(e) => setDescription(e.target.getContent())}
+          />
+        </div>
+
+        <div className="w-full m-5">
+          <div className="flex items-center mb-1">
+            <label className="block font-semibold mb-1">Attach a file</label>
+          </div>
+          <input id="file" style={{display: 'none'}} onChange={(event) => handleFileSelection(event)} name="file"
+                type="file" ref={fileInput}/>
+          <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}>
+          </Button>
+          <small className="text-white">
+            {currentFile ? currentFile.name || "Error" : "No file chosen"}
+          </small>
+          {(currentFile?.type === 'video/mp4' && ffmpeg !== undefined) &&
+          <div className="w-full m-5 hidden">
+            <label className="float-left">
+              Convert to streaming format (fragmented video for faster looading)
+            </label>
+
+            <div className="float-right"><Toggle state={isStreaming} onClick={(e) => {
+              e.preventDefault()
+              setIsStreaming(!isStreaming)
+            }}/></div>
+          </div>
+          }
+        </div>
+
         <div className="w-full m-5">
           <label className="flex float-left">
             <span className="mr-1">Only for subscribers</span> <Tooltip content={<div>Title and description of the content are still visible for everyone</div>} hover>
             <Icon name="question-circle" className="text-gray-500 " />
-        </Tooltip>
+              </Tooltip>
           </label>
 
           <div className="float-right"><Toggle state={uploadEncrypted} onClick={(e) => {
