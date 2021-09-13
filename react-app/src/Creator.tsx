@@ -11,7 +11,8 @@ import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {UmbralCreator, UmbralSubscriber} from "./Umbral";
-import {TextileContext} from "./TextileProvider";
+//import {TextileContext} from "./TextileProvider";
+import {LitContext} from "./LitProvider";
 import {Base64} from "js-base64";
 import {Contract, ethers} from "ethers";
 import {NotificationHandlerContext} from "./ErrorHandler";
@@ -25,6 +26,8 @@ import {Web3UtilsContext} from "./Web3Utils";
 import {
   Link
 } from "react-router-dom";
+import LitJsSdk from 'lit-js-sdk'
+import JSZip from 'jszip'
 
 interface params {
   id: string;
@@ -70,7 +73,8 @@ export function Creator() {
       }
    `;
 
-  const textile = useContext(TextileContext)
+  //const textile = useContext(TextileContext)
+  const litNode = useContext(LitContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const context = useWeb3React<Web3Provider>()
@@ -128,27 +132,29 @@ export function Creator() {
   useEffect(() => {
     if (contentsQuery.loading || contentsQuery.error) return;
     //if (!textile) return;
-    // if (!canDecrypt) return;
-    // const contents = contentsQuery.data.contents;
-    // if (Object.keys(downloadStatus).length === 0 || !contents) return;
-    // if (umbralWasm === null) return;
-    // if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
-    //   console.log('already downloading some stuff')
-    //   return;
-    // }
-    // for (let content of contents) {
-    //   if (content.tier == 0) continue;
-    //   if (downloadStatus[content.ipfs] === 'pending') {
-    //     setDownloadStatus({...downloadStatus, [content.ipfs]: 'downloading'})
-    //     decrypt(content).then((decrypted) => {
-    //       console.log('decrypted promise result', decrypted)
-    //       setDownloadCache({...downloadCache, [content.ipfs]: decrypted})
-    //       setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
-    //     })
-    //     break;
-    //   }
-    // }
-  }, [downloadStatus, textile, canDecrypt])
+    if (!canDecrypt) return;
+    const contents = contentsQuery.data.contents;
+    if (Object.keys(downloadStatus).length === 0 || !contents) return;
+    if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
+      console.log('already downloading some stuff')
+      return;
+    }
+    for (let content of contents) {
+      if (content.tier == 0) continue;
+      if (downloadStatus[content.ipfs] === 'pending') {
+        setDownloadStatus({...downloadStatus, [content.ipfs]: 'downloading'})
+        decrypt(content).then((decrypted) => {
+          //console.log('decrypted promise result', decrypted)
+          if (decrypted !== undefined) {
+            const blob = new Blob([decrypted], {type: content.type});
+            setDownloadCache({...downloadCache, [content.ipfs]: window.URL.createObjectURL(blob)})
+            setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
+          }
+        })
+        break;
+      }
+    }
+  }, [downloadStatus, canDecrypt])
 
   // useEffect(() => {
   //   (async function iife() {
@@ -187,23 +193,6 @@ export function Creator() {
 
     const data = await client.query({query: gql(reactionsQuery), variables: {'nftAddress': nftAddress}});
     setReactions(data.data.reactions);
-  }
-  
-  function downloadURL(data, fileName) {
-    const a = document.createElement('a');
-    a.href = data;
-    a.download = fileName;
-    document.body.appendChild(a);
-    a.style.display = 'none';
-    a.click();
-    a.remove();
-  }
-
-  function downloadBlob(decrypted: Uint8Array, content) {
-    const blob = new Blob([decrypted], {type: content.type});
-    const url = window.URL.createObjectURL(blob);
-    downloadURL(url, content.name);
-    setTimeout(() => window.URL.revokeObjectURL(url), 1000);
   }
 
   async function mint() {
@@ -270,33 +259,73 @@ export function Creator() {
     console.log('subscribed');
   }
 
-  async function decrypt(content) {
-    let encObject
-    if (content.ipfs.startsWith('/ipfs'))
-      encObject = await textile!.downloadEncryptedFile(content.ipfs)
-    else {//handle arweave
-      const response = await fetch('https://arweave.net/' + content.ipfs)
-      encObject = await response.json()
-    }
-    if (isSelf) {
-      const umbral = new UmbralCreator(umbralWasm, currentCreator!.creatorContract)
-      await umbral.initMasterkey(context.library!.getSigner(context.account!), currentCreator!.creatorContract, true)
-      return await umbral.decrypt(encObject.ciphertext, encObject.capsule)
-    } else {
-      const umbral = new UmbralSubscriber(umbralWasm)
-      await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account!, false)
-      return await umbral.decrypt(encObject.ciphertext, encObject.capsule, encObject.signing_pk, encObject.alice_pk, creatorContractAddress)
-    }
-  }
+  
+    var utf8ArrayToStr = (function () {
+      var charCache = new Array(128);  // Preallocate the cache for the common single byte chars
+      var charFromCodePt = String.fromCodePoint || String.fromCharCode;
+      var result = [];
+  
+      return function (array) {
+          var codePt, byte1;
+          var buffLen = array.length;
+  
+          result.length = 0;
+  
+          for (var i = 0; i < buffLen;) {
+              byte1 = array[i++];
+  
+              if (byte1 <= 0x7F) {
+                  codePt = byte1;
+              } else if (byte1 <= 0xDF) {
+                  codePt = ((byte1 & 0x1F) << 6) | (array[i++] & 0x3F);
+              } else if (byte1 <= 0xEF) {
+                  codePt = ((byte1 & 0x0F) << 12) | ((array[i++] & 0x3F) << 6) | (array[i++] & 0x3F);
+              // @ts-expect-error: _data does exist on JSZip
+              } else if (String.fromCodePoint) {
+                  codePt = ((byte1 & 0x07) << 18) | ((array[i++] & 0x3F) << 12) | ((array[i++] & 0x3F) << 6) | (array[i++] & 0x3F);
+              } else {
+                  codePt = 63;    // Cannot convert four byte code points, so use "?" instead
+                  i += 3;
+              }
+  
+              // @ts-expect-error: _data does exist on JSZip
+              result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
+          }
+  
+          return result.join('');
+      };
+    })();
 
-  async function download(content) {
-    let decrypted;
-    if (downloadStatus[content.ipfs] === 'cached')
-      decrypted = downloadCache[content.ipfs]
-    else
-      decrypted = await decrypt(content)
-    if (decrypted)
-      await downloadBlob(decrypted, content);
+  async function decrypt(content) {
+    //if (content.ipfs.startsWith('/ipfs'))
+    //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
+    //else {//handle arweave
+
+    let zip = new JSZip();
+
+    const encryptedZipBlob = await (await fetch('https://arweave.net/' + content.ipfs)).blob()
+    const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+
+    await zip.loadAsync(encryptedZipBlob)
+
+     // ts-expect-error: _data does exist on JSZip
+    let zipFile = zip.files["lit_protocol_metadata.json"]
+
+    let { decryptedFiles, metadata }  = await LitJsSdk.decryptZipFileWithMetadata({ authSig, encryptedZipBlob, litNode})
+
+
+    
+    //let zipMetadata = JSON.parse(utf8ArrayToStr(zipFile));
+
+    const symmetricKey = await litNode.getEncryptionKey({
+      accessControlConditions: metadata.accessControlConditions,
+      toDecrypt: metadata.encryptedSymmetricKey,
+      authSig,
+      chain: "mumbai"
+    })
+
+
+    return await decryptedFiles['encryptedFile']
   }
 
   if (contentsQuery.loading || contractQuery.loading) {
@@ -322,7 +351,7 @@ export function Creator() {
       src = 'https://arweave.net/' + content.ipfs
     else {
       if (downloadStatus[content.ipfs] !== 'cached') return;
-      src = "data:" + content.type + ";base64, " + Base64.fromUint8Array(downloadCache[content.ipfs]);
+      //src = new Blob(downloadCache[content.ipfs]);
     }
     return src;
   }
@@ -349,7 +378,7 @@ export function Creator() {
   function showItem(content){
     let src = getSrc(content)
     if (content.type.startsWith('image')) {
-      if (src)
+      if (src) {
         return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                      fileType="image" date={content.date}
                      avatarUrl="" onReport= {() => {report(content)}} 
@@ -358,7 +387,7 @@ export function Creator() {
                       onReact={(amount, callback) => { react(content, amount, callback) }} 
                       hasReacted={hasReacted(content)} 
                       initialReactCount={countReacted(content)} />
-                    } else {
+                    }} else {
       return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
                    fileType="video" date={content.date}
                    avatarUrl=""
@@ -385,10 +414,7 @@ export function Creator() {
   async function subscribe() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(context.library!.getSigner());
-    const umbral = new UmbralSubscriber(umbralWasm)
-    await umbral.initMasterkey(context.library!.getSigner(context.account!), context.account, false)
-    const result = umbral.getPublicKeyBase64()
-    const receipt = await creatorContract.requestSubscribe(result)
+    const receipt = await creatorContract.subscribe()
     web3utils.setIsWaiting(true);
     await receipt.wait(1)
     web3utils.setIsWaiting(false);
@@ -471,13 +497,13 @@ export function Creator() {
   }
 
   function generateButton(){
-    return (<div>{(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
-          subscribe()
-        }} label="Subscribe"/>)}
-        {(subscription === 'requested_subscribe' && !isSelf) && (<Button disabled={true} label="Subscription Requested"/>)}
-        {(subscription === 'pending_subscribe') && (<Button onClick={() => {
+    return (<div>
+        {(subscription === 'unsubscribed') && (<Button onClick={() => {
           startStreaming()
-        }} label="Start Subscription"/>)}</div>)
+        }} label="Start Subscription"/>)}
+        {(subscription === 'subscribed') && (<Button onClick={() => {
+          alert('still need to implement, can cancel manually through Superfluid dashboard')
+        }} label="Stop Subscription"/>)}</div>)
   }
 
   function getCoverPhotoUrl(){
@@ -489,7 +515,7 @@ export function Creator() {
 
   return (
     <div>
-    <StickyHeader name={contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).username : contractQuery.data.creators[0].id} src={ contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).image : ""} button={generateButton()}/>
+    {/* <StickyHeader name={contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).username : contractQuery.data.creators[0].id} src={ contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).image : ""} button={generateButton()}/> */}
     <div className="relative w-full h-20 sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
       <div className="object-cover w-20 h-20 rounded-full my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20 blur-none">
         <div className="absolute p-0.5 -top-1">
@@ -508,20 +534,19 @@ export function Creator() {
  
       <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
         {generateButton()}
+        {/* //TODO add if statement if testnet  */}
+        <div className="flex space-x-5">
+           <Button onClick={() => {
+                 mint()
+                }} label="Mint" theme='secondary-2'/>
+              <Button onClick={() => {
+                approveUSDC() }}
+         label="Approve" theme='secondary-2'/>
+          </div>
 
-        {/*TODO add if statement if testnet <div className="flex space-x-5">*/}
-        {/*    <Button onClick={() => {*/}
-        {/*          mint()*/}
-        {/*        }} label="Mint" theme='secondary-2'/>*/}
-        {/*      */}
-        {/*      <Button onClick={() => {*/}
-        {/*        approveUSDC()*/}
-        {/*      }} label="Approve" theme='secondary-2'/>*/}
-        {/*  </div>*/}
-
-        {/*<Button onClick={() => {*/}
-        {/*  convertUSDCx()*/}
-        {/*}} label="Upgrade"/>*/}
+        <Button onClick={() => {
+          convertUSDCx() }}
+         label="Upgrade"/>
       </div>
       <h1 className="mb-5 text-2xl font-bold text-white">
         {

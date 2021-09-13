@@ -37,7 +37,7 @@ const func = async function (hre) {
     [
       sf.host.address,
       sf.agreements.cfa.address,
-      '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174', //accepted token ($CREATE)
+      '0x42bb40bF79730451B11f6De1CbA222F17b87Afd7', //accepted token ($CREATE)
       treasury,
       treasuryFee,
       beaconContract.address,

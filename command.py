@@ -159,7 +159,7 @@ def main():
                 'update contracts',
                 'update contracts mumbai testnet',
                 'run subgraph docker',
-                'run re-encryption server',
+                'upgrade Creator Beacon'
             ]
         },
     ]
@@ -181,7 +181,7 @@ def main():
         run_command('cd subgraph && docker-compose up')
         return
 
-    if subproject == 'run re-encryption server':
+    if subproject == 'upgrade Creator Beacon':
         run_command('cd umbral-server && docker-compose up')
         return
 

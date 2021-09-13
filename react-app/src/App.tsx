@@ -20,6 +20,7 @@ import {Creator} from "./Creator";
 import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
 import {UmbralWasmProvider} from "./UmbralWasm";
 import {TextileProvider} from "./TextileProvider";
+import {LitProvider} from "./LitProvider";
 import {CeramicProvider} from "./CeramicProvider";
 import TwitterVerification from "./TwitterVerification";
 import Creators from "./Creators";
@@ -508,7 +509,7 @@ const App = () => {
             <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/>
             <Autoconnect/>
             <SuperfluidProvider>
-              <UmbralWasmProvider>
+              <LitProvider>
                 <ApolloProvider client={client}>
                   <Router>
                   <Web3UtilsProvider>
@@ -648,7 +649,7 @@ const App = () => {
                 </Web3UtilsProvider>
                 </Router>
               </ApolloProvider>
-            </UmbralWasmProvider>
+            </LitProvider>
           </SuperfluidProvider>
         </Web3ReactProvider>
       </CeramicProvider>

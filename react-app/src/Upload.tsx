@@ -6,6 +6,7 @@ import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {UmbralCreator} from "./Umbral";
+import {LitContext, LitProvider} from "./LitProvider";
 import {UmbralWasmContext} from "./UmbralWasm";
 import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
 import {Base64} from "js-base64";
@@ -22,7 +23,6 @@ import {useCanBecomeCreator} from "./Whitelist";
 import LitJsSdk from 'lit-js-sdk'
 
 const CreatorContract = creaton_contracts.Creator
-
 
 const Upload = () => {
   const context = useWeb3React<Web3Provider>()
@@ -49,12 +49,13 @@ const Upload = () => {
       })
     }
   }, [ffmpeg])
+
   const {loading, error, currentCreator} = useCurrentCreator()
   const canBecomeCreator = useCanBecomeCreator()
 
 
   const notificationHandler = useContext(NotificationHandlerContext)
-  const umbralWasm = useContext(UmbralWasmContext)
+  const litNode = useContext(LitContext)
   if (!context.account)
     return (<div>Not connected</div>)
   if (!canBecomeCreator)
@@ -62,18 +63,16 @@ const Upload = () => {
   if (loading) return (<p>Loading...</p>);
   if (currentCreator === undefined)
     return (<SignUp/>)
-  if (!umbralWasm)
-    return (<div>Umbral wasm not loaded yet</div>)
+  if (!litNode)
+    return (<div>Lit Node not loaded yet</div>)
   const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
 
-  async function upload(bytes: Uint8Array, file_type: string) {
+  async function upload(file: File, file_type: string) {
     let response
     if (uploadEncrypted && currentCreator !== undefined) {
       web3utils.setIsWaiting('Encrypting the file...')
-      let zipBlobFile = bytes;
+      let zipBlobFile;
       try {
-        var litNode = await new LitJsSdk.LitNodeClient()
-        await litNode.connect();
         const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
         const subConditions = [
           {
@@ -90,7 +89,8 @@ const Upload = () => {
             }
           }
         ]
-        const { zipBlob, encryptedSymmetricKey } = LitJsSdk.encryptFileAndZipWithMetadata({authSig: authSig, accessControlConditions: subConditions, chain: "mumbai", file: bytes, litNodeClient: litNode, readme: "This is a Creaton encrypted file"});
+
+        const { zipBlob, encryptedSymmetricKey } = await LitJsSdk.encryptFileAndZipWithMetadata({authSig, accessControlConditions: subConditions, chain: "mumbai", file: file, litNodeClient: litNode, readme: "test"});
         zipBlobFile = zipBlob;
       } catch (error: any) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'})
@@ -98,12 +98,9 @@ const Upload = () => {
         return;
       }
       //zipBlobFile['type'] = file_type
-      console.log(zipBlobFile)
       web3utils.setIsWaiting('Uploading encrypted content to arweave...');
       const formData = new FormData();
-      formData.append("file", new Blob([JSON.stringify(zipBlobFile)], {
-        type: "application/json"
-      }));
+      formData.append("encryptedFile", zipBlobFile);
       response = await fetch(ARWEAVE_URI + '/upload', {
         method: 'POST',
         body: formData
@@ -111,8 +108,12 @@ const Upload = () => {
 
 
     } else {
-      web3utils.setIsWaiting('Uploading content to arweave...')
+      web3utils.setIsWaiting('Uploading content to Arweave...')
       const formData = new FormData();
+      
+      const buf = await file.arrayBuffer();
+      let bytes = new Uint8Array(buf);
+
       formData.append("file", new Blob([bytes], {
         type: file_type
       }));
@@ -236,6 +237,7 @@ const Upload = () => {
   async function uploadContent() {
     if (currentFile !== undefined) {
       let bytes
+      let file
       let type
       if (currentFile?.type === 'video/mp4') {
         await splitAndEncrypt(currentFile);
@@ -243,12 +245,9 @@ const Upload = () => {
         console.log('playlist text', text)
         bytes = (new TextEncoder()).encode(text)
         type = 'application/vnd.apple.mpegurl'
-      } else {
-        const buf = await currentFile.arrayBuffer();
-        bytes = new Uint8Array(buf);
-        type = currentFile.type
+        //TODO: figure out how to make splitted videos work
       }
-      upload(bytes, type)
+      upload(await currentFile, type)
     }
   }
 

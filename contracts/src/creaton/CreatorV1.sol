@@ -99,6 +99,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         adminContract = ICreatonAdmin(admin);
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
+
+        _addSubscriber(creator);
     }
 
     // -----------------------------------------
@@ -269,7 +271,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
         int96 contract2treasuryDelta = contractFlowRate - contract2creatorDelta;
 
-        _acceptedToken.transfer(creator, uint256(uint96(subscriptionPrice)));
+        //TODO: does not work, probably need to batch transfer also for best UX
+        //_acceptedToken.approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        //_acceptedToken.transfer(creator, uint256(uint96(subscriptionPrice)));
 
         if (subscriberCount == 0) {
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
