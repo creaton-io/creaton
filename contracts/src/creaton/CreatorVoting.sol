@@ -32,9 +32,14 @@ contract CreatorVoting is Context, ERC1155PresetMinterPauser, ERC1155Holder {
         _description = description;
         _answers = answers;
         
-        uint addressesLength = acceptedERC20.length;
-        for (uint i=0; i<addressesLength; i++) {
+        uint256 addressesLength = acceptedERC20.length;
+        for (uint256 i=0; i<addressesLength; i++) {
             _acceptedERC20.add(acceptedERC20[i]);
+        }
+
+        uint256 answersLength = answers.length;
+        for (uint256 i=0; i<answersLength; i++) {
+            _mint(address(this), i, 0, bytes(answers[i]));
         }
 
         emit Created(question, description, uri, answers, acceptedERC20);
@@ -57,7 +62,7 @@ contract CreatorVoting is Context, ERC1155PresetMinterPauser, ERC1155Holder {
 
         IERC20(votingToken).transferFrom(_msgSender(), address(this), votingAmount);
 
-        _mint(address(this), answerId, votingAmount, "");
+        _mint(address(this), answerId, votingAmount, bytes(_answers[answerId]));
 
         emit Voted(answerId, votingToken, votingAmount);
     }
