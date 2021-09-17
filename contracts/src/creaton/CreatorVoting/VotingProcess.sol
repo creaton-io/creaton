@@ -8,9 +8,7 @@ import "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
-import "hardhat/console.sol";
-
-contract CreatorVoting is Context, ERC1155PresetMinterPauser, ERC1155Holder {
+contract VotingProcess is Context, ERC1155PresetMinterPauser, ERC1155Holder {
     using EnumerableSet for EnumerableSet.AddressSet;
     
     event Created(string question, string description, string uri, string[] answers, address[] acceptedERC20);
@@ -55,10 +53,10 @@ contract CreatorVoting is Context, ERC1155PresetMinterPauser, ERC1155Holder {
     function vote(uint256 answerId, address votingToken, uint256 votingAmount)
         public
     {
-        require(answerId < _answers.length, "CreatorVoting: answerId must exist");
-        require(address(votingToken) != address(0), "CreatorVoting: votingToken Address can't be 0x");
-        require(votingAmount > 0, "CreatorVoting: votingAmount must be > 0");
-        require(_acceptedERC20.contains(votingToken), "CreatorVoting: votingToken Address not allowed");
+        require(answerId < _answers.length, "VotingProcess: answerId must exist");
+        require(address(votingToken) != address(0), "VotingProcess: votingToken Address can't be 0x");
+        require(votingAmount > 0, "VotingProcess: votingAmount must be > 0");
+        require(_acceptedERC20.contains(votingToken), "VotingProcess: votingToken Address not allowed");
 
         IERC20(votingToken).transferFrom(_msgSender(), address(this), votingAmount);
 
