@@ -40,6 +40,7 @@ import Loader from "./elements/loader";
 import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
 import WalletModal from "./components/walletModal";
 import { Flows } from './Flows';
+import { CreatorVoting } from './CreatorVoting';
 import { Governance } from './Governance';
 
 initFontAwesome()
@@ -351,6 +352,9 @@ const ProfileMenu = (props) => {
           {/* {currentProfile &&
           <NavigationLink to="/flows" label="My Flows"/>
           } */}
+          {currentProfile &&
+          <NavigationLink to="/creator-voting" label="Creator Voting"/>
+          }
         </div>
       </div>
     </div>)
@@ -603,6 +607,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/governance">
                                   <Governance />
+                                </Route>
+                                <Route path="/creator-voting">
+                                  <CreatorVoting />
                                 </Route>
                               </Switch>
                               </div>

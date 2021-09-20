@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "./web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { Button } from "./elements/button";
 import { Input } from "./elements/input";
