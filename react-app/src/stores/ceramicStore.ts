@@ -1,17 +1,25 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { DID } from 'dids'
 import type { IDX } from '@ceramicstudio/idx'
 import type { CeramicApi } from '@ceramicnetwork/common'
 import type { AuthProvider, LinkProof } from '@ceramicnetwork/blockchain-utils-linking'
 import ThreeIdResolver from '@ceramicnetwork/3id-did-resolver'
-import KeyDidResolver from 'key-did-resolver'
 
 import { hash } from '@stablelib/sha256'
 
 import { fromString } from 'uint8arrays'
 
-import { createCeramic } from './ceramic/ceramic'
 import { createIDX } from './ceramic/idx'
+import { createCeramic } from './ceramic/ceramic'
 import { getProvider } from './ceramic/wallet'
+
+
+import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
+
+import {Web3Provider} from "@ethersproject/providers";
+
+import Ceramic from '@ceramicnetwork/http-client'
+import { InjectedConnector } from '@web3-react/injected-connector'
 
 declare global {
   interface Window {
@@ -28,11 +36,22 @@ interface SecretNotes {
 export class CeramicStore {
   authProvider!: AuthProvider
 
-  async authenticate(): Promise<string> {
+  async authenticate(context: any): Promise<string> {
+
     const [ceramic, provider] = await Promise.all([createCeramic(), getProvider()])
+
+    const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
+  
+    const threeIdConnect = new ThreeIdConnect() 
+    const ethProvider = new EthereumAuthProvider(await injected.getProvider(), context.account)
+    
+    await threeIdConnect.connect(ethProvider)
+
     const did = new DID({
-      provider,
-      resolver: { ...KeyDidResolver.getResolver(), ...ThreeIdResolver.getResolver(ceramic) },
+      provider: threeIdConnect.getDidProvider(),
+      resolver: {
+        ...ThreeIdResolver.getResolver(ceramic)
+      }
     })
     await did.authenticate()
     window.did = did
@@ -161,4 +180,8 @@ export class CeramicStore {
     document.getElementById('createloading')?.style?.display = 'none'
   })
   */
+}
+
+function clipAddress(address) {
+  return address.slice(0, 8) + '...' + address.slice(36, 42)
 }
