@@ -18,11 +18,7 @@ import Grant from "./Grant";
 //import {Staking} from "./Staking";
 import {Creator} from "./Creator";
 import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
-import {UmbralWasmProvider} from "./UmbralWasm";
-import {TextileProvider} from "./TextileProvider";
 import {LitProvider} from "./LitProvider";
-import {CeramicProvider} from "./CeramicProvider";
-import TwitterVerification from "./TwitterVerification";
 import Creators from "./Creators";
 import {RelayProvider} from "@opengsn/provider";
 import {Button} from "./elements/button";
@@ -504,9 +500,8 @@ const App = () => {
   const [showMenu, setShowMenu] = useState<boolean>(false);
   return (
     <NotificationHandlerProvider>
-      <CeramicProvider>
-          <Web3ReactProvider getLibrary={isGSN ? getGSNLibrary : getLibrary}>
-            <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/>
+      <Web3ReactProvider getLibrary={isGSN ? getGSNLibrary : getLibrary}>
+          <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/>
             <Autoconnect/>
             <SuperfluidProvider>
               <LitProvider>
@@ -647,12 +642,11 @@ const App = () => {
                       </div>
                     </div>
                 </Web3UtilsProvider>
-                </Router>
-              </ApolloProvider>
-            </LitProvider>
-          </SuperfluidProvider>
-        </Web3ReactProvider>
-      </CeramicProvider>
+              </Router>
+            </ApolloProvider>
+          </LitProvider>
+        </SuperfluidProvider>
+      </Web3ReactProvider>
     </NotificationHandlerProvider>
   );
 }

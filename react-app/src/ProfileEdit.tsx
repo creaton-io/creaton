@@ -11,6 +11,7 @@ import {AvatarUpload} from "./components/avatarUpload";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {Web3UtilsContext} from "./Web3Utils";
+import { CeramicProvider } from "./CeramicProvider";
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React<Web3Provider>()
@@ -130,33 +131,35 @@ const ProfileEdit = (props) => {
     return (<div>Connect your wallet</div>)
 
   return (
-    <form onSubmit={updateProfile} className="grid grid-cols-1 place-items-center">
+    <CeramicProvider>
+      <form onSubmit={updateProfile} className="grid grid-cols-1 place-items-center">
 
-      <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
-             onChange={(event) => handleFileSelection(event)} name="file"
-             type="file" ref={fileInput}/>
+        <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
+               onChange={(event) => handleFileSelection(event)} name="file"
+               type="file" ref={fileInput}/>
 
-      <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
-             onChange={(event) => handleCoverSelection(event)} name="file"
-             type="file" ref={coverInput}/>
-      <div className="flex flex-row">
-        <div className="p-5 cursor-pointer" onClick={() => fileInput.current.click()}>
-          <AvatarUpload src={previewSrc}/>
+        <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
+               onChange={(event) => handleCoverSelection(event)} name="file"
+               type="file" ref={coverInput}/>
+        <div className="flex flex-row">
+          <div className="p-5 cursor-pointer" onClick={() => fileInput.current.click()}>
+            <AvatarUpload src={previewSrc}/>
+          </div>
         </div>
-      </div>
-      {currentCreator && (<div className="flex flex-col">
-        <div className="flex-shrink place-self-center p-5">
-          <Button label="Upload Cover Photo" type="button" onClick={() => coverInput.current.click()}/>
-        </div>
-      </div>)}
+        {currentCreator && (<div className="flex flex-col">
+          <div className="flex-shrink place-self-center p-5">
+            <Button label="Upload Cover Photo" type="button" onClick={() => coverInput.current.click()}/>
+          </div>
+        </div>)}
 
 
-      <div className="p-5 text-white"><Input className="bg-gray-900 text-white" type="text" name="username" placeholder="Your Username" label="Enter your username" value={username}
-                                  onChange={(event) => {
-                                    setUsername(event.target.value)
-                                  }}/></div>
-      <div><Button type="submit" label={currentProfile ? "Update Profile" : "Sign Up"}/></div>
-    </form>)
+        <div className="p-5 text-white"><Input className="bg-gray-900 text-white" type="text" name="username" placeholder="Your Username" label="Enter your username" value={username}
+                                    onChange={(event) => {
+                                      setUsername(event.target.value)
+                                    }}/></div>
+        <div><Button type="submit" label={currentProfile ? "Update Profile" : "Sign Up"}/></div>
+      </form>
+    </CeramicProvider>)
 }
 
 export {ProfileEdit}

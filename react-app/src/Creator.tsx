@@ -147,15 +147,19 @@ export function Creator() {
           //console.log('decrypted promise result', decrypted)
           if (decrypted !== undefined) {
             const blob = new Blob([decrypted], {type: content.type});
-            setDownloadCache({...downloadCache, [content.ipfs]: window.URL.createObjectURL(blob)})
+            const url = window.URL.createObjectURL(blob)
+            setDownloadCache({...downloadCache, [content.ipfs]: url})
             setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
           }
+        }).catch((e) => {
+          console.log(e)
+          setDownloadStatus({...downloadStatus, [content.ipfs]: 'error'})
         })
         break;
       }
     }
   }, [downloadStatus, canDecrypt])
-
+/*
   useEffect(() => {
     (async function iife() {
       if(!context.library) return;
@@ -170,6 +174,7 @@ export function Creator() {
       updateReactions(creatorContractAddress);
     })();
   }, [contentsQuery, creatorContractAddress, context.library]);
+  */
 
   async function updateReactions(nftAddress: string){
     const reactionsQuery = `
@@ -301,31 +306,16 @@ export function Creator() {
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
     //else {//handle arweave
 
-    let zip = new JSZip();
-
     const encryptedZipBlob = await (await fetch('https://arweave.net/' + content.ipfs)).blob()
     const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
 
-    await zip.loadAsync(encryptedZipBlob)
-
-     // ts-expect-error: _data does exist on JSZip
-    let zipFile = zip.files["lit_protocol_metadata.json"]
-
-    let { decryptedFiles, metadata }  = await LitJsSdk.decryptZipFileWithMetadata({ authSig, encryptedZipBlob, litNode})
+    let { decryptedFile, metadata }  = await LitJsSdk.decryptZipFileWithMetadata({ authSig: authSig, file: encryptedZipBlob, litNodeClient: litNode})
 
 
-    
-    //let zipMetadata = JSON.parse(utf8ArrayToStr(zipFile));
-
-    const symmetricKey = await litNode.getEncryptionKey({
-      accessControlConditions: metadata.accessControlConditions,
-      toDecrypt: metadata.encryptedSymmetricKey,
-      authSig,
-      chain: "mumbai"
-    })
 
 
-    return await decryptedFiles['encryptedFile']
+    let files = await decryptedFile
+    return files
   }
 
   if (contentsQuery.loading || contractQuery.loading) {
@@ -351,7 +341,7 @@ export function Creator() {
       src = 'https://arweave.net/' + content.ipfs
     else {
       if (downloadStatus[content.ipfs] !== 'cached') return;
-      //src = new Blob(downloadCache[content.ipfs]);
+      src = downloadCache[content.ipfs];
     }
     return src;
   }
@@ -384,7 +374,7 @@ export function Creator() {
     }else if (content.type == "text") {
       fileType = "text";
     }else{
-      fileType = "video";
+      fileType = "image";
     }
 
     return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
@@ -392,7 +382,7 @@ export function Creator() {
       avatarUrl="" onReport= {() => {report(content)}} 
       reactionErc20Available={reactionErc20Available}
       reactionErc20Symbol={reactionErc20Symbol}
-      onReact={(amount, callback) => { react(content, amount, callback) }} 
+      //onReact={(amount, callback) => { react(content, amount, callback) }} 
       hasReacted={hasReacted(content)} 
       initialReactCount={countReacted(content)} />
   }
@@ -406,7 +396,7 @@ export function Creator() {
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
   }
-
+/*
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
@@ -441,7 +431,7 @@ export function Creator() {
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-  }
+  }*/
 
   function countReacted(content): string{
     if(!reactions) return '0';

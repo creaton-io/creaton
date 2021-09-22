@@ -275,9 +275,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         //_acceptedToken.approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         //_acceptedToken.transfer(creator, uint256(uint96(subscriptionPrice)));
 
-        if (subscriberCount == 0) {
+        if (subscriberCount == 1) {
+            //creator are subscribed to themselves already
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
-        } else if (subscriberCount > 0) {
+        } else if (subscriberCount > 1) {
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
             (, int96 contract2treasuryCurrent, , ) =
                 _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());

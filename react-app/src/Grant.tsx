@@ -101,10 +101,8 @@ const Grant = () => {
   });
   const [activeTab, setActiveTab] = useState('Requested')
 
-  if (umbralWasm === null)
-    return (<div>Umbral Wasm not loaded</div>)
   if (!web3Context.account)
-    return (<div>Not connected to MetaMask</div>)
+    return (<div>Not connected to Web3 Wallet</div>)
   if (creator === undefined)
     return (<div><Example/></div>)
   if (loading)

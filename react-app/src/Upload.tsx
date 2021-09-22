@@ -93,21 +93,19 @@ const Upload = () => {
         ]
 
         const { zipBlob, encryptedSymmetricKey } = await LitJsSdk.encryptFileAndZipWithMetadata({authSig, accessControlConditions: subConditions, chain: "mumbai", file: file, litNodeClient: litNode, readme: "test"});
-        zipBlobFile = zipBlob;
+        
+        web3utils.setIsWaiting('Uploading encrypted content to arweave...');
+        const formData = new FormData();
+        formData.append("file", zipBlob); //do not change "file"!
+        response = await fetch(ARWEAVE_URI + '/upload', {
+          method: 'POST',
+          body: formData
+        })
       } catch (error: any) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'})
         web3utils.setIsWaiting(false)
         return;
       }
-      //zipBlobFile['type'] = file_type
-      web3utils.setIsWaiting('Uploading encrypted content to arweave...');
-      const formData = new FormData();
-      formData.append("encryptedFile", zipBlobFile);
-      response = await fetch(ARWEAVE_URI + '/upload', {
-        method: 'POST',
-        body: formData
-      })
-
 
     } else {
       web3utils.setIsWaiting('Uploading content to Arweave...')
@@ -249,7 +247,7 @@ const Upload = () => {
         type = 'application/vnd.apple.mpegurl'
         //TODO: figure out how to make splitted videos work
       }
-      upload(await currentFile, type)
+      upload(currentFile, type)
     }else{
       //upload((new TextEncoder()).encode(""), "text");
     }
