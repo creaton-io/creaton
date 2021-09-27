@@ -1,6 +1,6 @@
 import { FC, useContext, useEffect, useState } from "react";
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
-import { CREATOR_VOTING_ADDRESS, REACTIONS_GRAPHQL_URI, VOTING_GRAPHQL_URI } from "./Config";
+import { CREATOR_VOTING_ADDRESS, VOTING_GRAPHQL_URI } from "./Config";
 import { VotingProcess } from "./components/voting.process";
 import { useWeb3React } from "./web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
@@ -49,6 +49,11 @@ export const CreatorVoting: FC = () => {
                             votingAmount
                         }
                     }
+                    acceptedTokens {
+                        token {
+                            address
+                        }
+                    }
                 }
             }
         `;
@@ -63,7 +68,7 @@ export const CreatorVoting: FC = () => {
     }
 
     async function handleSubmit(e) { 
-        web3utils.setIsWaiting(true);      
+        web3utils.setIsWaiting(true);
         e.preventDefault();
         const { library } = web3Context;
         if(!library) return;
@@ -73,10 +78,10 @@ export const CreatorVoting: FC = () => {
         let answers = e.target.answers.value.split(",").map(str => str.trim());
         let acceptedTokens = e.target.acceptedTokens.value.split(",").map(str => str.trim());
 
-        const creatorVotingContract: Contract = new ethers.Contract(CREATOR_VOTING_ADDRESS, creaton_contracts.creator_voting_factory.abi, signer);
+        const creatorVotingFactoryContract: Contract = new ethers.Contract(CREATOR_VOTING_ADDRESS, creaton_contracts.creator_voting_factory.abi, signer);
         try {
-            await creatorVotingContract.createVotingProcess(e.target.question.value, e.target.description.value, "", answers, acceptedTokens);
-            creatorVotingContract.once("VotingProcessDeployed", async (creator, votingProcessAddress, question, description, uri, answers, acceptedTokens) => {
+            await creatorVotingFactoryContract.createVotingProcess(e.target.question.value, e.target.description.value, "", answers, acceptedTokens);
+            creatorVotingFactoryContract.once("VotingProcessDeployed", async (creator, votingProcessAddress, question, description, uri, answers, acceptedTokens) => {
                 setCreateVotingProcessesVisible(false);
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'New Voting Process created successfully!', type: 'success'});

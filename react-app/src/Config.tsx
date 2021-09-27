@@ -14,8 +14,8 @@ if (process.env.NODE_ENV === 'development') {
   CREATE_TOKEN_ADDRESS = '0xe2ee5f719a12a85dc7cdeb04fad3ebc0ffe185de';
   GOVERNANCE_SQUAD_TOKENS = {'GOV': "0x21f551FBA148f36fA369601A8eD0D7e3Ad6708ee", 'MKT': '0xb339165C55C3F8BE35033CB26c2505f8B0912C26', 'DEV': '0x06805b2b1a5ab9f6f753f8d220cccef006d1cf8e'}
 
-  VOTING_GRAPHQL_URI = 'https://api.studio.thegraph.com/query/2670/creator-voting/v0.0.1'
-  CREATOR_VOTING_ADDRESS = '0x7ccC57468e4C2B45957B89C4d7589791Af6Bc1eA';
+  VOTING_GRAPHQL_URI = 'https://api.studio.thegraph.com/query/2670/creator-voting/v0.0.7'
+  CREATOR_VOTING_ADDRESS = '0x9DAEb40970A95C817C1f37EBB765d660fDE0ff64';
 } else {//staging
   REENCRYPTION_URI = 'https://reencryption.creaton.io'
   APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/mumbai'//'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-dao'
