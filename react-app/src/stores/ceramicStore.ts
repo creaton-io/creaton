@@ -38,10 +38,12 @@ export class CeramicStore {
 
   async authenticate(context: any): Promise<string> {
 
-    const [ceramic, provider] = await Promise.all([createCeramic(), getProvider()])
+    const ceramic = await createCeramic()
 
     const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]})
   
+    console.log('context account', context.account)
+
     const threeIdConnect = new ThreeIdConnect() 
     const ethProvider = new EthereumAuthProvider(await injected.getProvider(), context.account)
     

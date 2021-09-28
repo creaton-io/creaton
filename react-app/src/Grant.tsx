@@ -221,8 +221,8 @@ const Grant = () => {
         {subscribed_subscribers.map((subscriber) => (
           <div key={subscriber.user} className="flex flex-row place-items-center m-2">
             <Avatar size="medium"
-                    src={JSON.parse(subscriber.profile.data).image}/>
-            <span className="font-bold ml-2">{JSON.parse(subscriber.profile.data).username}</span>
+                    src={subscriber.profile !== null ? JSON.parse(subscriber.profile.data).image : ""}/>
+            <span className="font-bold ml-2">{subscriber.profile !== null ? JSON.parse(subscriber.profile.data).username : "Anon"}</span>
           </div>))}</div>
 
     </div>

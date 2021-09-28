@@ -12,7 +12,7 @@ import WalletConnect from "./WalletConnect";
 import {useWeb3React, Web3ReactProvider} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import Upload from "./Upload";
-import {formatEther} from "@ethersproject/units";
+import {formatEther, parseEther} from "@ethersproject/units";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 //import {Staking} from "./Staking";
@@ -37,6 +37,8 @@ import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
 import WalletModal from "./components/walletModal";
 import { Flows } from './Flows';
 import { Governance } from './Governance';
+import { Icon } from './icons';
+import Tooltip from './elements/tooltip';
 
 initFontAwesome()
 
@@ -51,7 +53,6 @@ const client = new ApolloClient({
 });
 
 const paymaster = creaton_contracts.Paymaster
-
 
 const getLibrary = (provider) => {
   console.log('evaluating getLibrary', provider)
@@ -126,6 +127,8 @@ const ProfileMenu = (props) => {
   const [maticBalance, setMaticBalance] = useState<any>('Loading')
   const [createBalance, setCreateBalance] = useState<any>('Loading')
   const [wrappingUsdc, setWrappingUsdc] = useState<boolean>(false)
+  const [unwrapAmount, setUnwrapAmount] = useState("")
+  const [wrapAmount, setWrapAmount] = useState("")
   const [unwrappingUsdcx, setUnwrappingUsdcx] = useState<boolean>(false)
   const {account, library} = useWeb3React()
   useEffect(() => {
@@ -197,7 +200,7 @@ const ProfileMenu = (props) => {
   async function unwrapUsdcx(){
     setUnwrappingUsdcx(true);
 
-    let tx =  await usdcx.downgrade(usdcxBalance);
+    let tx =  await usdcx.downgrade(parseEther(unwrapAmount));
     await tx.wait();
     
     setUsdcxBalance(await usdcx.balanceOf(account));
@@ -209,12 +212,12 @@ const ProfileMenu = (props) => {
     setWrappingUsdc(true);
 
     let tx;
-    if(await usdc.allowance(account, usdcx.address) < usdcBalance){
-      tx = await usdc.approve(usdcx.address, usdcBalance);
+    if(await usdc.allowance(account, usdcx.address) < wrapAmount){
+      tx = await usdc.approve(usdcx.address, wrapAmount);
       await tx.wait();
     }
     
-    tx =  await usdcx.upgrade(usdcBalance);
+    tx = await usdcx.upgrade(parseEther(wrapAmount));
     await tx.wait();
     
     setUsdcxBalance(await usdcx.balanceOf(account));
@@ -224,7 +227,7 @@ const ProfileMenu = (props) => {
   
   return (
     <div>
-      <div className="px-5 mb-4">
+      <div className="px-5 mb-4 z-10">
         <div className="text-lg font-bold text-black bold">
           {currentProfile?.username}
         </div>
@@ -256,12 +259,37 @@ const ProfileMenu = (props) => {
               </a>
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
-                <div className="-mt-1 font-bold text-black">{formatBalance(usdcxBalance)} USDCx</div>
-                {!unwrappingUsdcx && usdcxBalance > 0 && <button onClick={unwrapUsdcx}>UnWrap</button> }
+                <div className="-mt-1 font-bold text-black">{formatBalance(usdcxBalance)} USDCx
+                <label className="float-right z-50">
+            <Tooltip content={<div>USDCx is the token to send and receive in a "flow" for the subscriptions (micro-transactions per block/second)</div>} hover>
+            <Icon name="question-circle" className="text-gray-500 " />
+              </Tooltip>
+          </label></div>
+
+                {!unwrappingUsdcx && usdcxBalance > 0 && <span className="sm:flex sm:items-center">
+      <div className="w-2/3 sm:max-w-xs">
+        <input
+          type="number"
+          name="price"
+          id="price"
+          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+          placeholder="0.00"
+          aria-describedby="price-currency"
+          value={unwrapAmount}
+          onChange={(event) => {
+            setUnwrapAmount(event.target.value)
+          }}/>
+      </div>
+        <button onClick={unwrapUsdcx}
+            type="submit"
+            className="mt-3 inline-flex items-center float-right justify-center px-2 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          >
+            to USDC
+          </button></span> }
                 {unwrappingUsdcx && <span><svg className="inline-block animate-spin mb-1 mr-2 h-4 w-4 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>UnWrapping SuperToken...</span>}
+                            </svg>Converting to USDC...</span>}
               </div>
             </div>
             <div className="flex">
@@ -292,11 +320,33 @@ const ProfileMenu = (props) => {
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
                 <div className="-mt-1 font-bold text-black">{formatBalance(usdcBalance)} USDC</div>
-                {!wrappingUsdc && usdcBalance > 0 && <button onClick={wrapUsdc}>Wrap as SuperToken</button> }
+                {!wrappingUsdc && usdcBalance > 0 && 
+
+<span className="sm:flex sm:items-center">
+<div className="w-2/3 sm:max-w-xs">
+  <input
+    type="number"
+    name="price"
+    id="price"
+    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+    placeholder="0.00"
+    aria-describedby="price-currency"
+    value={wrapAmount}
+    onChange={(event) => {
+      setWrapAmount(event.target.value)
+    }}/>
+</div>
+  <button onClick={wrapUsdc}
+      type="submit"
+      className="mt-3 inline-flex items-center float-right justify-center px-1 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      to USDCx
+    </button></span>
+                }
                 {wrappingUsdc && <span><svg className="inline-block animate-spin mb-1 mr-2 h-4 w-4 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>Wrapping as SuperToken...</span>}
+                            </svg>Converting to USDCx...</span>}
               </div>
             </div>
             <div className="flex">
