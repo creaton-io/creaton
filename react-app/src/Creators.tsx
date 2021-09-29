@@ -1,7 +1,5 @@
 import {gql, useQuery} from "@apollo/client";
 import React, {useEffect} from "react";
-import {Link} from "react-router-dom";
-import {Card} from "./components/card";
 import {FilterList} from "./components/filter-list";
 import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
