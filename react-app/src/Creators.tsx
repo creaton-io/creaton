@@ -36,10 +36,8 @@ function Creators() {
     if(account){
       const found = creator.subscribers.find(element => element.user.toLowerCase() === account.toLowerCase());
       if(found) {
-        if(found.status==='requested_subscribe')
-          subtitle="Subscription Requested"
-        if(found.status==='pending_subscribe')
-          subtitle="Access Granted. Start streaming for " + subtitle
+        if(found.status==='subscribed')
+          subtitle="Subscribed"
       }
     }
     return {
