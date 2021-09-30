@@ -28,22 +28,22 @@ const CREATORS_QUERY = gql`
 
 function Creators() {
   const {loading, error, data} = useQuery(CREATORS_QUERY, {pollInterval: 10000});
-  const {account} = useWeb3React<Web3Provider>()
+  //const {account} = useWeb3React<Web3Provider>()
   if (loading) return (<p>Loading...</p>);
   if (error) return (<p>Error :(</p>);
   const items = data.creators.map((creator: any) => {
-    let subtitle = '$' + creator.subscriptionPrice + ' / month'
-    if(account){
-      const found = creator.subscribers.find(element => element.user.toLowerCase() === account.toLowerCase());
-      if(found) {
-        if(found.status==='subscribed')
-          subtitle="Subscribed"
-      }
-    }
+    // let subtitle = '$' + creator.subscriptionPrice + ' / month'
+    // if(account){
+    //   const found = creator.subscribers.find(element => element.user.toLowerCase() === account.toLowerCase());
+    //   if(found) {
+    //     if(found.status==='subscribed')
+    //       subtitle="Subscribed"
+    //   }
+    // }
     return {
       avatar: creator.profile !== null ? JSON.parse(creator.profile.data).image : "",
       title: creator.profile !== null ? JSON.parse(creator.profile.data).username : creator.id,
-      subtitle: subtitle,
+      //subtitle: subtitle,
       description: creator.description,
       count: creator.subscribers.length,
       source: 'subscribers',
