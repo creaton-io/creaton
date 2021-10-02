@@ -32,7 +32,7 @@ export const CreatorVoting: FC = () => {
     async function getVotingProcesses(userAddress: string){
         const processesQuery = `
             query($userAddress: Bytes!) {
-                votingProcesses(where: {user: $userAddress}) {
+                votingProcesses(where: {user: $userAddress}, orderBy: id, orderDirection:desc) {
                     id
                     contract
                     question
@@ -48,6 +48,7 @@ export const CreatorVoting: FC = () => {
                             }
                             votingAmount
                         }
+                        countVotes
                     }
                     acceptedTokens {
                         token {
@@ -74,6 +75,7 @@ export const CreatorVoting: FC = () => {
         if(!library) return;
 
         const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const address = await signer.getAddress();
 
         let answers = e.target.answers.value.split(",").map(str => str.trim());
         let acceptedTokens = e.target.acceptedTokens.value.split(",").map(str => str.trim());
@@ -85,6 +87,7 @@ export const CreatorVoting: FC = () => {
                 setCreateVotingProcessesVisible(false);
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'New Voting Process created successfully!', type: 'success'});
+                getVotingProcesses(address);
             });
         } catch(error: any) {
             web3utils.setIsWaiting(false);
@@ -113,7 +116,7 @@ export const CreatorVoting: FC = () => {
             {votingProcesses.length > 0 && <>
                 <h3 className="text-5xl pt-12 pb-6 text-white">Voting Processes</h3>
                 <ul>
-                    {votingProcesses.map((p,i) => <VotingProcess process={p} key={`Process-${i}`} />)}
+                    {votingProcesses.map((p,i) => <VotingProcess process={p} key={`Process-${i}`} voting={true} />)}
                 </ul>
             </>}
         </div>
