@@ -6,7 +6,7 @@ const ts2sec = (ts) => {
   return (parseFloat(h) * 60 * 60) + (parseFloat(m) * 60) + parseFloat(s);
 };
 
-module.exports = (message, progress) => {
+export default (message, progress) => {
   if (typeof message === 'string') {
     if (message.startsWith('  Duration')) {
       const ts = message.split(', ')[0].split(': ')[1];

@@ -1,4 +1,4 @@
-module.exports = (Core, args) => {
+export default (Core, args) => {
   const argsPtr = Core._malloc(args.length * Uint32Array.BYTES_PER_ELEMENT);
   args.forEach((s, idx) => {
     const buf = Core._malloc(s.length + 1);
