@@ -3,7 +3,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-// import "hardhat/console.sol";
+import "hardhat/console.sol";
 import "./FanCollectible.sol";
 
 contract CreatorCollections is Ownable, Pausable {
@@ -17,7 +17,6 @@ contract CreatorCollections is Ownable, Pausable {
     FanCollectible private collectible;
 
     uint256 private _totalSupply;
-    mapping(address => uint256[]) private accountToPools; // this is just a nicer way of keep track of who owns what pools.
 
     mapping(uint256 => HoldingTokens) private heldBalances; //tokenID => quantity being held.
     struct HoldingTokens {
@@ -49,9 +48,7 @@ contract CreatorCollections is Ownable, Pausable {
     event UpdatedArtist(uint256 poolId, address artist);
     event PoolAdded(uint256 poolId, address artist, uint256 periodStart);
     event CardAdded(uint256 poolId, uint256[] cardIds, uint256 price, uint256 releaseTime);
-    event Staked(address indexed user, uint256 poolId, uint256 amount);
-    event Withdrawn(address indexed user, uint256 poolId, uint256 amount);
-    event Transferred(address indexed user, uint256 fromPoolId, uint256 toPoolId, uint256 amount);
+
     event Redeemed(address indexed user, uint256 poolId, uint256 amount);
 
     modifier poolExists(uint256 id) {
@@ -81,7 +78,7 @@ contract CreatorCollections is Ownable, Pausable {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
     }
-
+    
     function purchase(uint256 _poolID, uint256 _cardID)
         public
         whenNotPaused
@@ -101,42 +98,13 @@ contract CreatorCollections is Ownable, Pausable {
 
         p.feesCollected = p.feesCollected.add(c.price);
         // console.log(c.ids[c.idPointOfNextEmpty]);
+        
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
         heldBalances[c.ids[c.idPointOfNextEmpty]].pool = _poolID;
         c.idPointOfNextEmpty++;
         emit Redeemed(_msgSender(), _poolID, c.price);
         return c.ids[c.idPointOfNextEmpty - 1];
-    }
-
-
-    /**
-     * @dev set the artist for the given pool.
-     * @param pool the pool you are setting an artist for
-     * @param artist the address of the artist.
-     */
-    function setArtist(uint256 pool, address artist) public onlyOwnerOrArtist(pool) {
-        uint256 amount = pendingWithdrawals[pools[pool].artist];
-        pendingWithdrawals[pools[pool].artist] = 0;
-        pendingWithdrawals[artist] = pendingWithdrawals[artist].add(amount);
-        pools[pool].artist = artist;
-
-        // this removes the existing artist reference to this... but seems like it will be expensive...
-        for (uint8 x = 0; x < accountToPools[pools[pool].artist].length - 1; x++) {
-            if (accountToPools[pools[pool].artist][x] == pool) {
-                delete accountToPools[pools[pool].artist][x];
-            }
-        }
-        accountToPools[artist].push(pool);
-
-        emit UpdatedArtist(pool, artist);
-    }
-
-    function setController(address _controller) public onlyOwner {
-        uint256 amount = pendingWithdrawals[controller];
-        pendingWithdrawals[controller] = 0;
-        pendingWithdrawals[_controller] = pendingWithdrawals[_controller].add(amount);
-        controller = _controller;
     }
 
     /**
@@ -160,7 +128,6 @@ contract CreatorCollections is Ownable, Pausable {
         pools[pool].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
 
         pools[pool].cardsInPool++;
-        return pools[pool].cardsInPool - 1;
     }
 
     /**
@@ -184,7 +151,6 @@ contract CreatorCollections is Ownable, Pausable {
 
         poolsCount++;
 
-        accountToPools[_msgSender()].push(id);
         emit PoolAdded(id, _msgSender(), periodStart);
         return id;
     }
@@ -194,7 +160,7 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     /**
-     * @dev calculates the total suply of tokens that are being staked in this contract
+     * @dev calculates the total supply of tokens that are being staked in this contract
      */
     function totalSupply() public view returns (uint256) {
         return _totalSupply;
@@ -208,6 +174,9 @@ contract CreatorCollections is Ownable, Pausable {
         return pools[id].cardsArray;
     }
 
+    /**
+     * @dev called by the artist for them to get their money out of the contract!   
+     */
     function withdrawFee() public {
         uint256 amount = pendingWithdrawals[_msgSender()].mul(ARTIST_PERCENTAGE).div(100);
         require(amount > 0, "nothing to withdraw");
@@ -228,17 +197,9 @@ contract CreatorCollections is Ownable, Pausable {
     @dev sets a new contract as the newerVersionOfContract, if theres a newer contract address, you should use that.
     @param _newerContract the address of the newer version of this contract.  
     */
-    function setNewerContract(address _newerContract) public onlyOwner {
+    function setNewerContract(address _newerContract, string calldata versionName) public onlyOwner {
+        //TODO: make this use an emit event to let the frontend team know theres a newer version of this contract.
         newerVersionOfContract = _newerContract;
-    }
-
-    /**
-    @dev get the pools an address is the artist of, use this to get all the pool ids.
-    @param artist the address of the artist you want to find the pools of.
-    */
-    function getPoolsForArtist(address artist) public view returns (uint256[] memory) {
-        uint256[] memory accountsPools = accountToPools[artist];
-        return accountsPools;
     }
 
     /**
