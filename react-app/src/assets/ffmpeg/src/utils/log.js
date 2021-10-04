@@ -16,7 +16,7 @@ const log = (type, message) => {
   }
 };
 
-export default {
+export {
   logging,
   setLogging,
   setCustomLogger,

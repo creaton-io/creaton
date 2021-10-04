@@ -1,13 +1,15 @@
-const { defaultArgs, baseOptions } = require('./config');
-const { setLogging, setCustomLogger, log } = require('./utils/log').default;
-const parseProgress = require('./utils/parseProgress').default;
-const parseArgs = require('./utils/parseArgs').default;
-const { defaultOptions, getCreateFFmpegCore } = require('./node');
-const { version } = require('../package.json');
+/* eslint-disable import/no-anonymous-default-export */
+import defaultArgs from './config';
+import baseOptions from './config';
+import { setLogging, setCustomLogger, log } from './utils/log';
+import parseProgress from'./utils/parseProgress';
+import parseArgs from './utils/parseArgs';
+import  { defaultOptions, getCreateFFmpegCore } from './node';
+import { version } from '../package.json';
 
 const NO_LOAD = Error('ffmpeg.wasm is not ready, make sure you have completed load().');
 
-module.exports = (_options = {}) => {
+export default (_options = {}) => {
   const {
     log: logging,
     logger,

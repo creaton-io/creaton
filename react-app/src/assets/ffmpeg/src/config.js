@@ -1,4 +1,5 @@
-module.exports = {
+/* eslint-disable import/no-anonymous-default-export */
+export default {
   defaultArgs: [
     /* args[0] is always the binary path */
     './ffmpeg',
