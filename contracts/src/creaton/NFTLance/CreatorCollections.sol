@@ -21,7 +21,7 @@ contract CreatorCollections is Ownable, Pausable {
     mapping(uint256 => HoldingTokens) private heldBalances; //tokenID => quantity being held.
     struct HoldingTokens {
         uint256 quantityHeld;
-        uint256 pool;
+        uint256 catalog;
     }
     struct Card {
         uint256[] ids; //Card IDs. would be singular, but each one needs to be unique.
@@ -31,38 +31,37 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 idPointOfNextEmpty;
     }
 
-    struct Pool {
+    struct Catalog {
         uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
         address artist;
         string title;
-        uint256 cardsInPool;
+        uint256 cardsInCatalog;
         Card[] cardsArray;
     }
 
     mapping(address => uint256) public pendingWithdrawals;
-    mapping(uint256 => Pool) public pools;
-    uint256 public poolsCount;
+    mapping(uint256 => Catalog) public catalogs;
+    uint256 public catalogsCount;
 
-    event UpdatedArtist(uint256 poolId, address artist);
-    event PoolAdded(uint256 poolId, address artist, uint256 periodStart);
-    event CardAdded(uint256 poolId, uint256[] cardIds, uint256 price, uint256 releaseTime);
+    event UpdatedArtist(uint256 catalogId, address artist);
+    event CatalogAdded(uint256 catalogId, address artist, uint256 periodStart);
+    event CardAdded(uint256 catalogId, uint256[] cardIds, uint256 price, uint256 releaseTime);
 
-    event Redeemed(address indexed user, uint256 poolId, uint256 amount);
+    event Redeemed(address indexed user, uint256 catalogId, uint256 amount);
 
-    modifier poolExists(uint256 id) {
-        // require(pools[id].periodStart > 0, "pool does not exists");
-        require(pools[id].artist != address(0), "pool does not exists");
+    modifier catalogExists(uint256 id) {
+        require(catalogs[id].artist != address(0), "catalog does not exists");
         _;
     }
 
-    modifier cardExists(uint256 pool, uint256 card) {
-        require(card < pools[pool].cardsArray.length, "card may not exist");
+    modifier cardExists(uint256 catalog, uint256 card) {
+        require(card < catalogs[catalog].cardsArray.length, "card may not exist");
         _;
     }
 
-    modifier onlyOwnerOrArtist(uint256 pool) {
+    modifier onlyOwnerOrArtist(uint256 catalog) {
         require(
-            pools[pool].artist == _msgSender() || _msgSender() == owner(),
+            catalogs[catalog].artist == _msgSender() || _msgSender() == owner(),
             "You Do Not Have Authorization To Change This"
         );
         _;
@@ -76,13 +75,13 @@ contract CreatorCollections is Ownable, Pausable {
         token = IERC20(_tokenAddress);
     }
     
-    function purchase(uint256 _poolID, uint256 _cardID)
+    function purchase(uint256 _catalogID, uint256 _cardID)
         public
         whenNotPaused
-        cardExists(_poolID, _cardID)
+        cardExists(_catalogID, _cardID)
         returns (uint256)
     {
-        Pool storage p = pools[_poolID];
+        Catalog storage p = catalogs[_catalogID];
         Card memory c = p.cardsArray[_cardID];
         require(block.timestamp >= c.releaseTime, "card not open");
 
@@ -98,60 +97,60 @@ contract CreatorCollections is Ownable, Pausable {
         
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
-        heldBalances[c.ids[c.idPointOfNextEmpty]].pool = _poolID;
+        heldBalances[c.ids[c.idPointOfNextEmpty]].catalog = _catalogID;
         c.idPointOfNextEmpty++;
-        emit Redeemed(_msgSender(), _poolID, c.price);
+        emit Redeemed(_msgSender(), _catalogID, c.price);
         return c.ids[c.idPointOfNextEmpty - 1];
     }
 
     /**
-     * @dev creates a card (inside a FanCollectible) for the given pool
-     * @param pool the pool id to add it to
+     * @dev creates a card (inside a FanCollectible) for the given catalog
+     * @param catalog the catalog id to add it to
      * @param supply the supply of these to be made
      * @param price the cost of each item in price
      * @param releaseTime the time you can start buying these
      */
     function createCard(
-        uint256 pool,
+        uint256 catalog,
         uint256 supply,
         uint256 price,
         uint256 releaseTime
-    ) public onlyOwnerOrArtist(pool) poolExists(pool) returns (uint256) {
+    ) public onlyOwnerOrArtist(catalog) catalogExists(catalog) returns (uint256) {
         uint256[] memory tokenIdsGenerated = new uint256[](supply);
         for (uint256 x = 0; x < supply; x++) {
             tokenIdsGenerated[x] = collectible.create("", ""); //URI and Data seem important... and most likely are! well! HAVE FUN!
             //so this generates all the token IDs that will be used, and makes each one unique.
         }
-        pools[pool].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
+        catalogs[catalog].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
 
-        pools[pool].cardsInPool++;
+        catalogs[catalog].cardsInCatalog++;
     }
 
     /**
-    @dev creates a pool.
-    @param id the id of the pool. Must be unique.
-    @param title the title of the pool
+    @dev creates a catalog.
+    @param id the id of the catalog. Must be unique.
+    @param title the title of the catalog
     */
-    function createPool(
+    function createCatalog(
         uint256 id,
         string memory title
     ) public returns (uint256) {
-        //TODO: find a better way to check if a pool is active.
-        require(pools[id].artist == address(0), "pool exists");
+        //TODO: find a better way to check if a catalog is active.
+        require(catalogs[id].artist == address(0), "catalog exists");
 
-        Pool storage p = pools[id];
+        Catalog storage p = catalogs[id];
 
         p.artist = _msgSender();
         p.title = title;
 
-        poolsCount++;
+        catalogsCount++;
 
-        emit PoolAdded(id, _msgSender(), block.timestamp);
+        emit CatalogAdded(id, _msgSender(), block.timestamp);
         return id;
     }
 
-    function cardReleaseTime(uint256 pool, uint256 card) public view returns (uint256) {
-        return pools[pool].cardsArray[card].releaseTime;
+    function cardReleaseTime(uint256 catalog, uint256 card) public view returns (uint256) {
+        return catalogs[catalog].cardsArray[card].releaseTime;
     }
 
     /**
@@ -161,12 +160,12 @@ contract CreatorCollections is Ownable, Pausable {
         return _totalSupply;
     }
 
-    function cardsInPool(uint256 id) public view returns (uint256) {
-        return pools[id].cardsInPool;
+    function cardsInCatalog(uint256 id) public view returns (uint256) {
+        return catalogs[id].cardsInCatalog;
     }
 
     function getCardsArray(uint256 id) public view returns (Card[] memory) {
-        return pools[id].cardsArray;
+        return catalogs[id].cardsArray;
     }
 
     /**
@@ -199,16 +198,16 @@ contract CreatorCollections is Ownable, Pausable {
 
     /**
     @dev return the data for a FanCollectible and then get the money they have staked.
-    @param _pool the pool id
+    @param _catalog the catalog id
     @param _fanID the id of the FanCollectible you want to get the data for.
     @param _data the URI to the data for the FanCollectible.
     */
     function setFanCollectibleData(
-        uint256 _pool,
+        uint256 _catalog,
         uint256 _fanID,
         bytes memory _data
     ) public {
-        require(_msgSender() == pools[_pool].artist, "not the artist");
+        require(_msgSender() == catalogs[_catalog].artist, "not the artist");
 
         pendingWithdrawals[_msgSender()] = pendingWithdrawals[_msgSender()].add(heldBalances[_fanID].quantityHeld);
         heldBalances[_fanID].quantityHeld = 0;
