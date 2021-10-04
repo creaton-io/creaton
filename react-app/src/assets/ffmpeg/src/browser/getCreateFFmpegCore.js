@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
-const resolveURL = require('resolve-url');
-const { log } = require('../utils/log').default;
+import resolveURL from 'resolve-url';
+import { log } from '../utils/log';
 
 /*
  * Fetch data from remote URL and convert to blob URL
@@ -16,7 +16,7 @@ const toBlobURL = async (url, mimeType) => {
   return blobURL;
 };
 
-module.exports = async ({ corePath: _corePath }) => {
+export default async ({ corePath: _corePath }) => {
   if (typeof _corePath !== 'string') {
     throw Error('corePath should be a string!');
   }
