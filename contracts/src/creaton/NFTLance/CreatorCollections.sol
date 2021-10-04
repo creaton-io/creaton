@@ -40,7 +40,6 @@ contract CreatorCollections is Ownable, Pausable {
         Card[] cardsArray;
     }
 
-    address public controller;
     mapping(address => uint256) public pendingWithdrawals;
     mapping(uint256 => Pool) public pools;
     uint256 public poolsCount;
@@ -70,11 +69,9 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     constructor(
-        address _controller,
         FanCollectible _collectibleAddress,
         IERC20 _tokenAddress
     ) {
-        controller = _controller;
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
     }

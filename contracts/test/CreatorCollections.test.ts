@@ -42,7 +42,7 @@ describe('CreatorCollections', function(){
         testingToken = await ethers.getContractFactory('TestingToken');
         testingTokenContract = await testingToken.deploy(6);
         CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.deploy(OwnerAccount.address, CollectibleContract.address , testingTokenContract.address);
+        CollectionsContract = await CollectionsFactory.connect(OwnerAccount).deploy(CollectibleContract.address , testingTokenContract.address);
         await CollectibleContract.transferMinter(CollectionsContract.address);
 
     });
@@ -77,7 +77,8 @@ describe('Purchasing single', function(){
         await testingTokenContract.connect(fanAccount).faucet();
 
         CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.deploy(OwnerAccount.address, CollectibleContract.address , testingTokenContract.address);
+        
+        CollectionsContract = await CollectionsFactory.connect(OwnerAccount).deploy(CollectibleContract.address , testingTokenContract.address);
         await CollectibleContract.transferMinter(CollectionsContract.address);
     });
     it('Single Purchase', async function(){
@@ -121,7 +122,7 @@ describe('Purchasing multiples', function(){
         await testingTokenContract.connect(fanAccount).faucet();
 
         CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.deploy(OwnerAccount.address, CollectibleContract.address , testingTokenContract.address);
+        CollectionsContract = await CollectionsFactory.connect(OwnerAccount).deploy(CollectibleContract.address , testingTokenContract.address);
         await CollectibleContract.transferMinter(CollectionsContract.address);
     });
     it('100 of 5 cards, 1 pool, 0 Purchased', async function(){
@@ -180,7 +181,7 @@ describe('Checking Payment to artist works correctly', function(){
         await testingTokenContract.connect(fanAccount).faucet();
 
         CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.deploy(OwnerAccount.address, CollectibleContract.address , testingTokenContract.address);
+        CollectionsContract = await CollectionsFactory.connect(OwnerAccount).deploy(CollectibleContract.address , testingTokenContract.address);
         await CollectibleContract.transferMinter(CollectionsContract.address);
     });
     it('1 fulfilled purchase', async function(){
