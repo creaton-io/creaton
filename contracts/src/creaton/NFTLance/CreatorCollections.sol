@@ -32,7 +32,6 @@ contract CreatorCollections is Ownable, Pausable {
     }
 
     struct Pool {
-        uint256 periodStart; // When the collection launches and starts accepting staking tokens.
         uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
         address artist;
         string title;
@@ -51,7 +50,8 @@ contract CreatorCollections is Ownable, Pausable {
     event Redeemed(address indexed user, uint256 poolId, uint256 amount);
 
     modifier poolExists(uint256 id) {
-        require(pools[id].periodStart > 0, "pool does not exists");
+        // require(pools[id].periodStart > 0, "pool does not exists");
+        require(pools[id].artist != address(0), "pool does not exists");
         _;
     }
 
@@ -84,7 +84,7 @@ contract CreatorCollections is Ownable, Pausable {
     {
         Pool storage p = pools[_poolID];
         Card memory c = p.cardsArray[_cardID];
-        require(block.timestamp >= p.periodStart, "pool not open");
+        require(block.timestamp >= c.releaseTime, "card not open");
 
         require(c.idPointOfNextEmpty < c.ids.length, "Token Is Sold Out");
 
@@ -130,25 +130,23 @@ contract CreatorCollections is Ownable, Pausable {
     /**
     @dev creates a pool.
     @param id the id of the pool. Must be unique.
-    @param periodStart the time you can start buying these
     @param title the title of the pool
     */
     function createPool(
         uint256 id,
-        uint256 periodStart,
         string memory title
     ) public returns (uint256) {
-        require(pools[id].periodStart == 0, "pool exists");
+        //TODO: find a better way to check if a pool is active.
+        require(pools[id].artist == address(0), "pool exists");
 
         Pool storage p = pools[id];
 
-        p.periodStart = periodStart;
         p.artist = _msgSender();
         p.title = title;
 
         poolsCount++;
 
-        emit PoolAdded(id, _msgSender(), periodStart);
+        emit PoolAdded(id, _msgSender(), block.timestamp);
         return id;
     }
 

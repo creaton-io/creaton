@@ -50,8 +50,8 @@ describe('CreatorCollections', function(){
         expect (await CollectionsContract.totalSupply()).to.equal(0);
     });
     it ('Testing Create Card', async function(){
-        id = (await CollectionsContract.connect(OwnerAccount).createPool(0, now, "My first collection"));
-        (await CollectionsContract.connect(OwnerAccount).createPool(1, now, "My second collection"));
+        id = (await CollectionsContract.connect(OwnerAccount).createPool(0, "My first collection"));
+        (await CollectionsContract.connect(OwnerAccount).createPool(1, "My second collection"));
 
         const TokenId = await CollectionsContract.createCard(0, 10, ethers.utils.parseEther("10000"), now);
         await CollectionsContract.createCard(1, 10, ethers.utils.parseEther("10000"), now);
@@ -85,7 +85,7 @@ describe('Purchasing single', function(){
         //where everything goes well!
         console.log(await (await artistAccount.getBalance()).toString());
         console.log(await fanAccount.getBalance().toString());
-        const id = (await CollectionsContract.connect(artistAccount).createPool(0, now, "My first collection"));
+        const id = (await CollectionsContract.connect(artistAccount).createPool(0, "My first collection"));
         const cardID = await CollectionsContract.connect(artistAccount).createCard(0, 10, ethers.utils.parseEther("1"), now);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
@@ -95,7 +95,7 @@ describe('Purchasing single', function(){
 
     });
     it('Single stake without funds', async function(){
-        const id = (await CollectionsContract.connect(artistAccount).createPool(0, now, "My first collection"));
+        const id = (await CollectionsContract.connect(artistAccount).createPool(0, "My first collection"));
         const cardID = await CollectionsContract.connect(artistAccount).createCard(0, 10, ethers.utils.parseEther("1"), now);
 
         (await testingTokenContract.balanceOf(brokeAccount.address)/1e18).toLocaleString();
@@ -126,7 +126,7 @@ describe('Purchasing multiples', function(){
         await CollectibleContract.transferMinter(CollectionsContract.address);
     });
     it('100 of 5 cards, 1 pool, 0 Purchased', async function(){
-        const poolId = await CollectionsContract.connect(artistAccount).createPool(1, now, "My first collection");
+        const poolId = await CollectionsContract.connect(artistAccount).createPool(1, "My first collection");
         const cardsIds = [];
         for(let i = 0; i < 5; i++){
             cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(1, 100, ethers.utils.parseEther("1"), now));
@@ -135,7 +135,7 @@ describe('Purchasing multiples', function(){
         // expect(CollectionsContract.getCardsArray[1].length().should.equal(5));
     });
     it('5 of 100 cards, 1 pool, 0 purchased', async function(){
-        const poolId = await CollectionsContract.connect(artistAccount).createPool(1, now, "My first collection");
+        const poolId = await CollectionsContract.connect(artistAccount).createPool(1, "My first collection");
         const cardsIds = [];
         for(let i = 0; i < 100; i++){
             cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(1, 5, ethers.utils.parseEther("1"), now));
@@ -143,7 +143,7 @@ describe('Purchasing multiples', function(){
         expect(cardsIds.length).to.equal(100);
     });
     it('1 of 1 cards, 1 pool, 1 purchased', async function(){
-        const poolId = await CollectionsContract.connect(artistAccount).createPool(3, now, "My first collection");
+        const poolId = await CollectionsContract.connect(artistAccount).createPool(3, "My first collection");
         const cardsIds = [];
         for(let i = 0; i < 1; i++){
             cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(3, 1, ethers.utils.parseEther("1"), now));
@@ -153,7 +153,7 @@ describe('Purchasing multiples', function(){
         await CollectionsContract.connect(fanAccount).purchase(3, 0);
     });
     it('5 of 5 cards, 1 pool, 2 purchased', async function(){
-        const poolId = await CollectionsContract.connect(artistAccount).createPool(3, now, "My first collection");
+        const poolId = await CollectionsContract.connect(artistAccount).createPool(3, "My first collection");
         const cardsIds = [];
         for(let i = 0; i < 5; i++){
             cardsIds.push(await CollectionsContract.connect(artistAccount).createCard(3, 5, ethers.utils.parseEther("1"), now));
@@ -187,7 +187,7 @@ describe('Checking Payment to artist works correctly', function(){
     it('1 fulfilled purchase', async function(){
         let startingArtistBalance = await testingTokenContract.balanceOf(artistAccount.address);
         let startingFanBalance = await testingTokenContract.balanceOf(fanAccount.address);
-        await CollectionsContract.connect(artistAccount).createPool(3, now, "My first collection");
+        await CollectionsContract.connect(artistAccount).createPool(3, "My first collection");
         await CollectionsContract.connect(artistAccount).createCard(3, 5, ethers.utils.parseEther("1"), now);
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
         await CollectionsContract.connect(fanAccount).purchase(3, 0);
