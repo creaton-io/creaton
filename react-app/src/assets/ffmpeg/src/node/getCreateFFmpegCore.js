@@ -1,4 +1,4 @@
-const { log } = require('../utils/log');
+const { log } = require('../utils/log').default;
 
 module.exports = ({ corePath }) => new Promise((resolve) => {
   log('info', `fetch ffmpeg.wasm-core script from ${corePath}`);

@@ -1,6 +1,6 @@
 /* eslint-disable no-undef */
 const resolveURL = require('resolve-url');
-const { log } = require('../utils/log');
+const { log } = require('../utils/log').default;
 
 /*
  * Fetch data from remote URL and convert to blob URL

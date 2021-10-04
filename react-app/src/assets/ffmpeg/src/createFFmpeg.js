@@ -1,7 +1,7 @@
 const { defaultArgs, baseOptions } = require('./config');
-const { setLogging, setCustomLogger, log } = require('./utils/log');
-const parseProgress = require('./utils/parseProgress');
-const parseArgs = require('./utils/parseArgs');
+const { setLogging, setCustomLogger, log } = require('./utils/log').default;
+const parseProgress = require('./utils/parseProgress').default;
+const parseArgs = require('./utils/parseArgs').default;
 const { defaultOptions, getCreateFFmpegCore } = require('./node');
 const { version } = require('../package.json');
 
