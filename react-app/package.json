@@ -14,8 +14,6 @@
     "@ceramicstudio/idx-tools": "^0.11.0",
     "@craco/craco": "^6.3.0",
     "@ethersproject/providers": "^5.4.5",
-    "@ffmpeg/core": "^0.8.5",
-    "@ffmpeg/ffmpeg": "^0.9.8",
     "@heroicons/react": "^1.0.4",
     "@opengsn/provider": "^2.2.2",
     "@openzeppelin/test-helpers": "^0.5.13",

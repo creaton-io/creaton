@@ -329,7 +329,10 @@ export function Creator() {
       fileType = "image";
     }else if (content.type == "text") {
       fileType = "text";
-    }else{
+    }else if (content.type.startsWith('application/vnd.apple.mpegurl')) {
+      fileType = "video";
+    }
+    else{
       fileType = "image";
     }
 
