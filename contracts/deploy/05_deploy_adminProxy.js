@@ -21,7 +21,7 @@ const func = async function (hre) {
   }
 
   // TODO don't forget to change this on demand, different trustedForwarder for each network
-  const trustedforwarder = '0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d';
+  const trustedforwarder = '0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b';
   const beaconContract = await hre.deployments.get('CreatorBeacon');
   const nftFactory = await hre.deployments.get('NFTFactory');
   const paymasterContract = await hre.deployments.get('CreatonPaymaster');
