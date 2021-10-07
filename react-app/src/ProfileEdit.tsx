@@ -70,9 +70,9 @@ const ProfileEdit = (props) => {
     const payload = {
       'username': username
     }
-    if(ceramic) {
-      ceramic.updateProfile(payload.username, "test description hardcoded");
-    }
+    // if(ceramic) {
+    //   ceramic.updateProfile(payload.username, "test description hardcoded");
+    // }
     if (currentFile) {
       const buf = await currentFile.arrayBuffer();
       const bytes = new Uint8Array(buf);
@@ -131,7 +131,7 @@ const ProfileEdit = (props) => {
     return (<div>Connect your wallet</div>)
 
   return (
-    <CeramicProvider>
+    // <CeramicProvider>
       <form onSubmit={updateProfile} className="grid grid-cols-1 place-items-center">
 
         <input id="file" style={{display: 'none'}} accept="image/x-png,image/gif,image/jpeg"
@@ -159,7 +159,8 @@ const ProfileEdit = (props) => {
                                     }}/></div>
         <div><Button type="submit" label={currentProfile ? "Update Profile" : "Sign Up"}/></div>
       </form>
-    </CeramicProvider>)
+    /* </CeramicProvider>) */
+    )
 }
 
 export {ProfileEdit}

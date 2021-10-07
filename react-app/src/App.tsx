@@ -20,12 +20,11 @@ import {Creator} from "./Creator";
 import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
 import {LitProvider} from "./LitProvider";
 import Creators from "./Creators";
-import {RelayProvider} from "@opengsn/provider";
 import {Button} from "./elements/button";
 import creaton_contracts from "./Contracts";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
-import {InjectedConnector} from "@web3-react/injected-connector";
+import {InjectedConnector} from "./web3-react/injected-connector";
 import {APOLLO_URI, REACTION_ERC20} from "./Config";
 import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
@@ -39,6 +38,7 @@ import { Flows } from './Flows';
 import { Governance } from './Governance';
 import { Icon } from './icons';
 import Tooltip from './elements/tooltip';
+import {Biconomy} from "@biconomy/mexa";
 
 initFontAwesome()
 
@@ -61,19 +61,28 @@ const getLibrary = (provider) => {
   return library
 }
 
-const getGSNLibrary = (provider) => {
-  let paymasterAddress = paymaster.address
-  const config = {
-    paymasterAddress,
-    requiredVersionRange: "2.2.3-matic",
-  }
-  console.log('evaluating getGSNLibrary', provider)
-  const gsnProvider = RelayProvider.newProvider({provider: provider, config});
-  gsnProvider.init()
-  // @ts-ignore
-  const gsnLibrary = new Web3Provider(gsnProvider)
-  gsnLibrary.pollingInterval = 12000
-  return gsnLibrary
+// const getGSNLibrary = (provider) => {
+//   let paymasterAddress = paymaster.address
+//   const config = {
+//     paymasterAddress,
+//     requiredVersionRange: "2.2.3-matic",
+//   }
+//   console.log('evaluating getGSNLibrary', provider)
+//   const gsnProvider = RelayProvider.newProvider({provider: provider, config});
+//   gsnProvider.init()
+//   // @ts-ignore
+//   const gsnLibrary = new Web3Provider(gsnProvider)
+//   gsnLibrary.pollingInterval = 12000
+//   return gsnLibrary
+// }
+
+const getBiconomyLibrary = (provider) => {
+  const biconomy = new Biconomy(provider, {apiKey: "57d27b1e-d8e7-4397-b708-c316a4c2e7e3", debug: true});
+  biconomy.onEvent(biconomy.READY, () => {
+    return new Web3Provider(biconomy)
+  }).onEvent(biconomy.ERROR, (error, message) => {
+    console.log('Error, cant connect')
+  })
 }
 
 function ConnectOrSignup(props) {
@@ -546,12 +555,12 @@ function NavigationLinks() {
 }
 
 const App = () => {
-  const [isGSN, setIsGSN] = useState<boolean>(false);
+  // const [isGSN, setIsGSN] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<boolean>(false);
   return (
     <NotificationHandlerProvider>
-      <Web3ReactProvider getLibrary={isGSN ? getGSNLibrary : getLibrary}>
-          <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/>
+      <Web3ReactProvider getLibrary={getBiconomyLibrary}>
+          {/* <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/> */}
             <Autoconnect/>
             <SuperfluidProvider>
               <LitProvider>

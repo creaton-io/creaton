@@ -398,6 +398,11 @@
         "internalType": "string",
         "name": "nftSymbol",
         "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_trustedForwarder",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -536,6 +541,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_trustedForwarder",
+        "type": "address"
+      }
+    ],
+    "name": "updateTrustedForwarder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

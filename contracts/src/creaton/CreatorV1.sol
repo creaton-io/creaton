@@ -77,7 +77,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         string memory _description,
         uint256 _subscriptionPrice,
         string memory nftName,
-        string memory nftSymbol
+        string memory nftSymbol,
+        address _trustedForwarder
     ) public payable initializer {
         admin = msg.sender;
 
@@ -88,6 +89,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
         _acceptedToken = ISuperToken(acceptedToken);
+        trustedForwarder = _trustedForwarder;
         //uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
         //_host.registerApp(configWord);
 
@@ -160,6 +162,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function isTrustedForwarderAdmin(address forwarder) public view returns (bool) {
         return forwarder == adminContract.getTrustedForwarder();
+    }
+
+    function updateTrustedForwarder(address _trustedForwarder) public onlyCreator {
+        trustedForwarder = _trustedForwarder;
     }
 
     // -----------------------------------------

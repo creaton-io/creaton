@@ -490,7 +490,7 @@
         "type": "function"
       }
     ],
-    "address": "0xB88E48FB6aC7210eCFde0F5C0Be6E65255c88776"
+    "address": "0x67e0DF0caAc8b5ee11D90ed0072CD14C033EA81C"
   },
   "Creator": {
     "abi": [
@@ -893,6 +893,11 @@
             "internalType": "string",
             "name": "nftSymbol",
             "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
           }
         ],
         "name": "initialize",
@@ -1036,6 +1041,19 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
+          }
+        ],
+        "name": "updateTrustedForwarder",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "string",
             "name": "_metadataURI",
             "type": "string"
@@ -1081,7 +1099,7 @@
         "type": "receive"
       }
     ],
-    "address": "0xd254269BADfB471e6D189F423E2faF4FE4a1cF2e"
+    "address": "0x097D71F1f6f6d46A6d0C902F18B2285E5935AB11"
   },
   "Paymaster": {
     "abi": [

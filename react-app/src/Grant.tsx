@@ -7,8 +7,6 @@ import {Creator, useCurrentCreator} from "./Utils";
 import {gql, useQuery} from "@apollo/client";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
-import {UmbralWasmContext} from "./UmbralWasm";
-import {UmbralCreator} from "./Umbral";
 import {Button} from "./elements/button";
 import {Avatar} from "./components/avatar";
 import {Checkbox} from "./elements/checkbox";
@@ -88,7 +86,6 @@ function Tabs({tabs, activeTab, setActiveTab}) {
 }
 
 const Grant = () => {
-  const umbralWasm = useContext(UmbralWasmContext)
   const web3Context = useWeb3React<Web3Provider>()
   const web3utils = useContext(Web3UtilsContext)
   const notificationHandler = useContext(NotificationHandlerContext)
@@ -111,101 +108,8 @@ const Grant = () => {
     return (<div>Error Loading subscribers</div>)
   let currentCreator: Creator = creator
 
-  async function getUmbral() {
-    const umbral = new UmbralCreator(umbralWasm, currentCreator.creatorContract)
-    await umbral.initMasterkey(web3Context.library!.getSigner(web3Context.account!),currentCreator.creatorContract,true)
-    return umbral
-  }
-
-  async function grant(subscriber) {
-    setGrantStatus({status: 'pending', message: 'Granting subscribers, please wait'})
-    const umbral = await getUmbral()
-    umbral.grant(subscriber.pub_key)
-      .then(function () {
-        const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-        creatorContract.acceptSubscribe(subscriber.user).then(async function (receipt) {
-          console.log('Accepted the subscription')
-          web3utils.setIsWaiting(true);
-          await receipt.wait(1)
-          web3utils.setIsWaiting(false);
-        }).catch((error) => {
-          notificationHandler.setNotification({description: 'Could not grant ' + error.message, type: 'error'})
-        })
-      })
-  }
-
-  async function grantChecked() {
-    const umbral = await getUmbral()
-    let users: any = []
-    web3utils.setIsWaiting("Sending re-encryption keys to the network");
-    for (let subscriber of data.subscribers) {
-      if (checkedSubscribers.get(subscriber.user)) {
-        await umbral.grant(subscriber.pub_key)
-        users.push(subscriber.user)
-      }
-    }
-    web3utils.setIsWaiting(false);
-    const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-    creatorContract.bulkAcceptSubscribe(users).then(async function (receipt) {
-      console.log('Accepted all the subscription')
-      web3utils.setIsWaiting(true);
-      await receipt.wait(1)
-      web3utils.setIsWaiting(false);
-    }).catch((error) => {
-      notificationHandler.setNotification({description: 'Could not grant ' + error.message, type: 'error'})
-      web3utils.setIsWaiting(false);
-    })
-  }
-
-  async function revoke_all() {
-    setGrantStatus({status: 'pending', message: 'Revoking all pending unsubscribers, please wait'})
-    const umbral = await getUmbral()
-    let users: any = []
-    for (let subscriber of data.subscribers) {
-      if (subscriber.status === 'pending_unsubscribe') {
-        await umbral.revoke(subscriber.pub_key)
-        users.push(subscriber.user)
-      }
-    }
-    const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-    creatorContract.bulkAcceptUnsubscribe(users).then(function () {
-      console.log('Revoked all the pending_unsubscription')
-      setGrantStatus({status: 'done', message: 'Revoked all'})
-    })
-  }
-
-  async function revoke(subscriber) {
-    setGrantStatus({status: 'pending', message: 'Revoking subscribers, please wait'})
-    const umbral = await getUmbral()
-    umbral.revoke(subscriber.pub_key)
-      .then(function () {
-        const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(web3Context.library!.getSigner())
-        creatorContract.acceptUnsubscribe(subscriber.user).then(function () {
-          console.log('Revoked the subscription')
-          setGrantStatus({status: 'done', message: 'Revoked'})
-        })
-      })
-  }
-
-  async function regrant(subscriber) {
-    const umbral = await getUmbral()
-    console.log(subscriber)
-    umbral.grant(subscriber.pub_key)
-  }
-
-  const requested_subscribers = data.subscribers.filter((subscriber) => {
-    return subscriber.status === 'requested_subscribe'
-  })
-  const other_subscribers = data.subscribers.filter((subscriber) => {
-    return subscriber.status !== 'requested_subscribe'
-  })
-
   const subscribed_subscribers = data.subscribers.filter((subscriber) => {
     return subscriber.status === 'subscribed'
-  })
-
-  const pending_subscribers = data.subscribers.filter((subscriber) => {
-    return subscriber.status === 'pending_subscribe'
   })
 
   const tabs = [
