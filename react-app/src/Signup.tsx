@@ -13,6 +13,8 @@ import Web3Modal from "web3modal";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
 import {Web3UtilsContext} from "./Web3Utils";
+import { Transaction } from 'ethereumjs-tx';
+import { ThreeIDX } from '3id-did-provider/lib/three-idx';
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
@@ -36,6 +38,8 @@ const SignUp = () => {
   const [collectionName, setCollectionName] = useState("")
   const [collectionSymbol, setCollectionSymbol] = useState("")
 
+  const {account, library} = useWeb3React()
+
   if (!context.library)
     return (<div>Please connect your wallet</div>)
   if (currentCreator !== undefined)
@@ -43,22 +47,66 @@ const SignUp = () => {
   if (signedup)
     return (<div>{signedup}</div>)
 
-  function submitForm(event) {
+  async function submitForm(event) {
     const {library} = context;
     console.log(creatorFactoryContract)
-    // @ts-ignore
+
+
+    // let contract = new ethers.Contract(<CONTRACT_ADDRESS>,
+    // <CONTRACT_ABI>, biconomy.getSignerByAddress(userAddress));
+      
+    // let contractInterface = new ethers.utils.Interface(<CONTRACT_ABI>);
+        
+    // let userAddress = <Selected Address>;
+
+    
     const connectedContract = creatorFactoryContract.connect(library!.getSigner())
-    connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
-      .then(async function (response) {
-        setSignedup("Waiting for your signup to be confirmed on the blockchain...")
-        web3utils.setIsWaiting(true);
-        await response.wait(1)
-        web3utils.setIsWaiting(false);
-        notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
-      }).catch(function (error) {
-      notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
-    });
-    event.preventDefault();
+        
+    // Create your target method signature.. here we are calling setQuote() method of our contract
+    let { data } = await connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+    //let provider = biconomy.getEthersProvider();
+    
+        
+    let gasLimit = await connectedContract.estimateGas.deployCreator({
+                to: connectedContract.address,
+                from: account,
+                data: data
+            });
+    console.log("Gas limit : ", gasLimit);
+          
+    let txParams = {
+                data: data,
+                to: connectedContract.address,
+                from: library!.getSigner(),
+                gasLimit: gasLimit
+            };
+
+    
+    // @ts-ignore
+    //context.library!.getSigner().signTransaction(txParams);
+    //let tx = context.library.provider.send("eth_sendTransaction", [txParams]);
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    let tx = connectedContract.provider.signTransaction(Transaction.fromTxData(txParams));
+    //console.log("Transaction hash : ", tx);
+    //event emitter methods
+
+    setSignedup("Waiting for your signup to be confirmed on the blockchain...");
+    (await tx).wait();
+    notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
+
+    // @ts-ignore
+    // const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+    // connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+    //   .then(async function (response) {
+    //     setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+    //     web3utils.setIsWaiting(true);
+    //     await response.wait(1)
+    //     web3utils.setIsWaiting(false);
+    //     notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
+    //   }).catch(function (error) {
+    //   notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
+    // });
+    // event.preventDefault();
   }
 
   return (

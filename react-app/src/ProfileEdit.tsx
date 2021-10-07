@@ -110,6 +110,8 @@ const ProfileEdit = (props) => {
     const {library} = web3Context;
     console.log(payload)
     const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+    console.log("connectedcontract", connectedContract.address)
+    console.log("connectedcontractfactory", creatorFactoryContract.address)
     let result
     try {
       result = await connectedContract.updateProfile(JSON.stringify(payload))

@@ -6,7 +6,7 @@ import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {LitContext, LitProvider} from "./LitProvider";
-import {createFFmpeg, fetchFile} from "./assets/ffmpeg";
+import {createFFmpeg, fetchFile} from "./assets/ffmpeg/src";
 import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
@@ -42,12 +42,12 @@ const Upload = () => {
   const fileInput = React.createRef<any>();
   const [ffmpeg, setffmpeg] = useState<any>(undefined)
   useEffect(() => {
-    if (ffmpeg === undefined) {
-      const _ffmpeg = createFFmpeg({corePath: 'http://localhost:3000/ffmpeg-core.js', log: true})
-      _ffmpeg.load().then(() => {
-        setffmpeg(_ffmpeg)
-      })
-    }
+    // if (ffmpeg === undefined) {
+    //   const _ffmpeg = createFFmpeg({corePath: 'http://localhost:3000/ffmpeg-core.js', log: true})
+    //   _ffmpeg.load().then(() => {
+    //     setffmpeg(_ffmpeg)
+    //   })
+    // }
   }, [ffmpeg])
 
   const {loading, error, currentCreator} = useCurrentCreator()

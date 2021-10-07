@@ -77,18 +77,16 @@ const getLibrary = (provider) => {
 // }
 
 const getBiconomyLibrary = (provider) => {
-  const biconomy = new Biconomy(provider, {apiKey: "57d27b1e-d8e7-4397-b708-c316a4c2e7e3", debug: true});
-  biconomy.onEvent(biconomy.READY, () => {
-    return new Web3Provider(biconomy)
-  }).onEvent(biconomy.ERROR, (error, message) => {
-    console.log('Error, cant connect')
-  })
+  const biconomy = new Biconomy(provider, {apiKey: "bJeegKRnS.03adacd8-3bea-4a8b-9b61-b70d13446fe5", debug: true});
+  biconomy.pollingInterval = 12000
+  return new Web3Provider(biconomy)
 }
 
 function ConnectOrSignup(props) {
   const {active} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
   const web3utils = useContext(Web3UtilsContext)
+  const {account, library} = useWeb3React()
 
   if (currentProfile)
     return (<a href="" onClick={(e) => {
@@ -97,7 +95,7 @@ function ConnectOrSignup(props) {
       }}>
       <Avatar size="menu" src={currentProfile.image}/></a>)
   if (active)
-    return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
+    return (<Link to="/signup"><Button label="Sign Up"></Button>{account}</Link>)
   else
     return (<div>
       <WalletModal></WalletModal>
