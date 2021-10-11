@@ -1,20 +1,17 @@
 import 'react-app-polyfill/ie11';
-import * as React from 'react';
-import {Formik, Field, Form, FormikHelpers} from 'formik';
 import {useWeb3React} from "./web3-react/core";
-import {Web3Provider} from "@ethersproject/providers";
-import {RelayProvider} from "@opengsn/provider";
+import {TransactionRequest, Web3Provider} from "@ethersproject/providers";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
 import {useContext, useEffect, useState} from "react";
 import {NotificationHandlerContext} from "./ErrorHandler";
-import Web3Modal from "web3modal";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
 import {Web3UtilsContext} from "./Web3Utils";
-import { Transaction } from 'ethereumjs-tx';
-import { ThreeIDX } from '3id-did-provider/lib/three-idx';
+import {Transaction} from '@ethereumjs/tx';
+import Common from '@ethereumjs/common'
+import { Deferrable } from '@ethersproject/properties';
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
@@ -38,8 +35,6 @@ const SignUp = () => {
   const [collectionName, setCollectionName] = useState("")
   const [collectionSymbol, setCollectionSymbol] = useState("")
 
-  const {account, library} = useWeb3React()
-
   if (!context.library)
     return (<div>Please connect your wallet</div>)
   if (currentCreator !== undefined)
@@ -48,7 +43,6 @@ const SignUp = () => {
     return (<div>{signedup}</div>)
 
   async function submitForm(event) {
-    const {library} = context;
     console.log(creatorFactoryContract)
 
 
@@ -59,39 +53,44 @@ const SignUp = () => {
         
     // let userAddress = <Selected Address>;
 
+    console.log(context.account)
+    const signer = context.library!.getSigner();
+
+    const connectedContract = creatorFactoryContract.connect(signer)
+
+    let { data } = await creatorFactoryContract.populateTransaction.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
     
-    const connectedContract = creatorFactoryContract.connect(library!.getSigner())
-        
-    // Create your target method signature.. here we are calling setQuote() method of our contract
-    let { data } = await connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
-    //let provider = biconomy.getEthersProvider();
-    
-        
-    let gasLimit = await connectedContract.estimateGas.deployCreator({
-                to: connectedContract.address,
-                from: account,
-                data: data
-            });
+    let gasLimit = await connectedContract.estimateGas.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol);
     console.log("Gas limit : ", gasLimit);
           
-    let txParams = {
-                data: data,
+    const tes2: Deferrable<TransactionRequest> =  {
                 to: connectedContract.address,
-                from: library!.getSigner(),
+                from: context.account!,
+                data: data,
                 gasLimit: gasLimit
             };
 
+            let txParams = {
+              to: connectedContract.address,
+              from: context.account,
+              data: data
+          };
+
+    //const serializedTransaction = txParams.serialize();
+    //const raw = '0x' + serializedTransaction.toHexString();
+
+    const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
+    const common = Common.forCustomChain('goerli', customChainParams)
+    //let test = new Transaction.Transaction.();
+    const tx = Transaction.fromTxData(txParams, { common });
     
-    // @ts-ignore
-    //context.library!.getSigner().signTransaction(txParams);
-    //let tx = context.library.provider.send("eth_sendTransaction", [txParams]);
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    let tx = connectedContract.provider.signTransaction(Transaction.fromTxData(txParams));
-    //console.log("Transaction hash : ", tx);
+    //const test: Deferrable<TransactionRequest> = '0x' + tx.serialize().toString('hex').
+    const tx1 = signer.sendTransaction(tes2);
+    console.log("Transaction hash : ", tx1);
     //event emitter methods
 
     setSignedup("Waiting for your signup to be confirmed on the blockchain...");
-    (await tx).wait();
+    
     notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
 
     // @ts-ignore

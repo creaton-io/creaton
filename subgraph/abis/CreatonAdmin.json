@@ -1,35 +1,49 @@
 [
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "previousAdmin",
+        "name": "host",
         "type": "address"
       },
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "newAdmin",
+        "name": "cfa",
         "type": "address"
-      }
-    ],
-    "name": "AdminChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+      },
       {
-        "indexed": true,
         "internalType": "address",
-        "name": "beacon",
+        "name": "acceptedToken",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_treasury",
+        "type": "address"
+      },
+      {
+        "internalType": "int96",
+        "name": "_treasuryFee",
+        "type": "int96"
+      },
+      {
+        "internalType": "address",
+        "name": "_creatorBeacon",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_nftFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_trustedForwarder",
         "type": "address"
       }
     ],
-    "name": "BeaconUpgraded",
-    "type": "event"
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -98,19 +112,6 @@
       }
     ],
     "name": "ProfileUpdate",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
-      }
-    ],
-    "name": "Upgraded",
     "type": "event"
   },
   {
@@ -214,59 +215,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "host",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "cfa",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "acceptedToken",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_treasury",
-        "type": "address"
-      },
-      {
-        "internalType": "int96",
-        "name": "_treasuryFee",
-        "type": "int96"
-      },
-      {
-        "internalType": "address",
-        "name": "_creatorBeacon",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_nftFactory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_trustedForwarder",
-        "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_paymaster",
-        "type": "address"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
         "name": "forwarder",
         "type": "address"
       }
@@ -288,19 +236,6 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paymaster",
-    "outputs": [
-      {
-        "internalType": "address payable",
         "name": "",
         "type": "address"
       }
@@ -421,37 +356,6 @@
     "name": "updateTrustedForwarder",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newImplementation",
-        "type": "address"
-      }
-    ],
-    "name": "upgradeTo",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "newImplementation",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
-      }
-    ],
-    "name": "upgradeToAndCall",
-    "outputs": [],
-    "stateMutability": "payable",
     "type": "function"
   },
   {

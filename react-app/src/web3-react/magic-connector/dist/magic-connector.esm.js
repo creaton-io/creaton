@@ -120,7 +120,7 @@ var chainIdToNetwork = {
     chainId: 137
   },
   80001: {
-    rpcUrl: 'https://rpc-mumbai.maticvigil.com/',
+    rpcUrl: 'https://matic-mumbai--jsonrpc.datahub.figment.io/apikey/0ae5f13919ed451371d1e07481351f70/',
     chainId: 80001
   }
 };

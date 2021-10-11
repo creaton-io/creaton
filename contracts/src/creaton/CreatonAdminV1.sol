@@ -5,7 +5,7 @@ pragma abicoder v2;
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
 import "./CreatorV1.sol";
-import "../metatx/CreatonPaymaster.sol";
+//import "../metatx/CreatonPaymaster.sol";
 import "../dependency/gsn/BaseRelayRecipient.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -19,7 +19,7 @@ import {
     ISuperApp
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
-contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
+contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Events
     // -----------------------------------------
@@ -50,13 +50,13 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     address public creatorBeacon;
     address public override nftFactory;
 
-    address payable public paymaster;
+    //address payable public paymaster;
 
     // -----------------------------------------
     // Constructor
     // -----------------------------------------
 
-    function initialize(
+    constructor(
         address host,
         address cfa,
         address acceptedToken, // get these from superfluid contracts
@@ -64,9 +64,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         int96 _treasuryFee,
         address _creatorBeacon,
         address _nftFactory,
-        address _trustedForwarder,
-        address payable _paymaster
-    ) public payable initializer {
+        address _trustedForwarder
+    ) {
         owner = msg.sender;
 
         assert(host != address(0));
@@ -86,7 +85,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         nftFactory = _nftFactory;
 
         trustedForwarder = _trustedForwarder;
-        paymaster = _paymaster;
     }
 
     // -----------------------------------------
@@ -126,7 +124,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
 
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);
-        CreatonPaymaster(paymaster).addCreatorContract(creatorContractAddr);
+        //CreatonPaymaster(paymaster).addCreatorContract(creatorContractAddr);
 
         //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
 
@@ -155,7 +153,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    // function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function updateTrustedForwarder(address _trustedForwarder) public onlyOwner {
         trustedForwarder = _trustedForwarder;

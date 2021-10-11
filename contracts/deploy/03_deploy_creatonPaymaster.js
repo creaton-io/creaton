@@ -6,7 +6,7 @@ const func = async function (hre) {
   //const creatonStaking = await hre.deployments.get('MetatxStaking');
 
   //const relayHub = '0x6C28AfC105e65782D9Ea6F2cA68df84C9e7d750d';
-  const trustedforwarder = '0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d';
+  //const trustedforwarder = '0xdA78a11FD57aF7be2eDD804840eA7f4c2A38801d';
   /*
   console.log('test1');
   let creatonPaymaster = await deploy('CreatonPaymaster', {
