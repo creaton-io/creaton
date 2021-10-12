@@ -85,12 +85,11 @@ contract CreatorCollections is Ownable, Pausable {
         Card memory c = p.cardsArray[_cardID];
         require(block.timestamp >= c.releaseTime, "card not open");
 
-        require(c.idPointOfNextEmpty < c.ids.length, "Token Is Sold Out");
+        require(c.idPointOfNextEmpty < c.ids.length, "Card Is Sold Out");
 
-        uint256 moreToTake = c.price;
-        _totalSupply = _totalSupply.add(moreToTake);
+        _totalSupply = _totalSupply.add(c.price);
 
-        token.transferFrom(_msgSender(), address(this), moreToTake);
+        token.transferFrom(_msgSender(), address(this), c.price);
 
         p.feesCollected = p.feesCollected.add(c.price);
         // console.log(c.ids[c.idPointOfNextEmpty]);
