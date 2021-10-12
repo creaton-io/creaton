@@ -68,7 +68,7 @@ const SignUp = () => {
                 from: context.account!,
                 data: data,
                 gasLimit: gasLimit
-            };
+          };
 
             let txParams = {
               to: connectedContract.address,
