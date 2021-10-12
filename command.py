@@ -24,13 +24,13 @@ def update_contracts_mumbai():
     #])['network']
     network = 'mumbai'
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
-    # creaton_admin['address'] = prompt([
-    #     {
-    #         'type': 'input',
-    #         'name': 'address',
-    #         'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
-    #     },
-    # ])['address']
+    creaton_admin['address'] = prompt([
+        {
+            'type': 'input',
+            'name': 'address',
+            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+        },
+    ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
     #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
     paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
@@ -64,13 +64,13 @@ def update_contracts():
     #])['network']
     network = 'mumbai'
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
-    # creaton_admin['address'] = prompt([
-    #     {
-    #         'type': 'input',
-    #         'name': 'address',
-    #         'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
-    #     },
-    # ])['address']
+    creaton_admin['address'] = prompt([
+        {
+            'type': 'input',
+            'name': 'address',
+            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+        },
+    ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
     #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
     paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))

@@ -39,6 +39,7 @@ import { Governance } from './Governance';
 import { Icon } from './icons';
 import Tooltip from './elements/tooltip';
 import {Biconomy} from "@biconomy/mexa";
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 initFontAwesome()
 
@@ -77,8 +78,15 @@ const getLibrary = (provider) => {
 // }
 
 const getBiconomyLibrary = (provider) => {
-  const biconomy = new Biconomy(provider, {apiKey: "bJeegKRnS.03adacd8-3bea-4a8b-9b61-b70d13446fe5", debug: true});
+  const biconomy = new Biconomy(provider, {apiKey: "bJeegKRnS.03adacd8-3bea-4a8b-9b61-b70d13446fe5", strictMode: true, debug: true});
   biconomy.pollingInterval = 12000
+  biconomy
+  .onEvent(biconomy.READY, () => {
+     console.log("Mexa is Ready");
+  })
+  .onEvent(biconomy.ERROR, (error, message) => {
+     console.error(error);
+  });
   return new Web3Provider(biconomy)
 }
 
@@ -95,7 +103,12 @@ function ConnectOrSignup(props) {
       }}>
       <Avatar size="menu" src={currentProfile.image}/></a>)
   if (active)
-    return (<Link to="/signup"><Button label="Sign Up"></Button>{account}</Link>)
+    return (<div className="hidden md:flex md:space-x-10 ml-auto"><Link to="/signup"><Button label="Profile"></Button></Link>
+      <a href="" onClick={(e) => {
+        e.preventDefault();
+        props.onAvatarClick()
+      }}>
+    <Avatar size="menu" src={""}/></a></div>)
   else
     return (<div>
       <WalletModal></WalletModal>
@@ -138,6 +151,10 @@ const ProfileMenu = (props) => {
   const [wrapAmount, setWrapAmount] = useState("")
   const [unwrappingUsdcx, setUnwrappingUsdcx] = useState<boolean>(false)
   const {account, library} = useWeb3React()
+  
+  const [clipValue, setClipValue] = useState("")
+  const [copyClip, setCopyClip] = useState<boolean>(false)
+
   useEffect(() => {
     usdcx.balanceOf(account).then(balance => {
       console.log('setting balance in profile menu')
@@ -238,7 +255,13 @@ const ProfileMenu = (props) => {
         <div className="text-lg font-bold text-black bold">
           {currentProfile?.username}
         </div>
-        <div className="-mt-2 text-sm text-purple-500">{clipAddress(account)}</div>
+        <div className="-mt-2 text-sm text-purple-500">
+          <CopyToClipboard text={account}
+            onCopy={() => setCopyClip(true)}>
+            <span className="select-all">{clipAddress(account)}📋</span>
+          </CopyToClipboard>
+          
+        </div>
       </div>
       <div className="grid grid-cols-1 divide-y divide-gray-200">
         <div className="mb-4">
@@ -398,8 +421,8 @@ const ProfileMenu = (props) => {
           {canBecomeCreator &&
           <NavigationLink to="/upload" label="Upload"/>
           }
-          {currentProfile &&
-          <NavigationLink to="/signup" label="My Profile"/>
+          {
+          <NavigationLink to="/signup" label={currentProfile ? "My Profile" : "Make Profile"}/>
           }
           {/* {currentProfile &&
           <NavigationLink to="/flows" label="My Flows"/>
