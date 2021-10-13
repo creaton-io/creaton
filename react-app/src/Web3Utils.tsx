@@ -13,6 +13,10 @@ import {
 } from './web3-react/walletconnect-connector'
 
 const Web3UtilsContext = createContext<any>(null)
+const Web3UtilsProviderContext = createContext<any>({
+  provider: null,
+  setProvider: () => {},
+})
 const Web3UtilsProvider = (props) => {
   const {activate, account, chainId, library} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
@@ -136,4 +140,4 @@ const Web3UtilsProvider = (props) => {
       disableInteraction: (Boolean(isWaiting)) || wrongChainId
     }}>{props.children}</Web3UtilsContext.Provider>)
 }
-export {Web3UtilsContext, Web3UtilsProvider};
+export {Web3UtilsContext, Web3UtilsProvider, Web3UtilsProviderContext};

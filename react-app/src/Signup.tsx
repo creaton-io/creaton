@@ -8,7 +8,7 @@ import {useContext, useEffect, useState} from "react";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
-import {Web3UtilsContext} from "./Web3Utils";
+import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
 import {Transaction} from '@ethereumjs/tx';
 import Common from '@ethereumjs/common'
 import { Deferrable } from '@ethersproject/properties';
@@ -35,7 +35,10 @@ const SignUp = () => {
   const [collectionName, setCollectionName] = useState("")
   const [collectionSymbol, setCollectionSymbol] = useState("")
 
-  if (!context.library)
+  
+  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
+
+  if (!biconomyProvider)
     return (<div>Please connect your wallet</div>)
   if (currentCreator !== undefined)
     return (<div>Congratulation you just signed up on creaton!</div>)
@@ -54,29 +57,39 @@ const SignUp = () => {
     // let userAddress = <Selected Address>;
 
     console.log(context.account)
-    const signer = context.library!.getSigner();
+    const signer = biconomyProvider.getSignerByAddress(context.account);
+
+    let provider = biconomyProvider.getEthersProvider();
 
     const connectedContract = creatorFactoryContract.connect(signer)
 
     let { data } = await creatorFactoryContract.populateTransaction.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
     
-    let gasLimit = await connectedContract.estimateGas.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol);
+    //let gasLimit = await connectedContract.estimateGas.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol);
+    //console.log("Gas limit : ", gasLimit);
+
+    let gasLimit: number = await provider.estimateGas({
+      to: connectedContract.address,
+      from: context.account,
+      data: data
+    });
+
     console.log("Gas limit : ", gasLimit);
+
           
     const tes2: Deferrable<TransactionRequest> =  {
                 to: connectedContract.address,
                 from: context.account!,
-                data: data,
-                gasLimit: gasLimit
-          };
+                data: data
+            };
 
             let txParams = {
+              data: data,
               to: connectedContract.address,
-              from: context.account,
-              data: data
+              from: context.account
           };
 
-    //const serializedTransaction = txParams.serialize();
+    //const serializedTransaction = tes2.serialize();
     //const raw = '0x' + serializedTransaction.toHexString();
 
     const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
@@ -85,7 +98,7 @@ const SignUp = () => {
     const tx = Transaction.fromTxData(txParams, { common });
     
     //const test: Deferrable<TransactionRequest> = '0x' + tx.serialize().toString('hex').
-    const tx1 = signer.sendTransaction(tes2);
+    const tx1 = provider.sendTransaction(tx);
     console.log("Transaction hash : ", tx1);
     //event emitter methods
 

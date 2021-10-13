@@ -10,7 +10,7 @@ import {CeramicStore} from "./stores/ceramicStore";
 import {AvatarUpload} from "./components/avatarUpload";
 import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
-import {Web3UtilsContext} from "./Web3Utils";
+import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
 import { CeramicProvider } from "./CeramicProvider";
 
 const ProfileEdit = (props) => {
@@ -27,6 +27,7 @@ const ProfileEdit = (props) => {
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const [ceramic, setCeramic] = useState<CeramicStore | null>(null);
+  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
 
   useEffect(() => {
     console.log(currentProfile)
@@ -107,11 +108,9 @@ const ProfileEdit = (props) => {
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }
-    const {library} = web3Context;
     console.log(payload)
-    const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+    const connectedContract = creatorFactoryContract.connect(biconomyProvider.getSignerByAddress(web3Context.account))
     console.log("connectedcontract", connectedContract.address)
-    console.log("connectedcontractfactory", creatorFactoryContract.address)
     let result
     try {
       result = await connectedContract.updateProfile(JSON.stringify(payload))
@@ -129,7 +128,7 @@ const ProfileEdit = (props) => {
     refetch()
   }
 
-  if (!web3Context.library)
+  if (!biconomyProvider)
     return (<div>Connect your wallet</div>)
 
   return (
