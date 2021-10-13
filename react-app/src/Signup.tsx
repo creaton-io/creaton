@@ -48,58 +48,25 @@ const SignUp = () => {
   async function submitForm(event) {
     console.log(creatorFactoryContract)
 
-
-    // let contract = new ethers.Contract(<CONTRACT_ADDRESS>,
-    // <CONTRACT_ABI>, biconomy.getSignerByAddress(userAddress));
-      
-    // let contractInterface = new ethers.utils.Interface(<CONTRACT_ABI>);
-        
-    // let userAddress = <Selected Address>;
-
     console.log(context.account)
-    const signer = biconomyProvider.getSignerByAddress(context.account);
 
     let provider = biconomyProvider.getEthersProvider();
 
-    const connectedContract = creatorFactoryContract.connect(signer)
+    const connectedContract = creatorFactoryContract.connect(biconomyProvider.getSignerByAddress(context.account))
 
     let { data } = await creatorFactoryContract.populateTransaction.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+
+    let txParams = {
+        data: data,
+        to: connectedContract.address,
+        from: context.account
+    };
+
+    let tx = await provider.send("eth_sendTransaction", [txParams]);
     
-    //let gasLimit = await connectedContract.estimateGas.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol);
-    //console.log("Gas limit : ", gasLimit);
-
-    let gasLimit: number = await provider.estimateGas({
-      to: connectedContract.address,
-      from: context.account,
-      data: data
-    });
-
-    console.log("Gas limit : ", gasLimit);
-
-          
-    const tes2: Deferrable<TransactionRequest> =  {
-                to: connectedContract.address,
-                from: context.account!,
-                data: data
-            };
-
-            let txParams = {
-              data: data,
-              to: connectedContract.address,
-              from: context.account
-          };
-
-    //const serializedTransaction = tes2.serialize();
-    //const raw = '0x' + serializedTransaction.toHexString();
-
-    const customChainParams = { name: 'matic-mumbai', chainId: 80001, networkId: 80001 }
-    const common = Common.forCustomChain('goerli', customChainParams)
-    //let test = new Transaction.Transaction.();
-    const tx = Transaction.fromTxData(txParams, { common });
-    
-    //const test: Deferrable<TransactionRequest> = '0x' + tx.serialize().toString('hex').
-    const tx1 = provider.sendTransaction(tx);
-    console.log("Transaction hash : ", tx1);
+    //const test = '0x' + tx.serialize().toString('hex');
+    //const tx1 = provider.sendTransaction(test);
+    console.log("Transaction hash : ", tx);
     //event emitter methods
 
     setSignedup("Waiting for your signup to be confirmed on the blockchain...");
