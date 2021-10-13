@@ -2,7 +2,7 @@
 import { Fragment, useContext, useState, useRef } from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { LoginIcon } from '@heroicons/react/outline'
-import {Web3UtilsContext, Web3UtilsProvider} from "../Web3Utils";
+import {Web3UtilsContext} from "../Web3Utils";
 import { Icon } from '../icons';
 import { Button } from '../elements/button';
 import { ExclamationIcon, XIcon } from '@heroicons/react/outline'
@@ -10,18 +10,16 @@ import { ExclamationIcon, XIcon } from '@heroicons/react/outline'
 export default function WalletModal() {
   const [open, setOpen] = useState(false)
   const web3utils = useContext(Web3UtilsContext)
-  
-  const [emailValue, setEmailValue] = useState('');
 
-  const EmailInput = ({ email }) => {
-    const ref = useRef<any>(null);
+  const EmailInput = () => {
+    //const ref = useRef<any>(null);
     return (
         <div className="mt-1 mb-4">
         <input
           type="text"
           name="email"
           id="email"
-          ref={ref}
+          ref={web3utils.setMagicEmail}
           className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
           placeholder="you@example.com"
         />
@@ -133,7 +131,20 @@ export default function WalletModal() {
                     <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                       Email
                     </label>
-                    <EmailInput email={setEmailValue}/>
+                    <div className="mt-1 mb-4">
+                      <input
+                        type="text"
+                        name="email"
+                        id="email"
+                        ref={web3utils.setMagicEmail}
+                        className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+                        placeholder="you@example.com"      
+                        value={web3utils.magicEmail}
+                        onChange={e => {
+                          web3utils.setMagicEmail(e.target.value);
+                        }}
+                      />
+                      </div>
                   </div>
                   <button
                     type="button"

@@ -77,7 +77,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         string memory _description,
         uint256 _subscriptionPrice,
         string memory nftName,
-        string memory nftSymbol
+        string memory nftSymbol,
+        address _trustedForwarder
     ) public payable initializer {
         admin = msg.sender;
 
@@ -88,6 +89,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         _host = ISuperfluid(host);
         _cfa = IConstantFlowAgreementV1(cfa);
         _acceptedToken = ISuperToken(acceptedToken);
+        trustedForwarder = _trustedForwarder;
         //uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
         //_host.registerApp(configWord);
 
@@ -160,6 +162,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function isTrustedForwarderAdmin(address forwarder) public view returns (bool) {
         return forwarder == adminContract.getTrustedForwarder();
+    }
+
+    function updateTrustedForwarder(address _trustedForwarder) public onlyCreator {
+        trustedForwarder = _trustedForwarder;
     }
 
     // -----------------------------------------
@@ -275,9 +281,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         //_acceptedToken.approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         //_acceptedToken.transfer(creator, uint256(uint96(subscriptionPrice)));
 
-        if (subscriberCount == 0) {
+        if (subscriberCount == 1) {
+            //creator are subscribed to themselves already
             newCtx = _openFlows(ctx, contract2creatorDelta, contract2treasuryDelta);
-        } else if (subscriberCount > 0) {
+        } else if (subscriberCount > 1) {
             (, int96 contract2creatorCurrent, , ) = _cfa.getFlow(_acceptedToken, address(this), creator);
             (, int96 contract2treasuryCurrent, , ) =
                 _cfa.getFlow(_acceptedToken, address(this), adminContract.treasury());

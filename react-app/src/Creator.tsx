@@ -9,8 +9,6 @@ import {wad4human} from "@decentral.ee/web3-helpers";
 import {defaultAbiCoder} from '@ethersproject/abi';
 import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
-import {UmbralWasmContext} from "./UmbralWasm";
-import {UmbralCreator, UmbralSubscriber} from "./Umbral";
 //import {TextileContext} from "./TextileProvider";
 import {LitContext} from "./LitProvider";
 import {Base64} from "js-base64";
@@ -19,7 +17,6 @@ import {NotificationHandlerContext} from "./ErrorHandler";
 import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
-import {StickyHeader} from './components/sticky-header';
 import {Avatar} from "./components/avatar";
 import {REACTIONS_GRAPHQL_URI, REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from "./Config";
 import {Web3UtilsContext} from "./Web3Utils";
@@ -80,7 +77,7 @@ export function Creator() {
   const context = useWeb3React<Web3Provider>()
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery(){
-    updateReactions(creatorContractAddress);
+    //updateReactions(creatorContractAddress);
     contentsQuery.refetch({user:creatorContractAddress})
     console.log("\"smart\" refetch was run")
   }
@@ -94,7 +91,6 @@ export function Creator() {
   });
 
   const superfluid = useContext(SuperfluidContext);
-  const umbralWasm = useContext(UmbralWasmContext)
   const [usdcx, setUsdcx] = useState(0)
   const {currentCreator} = useCurrentCreator()
 
@@ -147,15 +143,19 @@ export function Creator() {
           //console.log('decrypted promise result', decrypted)
           if (decrypted !== undefined) {
             const blob = new Blob([decrypted], {type: content.type});
-            setDownloadCache({...downloadCache, [content.ipfs]: window.URL.createObjectURL(blob)})
+            const url = window.URL.createObjectURL(blob)
+            setDownloadCache({...downloadCache, [content.ipfs]: url})
             setDownloadStatus({...downloadStatus, [content.ipfs]: 'cached'})
           }
+        }).catch((e) => {
+          console.log(e)
+          setDownloadStatus({...downloadStatus, [content.ipfs]: 'error'})
         })
         break;
       }
     }
   }, [downloadStatus, canDecrypt])
-
+/*
   useEffect(() => {
     (async function iife() {
       if(!context.library) return;
@@ -170,30 +170,31 @@ export function Creator() {
       updateReactions(creatorContractAddress);
     })();
   }, [contentsQuery, creatorContractAddress, context.library]);
+  */
 
-  async function updateReactions(nftAddress: string){
-    const reactionsQuery = `
-      query($nftAddress: Bytes!) {
-        reactions(where: {reactionRecipientAddress: $nftAddress}) {
-          id
-          amount,
-          reactionRecipientAddress,
-          tokenId
-          user {
-            address
-          }
-        }
-      }
-    `;
+  // async function updateReactions(nftAddress: string){
+  //   const reactionsQuery = `
+  //     query($nftAddress: Bytes!) {
+  //       reactions(where: {reactionRecipientAddress: $nftAddress}) {
+  //         id
+  //         amount,
+  //         reactionRecipientAddress,
+  //         tokenId
+  //         user {
+  //           address
+  //         }
+  //       }
+  //     }
+  //   `;
 
-    const client = new ApolloClient({
-      uri: REACTIONS_GRAPHQL_URI,
-      cache: new InMemoryCache()
-    });
+  //   const client = new ApolloClient({
+  //     uri: REACTIONS_GRAPHQL_URI,
+  //     cache: new InMemoryCache()
+  //   });
 
-    const data = await client.query({query: gql(reactionsQuery), variables: {'nftAddress': nftAddress}});
-    setReactions(data.data.reactions);
-  }
+  //   const data = await client.query({query: gql(reactionsQuery), variables: {'nftAddress': nftAddress}});
+  //   setReactions(data.data.reactions);
+  // }
 
   async function mint() {
     let {sf, usdc, usdcx} = superfluid;
@@ -259,73 +260,18 @@ export function Creator() {
     console.log('subscribed');
   }
 
-  
-    var utf8ArrayToStr = (function () {
-      var charCache = new Array(128);  // Preallocate the cache for the common single byte chars
-      var charFromCodePt = String.fromCodePoint || String.fromCharCode;
-      var result = [];
-  
-      return function (array) {
-          var codePt, byte1;
-          var buffLen = array.length;
-  
-          result.length = 0;
-  
-          for (var i = 0; i < buffLen;) {
-              byte1 = array[i++];
-  
-              if (byte1 <= 0x7F) {
-                  codePt = byte1;
-              } else if (byte1 <= 0xDF) {
-                  codePt = ((byte1 & 0x1F) << 6) | (array[i++] & 0x3F);
-              } else if (byte1 <= 0xEF) {
-                  codePt = ((byte1 & 0x0F) << 12) | ((array[i++] & 0x3F) << 6) | (array[i++] & 0x3F);
-              // @ts-expect-error: _data does exist on JSZip
-              } else if (String.fromCodePoint) {
-                  codePt = ((byte1 & 0x07) << 18) | ((array[i++] & 0x3F) << 12) | ((array[i++] & 0x3F) << 6) | (array[i++] & 0x3F);
-              } else {
-                  codePt = 63;    // Cannot convert four byte code points, so use "?" instead
-                  i += 3;
-              }
-  
-              // @ts-expect-error: _data does exist on JSZip
-              result.push(charCache[codePt] || (charCache[codePt] = charFromCodePt(codePt)));
-          }
-  
-          return result.join('');
-      };
-    })();
-
   async function decrypt(content) {
     //if (content.ipfs.startsWith('/ipfs'))
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
     //else {//handle arweave
 
-    let zip = new JSZip();
-
     const encryptedZipBlob = await (await fetch('https://arweave.net/' + content.ipfs)).blob()
     const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
 
-    await zip.loadAsync(encryptedZipBlob)
+    let { decryptedFile }  = await LitJsSdk.decryptZipFileWithMetadata({ authSig: authSig, file: encryptedZipBlob, litNodeClient: litNode})
 
-     // ts-expect-error: _data does exist on JSZip
-    let zipFile = zip.files["lit_protocol_metadata.json"]
-
-    let { decryptedFiles, metadata }  = await LitJsSdk.decryptZipFileWithMetadata({ authSig, encryptedZipBlob, litNode})
-
-
-    
-    //let zipMetadata = JSON.parse(utf8ArrayToStr(zipFile));
-
-    const symmetricKey = await litNode.getEncryptionKey({
-      accessControlConditions: metadata.accessControlConditions,
-      toDecrypt: metadata.encryptedSymmetricKey,
-      authSig,
-      chain: "mumbai"
-    })
-
-
-    return await decryptedFiles['encryptedFile']
+    let files = await decryptedFile
+    return files
   }
 
   if (contentsQuery.loading || contractQuery.loading) {
@@ -351,7 +297,7 @@ export function Creator() {
       src = 'https://arweave.net/' + content.ipfs
     else {
       if (downloadStatus[content.ipfs] !== 'cached') return;
-      //src = new Blob(downloadCache[content.ipfs]);
+      src = downloadCache[content.ipfs];
     }
     return src;
   }
@@ -383,18 +329,23 @@ export function Creator() {
       fileType = "image";
     }else if (content.type == "text") {
       fileType = "text";
-    }else{
+    }else if (content.type.startsWith('application/vnd.apple.mpegurl')) {
       fileType = "video";
+    }
+    else{
+      fileType = "image";
     }
 
     return <Card key={content.ipfs} fileUrl={src} name={content.name} description={content.description}
       fileType={fileType} date={content.date}
-      avatarUrl="" onReport= {() => {report(content)}} 
-      reactionErc20Available={reactionErc20Available}
-      reactionErc20Symbol={reactionErc20Symbol}
-      onReact={(amount, callback) => { react(content, amount, callback) }} 
-      hasReacted={hasReacted(content)} 
-      initialReactCount={countReacted(content)} />
+      avatarUrl="" 
+      onReport= {() => {report(content)}} 
+      // reactionErc20Available={reactionErc20Available}
+      // reactionErc20Symbol={reactionErc20Symbol}
+      //onReact={(amount, callback) => { react(content, amount, callback) }} 
+      // hasReacted={hasReacted(content)} 
+      // initialReactCount={countReacted(content)} 
+      />
   }
 
   async function subscribe() {
@@ -406,7 +357,7 @@ export function Creator() {
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'})
   }
-
+/*
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
@@ -441,7 +392,7 @@ export function Creator() {
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-  }
+  }*/
 
   function countReacted(content): string{
     if(!reactions) return '0';
@@ -483,13 +434,16 @@ export function Creator() {
   }
 
   function generateButton(){
+    let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
+
     return (<div>
-        {(subscription === 'unsubscribed') && (<Button onClick={() => {
+        {(subscription === 'unsubscribed' && !isSelf) && (<Button onClick={() => {
           startStreaming()
         }} label="Start Subscription"/>)}
-        {(subscription === 'subscribed') && (<Button onClick={() => {
+        {(subscription === 'subscribed' && !isSelf) && (<Button onClick={() => {
           alert('still need to implement, can cancel manually through Superfluid dashboard')
-        }} label="Stop Subscription"/>)}</div>)
+        }} label="Stop Subscription"/>)}
+        </div>)
   }
 
   function getCoverPhotoUrl(){
@@ -540,7 +494,7 @@ export function Creator() {
         }
       </h1>
       <div className="py-5">
-        {reactions && 
+        {//reactions && 
           contents.map((x) => showItem(x))
         }
       </div>

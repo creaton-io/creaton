@@ -104,7 +104,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
             new CreatorProxy(
                 creatorBeacon,
                 abi.encodeWithSignature(
-                    "initialize(address,address,address,address,string,uint256,string,string)",
+                    "initialize(address,address,address,address,string,uint256,string,string,address)",
                     _host,
                     _cfa,
                     _acceptedToken,
@@ -112,7 +112,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
                     description,
                     subscriptionPrice,
                     nftName,
-                    nftSymbol
+                    nftSymbol,
+                    trustedForwarder
                 )
             );
 

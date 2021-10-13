@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState, useMemo} from 'react';
 import {
   HashRouter as Router,
   Switch,
@@ -12,36 +12,34 @@ import WalletConnect from "./WalletConnect";
 import {useWeb3React, Web3ReactProvider} from "./web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import Upload from "./Upload";
-import {formatEther} from "@ethersproject/units";
+import {formatEther, parseEther} from "@ethersproject/units";
 import {SuperfluidContext, SuperfluidProvider} from "./Superfluid";
 import Grant from "./Grant";
 //import {Staking} from "./Staking";
 import {Creator} from "./Creator";
 import {NotificationHandlerContext, NotificationHandlerProvider} from "./ErrorHandler";
-import {UmbralWasmProvider} from "./UmbralWasm";
-import {TextileProvider} from "./TextileProvider";
 import {LitProvider} from "./LitProvider";
-import {CeramicProvider} from "./CeramicProvider";
-import TwitterVerification from "./TwitterVerification";
 import Creators from "./Creators";
-import {RelayProvider} from "@opengsn/provider";
 import {Button} from "./elements/button";
 import creaton_contracts from "./Contracts";
 import {ProfileEdit} from "./ProfileEdit";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
-import {InjectedConnector} from "@web3-react/injected-connector";
+import {InjectedConnector} from "./web3-react/injected-connector";
 import {APOLLO_URI, REACTION_ERC20} from "./Config";
 import {Notification} from "./components/notification";
 import {initFontAwesome} from "./icons/font-awesome";
 import {Avatar} from "./components/avatar";
 import {Toggle} from "./elements/toggle";
-import {Web3UtilsContext, Web3UtilsProvider} from "./Web3Utils";
+import {Web3UtilsContext, Web3UtilsProvider, Web3UtilsProviderContext} from "./Web3Utils";
 import Loader from "./elements/loader";
 import {useCanBecomeCreator, useIsAdmin} from "./Whitelist";
 import WalletModal from "./components/walletModal";
 import { Flows } from './Flows';
-import { CreatorVoting } from './CreatorVoting';
 import { Governance } from './Governance';
+import { Icon } from './icons';
+import Tooltip from './elements/tooltip';
+import {Biconomy} from "@biconomy/mexa";
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 initFontAwesome()
 
@@ -57,7 +55,6 @@ const client = new ApolloClient({
 
 const paymaster = creaton_contracts.Paymaster
 
-
 const getLibrary = (provider) => {
   console.log('evaluating getLibrary', provider)
   const library = new Web3Provider(provider)
@@ -65,25 +62,26 @@ const getLibrary = (provider) => {
   return library
 }
 
-const getGSNLibrary = (provider) => {
-  let paymasterAddress = paymaster.address
-  const config = {
-    paymasterAddress,
-    requiredVersionRange: "2.2.3-matic",
-  }
-  console.log('evaluating getGSNLibrary', provider)
-  const gsnProvider = RelayProvider.newProvider({provider: provider, config});
-  gsnProvider.init()
-  // @ts-ignore
-  const gsnLibrary = new Web3Provider(gsnProvider)
-  gsnLibrary.pollingInterval = 12000
-  return gsnLibrary
-}
+// const getGSNLibrary = (provider) => {
+//   let paymasterAddress = paymaster.address
+//   const config = {
+//     paymasterAddress,
+//     requiredVersionRange: "2.2.3-matic",
+//   }
+//   console.log('evaluating getGSNLibrary', provider)
+//   const gsnProvider = RelayProvider.newProvider({provider: provider, config});
+//   gsnProvider.init()
+//   // @ts-ignore
+//   const gsnLibrary = new Web3Provider(gsnProvider)
+//   gsnLibrary.pollingInterval = 12000
+//   return gsnLibrary
+// }
 
 function ConnectOrSignup(props) {
   const {active} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
   const web3utils = useContext(Web3UtilsContext)
+  const {account, library} = useWeb3React()
 
   if (currentProfile)
     return (<a href="" onClick={(e) => {
@@ -92,7 +90,12 @@ function ConnectOrSignup(props) {
       }}>
       <Avatar size="menu" src={currentProfile.image}/></a>)
   if (active)
-    return (<Link to="/signup"><Button label="Sign Up"></Button></Link>)
+    return (<div className="hidden md:flex md:space-x-10 ml-auto"><Link to="/signup"><Button label="Profile"></Button></Link>
+      <a href="" onClick={(e) => {
+        e.preventDefault();
+        props.onAvatarClick()
+      }}>
+    <Avatar size="menu" src={""}/></a></div>)
   else
     return (<div>
       <WalletModal></WalletModal>
@@ -131,8 +134,14 @@ const ProfileMenu = (props) => {
   const [maticBalance, setMaticBalance] = useState<any>('Loading')
   const [createBalance, setCreateBalance] = useState<any>('Loading')
   const [wrappingUsdc, setWrappingUsdc] = useState<boolean>(false)
+  const [unwrapAmount, setUnwrapAmount] = useState("")
+  const [wrapAmount, setWrapAmount] = useState("")
   const [unwrappingUsdcx, setUnwrappingUsdcx] = useState<boolean>(false)
   const {account, library} = useWeb3React()
+  
+  const [clipValue, setClipValue] = useState("")
+  const [copyClip, setCopyClip] = useState<boolean>(false)
+
   useEffect(() => {
     usdcx.balanceOf(account).then(balance => {
       console.log('setting balance in profile menu')
@@ -202,7 +211,7 @@ const ProfileMenu = (props) => {
   async function unwrapUsdcx(){
     setUnwrappingUsdcx(true);
 
-    let tx =  await usdcx.downgrade(usdcxBalance);
+    let tx =  await usdcx.downgrade(parseEther(unwrapAmount));
     await tx.wait();
     
     setUsdcxBalance(await usdcx.balanceOf(account));
@@ -214,12 +223,12 @@ const ProfileMenu = (props) => {
     setWrappingUsdc(true);
 
     let tx;
-    if(await usdc.allowance(account, usdcx.address) < usdcBalance){
-      tx = await usdc.approve(usdcx.address, usdcBalance);
+    if(await usdc.allowance(account, usdcx.address) < wrapAmount){
+      tx = await usdc.approve(usdcx.address, wrapAmount);
       await tx.wait();
     }
     
-    tx =  await usdcx.upgrade(usdcBalance);
+    tx = await usdcx.upgrade(parseEther(wrapAmount));
     await tx.wait();
     
     setUsdcxBalance(await usdcx.balanceOf(account));
@@ -229,11 +238,17 @@ const ProfileMenu = (props) => {
   
   return (
     <div>
-      <div className="px-5 mb-4">
+      <div className="px-5 mb-4 z-10">
         <div className="text-lg font-bold text-black bold">
           {currentProfile?.username}
         </div>
-        <div className="-mt-2 text-sm text-purple-500">{clipAddress(account)}</div>
+        <div className="-mt-2 text-sm text-purple-500">
+          <CopyToClipboard text={account}
+            onCopy={() => setCopyClip(true)}>
+            <span className="select-all">{clipAddress(account)}📋</span>
+          </CopyToClipboard>
+          
+        </div>
       </div>
       <div className="grid grid-cols-1 divide-y divide-gray-200">
         <div className="mb-4">
@@ -261,12 +276,37 @@ const ProfileMenu = (props) => {
               </a>
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
-                <div className="-mt-1 font-bold text-black">{formatBalance(usdcxBalance)} USDCx</div>
-                {!unwrappingUsdcx && usdcxBalance > 0 && <button onClick={unwrapUsdcx}>UnWrap</button> }
+                <div className="-mt-1 font-bold text-black">{formatBalance(usdcxBalance)} USDCx
+                <label className="float-right z-50">
+            <Tooltip content={<div>USDCx is the token to send and receive in a "flow" for the subscriptions (micro-transactions per block/second)</div>} hover>
+            <Icon name="question-circle" className="text-gray-500 " />
+              </Tooltip>
+          </label></div>
+
+                {!unwrappingUsdcx && usdcxBalance > 0 && <span className="sm:flex sm:items-center">
+      <div className="w-2/3 sm:max-w-xs">
+        <input
+          type="number"
+          name="price"
+          id="price"
+          className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+          placeholder="0.00"
+          aria-describedby="price-currency"
+          value={unwrapAmount}
+          onChange={(event) => {
+            setUnwrapAmount(event.target.value)
+          }}/>
+      </div>
+        <button onClick={unwrapUsdcx}
+            type="submit"
+            className="mt-3 inline-flex items-center float-right justify-center px-2 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+          >
+            to USDC
+          </button></span> }
                 {unwrappingUsdcx && <span><svg className="inline-block animate-spin mb-1 mr-2 h-4 w-4 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>UnWrapping SuperToken...</span>}
+                            </svg>Converting to USDC...</span>}
               </div>
             </div>
             <div className="flex">
@@ -297,11 +337,33 @@ const ProfileMenu = (props) => {
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
                 <div className="-mt-1 font-bold text-black">{formatBalance(usdcBalance)} USDC</div>
-                {!wrappingUsdc && usdcBalance > 0 && <button onClick={wrapUsdc}>Wrap as SuperToken</button> }
+                {!wrappingUsdc && usdcBalance > 0 && 
+
+<span className="sm:flex sm:items-center">
+<div className="w-2/3 sm:max-w-xs">
+  <input
+    type="number"
+    name="price"
+    id="price"
+    className="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"
+    placeholder="0.00"
+    aria-describedby="price-currency"
+    value={wrapAmount}
+    onChange={(event) => {
+      setWrapAmount(event.target.value)
+    }}/>
+</div>
+  <button onClick={wrapUsdc}
+      type="submit"
+      className="mt-3 inline-flex items-center float-right justify-center px-1 py-2 border border-transparent shadow-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+    >
+      to USDCx
+    </button></span>
+                }
                 {wrappingUsdc && <span><svg className="inline-block animate-spin mb-1 mr-2 h-4 w-4 text-blue" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>Wrapping as SuperToken...</span>}
+                            </svg>Converting to USDCx...</span>}
               </div>
             </div>
             <div className="flex">
@@ -346,15 +408,12 @@ const ProfileMenu = (props) => {
           {canBecomeCreator &&
           <NavigationLink to="/upload" label="Upload"/>
           }
-          {currentProfile &&
-          <NavigationLink to="/signup" label="My Profile"/>
+          {
+          <NavigationLink to="/signup" label={currentProfile ? "My Profile" : "Make Profile"}/>
           }
           {/* {currentProfile &&
           <NavigationLink to="/flows" label="My Flows"/>
           } */}
-          {currentProfile &&
-          <NavigationLink to="/creator-voting" label="Creator Voting"/>
-          }
         </div>
       </div>
     </div>)
@@ -488,6 +547,7 @@ function NavigationLinks() {
   const {currentProfile} = useCurrentProfile()
   const {currentCreator} = useCurrentCreator()
   const {active} = useWeb3React()
+  
   const web3utils = useContext(Web3UtilsContext)
   const canBecomeCreator = useCanBecomeCreator()
   const isAdmin = useIsAdmin()
@@ -504,163 +564,195 @@ function NavigationLinks() {
 }
 
 const App = () => {
-  const [isGSN, setIsGSN] = useState<boolean>(false);
-  const [showMenu, setShowMenu] = useState<boolean>(false);
+  // const [isGSN, setIsGSN] = useState<boolean>(false);
+    const [biconomyProvider, setBiconomyProvider] = useState<any>();
+const value = useMemo(
+    () => ({ biconomyProvider, setBiconomyProvider }), 
+    [biconomyProvider]
+);
+  
   return (
     <NotificationHandlerProvider>
-      <CeramicProvider>
-          <Web3ReactProvider getLibrary={isGSN ? getGSNLibrary : getLibrary}>
-            <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/>
-            <Autoconnect/>
-            <SuperfluidProvider>
-              <LitProvider>
-                <ApolloProvider client={client}>
-                  <Router>
-                  <Web3UtilsProvider>
-                    <div className="h-screen flex flex-col">
-                      <NotificationHandlerContext.Consumer>
-                        {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
-                          <Notification type={value.notification.type} description={value.notification.description}
-                                        close={() => {
-                                          value.setNotification(null)
-                                        }}/>
-                        </div>))}
-                      </NotificationHandlerContext.Consumer>
+      <Web3UtilsProviderContext.Provider value={value}>
+        <ChildApp />
+      </Web3UtilsProviderContext.Provider>
+    </NotificationHandlerProvider>
+  );
+}
 
-                      <div className="flex-initial border-b border-opacity-25">
 
-                        <div className="relative bg-primary-gradient">
-                          <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full bg-gradient-to-r from-purple-500 to-purple-700"
-                               aria-hidden="true">
-                            <div className="relative h-full max-w-7xl mx-auto"></div>
-                          </div>
-                          <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4 bg-gradient-to-r from-purple-500 to-purple-700">
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                              <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
-                                <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
-                                  <div className="flex items-center justify-between w-full md:w-auto">
-                                    <a href="#"><span className="sr-only">Workflow</span>
-                                      <img src="./assets/svgs/logo.svg"/>
-                                    </a>
-                                    <div className="flex items-center md:hidden">
-                                      <CreatorWallet/>
+const ChildApp = () => {
+  // const [isGSN, setIsGSN] = useState<boolean>(false);
+  const [showMenu, setShowMenu] = useState<boolean>(false);
+  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
+  const [loadingBiconomy, setLoadingBiconomy] = useState<boolean>(false);
+
+  
+const getBiconomyLibrary = (provider) => {
+  if (!biconomyProvider && !loadingBiconomy) {
+  setLoadingBiconomy(true);
+  const biconomy = new Biconomy(provider, {apiKey: "bJeegKRnS.03adacd8-3bea-4a8b-9b61-b70d13446fe5", strictMode: false, debug: true});
+  biconomy.pollingInterval = 12000
+  biconomy.onEvent(biconomy.READY, () => {
+    console.log("Mexa is Ready");
+    if(!biconomyProvider) {
+    setBiconomyProvider(biconomy);
+    }
+  })
+  .onEvent(biconomy.ERROR, (error, message) => {
+     console.error(error);
+  });
+}
+}
+
+  return (
+        <Web3ReactProvider getLibrary={getBiconomyLibrary}>
+            {/* <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/> */}
+              <Autoconnect/>
+              <SuperfluidProvider>
+                <LitProvider>
+                  <ApolloProvider client={client}>
+                    <Router>
+                    <Web3UtilsProvider>
+                      <div className="h-screen flex flex-col">
+                        <NotificationHandlerContext.Consumer>
+                          {value => (value.notification && (<div className="fixed top-5 right-5 z-50 bg-white">
+                            <Notification type={value.notification.type} description={value.notification.description}
+                                          close={() => {
+                                            value.setNotification(null)
+                                          }}/>
+                          </div>))}
+                        </NotificationHandlerContext.Consumer>
+
+                        <div className="flex-initial border-b border-opacity-25">
+
+                          <div className="relative bg-primary-gradient">
+                            <div className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full bg-gradient-to-r from-purple-500 to-purple-700"
+                                 aria-hidden="true">
+                              <div className="relative h-full max-w-7xl mx-auto"></div>
+                            </div>
+                            <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4 bg-gradient-to-r from-purple-500 to-purple-700">
+                              <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                                <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
+                                  <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
+                                    <div className="flex items-center justify-between w-full md:w-auto">
+                                      <a href="#"><span className="sr-only">Workflow</span>
+                                        <img src="./assets/svgs/logo.svg"/>
+                                      </a>
+                                      <div className="flex items-center md:hidden">
+                                        <CreatorWallet/>
+                                      </div>
                                     </div>
                                   </div>
+                                  <HeaderButtons/>
+                                </nav>
+                              </div>
+                            </div>
+                            <div className="bg-gray text-white md:hidden">
+                              {showMenu && <NavigationLinks/>}
+                            </div>
+
+                          </div>
+
+                        </div>
+
+                        <Web3UtilsContext.Consumer>
+                          {value => {
+                            return (
+                              <div className="flex-1 flex-grow">
+                                {value.isWaiting && (
+                                  <div
+                                    className="w-full fixed h-full z-30 flex items-center">
+                                    <div
+                                      className="h-32 border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">
+                                      <Loader/>
+                                      <p className="mt-3">{value.waitingMessage}</p>
+                                  </div>
+                                </div>)}
+                              <ChainIdChecker/>
+                              <div className={value.disableInteraction ? "filter blur-sm h-full" : "h-full"}>
+                                <Switch>
+                                  <Route exact path="/">
+                                    <Home/>
+                                  </Route>
+                                  <Route exact path="/creators">
+                                    <Creators/>
+                                  </Route>
+                                  <Route path="/connect-wallet">
+                                    <WalletConnect/>
+                                  </Route>
+                                  <Route path="/signup">
+                                    <ProfileEdit/>
+                                  </Route>
+                                  <Route path="/upload">
+                                    <Upload/>
+                                  </Route>
+                                  <Route path="/grant">
+                                    <Grant/>
+                                  </Route>
+                                  <Route path="/creator/:id">
+                                    <Creator/>
+                                  </Route>
+                                  <Route path="/twitter-verification">
+                                    {/* <TwitterVerification/> */}
+                                  </Route>
+                                  <Route path="/staking">
+                                    {/* <Staking/> */}
+                                  </Route>
+                                  <Route path="/flows">
+                                    <Flows />
+                                  </Route>
+                                  <Route path="/governance">
+                                    <Governance />
+                                  </Route>
+                                </Switch>
                                 </div>
-                                <HeaderButtons/>
+                              </div>
+                            )
+                          }}
+                        </Web3UtilsContext.Consumer>
+                        <div>
+                          <div className="sm:hidden bottom-0 fixed w-full backdrop-filter z-50 backdrop-blur">
+                            <div className="border-b border-gray-200">
+                              <nav className="-mb-px flex" aria-label="Tabs">
+
+                                <Link to="/" className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+                                  </svg>
+                                </Link>
+
+                                <Link to="/grant" className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
+                                  </svg>
+                                </Link>
+
+                                <Link to="/upload" className="filter scale-125 border-transparent text-green-500 hover:text-green-700 hover:border-green-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab-green p-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
+                                  </svg>
+                                </Link>
+
+
+                                <Link to="/creators" className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
+                                  </svg>
+                                </Link>
+                                <CreatorHome/>
+
                               </nav>
                             </div>
                           </div>
-                          <div className="bg-gray text-white md:hidden">
-                            {showMenu && <NavigationLinks/>}
-                          </div>
-
-                        </div>
-
-                      </div>
-
-                      <Web3UtilsContext.Consumer>
-                        {value => {
-                          return (
-                            <div className="flex-1 flex-grow">
-                              {value.isWaiting && (
-                                <div
-                                  className="w-full fixed h-full z-30 flex items-center">
-                                  <div
-                                    className="h-32 border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">
-                                    <Loader/>
-                                    <p className="mt-3">{value.waitingMessage}</p>
-                                </div>
-                              </div>)}
-                            <ChainIdChecker/>
-                            <div className={value.disableInteraction ? "filter blur-sm h-full" : "h-full"}>
-                              <Switch>
-                                <Route exact path="/">
-                                  <Home/>
-                                </Route>
-                                <Route exact path="/creators">
-                                  <Creators/>
-                                </Route>
-                                <Route path="/connect-wallet">
-                                  <WalletConnect/>
-                                </Route>
-                                <Route path="/signup">
-                                  <ProfileEdit/>
-                                </Route>
-                                <Route path="/upload">
-                                  <Upload/>
-                                </Route>
-                                <Route path="/grant">
-                                  <Grant/>
-                                </Route>
-                                <Route path="/creator/:id">
-                                  <Creator/>
-                                </Route>
-                                <Route path="/twitter-verification">
-                                  {/* <TwitterVerification/> */}
-                                </Route>
-                                <Route path="/staking">
-                                  {/* <Staking/> */}
-                                </Route>
-                                <Route path="/flows">
-                                  <Flows />
-                                </Route>
-                                <Route path="/governance">
-                                  <Governance />
-                                </Route>
-                                <Route path="/creator-voting">
-                                  <CreatorVoting />
-                                </Route>
-                              </Switch>
-                              </div>
-                            </div>
-                          )
-                        }}
-                      </Web3UtilsContext.Consumer>
-                      <div>
-                        <div className="sm:hidden bottom-0 fixed w-full backdrop-filter z-50 backdrop-blur">
-                          <div className="border-b border-gray-200">
-                            <nav className="-mb-px flex" aria-label="Tabs">
-
-                              <Link to="/" className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
-                                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                                </svg>
-                              </Link>
-
-                              <Link to="/grant" className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
-                                  <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z" />
-                                </svg>
-                              </Link>
-
-                              <Link to="/upload" className="filter scale-125 border-transparent text-green-500 hover:text-green-700 hover:border-green-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab-green p-1" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd" />
-                                </svg>
-                              </Link>
-
-
-                              <Link to="/creators" className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 m-auto hover-tab p-1" viewBox="0 0 20 20" fill="currentColor">
-                                  <path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd" />
-                                </svg>
-                              </Link>
-                              <CreatorHome/>
-
-                            </nav>
-                          </div>
                         </div>
                       </div>
-                    </div>
-                </Web3UtilsProvider>
+                  </Web3UtilsProvider>
                 </Router>
               </ApolloProvider>
             </LitProvider>
           </SuperfluidProvider>
         </Web3ReactProvider>
-      </CeramicProvider>
-    </NotificationHandlerProvider>
   );
 }
 

@@ -5,10 +5,8 @@ import {useCurrentCreator} from "./Utils";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
 import {NotificationHandlerContext} from "./ErrorHandler";
-import {UmbralCreator} from "./Umbral";
 import {LitContext, LitProvider} from "./LitProvider";
-import {UmbralWasmContext} from "./UmbralWasm";
-import {createFFmpeg, fetchFile} from "@ffmpeg/ffmpeg";
+import {createFFmpeg, fetchFile} from "./assets/ffmpeg/src";
 import {Base64} from "js-base64";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
@@ -44,12 +42,12 @@ const Upload = () => {
   const fileInput = React.createRef<any>();
   const [ffmpeg, setffmpeg] = useState<any>(undefined)
   useEffect(() => {
-    if (ffmpeg === undefined) {
-      const _ffmpeg = createFFmpeg({log: true})
-      _ffmpeg.load().then(() => {
-        setffmpeg(_ffmpeg)
-      })
-    }
+    // if (ffmpeg === undefined) {
+    //   const _ffmpeg = createFFmpeg({corePath: 'http://localhost:3000/ffmpeg-core.js', log: true})
+    //   _ffmpeg.load().then(() => {
+    //     setffmpeg(_ffmpeg)
+    //   })
+    // }
   }, [ffmpeg])
 
   const {loading, error, currentCreator} = useCurrentCreator()
@@ -93,21 +91,19 @@ const Upload = () => {
         ]
 
         const { zipBlob, encryptedSymmetricKey } = await LitJsSdk.encryptFileAndZipWithMetadata({authSig, accessControlConditions: subConditions, chain: "mumbai", file: file, litNodeClient: litNode, readme: "test"});
-        zipBlobFile = zipBlob;
+        
+        web3utils.setIsWaiting('Uploading encrypted content to arweave...');
+        const formData = new FormData();
+        formData.append("file", zipBlob); //do not change "file"!
+        response = await fetch(ARWEAVE_URI + '/upload', {
+          method: 'POST',
+          body: formData
+        })
       } catch (error: any) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'})
         web3utils.setIsWaiting(false)
         return;
       }
-      //zipBlobFile['type'] = file_type
-      web3utils.setIsWaiting('Uploading encrypted content to arweave...');
-      const formData = new FormData();
-      formData.append("encryptedFile", zipBlobFile);
-      response = await fetch(ARWEAVE_URI + '/upload', {
-        method: 'POST',
-        body: formData
-      })
-
 
     } else {
       web3utils.setIsWaiting('Uploading content to Arweave...')
@@ -187,6 +183,7 @@ const Upload = () => {
       formData.append("file", new Blob([segmentData], {
         type: "video/mp2t"
       }));
+      // eslint-disable-next-line no-loop-func
       const promise = new Promise((resolve, reject) => {
         fetch(ARWEAVE_URI + '/upload', {
           method: 'POST', body: formData
@@ -223,11 +220,11 @@ const Upload = () => {
     const keyinfo = 'data:application/octet-stream;base64,' + Base64.fromUint8Array(key) + '\nenc.key\n' + bufferToHex(iv);
     ffmpeg.FS('writeFile', 'enc.key', key)
     ffmpeg.FS('writeFile', 'enc.keyinfo', keyinfo)
-    await ffmpeg.run('-i', name, '-hls_time', '60', '-hls_key_info_file', 'enc.keyinfo',
+    await ffmpeg.run('-i', name, '-hls_time', '6', '-hls_key_info_file', 'enc.keyinfo',
       '-hls_list_size', '0', '-c', 'copy', 'output.m3u8')
     const playlistData = ffmpeg.FS('readFile', 'output.m3u8')
     let playlistText: string = (new TextDecoder()).decode(playlistData);
-    console.log(playlistText)
+    console.log(playlistText) //playlist/output.m3u8 is now stored in ffmpeg, so no need to return var here
   }
 
   function bufferToHex(buffer) {
@@ -245,11 +242,17 @@ const Upload = () => {
         await splitAndEncrypt(currentFile);
         const text = await uploadChunks()
         console.log('playlist text', text)
-        bytes = (new TextEncoder()).encode(text)
+        //bytes = (new TextEncoder()).encode(text)
         type = 'application/vnd.apple.mpegurl'
-        //TODO: figure out how to make splitted videos work
+
+        let file = new File([text], "output.m3u8", {
+          type: "application/vnd.apple.mpegurl",
+        });
+
+        upload(file, type)
+        return
       }
-      upload(await currentFile, type)
+      upload(currentFile, type)
     }else{
       //upload((new TextEncoder()).encode(""), "text");
     }

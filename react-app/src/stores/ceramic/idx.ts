@@ -7,12 +7,12 @@ declare global {
   }
 }
 
-const aliases = {
-  secretNotes: 'your definition docid goes here'
-}
+// const aliases = {
+//   secretNotes: 'your definition docid goes here'
+// }
 
 export function createIDX(ceramic: CeramicApi): IDX {
-  const idx = new IDX({ ceramic, aliases })
+  const idx = new IDX({ ceramic }) // , alias for private notes
   window.idx = idx
   return idx
 }

@@ -13,12 +13,17 @@ import {
 } from './web3-react/walletconnect-connector'
 
 const Web3UtilsContext = createContext<any>(null)
+const Web3UtilsProviderContext = createContext<any>({
+  provider: null,
+  setProvider: () => {},
+})
 const Web3UtilsProvider = (props) => {
   const {activate, account, chainId, library} = useWeb3React()
   const {currentProfile} = useCurrentProfile()
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext)
   const [isWaiting, setIsWaiting] = useState<any>(false);
+  const [magicEmail, setMagicEmail] = useState<string>("");
   const superfluid = useContext(SuperfluidContext);
   const faucetUsed = useRef(false);
   // useEffect(() => {
@@ -95,7 +100,7 @@ const Web3UtilsProvider = (props) => {
     const walletconnect = new MagicConnector({
       apiKey: "pk_live_55D93A0BD91B3D6E",
       chainId: 80001,
-      email: "alexander@creaton.io"
+      email: magicEmail
     })
 
     activate(walletconnect, (error => {
@@ -129,9 +134,10 @@ const Web3UtilsProvider = (props) => {
       magicConnect: tryMagicLink,
       isSignedUp: isSignedUp,
       setIsWaiting: setIsWaiting,
+      setMagicEmail: setMagicEmail,
       isWaiting: isWaiting,
       waitingMessage: (isWaiting === true) ? 'Waiting for transaction confirmation' : isWaiting,
       disableInteraction: (Boolean(isWaiting)) || wrongChainId
     }}>{props.children}</Web3UtilsContext.Provider>)
 }
-export {Web3UtilsContext, Web3UtilsProvider};
+export {Web3UtilsContext, Web3UtilsProvider, Web3UtilsProviderContext};

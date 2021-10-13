@@ -1,18 +1,17 @@
 import 'react-app-polyfill/ie11';
-import * as React from 'react';
-import {Formik, Field, Form, FormikHelpers} from 'formik';
 import {useWeb3React} from "./web3-react/core";
-import {Web3Provider} from "@ethersproject/providers";
-import {RelayProvider} from "@opengsn/provider";
+import {TransactionRequest, Web3Provider} from "@ethersproject/providers";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
 import {useCurrentCreator} from "./Utils";
 import {useContext, useEffect, useState} from "react";
 import {NotificationHandlerContext} from "./ErrorHandler";
-import Web3Modal from "web3modal";
 import {Button} from "./elements/button";
 import {Input} from "./elements/input";
-import {Web3UtilsContext} from "./Web3Utils";
+import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
+import {Transaction} from '@ethereumjs/tx';
+import Common from '@ethereumjs/common'
+import { Deferrable } from '@ethersproject/properties';
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin
 
@@ -36,29 +35,57 @@ const SignUp = () => {
   const [collectionName, setCollectionName] = useState("")
   const [collectionSymbol, setCollectionSymbol] = useState("")
 
-  if (!context.library)
+  
+  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
+
+  if (!biconomyProvider)
     return (<div>Please connect your wallet</div>)
   if (currentCreator !== undefined)
     return (<div>Congratulation you just signed up on creaton!</div>)
   if (signedup)
     return (<div>{signedup}</div>)
 
-  function submitForm(event) {
-    const {library} = context;
+  async function submitForm(event) {
     console.log(creatorFactoryContract)
+
+    console.log(context.account)
+
+    let provider = biconomyProvider.getEthersProvider();
+
+    const connectedContract = creatorFactoryContract.connect(biconomyProvider.getSignerByAddress(context.account))
+
+    let { data } = await creatorFactoryContract.populateTransaction.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+
+    let txParams = {
+        data: data,
+        to: connectedContract.address,
+        from: context.account
+    };
+
+    let tx = await provider.send("eth_sendTransaction", [txParams]);
+    
+    //const test = '0x' + tx.serialize().toString('hex');
+    //const tx1 = provider.sendTransaction(test);
+    console.log("Transaction hash : ", tx);
+    //event emitter methods
+
+    setSignedup("Waiting for your signup to be confirmed on the blockchain...");
+    
+    notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
+
     // @ts-ignore
-    const connectedContract = creatorFactoryContract.connect(library!.getSigner())
-    connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
-      .then(async function (response) {
-        setSignedup("Waiting for your signup to be confirmed on the blockchain...")
-        web3utils.setIsWaiting(true);
-        await response.wait(1)
-        web3utils.setIsWaiting(false);
-        notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
-      }).catch(function (error) {
-      notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
-    });
-    event.preventDefault();
+    // const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+    // connectedContract.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+    //   .then(async function (response) {
+    //     setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+    //     web3utils.setIsWaiting(true);
+    //     await response.wait(1)
+    //     web3utils.setIsWaiting(false);
+    //     notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
+    //   }).catch(function (error) {
+    //   notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'})
+    // });
+    // event.preventDefault();
   }
 
   return (
