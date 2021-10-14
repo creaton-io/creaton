@@ -14,7 +14,7 @@ import {Textarea} from "./elements/textArea";
 import {ARWEAVE_URI, ARWEAVE_GATEWAY} from "./Config";
 import SignUp from "./Signup";
 import {Toggle} from "./elements/toggle";
-import {Web3UtilsContext} from "./Web3Utils";
+import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
 import {Icon} from "./icons";
 import Tooltip from "./elements/tooltip";
 import {useCanBecomeCreator} from "./Whitelist";
@@ -41,6 +41,7 @@ const Upload = () => {
   };
   const fileInput = React.createRef<any>();
   const [ffmpeg, setffmpeg] = useState<any>(undefined)
+  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   useEffect(() => {
     // if (ffmpeg === undefined) {
     //   const _ffmpeg = createFFmpeg({corePath: 'http://localhost:3000/ffmpeg-core.js', log: true})
@@ -56,7 +57,7 @@ const Upload = () => {
 
   const notificationHandler = useContext(NotificationHandlerContext)
   const litNode = useContext(LitContext)
-  if (!context.account)
+  if (!biconomyProvider)
     return (<div>Not connected</div>)
   if (!canBecomeCreator)
     return (<div>Not allowed, you are not whitelisted</div>)
@@ -65,7 +66,7 @@ const Upload = () => {
     return (<SignUp/>)
   if (!litNode)
     return (<div>Lit Node not loaded yet</div>)
-  const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
+  const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(biconomyProvider.getSignerByAddress(context.account))
 
   async function upload(file: File, file_type: string) {
     let response

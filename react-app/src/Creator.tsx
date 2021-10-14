@@ -196,6 +196,61 @@ export function Creator() {
   //   setReactions(data.data.reactions);
   // }
 
+  async function addGasless() {
+
+    // const addContractData = { 
+    //   contractName: 'creator' + context.account,
+    //   contractAddress: creatorContractAddress,
+    //   abi: creaton_contracts.Creator.abi,
+    //   contractType: "SC",
+    //   walletType: "",
+    //   metaTransactionType: "TRUSTED_FORWARDER"
+    // };
+
+    // fetch('https://api.biconomy.io/api/v1/smart-contract/public-api/addContract', {
+    //   method: 'POST', // or 'PUT'
+    //   headers: {
+    //     "authToken": "57d27b1e-d8e7-4397-b708-c316a4c2e7e3",
+    //     "apiKey": "dm6D0Ctn6.2773fa50-bf0f-4568-8e23-34ba4bcf49ec",
+    //     "Content-Type": "application/json;charset=utf-8",
+    //   },
+    //   body: JSON.stringify(addContractData),
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   console.log('Success:', data);
+    // })
+    // .catch((error) => {
+    //   console.error('Error:', error);
+    // });
+
+    // const addMethodData = { 
+    //   apiType: 'native',
+    //   methodType: '"write"',
+    //   name: 'stream',
+    //   contractAddress: creatorContractAddress,
+    //   method: '_subscribe'
+    // };
+
+    // fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
+    //   method: 'POST', // or 'PUT'
+    //   headers: {
+    //     "authToken": "57d27b1e-d8e7-4397-b708-c316a4c2e7e3",
+    //     "apiKey": "dm6D0Ctn6.2773fa50-bf0f-4568-8e23-34ba4bcf49ec",
+    //     "Content-Type": "application/json;charset=utf-8",
+    //   },
+    //   body: JSON.stringify(addMethodData),
+    // })
+    // .then(response => response.json())
+    // .then(data => {
+    //   console.log('Success:', data);
+    // })
+    // .catch((error) => {
+    //   console.error('Error:', error);
+    // });
+
+  }
+
   async function mint() {
     let {sf, usdc, usdcx} = superfluid;
     let subscriber = context.account;
@@ -477,16 +532,20 @@ export function Creator() {
         {/* //TODO add if statement if testnet  */}
         <div className="flex space-x-5">
            <Button onClick={() => {
-                 mint()
-                }} label="Mint" theme='secondary-2'/>
-              <Button onClick={() => {
-                approveUSDC() }}
-         label="Approve" theme='secondary-2'/>
+              mint()
+            }} label="Mint" theme='secondary-2'/>
+            <Button onClick={() => {
+              approveUSDC() }}
+            label="Approve" theme='secondary-2'/>
           </div>
 
         <Button onClick={() => {
           convertUSDCx() }}
          label="Upgrade"/>
+         
+         <Button onClick={() => {
+              addGasless() }}
+            label="Enable no gas!" theme='secondary-2'/>
       </div>
       <h1 className="mb-5 text-2xl font-bold text-white">
         {

@@ -38,7 +38,7 @@ import { Flows } from './Flows';
 import { Governance } from './Governance';
 import { Icon } from './icons';
 import Tooltip from './elements/tooltip';
-import {Biconomy} from "@biconomy/mexa";
+import {Biconomy} from "./assets/mexa";
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 
 initFontAwesome()
@@ -591,17 +591,22 @@ const ChildApp = () => {
 const getBiconomyLibrary = (provider) => {
   if (!biconomyProvider && !loadingBiconomy) {
   setLoadingBiconomy(true);
-  const biconomy = new Biconomy(provider, {apiKey: "bJeegKRnS.03adacd8-3bea-4a8b-9b61-b70d13446fe5", strictMode: false, debug: true});
-  biconomy.pollingInterval = 12000
+  const biconomy = new Biconomy(provider, {apiKey: "dm6D0Ctn6.2773fa50-bf0f-4568-8e23-34ba4bcf49ec", strictMode: true, debug: true});
+  // @ts-ignore
+  //biconomy.pollingInterval = 12000
   biconomy.onEvent(biconomy.READY, () => {
     console.log("Mexa is Ready");
     if(!biconomyProvider) {
-    setBiconomyProvider(biconomy);
+      setBiconomyProvider(biconomy);
     }
   })
   .onEvent(biconomy.ERROR, (error, message) => {
      console.error(error);
   });
+  console.log('evaluating getLibrary', provider)
+  const library = new Web3Provider(provider)
+  library.pollingInterval = 12000
+  return library
 }
 }
 

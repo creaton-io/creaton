@@ -35,7 +35,7 @@ const SignUp = () => {
   const [collectionName, setCollectionName] = useState("")
   const [collectionSymbol, setCollectionSymbol] = useState("")
 
-  
+  const CreatorContract = creaton_contracts.Creator
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
 
   if (!biconomyProvider)
@@ -50,11 +50,11 @@ const SignUp = () => {
 
     console.log(context.account)
 
-    let provider = biconomyProvider.getEthersProvider();
+    let provider = await biconomyProvider.getEthersProvider();
 
-    const connectedContract = creatorFactoryContract.connect(biconomyProvider.getSignerByAddress(context.account))
+    const connectedContract = creatorFactoryContract.connect(await biconomyProvider.getSignerByAddress(context.account))
 
-    let { data } = await creatorFactoryContract.populateTransaction.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
+    let { data } = await connectedContract.populateTransaction.deployCreator(creatorName, subscriptionPrice,collectionName,collectionSymbol)
 
     let txParams = {
         data: data,
@@ -62,14 +62,16 @@ const SignUp = () => {
         from: context.account
     };
 
-    let tx = await provider.send("eth_sendTransaction", [txParams]);
+    let tx = await provider.send("eth_sendTransaction", [txParams])
     
     //const test = '0x' + tx.serialize().toString('hex');
     //const tx1 = provider.sendTransaction(test);
-    console.log("Transaction hash : ", tx);
-    //event emitter methods
-
-    setSignedup("Waiting for your signup to be confirmed on the blockchain...");
+    console.log("Transaction hash : ", tx)
+    setSignedup("Waiting for your signup to be confirmed on the blockchain...")
+    web3utils.setIsWaiting(true);
+    provider.once(tx, (transaction) => {
+      web3utils.setIsWaiting(false);
+    })
     
     notificationHandler.setNotification({description: 'Signed up successfully, welcome to Creaton!', type: 'success'})
 
