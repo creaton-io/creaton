@@ -150,9 +150,11 @@ const ProfileMenu = (props) => {
     usdc.balanceOf(account).then(balance => {
       setUsdcBalance(balance);
     })
-  }, [usdc, account])
+  }, [usdc, usdcx, account])
 
   useEffect(() => {
+    if(!library) return;
+
     library.getBalance(account).then(balance => {
       setMaticBalance(balance);
     })
