@@ -12,13 +12,13 @@ const SuperfluidProvider = (props) => {
   const web3Context = useWeb3React<Web3Provider>()
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   async function init() {
-    if(!biconomyProvider)
+    if(!web3Context.library!)
       return;
     if(web3Context.chainId !== 80001) {
       return;
     }
     const sf = new SuperfluidSDK.Framework({
-      ethers: biconomyProvider.getEthersProvider(),
+      ethers: web3Context.library!,
       tokens: ["fUSDC"],
   });
     console.log('web3 provider test');

@@ -567,53 +567,30 @@ function NavigationLinks() {
 
 const App = () => {
   // const [isGSN, setIsGSN] = useState<boolean>(false);
-    const [biconomyProvider, setBiconomyProvider] = useState<any>();
-const value = useMemo(
-    () => ({ biconomyProvider, setBiconomyProvider }), 
-    [biconomyProvider]
-);
-  
-  return (
-    <NotificationHandlerProvider>
-      <Web3UtilsProviderContext.Provider value={value}>
-        <ChildApp />
-      </Web3UtilsProviderContext.Provider>
-    </NotificationHandlerProvider>
-  );
-}
-
-
-const ChildApp = () => {
-  // const [isGSN, setIsGSN] = useState<boolean>(false);
   const [showMenu, setShowMenu] = useState<boolean>(false);
-  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   const [loadingBiconomy, setLoadingBiconomy] = useState<boolean>(false);
 
   
-const getBiconomyLibrary = (provider) => {
-  if (!biconomyProvider && !loadingBiconomy) {
+const getLibrary = (provider) => {
   setLoadingBiconomy(true);
-  const biconomy = new Biconomy(provider, {apiKey: "XbeRiDZpm.303f7703-ca13-4831-9224-967c31688611", strictMode: true, debug: true});
+  const biconomy = new Biconomy(provider, {apiKey: "U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d", strictMode: true, debug: true});
   // @ts-ignore
   //biconomy.pollingInterval = 12000
   biconomy.onEvent(biconomy.READY, () => {
     console.log("Mexa is Ready");
-    if(!biconomyProvider) {
-      setBiconomyProvider(biconomy);
-    }
   })
   .onEvent(biconomy.ERROR, (error, message) => {
      console.error(error);
   });
   console.log('evaluating getLibrary', provider)
-  const library = new Web3Provider(provider)
+  const library = biconomy.getEthersProvider()
   library.pollingInterval = 12000
   return library
 }
-}
 
   return (
-        <Web3ReactProvider getLibrary={getBiconomyLibrary}>
+    <NotificationHandlerProvider>
+        <Web3ReactProvider getLibrary={getLibrary}>
             {/* <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/> */}
               <Autoconnect/>
               <SuperfluidProvider>
@@ -760,6 +737,7 @@ const getBiconomyLibrary = (provider) => {
             </LitProvider>
           </SuperfluidProvider>
         </Web3ReactProvider>
+      </NotificationHandlerProvider>
   );
 }
 
