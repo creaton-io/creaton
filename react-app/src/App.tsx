@@ -591,7 +591,7 @@ const ChildApp = () => {
 const getBiconomyLibrary = (provider) => {
   if (!biconomyProvider && !loadingBiconomy) {
   setLoadingBiconomy(true);
-  const biconomy = new Biconomy(provider, {apiKey: "dm6D0Ctn6.2773fa50-bf0f-4568-8e23-34ba4bcf49ec", strictMode: true, debug: true});
+  const biconomy = new Biconomy(provider, {apiKey: "XbeRiDZpm.303f7703-ca13-4831-9224-967c31688611", strictMode: true, debug: true});
   // @ts-ignore
   //biconomy.pollingInterval = 12000
   biconomy.onEvent(biconomy.READY, () => {

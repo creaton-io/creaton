@@ -57,7 +57,7 @@ const Upload = () => {
 
   const notificationHandler = useContext(NotificationHandlerContext)
   const litNode = useContext(LitContext)
-  if (!biconomyProvider)
+  if (!context.library)
     return (<div>Not connected</div>)
   if (!canBecomeCreator)
     return (<div>Not allowed, you are not whitelisted</div>)
@@ -66,10 +66,10 @@ const Upload = () => {
     return (<SignUp/>)
   if (!litNode)
     return (<div>Lit Node not loaded yet</div>)
-  const creatorContract = new Contract(currentCreator.creatorContract, CreatorContract.abi).connect(biconomyProvider.getSignerByAddress(context.account))
 
   async function upload(file: File, file_type: string) {
     let response
+    const creatorContract = new Contract(currentCreator!.creatorContract, CreatorContract.abi).connect(context.library!.getSigner())
     if (uploadEncrypted && currentCreator !== undefined) {
       web3utils.setIsWaiting('Encrypting the file...')
       let zipBlobFile;
