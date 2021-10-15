@@ -573,7 +573,7 @@ const App = () => {
   
 const getLibrary = (provider) => {
   setLoadingBiconomy(true);
-  const biconomy = new Biconomy(provider, {apiKey: "U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d", strictMode: true, debug: true});
+  const biconomy = new Biconomy(provider, {apiKey: "13LAOTU7x.31f99dfc-2c68-4257-bbbf-b68fe32a3bc8", strictMode: true, debug: true});
   // @ts-ignore
   //biconomy.pollingInterval = 12000
   biconomy.onEvent(biconomy.READY, () => {
@@ -585,7 +585,7 @@ const getLibrary = (provider) => {
   console.log('evaluating getLibrary', provider)
   const library = biconomy.getEthersProvider()
   library.pollingInterval = 12000
-  return library
+  return library //new Web3Provider(provider)
 }
 
   return (

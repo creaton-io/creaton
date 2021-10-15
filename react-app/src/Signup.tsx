@@ -38,7 +38,7 @@ const SignUp = () => {
   const CreatorContract = creaton_contracts.Creator
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
 
-  if (!biconomyProvider)
+  if (!context.library)
     return (<div>Please connect your wallet</div>)
   if (currentCreator !== undefined)
     return (<div>Congratulation you just signed up on creaton!</div>)
