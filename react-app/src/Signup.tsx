@@ -34,17 +34,24 @@ const SignUp = () => {
   const [subscriptionPrice, setSubscriptionPrice] = useState("5")
   const [collectionName, setCollectionName] = useState("")
   const [collectionSymbol, setCollectionSymbol] = useState("")
+  const [errorMsg, setErrorMsg] = useState<any>()
 
   const CreatorContract = creaton_contracts.Creator
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
 
-  if (!context.library)
-    return (<div>Please connect your wallet</div>)
-  if (currentCreator !== undefined)
-    return (<div>Congratulation you just signed up on creaton!</div>)
-  if (signedup)
-    return (<div>{signedup}</div>)
+  
+  useEffect(() => {
+    let error: any = undefined;
+    if (!context.library)
+      error = <div>Please connect your wallet</div>;
+    if (currentCreator !== undefined)
+      error = <div>Congratulation you just signed up on creaton!</div>;
+    if (signedup)
+      error = <div>{signedup}</div>;
 
+    setErrorMsg(error);
+  }, [context, currentCreator, signedup]);
+  
   async function submitForm(event) {
     console.log(creatorFactoryContract)
 
@@ -91,33 +98,38 @@ const SignUp = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 place-items-center m-auto text-white">
-      <p className="text-5xl pt-12 pb-6 pl-6">
-        Sign Up As Creator!
-      </p>
-      <p className="text-xl opacity-50 pl-6">
-        Setup your creator profile so you can upload content and start earning!
-      </p>
-      <form onSubmit={submitForm} className="py-10">
-        <Input className="bg-gray-900" type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
-          setCreatorName(event.target.value)
-        }}></Input>
+    <>
+      { errorMsg }
 
-        <Input className="bg-gray-900" type="number" label="Subscription Price per Month" min="1" value={subscriptionPrice} onChange={(event) => {
-          setSubscriptionPrice(event.target.value)
-        }} tooltip="Each subscriber will stream this amount of USDC per month"></Input>
+      {!errorMsg && <div className="grid grid-cols-1 place-items-center m-auto text-white">
+        <p className="text-5xl pt-12 pb-6 pl-6">
+          Sign Up As Creator!
+        </p>
+        <p className="text-xl opacity-50 pl-6">
+          Setup your creator profile so you can upload content and start earning!
+        </p>
+        <form onSubmit={submitForm} className="py-10">
+          <Input className="bg-gray-900" type="text" label="Bio" placeholder="Artist/Painter/..." value={creatorName} onChange={(event) => {
+            setCreatorName(event.target.value)
+          }}></Input>
 
-        <Input className="bg-gray-900" type="text" label="Collection Name" placeholder="My exclusive content" value={collectionName} onChange={(event) => {
-          setCollectionName(event.target.value)
-        }} tooltip="This would be the name of your NFT contract"></Input>
+          <Input className="bg-gray-900" type="number" label="Subscription Price per Month" min="1" value={subscriptionPrice} onChange={(event) => {
+            setSubscriptionPrice(event.target.value)
+          }} tooltip="Each subscriber will stream this amount of USDC per month"></Input>
 
-        <Input className="bg-gray-900" type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
-          setCollectionSymbol(event.target.value)
-        }} tooltip="This would be the symbol of your NFT contract"></Input>
+          <Input className="bg-gray-900" type="text" label="Collection Name" placeholder="My exclusive content" value={collectionName} onChange={(event) => {
+            setCollectionName(event.target.value)
+          }} tooltip="This would be the name of your NFT contract"></Input>
 
-        <Button className="mt-6 py-3 mb-16" type="submit" label="Become a Creator"></Button>
-      </form>
-    </div>
+          <Input className="bg-gray-900" type="text" label="Collection Symbol" placeholder="MYART" value={collectionSymbol} onChange={(event) => {
+            setCollectionSymbol(event.target.value)
+          }} tooltip="This would be the symbol of your NFT contract"></Input>
+
+          <Button className="mt-6 py-3 mb-16" type="submit" label="Become a Creator"></Button>
+        </form>
+      </div>
+      }
+    </>
   );
 };
 
