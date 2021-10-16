@@ -1,12 +1,7 @@
 
 // This enables events for the installation of our PWA
 
-const cacheName = 'v1';
-
-const cacheAssets = [
-    'index.html',
-    '/src/App.css'
-]
+const cacheName = 'v2';
 
 // Call Install Event
 self.addEventListener('install', (e) => {
@@ -50,8 +45,22 @@ self.addEventListener('fetch', e => {
 
     // Check if live site is available
     e.respondWith(
-        // This loads it from the cache
-        fetch(e.request).catch(() => caches.match(e.request))
+        fetch(e.request)
+            .then(res => {
+                // make copy/clone of response 
+                const resClone = res.clone();
+
+                // Open cache 
+                caches 
+                    .open(cacheName)
+                    .then(cache => {
+
+                        // Add response to cache 
+                        cache.put(e.request, resClone);
+                    });
+
+                return res;
+            }).catch(err => caches.match(e.request).then(res => res))
     )
 })
 
