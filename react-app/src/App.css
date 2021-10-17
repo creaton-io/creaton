@@ -46,6 +46,10 @@ body, .bg-primary-gradient {
   color: white;
 }
 
+.initial {
+  display: unset;
+}
+
 .App-link {
   color: #61dafb;
 }

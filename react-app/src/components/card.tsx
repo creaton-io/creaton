@@ -1,15 +1,16 @@
-import {ButtonHTMLAttributes, FC, useState} from "react";
-import {Icon} from "../icons";
-import clsx from "clsx";
-import {VideoPlayer} from "../VideoPlayer";
-import { ethers } from "ethers";
-import {Parser as HtmlToReactParser} from "html-to-react";
+import {ButtonHTMLAttributes, FC, useState} from 'react';
+import {Icon} from '../icons';
+import clsx from 'clsx';
+import {VideoPlayer} from '../VideoPlayer';
+import {ethers} from 'ethers';
+import {Parser as HtmlToReactParser} from 'html-to-react';
+import {Splash} from './splash';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
   price?: number;
   name?: string;
-  description?: string,
+  description?: string;
   fileUrl?: string;
   fileType?: string;
   avatarUrl?: string;
@@ -17,7 +18,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onReport?: any;
   isLiked?: boolean;
   likeCount?: number;
-  onReact?: any
+  onReact?: any;
   hasReacted?: boolean;
   initialReactCount?: string;
   date?: string;
@@ -26,34 +27,53 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   reactionErc20Symbol?: string;
 }
 
-export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUrl, fileType, description, isLiked, onLike, onReport, likeCount, onReact, hasReacted, initialReactCount, date,isEncrypted, reactionErc20Available, reactionErc20Symbol}) => {
-  const ircount: number = (initialReactCount) ? +initialReactCount:0;
+export const Card: FC<ButtonProps> = ({
+  className,
+  price,
+  name,
+  fileUrl,
+  avatarUrl,
+  fileType,
+  description,
+  isLiked,
+  onLike,
+  onReport,
+  likeCount,
+  onReact,
+  hasReacted,
+  initialReactCount,
+  date,
+  isEncrypted,
+  reactionErc20Available,
+  reactionErc20Symbol,
+}) => {
+  const ircount: number = initialReactCount ? +initialReactCount : 0;
 
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
   const [reactCount, setReactCount] = useState<number>(+ircount);
 
-  function showAmountModal(e){
+  function showAmountModal(e) {
     hideAllAmountModal();
-    e.target.parentElement.parentElement.getElementsByClassName("reactAmount")[0].classList.remove("hidden");
+    e.target.parentElement.parentElement.getElementsByClassName('reactAmount')[0].classList.remove('hidden');
   }
 
-  function hideAllAmountModal(){
-    const modals = document.getElementsByClassName("reactAmount");
-    for(let key in modals){
+  function hideAllAmountModal() {
+    const modals = document.getElementsByClassName('reactAmount');
+    for (let key in modals) {
       let el = modals[key].classList;
-      if(el){
-        el.add("hidden");
+      if (el) {
+        el.add('hidden');
       }
     }
   }
 
-  function reactClick(){
+  function reactClick() {
     setReacting(true);
     hideAllAmountModal();
-    if(!isNaN(+stakingAmount)){ 
+    if (!isNaN(+stakingAmount)) {
       onReact(stakingAmount, () => {
-        setReactCount(+(reactCount+stakingAmount));
+        setReactCount(+(reactCount + stakingAmount));
         setReacting(false);
       });
     }
@@ -62,74 +82,75 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
   const htmlToReactParser = new HtmlToReactParser();
   const descriptionReactElement = htmlToReactParser.parse(description);
 
-  if(isEncrypted)
-  return (<div className="mb-5">
-    <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
-      <div className="border-gray-200 text-center text-white bg-gray-700 text-xl w-full h-50 m-auto p-10">
-        <Icon size="5x" name="lock"/>
-      <p className="w-1/2 m-auto text-center text-white mt-4"><span>Encrypted content, only subscribers can see this</span></p>
-      </div>
-      <div className="p-8">
-        <div className="flex-1 flex flex-col justify-between">
-          <div className="flex items-center justify-between">
-            <h4 className="text-lg font-semibold text-white">
-              {name}
-            </h4>
-            <div className="flex justify-between">
-              <div className=" mr-5 ">
-              <Icon onClick={onLike} name="heart"
-                className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}/>
-              <span className="ml-2 text-white">
-                {likeCount}
-              </span>
+  if (isEncrypted)
+    return (
+      <div className="mb-5">
+        <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+          <div className="border-gray-200 text-center text-white bg-gray-700 text-xl w-full h-50 m-auto p-10">
+            <Icon size="5x" name="lock" />
+            <p className="w-1/2 m-auto text-center text-white mt-4">
+              <span>Encrypted content, only subscribers can see this</span>
+            </p>
+          </div>
+          <div className="p-8">
+            <div className="flex-1 flex flex-col justify-between">
+              <div className="flex items-center justify-between">
+                <h4 className="text-lg font-semibold text-white">{name}</h4>
+                <div className="flex justify-between">
+                  <div className=" mr-5 ">
+                    <Icon
+                      onClick={onLike}
+                      name="heart"
+                      className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
+                    />
+                    <span className="ml-2 text-white">{likeCount}</span>
+                  </div>
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />
+                </div>
               </div>
-              <Icon name="flag" className={clsx('text-gray-500 mt-1')}/>
+
+              <h5 className="text-left text-sm text-gray-400 mb-2">{new Date(parseInt(date!)).toLocaleString()}</h5>
+
+              {/* <p className="text-left text-white"> */}
+              {descriptionReactElement}
+              {/* </p> */}
+
+              {price && (
+                <div>
+                  <span className="text-xs">Subscribe for</span>
+                  <span className="font-semibold text-blue ml-2">${price} / month</span>
+                </div>
+              )}
             </div>
           </div>
-
-          <h5 className="text-left text-sm text-gray-400 mb-2">
-            {(new Date(parseInt(date!))).toLocaleString()}
-          </h5>
-
-          {/* <p className="text-left text-white"> */}
-          {descriptionReactElement}
-          {/* </p> */}
-
-          {price && <div>
-                        <span className="text-xs">
-                            Subscribe for
-                        </span>
-            <span className="font-semibold text-blue ml-2">
-                            ${price} / month
-                        </span>
-          </div>}
         </div>
       </div>
-    </div>
-  </div>)
+    );
   return (
     <div className="mb-5">
       <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+        {fileUrl && (
+          <div className="flex justify-center flex-shrink-0 my-6">
+            {fileType === 'image' && <img className="w-auto max-w-2xl rounded-xl" src={fileUrl} alt="" />}
+            {fileType === 'video' && <VideoPlayer url={fileUrl} />}
+          </div>
+        )}
 
-        {fileUrl && <div className="flex justify-center flex-shrink-0 my-6">
-          {fileType === "image" && <img className="w-auto max-w-2xl rounded-xl" src={fileUrl} alt=""/> }
-          {fileType === "video" && <VideoPlayer url={fileUrl}/> }
+        {!fileUrl && <Splash src="https://assets1.lottiefiles.com/packages/lf20_igknxpyc.json"></Splash>}
 
-        </div>}
-              <div className="flex-1 flex flex-col justify-between">
-                    <div className="flex items-center justify-between">
-                      <h4 className="text-lg font-semibold text-white">
-                        {name}
-                      </h4>
-                      <div className="flex justify-between">
-                        <div className=" mr-5 ">
-                          <Icon onClick={onLike} name="heart"
-                            className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}/>
-                          <span className="ml-2 text-white">
-                            {likeCount}
-                          </span>
-                        </div>
-                        {/* <div className=" mr-5 ">
+        <div className="flex-1 flex flex-col justify-between">
+          <div className="flex items-center justify-between">
+            <h4 className="text-lg font-semibold text-white">{name}</h4>
+            <div className="flex justify-between">
+              <div className=" mr-5 ">
+                <Icon
+                  onClick={onLike}
+                  name="heart"
+                  className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
+                />
+                <span className="ml-2 text-white">{likeCount}</span>
+              </div>
+              {/* <div className=" mr-5 ">
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
                               <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
@@ -171,29 +192,22 @@ export const Card: FC<ButtonProps> = ({className, price, name, fileUrl, avatarUr
                             {reactCount}
                           </span>
                         </div> */}
-                        <Icon onClick={onReport} name="flag"
-                              className={clsx('cursor-pointer text-gray-500 mt-1')}/>
-                      </div>
-                    </div>
-
-                <h5 className="text-left text-sm text-gray-400 mb-2">
-                  {(new Date(parseInt(date!))).toLocaleString()}
-                </h5>
-
-                <div className="text-left text-white">
-                  {descriptionReactElement}
-                </div>
-
-                  {price && <div>
-                        <span className="text-xs">
-                            Subscribe for
-                        </span>
-                        <span className="font-semibold text-blue ml-2">
-                            ${price} / month
-                        </span>
-                    </div>}
-                </div>
+              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />
             </div>
+          </div>
+
+          <h5 className="text-left text-sm text-gray-400 mb-2">{new Date(parseInt(date!)).toLocaleString()}</h5>
+
+          <div className="text-left text-white">{descriptionReactElement}</div>
+
+          {price && (
+            <div>
+              <span className="text-xs">Subscribe for</span>
+              <span className="font-semibold text-blue ml-2">${price} / month</span>
+            </div>
+          )}
         </div>
-    )
+      </div>
+    </div>
+  );
 };
