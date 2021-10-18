@@ -490,10 +490,29 @@
         "type": "function"
       }
     ],
-    "address": "0x9AF8d7C5F8A0b6b759DF2a44f379B611849593cb"
+    "address": "0xE53d371f11c248A91e4A985EFB951B29b0bDE878"
   },
   "Creator": {
     "abi": [
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "postId",
+            "type": "string"
+          },
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "hide",
+            "type": "bool"
+          }
+        ],
+        "name": "HidePost",
+        "type": "event"
+      },
       {
         "anonymous": false,
         "inputs": [
@@ -855,6 +874,24 @@
       {
         "inputs": [
           {
+            "internalType": "string",
+            "name": "postID",
+            "type": "string"
+          },
+          {
+            "internalType": "bool",
+            "name": "hide",
+            "type": "bool"
+          }
+        ],
+        "name": "hidePost",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "address",
             "name": "host",
             "type": "address"
@@ -1099,7 +1136,7 @@
         "type": "receive"
       }
     ],
-    "address": "0x097D71F1f6f6d46A6d0C902F18B2285E5935AB11"
+    "address": "0x60D11Da15005cdCF7f0C3cf6cC47CdA8826CdD6c"
   },
   "Paymaster": {
     "abi": [

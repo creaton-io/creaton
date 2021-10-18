@@ -4,6 +4,25 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "string",
+        "name": "postId",
+        "type": "string"
+      },
+      {
+        "indexed": false,
+        "internalType": "bool",
+        "name": "hide",
+        "type": "bool"
+      }
+    ],
+    "name": "HidePost",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -355,6 +374,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "postID",
+        "type": "string"
+      },
+      {
+        "internalType": "bool",
+        "name": "hide",
+        "type": "bool"
+      }
+    ],
+    "name": "hidePost",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

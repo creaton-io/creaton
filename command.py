@@ -137,6 +137,11 @@ def deploy_contracts_mumbai():
     if yesno('Update the contract addresses in subgraph and react?'):
         return update_contracts_mumbai()
 
+def upgrade_creator_mumbai():
+    run_command('npm run mumbai:upgradecreator')
+    if yesno('Update the contract addresses in subgraph and react?'):
+        return update_contracts_mumbai()
+
 def deploy_contracts():
     run_command('npm run matic:contracts')
     if yesno('Update the contract addresses in subgraph and react?'):
@@ -177,12 +182,11 @@ def main():
     if subproject == 'update contracts mumbai testnet':
         return update_contracts_mumbai()
 
+    if subproject == 'upgrade Creator Beacon':
+        return upgrade_creator_mumbai()
+
     if subproject == 'run subgraph docker':
         run_command('cd subgraph && docker-compose up')
-        return
-
-    if subproject == 'upgrade Creator Beacon':
-        run_command('cd umbral-server && docker-compose up')
         return
 
     json_config = json.load(open(Path(subproject) / 'package.json'))

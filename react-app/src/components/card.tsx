@@ -25,6 +25,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   isEncrypted?: boolean;
   reactionErc20Available?: string;
   reactionErc20Symbol?: string;
+  hide?: boolean;
+  onHide?: any;
+  isCreator?: boolean;
 }
 
 export const Card: FC<ButtonProps> = ({

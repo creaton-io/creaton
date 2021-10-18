@@ -42,6 +42,7 @@ const Upload = () => {
   };
   const fileInput = React.createRef<any>();
   const [ffmpeg, setffmpeg] = useState<any>(undefined);
+  const [editorInit, setEditorInit] = useState<boolean>(false);
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   useEffect(() => {
     // if (ffmpeg === undefined) {
@@ -291,96 +292,106 @@ const Upload = () => {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10 text-white">
-      <div className="w-full">
-        <Input
-          className="text-black w-full"
-          type="text"
-          label="Title"
-          placeholder="Title"
-          value={fileName}
-          onChange={(event) => {
-            setFileName(event.target.value);
-          }}
-        />
+    <span>
+      <div className={editorInit ? 'hidden' : 'visible'}>
+        <Splash src="https://assets5.lottiefiles.com/packages/lf20_bkmfzg9t.json"></Splash>
       </div>
-
-      <div className="w-full m-5">
-        <div className="flex items-center mb-1">
-          <label className="block font-semibold mb-1">Description</label>
-        </div>
-        <Editor
-          apiKey="onu4668y0hkvss8rf10j9bfaz4ijluey87k92e4z0fqstj6w"
-          initialValue="<p></p>"
-          init={{
-            height: 500,
-            menubar: false,
-            plugins: [
-              'advlist autolink lists link image',
-              'charmap print preview anchor help',
-              'searchreplace visualblocks code',
-              'insertdatetime media table paste wordcount',
-            ],
-            toolbar:
-              'undo redo | formatselect | bold italic | \
-                alignleft aligncenter alignright | \
-                bullist numlist outdent indent | help',
-          }}
-          onChange={(e) => setDescription(e.target.getContent())}
-        />
-      </div>
-
-      <div className="w-full m-5">
-        <div className="flex items-center mb-1">
-          <label className="block font-semibold mb-1">Attach a file</label>
-        </div>
-        <input
-          id="file"
-          style={{display: 'none'}}
-          onChange={(event) => handleFileSelection(event)}
-          name="file"
-          type="file"
-          ref={fileInput}
-        />
-        <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
-        <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen'}</small>
-        {currentFile?.type === 'video/mp4' && ffmpeg !== undefined && (
-          <div className="w-full m-5 hidden">
-            <label className="float-left">Convert to streaming format (fragmented video for faster looading)</label>
-
-            <div className="float-right">
-              <Toggle
-                state={isStreaming}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setIsStreaming(!isStreaming);
-                }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      <div className="w-full m-5">
-        <label className="flex float-left">
-          <span className="mr-1">Only for subscribers</span>{' '}
-          <Tooltip content={<div>Title and description of the content are still visible for everyone</div>} hover>
-            <Icon name="question-circle" className="text-gray-500 " />
-          </Tooltip>
-        </label>
-
-        <div className="float-right">
-          <Toggle
-            state={uploadEncrypted}
-            onClick={(e) => {
-              e.preventDefault();
-              setUploadEncrypted(!uploadEncrypted);
+      <form
+        onSubmit={handleSubmit}
+        className={(!editorInit && 'hidden') + ' grid grid-cols-1 place-items-center w-max m-auto py-10 text-white'}
+      >
+        <div className="w-full">
+          <Input
+            className="text-black w-full"
+            type="text"
+            label="Title"
+            placeholder="Title"
+            value={fileName}
+            onChange={(event) => {
+              setFileName(event.target.value);
             }}
           />
         </div>
-      </div>
-      <Button type="submit" label="Upload" />
-    </form>
+
+        <div className="w-full m-5">
+          <div className="flex items-center mb-1">
+            <label className="block font-semibold mb-1">Description</label>
+          </div>
+
+          <Editor
+            apiKey="onu4668y0hkvss8rf10j9bfaz4ijluey87k92e4z0fqstj6w"
+            initialValue="<p></p>"
+            init={{
+              height: 500,
+              menubar: false,
+              plugins: [
+                'advlist autolink lists link image',
+                'charmap print preview anchor help',
+                'searchreplace visualblocks code',
+                'insertdatetime media table paste wordcount',
+              ],
+              toolbar:
+                'undo redo | formatselect | bold italic | \
+                alignleft aligncenter alignright | \
+                bullist numlist outdent indent | help',
+            }}
+            onChange={(e) => setDescription(e.target.getContent())}
+            onInit={(e) => setEditorInit(true)}
+          />
+        </div>
+
+        <div className="w-full m-5">
+          <div className="flex items-center mb-1">
+            <label className="block font-semibold mb-1">Attach a file</label>
+          </div>
+          <input
+            id="file"
+            style={{display: 'none'}}
+            onChange={(event) => handleFileSelection(event)}
+            name="file"
+            type="file"
+            ref={fileInput}
+          />
+          <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
+          <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen'}</small>
+          {currentFile?.type === 'video/mp4' && ffmpeg !== undefined && (
+            <div className="w-full m-5 hidden">
+              <label className="float-left">Convert to streaming format (fragmented video for faster looading)</label>
+
+              <div className="float-right">
+                <Toggle
+                  state={isStreaming}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setIsStreaming(!isStreaming);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="w-full m-5">
+          <label className="flex float-left">
+            <span className="mr-1">Only for subscribers</span>{' '}
+            <Tooltip content={<div>Title and description of the content are still visible for everyone</div>} hover>
+              <Icon name="question-circle" className="text-gray-500 " />
+            </Tooltip>
+          </label>
+
+          <div className="float-right">
+            <Toggle
+              state={uploadEncrypted}
+              onClick={(e) => {
+                e.preventDefault();
+                setUploadEncrypted(!uploadEncrypted);
+              }}
+            />
+          </div>
+        </div>
+        <Button type="submit" label="Upload" />
+      </form>
+    </span>
   );
 };
 

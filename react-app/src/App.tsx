@@ -584,31 +584,31 @@ function NavigationLink(props) {
 
 function ChainIdChecker(props) {
   const {library, chainId} = useWeb3React();
-  if (!library || chainId === 80001) return null;
+  if (!library || chainId === 80001 || chainId === 137) return null;
   return (
     <div className="w-full fixed h-full z-30 flex items-center">
       <div className="border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">
         <p className="my-3">
-          Creaton beta uses the mumbai test network.
+          Creaton beta uses the Polygon Matic network.
           <br />
           Please switch to this network
         </p>
         <Button
-          label="Switch to Mumbai test network"
+          label="Switch to the Polygon Matic network"
           onClick={() => {
             library.provider.request({
               method: 'wallet_addEthereumChain',
               params: [
                 {
-                  chainId: '0x13881',
-                  chainName: 'Matic Testnet Mumbai',
-                  rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
+                  chainId: '0x89',
+                  chainName: 'Polygon Matic',
+                  rpcUrls: ['https://rpc-mainnet.maticvigil.com/'],
                   nativeCurrency: {
-                    name: 'tMATIC',
-                    symbol: 'tMATIC',
+                    name: 'MATIC',
+                    symbol: 'MATIC',
                     decimals: 18,
                   },
-                  blockExplorerUrls: ['https://explorer-mumbai.maticvigil.com/'],
+                  blockExplorerUrls: ['https://explorer-mainnet.maticvigil.com/'],
                 },
               ],
             });

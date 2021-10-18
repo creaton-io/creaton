@@ -66,6 +66,7 @@
     "goerli:export": "hardhat --network goerli export",
     "mumbai:seed": "cross-env HARDHAT_NETWORK=mumbai ts-node --files scripts/seed.ts",
     "mumbai:deploy": "hardhat --network mumbai deploy",
+    "mumbai:upgradecreator": "hardhat --network mumbai deploy --tags UpgradeCreator",
     "mumbai:export": "hardhat --network mumbai export",
     "mainnet:deploy": "hardhat --network mainnet deploy",
     "mainnet:export": "hardhat --network mainnet export",

@@ -391,25 +391,52 @@ export function Creator() {
       fileType = 'image';
     }
 
-    return (
-      <Card
-        key={content.ipfs}
-        fileUrl={src || null}
-        name={content.name}
-        description={content.description}
-        fileType={fileType}
-        date={content.date}
-        avatarUrl=""
-        onReport={() => {
-          report(content);
-        }}
-        // reactionErc20Available={reactionErc20Available}
-        // reactionErc20Symbol={reactionErc20Symbol}
-        //onReact={(amount, callback) => { react(content, amount, callback) }}
-        // hasReacted={hasReacted(content)}
-        // initialReactCount={countReacted(content)}
-      />
-    );
+    if (currentCreator && currentCreator.creatorContract === creatorContractAddress) {
+      return (
+        <Card
+          key={content.ipfs}
+          fileUrl={src || null}
+          name={content.name}
+          description={content.description}
+          fileType={fileType}
+          date={content.date}
+          avatarUrl=""
+          onReport={() => {
+            report(content);
+          }}
+          isCreator={true}
+          onHide={() => {
+            hide(content.id + creatorContractAddress, !content.hide);
+          }}
+          // reactionErc20Available={reactionErc20Available}
+          // reactionErc20Symbol={reactionErc20Symbol}
+          //onReact={(amount, callback) => { react(content, amount, callback) }}
+          // hasReacted={hasReacted(content)}
+          // initialReactCount={countReacted(content)}
+        />
+      );
+    } else {
+      return (
+        <Card
+          key={content.ipfs}
+          fileUrl={src || null}
+          name={content.name}
+          description={content.description}
+          fileType={fileType}
+          date={content.date}
+          avatarUrl=""
+          onReport={() => {
+            report(content);
+          }}
+          hide={content.hide}
+          // reactionErc20Available={reactionErc20Available}
+          // reactionErc20Symbol={reactionErc20Symbol}
+          //onReact={(amount, callback) => { react(content, amount, callback) }}
+          // hasReacted={hasReacted(content)}
+          // initialReactCount={countReacted(content)}
+        />
+      );
+    }
   }
 
   async function subscribe() {
@@ -470,6 +497,18 @@ export function Creator() {
   function hasReacted(content) {
     if (!reactions) return false;
     return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+  }
+
+  async function hide(postId, hidebool: boolean) {
+    if (!web3utils.isSignedUp()) return;
+    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
+      context.library!.getSigner()
+    );
+    const receipt = await creatorContract.hide(hidebool);
+    web3utils.setIsWaiting(true);
+    await receipt.wait(1);
+    web3utils.setIsWaiting(false);
+    notificationHandler.setNotification({description: 'Content hidden from public or subscribers', type: 'success'});
   }
 
   async function report(content) {

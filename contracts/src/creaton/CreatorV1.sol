@@ -39,6 +39,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     event SubscriberEvent(address user, Status status);
     event NewPost(uint256 tokenId, string jsonData, Type contentType);
     event PostContract(address nftContract);
+    event HidePost(string postId, bool hide);
 
     struct Subscriber {
         Status status;
@@ -146,6 +147,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 tokenId = Post(postNFT).mint(creator, _metadataURI);
         post2tier[tokenId] = contentType;
         emit NewPost(tokenId, _dataJSON, contentType);
+    }
+
+    function hidePost(string memory postID, bool hide) external onlyCreator {
+        require(post2tier[tokenId]); //shouldnt do ID calculation on frontend or wait I need to or no i dont uhmmmm
+        emit HidePost(postID, hide);
     }
 
     // -----------------------------------------
