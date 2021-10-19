@@ -201,31 +201,30 @@ export function Creator() {
   // }
 
   async function addGasless() {
-    const addContractData = {
-      contractName: 'creator' + creatorContractAddress.slice(2, 6),
-      contractAddress: creatorContractAddress,
-      abi: creaton_contracts.Creator.abi,
-      contractType: 'SC',
-      walletType: '',
-      metaTransactionType: 'TRUSTED_FORWARDER',
-    };
+    // const addContractData = new URLSearchParams({
+    //   contractName: 'creator' + creatorContractAddress.slice(2, 6),
+    //   contractAddress: creatorContractAddress,
+    //   abi: JSON.stringify(creaton_contracts.Creator.abi),
+    //   contractType: 'SC',
+    //   metaTransactionType: 'TRUSTED_FORWARDER',
+    // });
 
-    fetch('https://api.biconomy.io/api/v1/smart-contract/public-api/addContract', {
-      method: 'POST', // or 'PUT'
-      headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        authToken: '57d27b1e-d8e7-4397-b708-c316a4c2e7e3',
-        apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
-      },
-      body: JSON.stringify(addContractData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Success:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    // fetch('https://api.biconomy.io/api/v1/smart-contract/public-api/addContract', {
+    //   method: 'POST', // or 'PUT'
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     authToken: '57d27b1e-d8e7-4397-b708-c316a4c2e7e3',
+    //     apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
+    //   },
+    //   body: addContractData,
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log('Success:', data);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error:', error);
+    //   });
 
     //creatonadmin 0x9AF8d7C5F8A0b6b759DF2a44f379B611849593cb
     // sf 0xEB796bdb90fFA0f28255275e16936D25d3418603
@@ -239,30 +238,30 @@ export function Creator() {
     //   method: 'forwardBatchCall',
     // };
 
-    // const addMethodData = {
-    //   apiType: 'native',
-    //   methodType: 'write',
-    //   name: 'upload' + creatorContractAddress.slice(2, 6),
-    //   contractAddress: creatorContractAddress,
-    //   method: 'upload',
-    // };
+    const addMethodData = {
+      apiType: 'native',
+      methodType: 'write',
+      name: 'upload' + creatorContractAddress.slice(2, 6),
+      contractAddress: creatorContractAddress,
+      method: 'upload',
+    };
 
-    // fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
-    //   method: 'POST', // or 'PUT'
-    //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded',
-    //     authToken: '57d27b1e-d8e7-4397-b708-c316a4c2e7e3',
-    //     apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
-    //   },
-    //   body: new URLSearchParams(addMethodData),
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log('Success:', data);
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error:', error);
-    //   });
+    fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        authToken: '57d27b1e-d8e7-4397-b708-c316a4c2e7e3',
+        apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
+      },
+      body: new URLSearchParams(addMethodData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
   }
 
   async function mint() {

@@ -26,7 +26,6 @@ const func = async function (hre) {
       : '0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b'; //testnet USDCx
   const beaconContract = await hre.deployments.get('CreatorBeacon');
   const nftFactory = await hre.deployments.get('NFTFactory');
-  const paymasterContract = await hre.deployments.get('CreatonPaymaster');
   const treasuryFee = 98;
 
   const CreatonAdmin = await ethers.getContractFactory('CreatonAdmin');
@@ -39,21 +38,15 @@ const func = async function (hre) {
       network.chainId === 137
         ? '0xCAa7349CEA390F89641fe306D93591f87595dc1F'
         : '0x42bb40bF79730451B11f6De1CbA222F17b87Afd7', //testnet USDCx
-      treasury,
+      '0xC2Be769Df80AA18aA7982B5ecA0AaE037460891d',
       treasuryFee,
       beaconContract.address,
       nftFactory.address,
       trustedforwarder,
-      paymasterContract.address,
     ],
     {kind: 'uups'}
   );
   console.log('admin proxy deployed at:', adminContract.address);
-  await sleep(10000);
-  console.log('Add creaton admin to paymaster...');
-  let relayHubReceipt = await execute('CreatonPaymaster', {from: admin}, 'setAdmin', adminContract.address);
-  await sleep(10000);
-  console.log(relayHubReceipt.transactionHash);
 
   console.log('sf.host.address', sf.host.address);
   console.log('sf.agreements.cfa.address', sf.agreements.cfa.address);
@@ -64,11 +57,6 @@ const func = async function (hre) {
   });
 
   await hre.tenderly.verify({
-    name: 'paymasterContract',
-    address: paymasterContract.address,
-  });
-
-  await hre.tenderly.verify({
     name: 'adminContractProxy',
     address: adminContract.address,
   });
@@ -76,11 +64,6 @@ const func = async function (hre) {
   await hre.tenderly.push({
     name: 'CreatonAdmin',
     address: CreatonAdmin.address,
-  });
-
-  await hre.tenderly.push({
-    name: 'paymasterContract',
-    address: paymasterContract.address,
   });
 
   await hre.tenderly.push({

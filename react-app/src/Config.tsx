@@ -23,10 +23,10 @@ if (process.env.NODE_ENV === 'development') {
     MKT: '0xb339165C55C3F8BE35033CB26c2505f8B0912C26',
     DEV: '0x06805b2b1a5ab9f6f753f8d220cccef006d1cf8e',
   };
-} else {
+} else if (process.env.NODE_ENV === 'production') {
   //staging
   REENCRYPTION_URI = 'https://reencryption.creaton.io';
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/mumbai'; //'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-dao'
+  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-polygon'; //'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-dao'
 }
 //TODO:PRODUCTION CONFIG
 // {

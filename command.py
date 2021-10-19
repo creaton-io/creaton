@@ -62,7 +62,7 @@ def update_contracts():
     #        'choices': networks
     #    },
     #])['network']
-    network = 'mumbai'
+    network = 'matic'
     creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
     creaton_admin['address'] = prompt([
         {
@@ -73,12 +73,12 @@ def update_contracts():
     ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
     #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
-    paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
+    #paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
     #staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
     #token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
-    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator,
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator
                       #'TwitterVerification': twitter,
-                      'Paymaster': paymaster
+                      #'Paymaster': paymaster
                       #'CreatonStaking': staking,
                       #'CreatonToken': token
                       }

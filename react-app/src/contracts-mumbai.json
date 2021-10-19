@@ -254,11 +254,6 @@
             "internalType": "address",
             "name": "_trustedForwarder",
             "type": "address"
-          },
-          {
-            "internalType": "address payable",
-            "name": "_paymaster",
-            "type": "address"
           }
         ],
         "name": "initialize",
@@ -291,19 +286,6 @@
         "outputs": [
           {
             "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "paymaster",
-        "outputs": [
-          {
-            "internalType": "address payable",
             "name": "",
             "type": "address"
           }
@@ -490,7 +472,7 @@
         "type": "function"
       }
     ],
-    "address": "0x88cb25783F2680e287171022F06d8830dE503e72"
+    "address": "0x31686C9681bBB4A4204CA4AFC8734a913AC798f7"
   },
   "Creator": {
     "abi": [

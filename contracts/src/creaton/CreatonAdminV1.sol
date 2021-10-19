@@ -5,7 +5,6 @@ pragma abicoder v2;
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
 import "./CreatorV1.sol";
-import "../metatx/CreatonPaymaster.sol";
 import "../dependency/gsn/BaseRelayRecipient.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
@@ -50,8 +49,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     address public creatorBeacon;
     address public override nftFactory;
 
-    address payable public paymaster;
-
     // -----------------------------------------
     // Constructor
     // -----------------------------------------
@@ -64,8 +61,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         int96 _treasuryFee,
         address _creatorBeacon,
         address _nftFactory,
-        address _trustedForwarder,
-        address payable _paymaster
+        address _trustedForwarder
     ) public payable initializer {
         owner = msg.sender;
 
@@ -86,7 +82,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         nftFactory = _nftFactory;
 
         trustedForwarder = _trustedForwarder;
-        paymaster = _paymaster;
     }
 
     // -----------------------------------------
@@ -126,7 +121,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
 
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);
-        CreatonPaymaster(paymaster).addCreatorContract(creatorContractAddr);
 
         //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
 
