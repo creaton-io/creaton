@@ -51,6 +51,9 @@ export const iconMap: { [key: string]: any } = {
   'user': ['fas', 'user'],
   'lock': ['fas', 'lock'],
   'flag': ['fas', 'flag'],
+  'eye': ['fas', 'eye'],
+  'eye-slash': ['fas', 'eye-slash'],
+
 
   // branding
   'github': ['fab', 'github'],

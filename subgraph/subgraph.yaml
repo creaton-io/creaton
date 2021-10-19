@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: mumbai
     source:
-      address: "0xE53d371f11c248A91e4A985EFB951B29b0bDE878" #CreatonAdminAddress Do not remove this comment
+      address: "0x88cb25783F2680e287171022F06d8830dE503e72" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 13489903
     mapping:
@@ -45,7 +45,7 @@ templates:
           handler: handleSubscriberEvent
         - event: NewPost(uint256,string,uint8)
           handler: handleNewPost
-        - event: HidePost(string,bool)
+        - event: HidePost(uint256,bool)
           handler: handleHidePost
 #        - event: PostContract(address)
 #          handler: handlePostContract

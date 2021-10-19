@@ -36,6 +36,7 @@ export function Creator() {
   const CONTENTS_QUERY = gql`
     query GET_CONTENTS($user: Bytes!) {
       contents(orderBy: date, orderDirection: desc, where: {creatorContract: $user}) {
+        id
         name
         type
         description
@@ -43,6 +44,7 @@ export function Creator() {
         ipfs
         tokenId
         tier
+        hide
       }
     }
   `;
@@ -111,13 +113,18 @@ export function Creator() {
   const [downloadStatus, setDownloadStatus] = useState({});
   const [downloadCache, setDownloadCache] = useState({});
   const [subscription, setSubscription] = useState('unsubscribed');
+  const [isSelf, setIsSelf] = useState(false);
   useEffect(() => {
+    if (currentCreator) {
+      setIsSelf(currentCreator.creatorContract === creatorContractAddress);
+    }
     if (subscriptionQuery.data) {
       if (subscriptionQuery.data.subscribers.length > 0) setSubscription(subscriptionQuery.data.subscribers[0].status);
       else setSubscription('unsubscribed');
     }
   }, [subscriptionQuery, context]);
-  let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
+  //let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
+
   const canDecrypt = isSelf || subscription === 'subscribed';
 
   useEffect(() => {
@@ -379,8 +386,8 @@ export function Creator() {
 
   function showItem(content) {
     let src = getSrc(content);
-
     let fileType;
+    console.log('showItem', isSelf);
     if (content.type.startsWith('image')) {
       fileType = 'image';
     } else if (content.type == 'text') {
@@ -390,8 +397,8 @@ export function Creator() {
     } else {
       fileType = 'image';
     }
-
-    if (currentCreator && currentCreator.creatorContract === creatorContractAddress) {
+    console.log(content);
+    if (!content.hide || isSelf) {
       return (
         <Card
           key={content.ipfs}
@@ -404,31 +411,11 @@ export function Creator() {
           onReport={() => {
             report(content);
           }}
-          isCreator={true}
-          onHide={() => {
-            hide(content.id + creatorContractAddress, !content.hide);
-          }}
-          // reactionErc20Available={reactionErc20Available}
-          // reactionErc20Symbol={reactionErc20Symbol}
-          //onReact={(amount, callback) => { react(content, amount, callback) }}
-          // hasReacted={hasReacted(content)}
-          // initialReactCount={countReacted(content)}
-        />
-      );
-    } else {
-      return (
-        <Card
-          key={content.ipfs}
-          fileUrl={src || null}
-          name={content.name}
-          description={content.description}
-          fileType={fileType}
-          date={content.date}
-          avatarUrl=""
-          onReport={() => {
-            report(content);
-          }}
+          isCreator={isSelf}
           hide={content.hide}
+          onHide={() => {
+            hide(content.tokenId, !content.hide);
+          }}
           // reactionErc20Available={reactionErc20Available}
           // reactionErc20Symbol={reactionErc20Symbol}
           //onReact={(amount, callback) => { react(content, amount, callback) }}
@@ -436,7 +423,7 @@ export function Creator() {
           // initialReactCount={countReacted(content)}
         />
       );
-    }
+    } else return;
   }
 
   async function subscribe() {
@@ -499,16 +486,19 @@ export function Creator() {
     return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
   }
 
-  async function hide(postId, hidebool: boolean) {
+  async function hide(tokenId, hide: boolean) {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
       context.library!.getSigner()
     );
-    const receipt = await creatorContract.hide(hidebool);
+    const receipt = await creatorContract.hidePost(tokenId, hide);
     web3utils.setIsWaiting(true);
     await receipt.wait(1);
     web3utils.setIsWaiting(false);
-    notificationHandler.setNotification({description: 'Content hidden from public or subscribers', type: 'success'});
+    notificationHandler.setNotification({
+      description: hide ? 'Content hidden from public or subscribers' : 'Content visible again',
+      type: 'success',
+    });
   }
 
   async function report(content) {

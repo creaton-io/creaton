@@ -49,11 +49,15 @@ export const Card: FC<ButtonProps> = ({
   isEncrypted,
   reactionErc20Available,
   reactionErc20Symbol,
+  hide,
+  onHide,
+  isCreator,
 }) => {
   const ircount: number = initialReactCount ? +initialReactCount : 0;
 
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
+  const [hiding, setHiding] = useState(false);
   const [reactCount, setReactCount] = useState<number>(+ircount);
 
   function showAmountModal(e) {
@@ -100,15 +104,20 @@ export const Card: FC<ButtonProps> = ({
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-semibold text-white">{name}</h4>
                 <div className="flex justify-between">
-                  <div className=" mr-5 ">
+                  {/* <div className=" mr-5 ">
                     <Icon
                       onClick={onLike}
                       name="heart"
                       className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
                     />
                     <span className="ml-2 text-white">{likeCount}</span>
-                  </div>
-                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />
+                  </div> likes are a web2 construct 
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />*/}
+                  <Icon
+                    onClick={onHide}
+                    name={hide ? 'eye-slash' : 'eye'}
+                    className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300')}
+                  />
                 </div>
               </div>
 
@@ -145,14 +154,14 @@ export const Card: FC<ButtonProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="text-lg font-semibold text-white">{name}</h4>
             <div className="flex justify-between">
-              <div className=" mr-5 ">
+              {/* <div className=" mr-5 ">
                 <Icon
                   onClick={onLike}
                   name="heart"
                   className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
                 />
                 <span className="ml-2 text-white">{likeCount}</span>
-              </div>
+              </div> likes are a web2 construct*/}
               {/* <div className=" mr-5 ">
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
@@ -194,8 +203,13 @@ export const Card: FC<ButtonProps> = ({
                           <span className="ml-2 text-white">
                             {reactCount}
                           </span>
-                        </div> */}
-              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />
+                        </div> 
+              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />*/}
+              <Icon
+                onClick={onHide}
+                name={hide ? 'eye-slash' : 'eye'}
+                className={clsx(hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1')}
+              />
             </div>
           </div>
 

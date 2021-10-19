@@ -102,16 +102,12 @@ export function handleProfileUpdate(event: ProfileUpdate): void {
 }
 
 export function handleHidePost(event: HidePost): void {
-  let tokenId = event.params.postId;
-  //let id = creator_contract.toHex() + '-' + tokenId.toString();
-  let hide = true;
-  if (event.params.hide == true) hide = true;
-  if (event.params.hide == false) hide = false;
-  let entity = Content.load(tokenId);
-  if (!entity) {
-    //throw error if needed //entity = new Content(id);
-  }
-  entity.hide = true;
+  let context = dataSource.context();
+  let creator_contract = context.getBytes('contract');
+  let tokenId = event.params.tokenId;
+  let id = creator_contract.toHex() + '-' + tokenId.toString();
+  let entity = Content.load(id);
+  entity.hide = event.params.hide;
   entity.save();
 }
 

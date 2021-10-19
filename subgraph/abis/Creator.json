@@ -4,9 +4,9 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "string",
-        "name": "postId",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
         "indexed": false,
@@ -379,9 +379,9 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "postID",
-        "type": "string"
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
       },
       {
         "internalType": "bool",
