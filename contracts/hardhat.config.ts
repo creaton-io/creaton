@@ -13,6 +13,7 @@ import 'hardhat-contract-sizer';
 import 'solidity-coverage';
 import {HardhatUserConfig} from 'hardhat/config';
 import '@tenderly/hardhat-tenderly';
+import '@nomiclabs/hardhat-etherscan';
 
 const mnemonic = process.env.MNEMONIC;
 let accounts;
@@ -54,7 +55,7 @@ const config: HardhatUserConfig = {
   etherscan: {
     // Your API key for Etherscan
     // Obtain one at https://etherscan.io/
-    apiKey: process.env.ETHERSCAN_SCAN,
+    apiKey: 'NUI5MQPRV2NU6547845TM3356N2K4X8YAA',
   },
   solidity: {
     compilers: [
@@ -157,7 +158,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     matic: {
-      url: 'https://matic-mainnet--jsonrpc.datahub.figment.io/apikey/' + process.env.FIGMENT_TOKEN,
+      url: 'https://matic-mainnet--jsonrpc.datahub.figment.io/apikey/0ae5f13919ed451371d1e07481351f70',
       accounts,
     },
   },

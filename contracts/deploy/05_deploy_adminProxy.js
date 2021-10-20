@@ -1,4 +1,5 @@
 const func = async function (hre) {
+  /*
   let {admin, treasury} = await hre.getNamedAccounts();
   const {ethers, deployments, upgrades} = hre;
   const {execute} = deployments;
@@ -13,12 +14,6 @@ const func = async function (hre) {
     tokens: [network.chainId === 137 ? 'USDC' : 'fUSDC'],
   });
   await sf.initialize();
-
-  function sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  }
 
   const trustedforwarder =
     network.chainId === 137
@@ -49,27 +44,7 @@ const func = async function (hre) {
   console.log('admin proxy deployed at:', adminContract.address);
 
   console.log('sf.host.address', sf.host.address);
-  console.log('sf.agreements.cfa.address', sf.agreements.cfa.address);
-
-  await hre.tenderly.verify({
-    name: 'CreatonAdmin',
-    address: CreatonAdmin.address,
-  });
-
-  await hre.tenderly.verify({
-    name: 'adminContractProxy',
-    address: adminContract.address,
-  });
-
-  await hre.tenderly.push({
-    name: 'CreatonAdmin',
-    address: CreatonAdmin.address,
-  });
-
-  await hre.tenderly.push({
-    name: 'adminContract Proxy',
-    address: adminContract.address,
-  });
+  console.log('sf.agreements.cfa.address', sf.agreements.cfa.address);*/
 };
 
 module.exports = func;

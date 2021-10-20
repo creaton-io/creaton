@@ -313,24 +313,6 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "twitter",
-            "type": "string"
-          }
-        ],
-        "name": "signUp",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
         "inputs": [],
         "name": "superFluid",
         "outputs": [
@@ -440,25 +422,6 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "user2twitter",
-        "outputs": [
-          {
-            "internalType": "string",
-            "name": "",
-            "type": "string"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [],
         "name": "versionRecipient",
         "outputs": [
@@ -472,7 +435,7 @@
         "type": "function"
       }
     ],
-    "address": "0xca57c5D70E6A6018e6BC93C784e3cbee0D8842a9"
+    "address": "0x9f4781fFFD8c22f24A1AF3d6993D80fD9795d0e6"
   },
   "Creator": {
     "abi": [
@@ -1156,6 +1119,6 @@
         "type": "receive"
       }
     ],
-    "address": "0x6eA08220928291174857bcA1e7EBC37bb3953bcC"
+    "address": "0xA69686876F6865bfdE38a7DDA6829b44cD2B6266"
   }
 }

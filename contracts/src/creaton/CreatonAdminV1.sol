@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 pragma abicoder v2;
 
-// import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
 import "./CreatorV1.sol";
 import "../dependency/gsn/BaseRelayRecipient.sol";
@@ -35,7 +34,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     mapping(address => address[]) public creator2contract;
     mapping(address => address) public contract2creator;
     mapping(address => bool) public override registeredUsers;
-    mapping(address => string) public user2twitter;
 
     address private _host;
     address private _cfa;
@@ -122,14 +120,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);
 
-        //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
-
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
-    }
-
-    // TODO only be called from twitter contract
-    function signUp(address user, string memory twitter) public {
-        user2twitter[user] = twitter;
     }
 
     function updateProfile(string memory dataJSON) external {
@@ -144,7 +135,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     }
 
     function versionRecipient() external view override returns (string memory) {
-        return "2.2.3-matic";
+        return "v1";
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */

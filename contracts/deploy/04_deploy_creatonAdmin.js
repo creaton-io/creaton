@@ -3,12 +3,6 @@ const func = async function (hre) {
   const {deployments} = hre;
   const {deploy} = deployments;
 
-  function sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  }
-
   console.log('NFTFactory Deploy');
   const nftFactory = await deploy('NFTFactory', {
     from: admin,
@@ -38,7 +32,6 @@ const func = async function (hre) {
     from: admin,
     log: true,
   });
-  await sleep(10000);
 
   console.log('CreatorAdmin deployed');
 
