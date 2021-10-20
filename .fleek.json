@@ -1,7 +1,7 @@
 {
   "build": {
     "image": "fleek/create-react-app",
-    "command": "cd react-app && yarn --ignore-scripts && yarn build",
+    "command": "cd react-app && yarn && yarn build",
     "publicDir": "react-app/build"
   }
  }
