@@ -71,6 +71,7 @@
     "mainnet:deploy": "hardhat --network mainnet deploy",
     "mainnet:export": "hardhat --network mainnet export",
     "matic:deploy": "hardhat --network matic deploy",
+    "matic:verify": "npx hardhat verify --network matic DEPLOYED_CONTRACT_ADDRESS 'Constructor argument 1'",
     "rinkeby:run": "cross-env HARDHAT_NETWORK=rinkeby ts-node --files",
     "hardhat": "hardhat"
   },

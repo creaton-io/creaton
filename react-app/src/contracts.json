@@ -472,7 +472,7 @@
         "type": "function"
       }
     ],
-    "address": "0xEEF7c52Dc48Fd729e4f361BFb967b920FcF05945"
+    "address": "0xca57c5D70E6A6018e6BC93C784e3cbee0D8842a9"
   },
   "Creator": {
     "abi": [
@@ -965,6 +965,25 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "payedUpfront",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "int96",
             "name": "num",
             "type": "int96"
@@ -1073,6 +1092,25 @@
       {
         "inputs": [
           {
+            "internalType": "bytes",
+            "name": "ctx",
+            "type": "bytes"
+          }
+        ],
+        "name": "upfrontFee",
+        "outputs": [
+          {
+            "internalType": "bytes",
+            "name": "newCtx",
+            "type": "bytes"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "string",
             "name": "_metadataURI",
             "type": "string"
@@ -1118,6 +1156,6 @@
         "type": "receive"
       }
     ],
-    "address": "0x91e9903c82bE9f8a08F47bc4F560f2DB74086011"
+    "address": "0x6eA08220928291174857bcA1e7EBC37bb3953bcC"
   }
 }

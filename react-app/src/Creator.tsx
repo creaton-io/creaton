@@ -24,6 +24,7 @@ import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
+import {BICONOMY_API, BICONOMY_AUTH} from './Config';
 
 interface params {
   id: string;
@@ -213,8 +214,8 @@ export function Creator() {
     //   method: 'POST', // or 'PUT'
     //   headers: {
     //     'Content-Type': 'application/x-www-form-urlencoded',
-    //     authToken: '57d27b1e-d8e7-4397-b708-c316a4c2e7e3',
-    //     apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
+    //      authToken: BICONOMY_AUTH,
+    //      apiKey: BICONOMY_API,
     //   },
     //   body: addContractData,
     // })
@@ -250,8 +251,8 @@ export function Creator() {
       method: 'POST', // or 'PUT'
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        authToken: '57d27b1e-d8e7-4397-b708-c316a4c2e7e3',
-        apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
+        authToken: BICONOMY_AUTH,
+        apiKey: BICONOMY_API,
       },
       body: new URLSearchParams(addMethodData),
     })
@@ -300,7 +301,25 @@ export function Creator() {
     let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
     let {sf, usdc, usdcx} = await superfluid;
     let subscriber = context.account;
+    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
+      context.library!.getSigner()
+    );
     call = [
+      [
+        1, // approve the ticket fee
+        usdcx.address,
+        defaultAbiCoder.encode(
+          ['address', 'uint256'],
+          [creatorContractAddress, parseUnits(contract.subscriptionPrice, 18).toString()]
+        ),
+      ],
+      [
+        202, // callAppAction to participate
+        creatorContractAddress,
+        creatorContract.interface.encodeFunctionData('upfrontFee', ['0x']),
+        //app.contract.methods.upfrontFee("0x").encodeABI()
+        //defaultAbiCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]
+      ],
       [
         201, // create constant flow (10/mo)
         sf.agreements.cfa.address,
@@ -608,7 +627,7 @@ export function Creator() {
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
           {generateButton()}
-          {context.chainId === 80001 && (
+          {context.chainId === 80000 && (
             <span>
               <div className="flex space-x-5">
                 <Button

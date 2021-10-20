@@ -28,6 +28,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
 
     string private constant _ERR_STR_LOW_FLOW_RATE = "Superfluid: flow rate not enough";
+    string private constant _ERR_STR_NO_UPFRONT = "Creaton: pay monthly amount upfront first";
 
     // -----------------------------------------
     // Structures
@@ -65,6 +66,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     uint256 subscriberCount; // subscribers in subscribed/pendingSubscribe state
     address public postNFT;
     mapping(uint256 => Type) post2tier;
+    uint256 uIntSubscriptionPrice;
+    mapping(address => bool) public payedUpfront;
 
     // -----------------------------------------
     // Initializer
@@ -96,6 +99,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
         creator = _creator;
         description = _description;
+        uIntSubscriptionPrice = _subscriptionPrice * 1e18;
         subscriptionPrice = int96(uint96(_subscriptionPrice));
         _MINIMUM_FLOW_RATE = (subscriptionPrice * 1e18) / (3600 * 24 * 30);
 
@@ -171,6 +175,15 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function updateTrustedForwarder(address _trustedForwarder) public onlyCreator {
         trustedForwarder = _trustedForwarder;
+    }
+
+    /// @dev Take entrance fee from the user and issue a ticket
+    function upfrontFee(bytes calldata ctx) external onlyHost returns (bytes memory newCtx) {
+        // msg sender is encoded in the Context
+        address sender = _host.decodeCtx(ctx).msgSender;
+        _acceptedToken.transferFrom(sender, creator, uIntSubscriptionPrice);
+        payedUpfront[sender] = true;
+        return ctx;
     }
 
     // -----------------------------------------
@@ -277,6 +290,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
         ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
+        require(payedUpfront[context.msgSender] == true, _ERR_STR_NO_UPFRONT);
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
@@ -299,6 +313,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
                 contract2treasuryCurrent + contract2treasuryDelta
             );
         }
+
+        payedUpfront[context.msgSender] = false;
 
         _addSubscriber(context.msgSender);
     }
