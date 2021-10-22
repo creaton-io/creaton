@@ -7,7 +7,7 @@ import WalletConnect from './WalletConnect';
 import {useWeb3React, Web3ReactProvider} from './web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import Upload from './Upload';
-import {formatEther, parseEther} from '@ethersproject/units';
+import {formatEther, parseEther, parseUnits} from '@ethersproject/units';
 import {SuperfluidContext, SuperfluidProvider} from './Superfluid';
 import Subscribers from './Subscribers';
 //import {Staking} from "./Staking";
@@ -236,13 +236,15 @@ const ProfileMenu = (props) => {
   async function wrapUsdc() {
     setWrappingUsdc(true);
 
+    const wrapUSDC = parseUnits(wrapAmount, 18);
+
     let tx;
-    if ((await usdc.allowance(account, usdcx.address)) < wrapAmount) {
-      tx = await usdc.approve(usdcx.address, wrapAmount);
+    if ((await usdc.allowance(account, usdcx.address)) < wrapUSDC) {
+      tx = await usdc.approve(usdcx.address, wrapUSDC);
       await tx.wait();
     }
 
-    tx = await usdcx.upgrade(parseEther(wrapAmount));
+    tx = await usdcx.upgrade(wrapUSDC);
     await tx.wait();
 
     setUsdcxBalance(await usdcx.balanceOf(account));
@@ -399,7 +401,7 @@ const ProfileMenu = (props) => {
               </a>
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
-                <div className="-mt-1 font-bold text-black">{formatBalance(usdcBalance)} USDC</div>
+                <div className="-mt-1 font-bold text-black">{formatBalance(usdcBalance) * 10e11} USDC</div>
                 {!wrappingUsdc && usdcBalance > 0 && (
                   <span className="sm:flex sm:items-center">
                     <div className="w-2/3 sm:max-w-xs">
