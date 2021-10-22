@@ -73,12 +73,12 @@ const Upload = () => {
       web3utils.setIsWaiting('Encrypting the file...');
       let zipBlobFile;
       try {
-        const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+        const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
         const subConditions = [
           {
             contractAddress: currentCreator.creatorContract,
             standardContractType: 'Creaton',
-            chain: 'mumbai',
+            chain: 'polygon',
             method: 'subscribers',
             parameters: [':userAddress'],
             returnValueTest: {
@@ -91,7 +91,7 @@ const Upload = () => {
         const {zipBlob, encryptedSymmetricKey} = await LitJsSdk.encryptFileAndZipWithMetadata({
           authSig,
           accessControlConditions: subConditions,
-          chain: 'mumbai',
+          chain: 'polygon',
           file: file,
           litNodeClient: litNode,
           readme: 'test',

@@ -489,7 +489,7 @@ const ProfileMenu = (props) => {
               </div>
               <div>
                 <div className="text-sm text-purple-500">Balance:</div>
-                <div className="-mt-1 font-bold text-black">{formatBalance(maticBalance)} tMatic</div>
+                <div className="-mt-1 font-bold text-black">{formatBalance(maticBalance)} Matic</div>
               </div>
             </div>
             <div className="flex"></div>
@@ -497,7 +497,7 @@ const ProfileMenu = (props) => {
         </div>
         <div className="grid grid-cols-1 divide-y divide-gray-200">
           {currentCreator && <NavigationLink to="/subscribers" label="Subscribers" />}
-          {canBecomeCreator && <NavigationLink to="/upload" label="Upload" />}
+          {currentCreator && <NavigationLink to="/upload" label="Upload" />}
           {<NavigationLink to="/signup" label={currentProfile ? 'My Profile' : 'Make Profile'} />}
           {/* {currentProfile &&
           <NavigationLink to="/flows" label="My Flows"/>
@@ -537,10 +537,11 @@ const HeaderButtons = () => {
           <Button label="Subscribers" theme="unfocused"></Button>
         </Link>
       )}
-      <Link to="/upload">
-        <Button label="Upload" theme="unfocused"></Button>
-      </Link>
-
+      {currentCreator && (
+        <Link to="/upload">
+          <Button label="Upload" theme="unfocused"></Button>
+        </Link>
+      )}
       {/* {isAdmin && (<Link to="/staking"> */}
       {/* <Button label="Staking" theme="unfocused"></Button> */}
       {/* </Link>)} */}

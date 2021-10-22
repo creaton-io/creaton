@@ -347,7 +347,7 @@ export function Creator() {
     //else {//handle arweave
 
     const encryptedZipBlob = await (await fetch('https://arweave.net/' + content.ipfs)).blob();
-    const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+    const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
 
     let {decryptedFile} = await LitJsSdk.decryptZipFileWithMetadata({
       authSig: authSig,
