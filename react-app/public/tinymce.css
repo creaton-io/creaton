@@ -1,0 +1,7 @@
+p.subscribersText {
+    background-position: left -3px top -3px;
+    padding: 10px 10px 5px 10px;
+    background-color:#aabbcc;
+    border:1px dotted #CCCCCC;
+    line-height: 26px;
+}
