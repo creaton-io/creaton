@@ -1,10 +1,11 @@
-import {ButtonHTMLAttributes, FC, useState} from 'react';
+import {ButtonHTMLAttributes, FC, useContext, useEffect, useState} from 'react';
 import {Icon} from '../icons';
 import clsx from 'clsx';
 import {VideoPlayer} from '../VideoPlayer';
-import {ethers} from 'ethers';
 import {Parser as HtmlToReactParser} from 'html-to-react';
 import {Splash} from './splash';
+import LitJsSdk from 'lit-js-sdk';
+import { LitContext } from '../LitProvider';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -28,6 +29,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   hide?: boolean;
   onHide?: any;
   isCreator?: boolean;
+  canDecrypt?: boolean;
 }
 
 export const Card: FC<ButtonProps> = ({
@@ -52,13 +54,16 @@ export const Card: FC<ButtonProps> = ({
   hide,
   onHide,
   isCreator,
+  canDecrypt,
 }) => {
   const ircount: number = initialReactCount ? +initialReactCount : 0;
 
+  const litNode = useContext(LitContext);
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
   const [hiding, setHiding] = useState(false);
   const [reactCount, setReactCount] = useState<number>(+ircount);
+  const [descriptionReactElement, setDescriptionReactElement] = useState('');
 
   function showAmountModal(e) {
     hideAllAmountModal();
@@ -86,8 +91,73 @@ export const Card: FC<ButtonProps> = ({
     }
   }
 
-  const htmlToReactParser = new HtmlToReactParser();
-  const descriptionReactElement = htmlToReactParser.parse(description);
+  function base64ToBlob(base64Data: string) {
+    const parts = base64Data.split(';base64,');
+    const contentType = parts[0].split(':')[1];
+    const decodedData = window.atob(parts[1]);
+
+    const uInt8Array = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; ++i) {
+      uInt8Array[i] = decodedData.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+  }
+
+  useEffect(() => {
+    ;(async () => {
+      if(!description) return;
+      let desc: string = description;
+      
+      const regexSubscribersText = /<p class="subscribersText" \/>/gmi
+
+      if(!canDecrypt){
+        console.log('here cant decrypt');
+        console.log(desc.match(regexSubscribersText));
+        desc = desc.replace(regexSubscribersText, '<p class="subscribersText">YOU NEED TO SUBSCRIBE TO SEE THIS TEXT</p>');
+        description = desc;
+      } else{
+        const regex = /<p class="encryptedText">((.|\n)*?)<\/p>/gmi
+        const matches = desc.match(regex);
+  
+        if(matches){
+          desc = desc.replace(regex, "");
+  
+          try{
+            const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+  
+            const encryptedZipBlob = base64ToBlob(matches[0].slice(25,-4));
+            let {decryptedFile} = await LitJsSdk.decryptZipFileWithMetadata({
+              authSig: authSig,
+              file: encryptedZipBlob,
+              litNodeClient: litNode,
+            });
+  
+            const blob = new Blob([decryptedFile], {type: 'application/json'});
+            const decryptedText = JSON.parse(await blob.text());
+  
+            const reversed = Array.from(desc.matchAll(regexSubscribersText)).reverse();
+  
+            let counter = reversed.length-1;
+            for(let v of reversed){
+              desc = desc.slice(0, v.index) + decryptedText[counter] + desc.slice(v.index as number + v[0].length);
+              counter--;
+            }
+            
+          } catch(e) {
+            console.error('Error while decrypting text: ', e);
+          }
+
+          description = desc;
+        }
+      }
+
+
+      const htmlToReactParser = new HtmlToReactParser();
+      setDescriptionReactElement(htmlToReactParser.parse(description))
+    })()
+  },[description]);
+
 
   if (isEncrypted)
     return (

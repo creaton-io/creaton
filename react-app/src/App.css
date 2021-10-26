@@ -75,3 +75,13 @@ body, .bg-primary-gradient {
     height: calc(100% - 96px);
   }
 }
+
+p.subscribersText{
+  border:1px solid #291942;
+  margin:10px 0;
+  padding: 10px;
+}
+
+p.encryptedText{
+  display:none;
+}
