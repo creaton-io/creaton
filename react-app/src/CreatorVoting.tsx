@@ -2,7 +2,7 @@ import { FC, useContext, useEffect, useState } from "react";
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { CREATOR_VOTING_ADDRESS, VOTING_GRAPHQL_URI } from "./Config";
 import { VotingProcess } from "./components/voting.process";
-import { useWeb3React } from "./web3-react/core";
+import {useWeb3React} from './web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 import { Button } from "./elements/button";
 import { Input } from "./elements/input";
@@ -97,7 +97,7 @@ export const CreatorVoting: FC = () => {
     }
 
     return (
-        <div className="flex flex-col max-w-5xl my-0 mx-auto text-center text-center">
+        <div className="max-w-5xl my-0 mx-auto text-center text-center">
             {!createVotingProcessesVisible && <Button className="mt-5" onClick={() => setCreateVotingProcessesVisible(true)} label="Create Voting Process"/> }
 
             {createVotingProcessesVisible &&
@@ -115,9 +115,7 @@ export const CreatorVoting: FC = () => {
 
             {votingProcesses.length > 0 && <>
                 <h3 className="text-5xl pt-12 pb-6 text-white">Voting Processes</h3>
-                <ul>
-                    {votingProcesses.map((p,i) => <VotingProcess process={p} key={`Process-${i}`} voting={true} />)}
-                </ul>
+                {votingProcesses.map((p,i) => <VotingProcess process={p} key={`Process-${i}`} voting={true} />)}
             </>}
         </div>
     )

@@ -1,13 +1,12 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "../web3-react/core";
 import { Contract, ethers } from "ethers";
-import { FC, useContext, useEffect, useRef, useState } from "react";
+import { FC, useContext, useState } from "react";
 import creaton_contracts from "../Contracts";
 import { Button } from "../elements/button";
 import { Input } from "../elements/input";
 import { Web3UtilsContext } from "../Web3Utils";
 import { NotificationHandlerContext } from "../ErrorHandler";
-import { totalmem } from "os";
 
 interface VotingProcessProps {
     process: any
@@ -32,15 +31,16 @@ export const VotingProcess: FC<VotingProcessProps> = ({ process, voting }) => {
         try {
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
             const userAddress = await signer.getAddress();
-
             // Allowance
             const erc20Contract: Contract = new Contract(votingTokenAddress, creaton_contracts.erc20.abi, signer);
-      
+
             const preDecimals = await erc20Contract.decimals();
             const decimals = ethers.BigNumber.from(10).pow(preDecimals);
             const votingAmount = ethers.BigNumber.from(amount).mul(decimals);
-      
+            
+            console.log('...AAANDERE WE ARE AGAIN', userAddress, process.contract);
             const allowance = await erc20Contract.allowance(userAddress, process.contract);
+
             if(votingAmount.gt(allowance)){
               let tx = await erc20Contract.approve(process.contract, votingAmount);
               await tx.wait();
@@ -60,14 +60,15 @@ export const VotingProcess: FC<VotingProcessProps> = ({ process, voting }) => {
             });
         } catch (error: any) {
             web3utils.setIsWaiting(false);
-            notificationHandler.setNotification({description: 'Could not vote' + error.message, type: 'error'});
+            notificationHandler.setNotification({description: 'Could not vote: ' + error.message, type: 'error'});
             setVotingModalVisible(!votingModalVisible);
         }
     }
 
+    console.log(process);
     return (
-        <div className="mb-5 relative z-0">
-            <div className="flex flex-col rounded-2xl border border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+        <div className="mb-5 z-0">
+            <div className="flex flex-col rounded-2xl border border-opacity-10 bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
                 <div className="p-8">
                     <div className="flex-1 flex flex-col justify-between">
                         <div className="flex items-center justify-between">
