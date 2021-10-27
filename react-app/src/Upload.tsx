@@ -31,6 +31,7 @@ const Upload = () => {
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
   const [description, setDescription] = useState('');
+  const [subscribersDescription, setSubscribersDescription] = useState('');
   const [fileName, setFileName] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const handleFileSelection = (event) => {
@@ -69,6 +70,7 @@ const Upload = () => {
     const creatorContract = new Contract(currentCreator!.creatorContract, CreatorContract.abi).connect(
       context.library!.getSigner()
     );
+
     if (uploadEncrypted && currentCreator !== undefined) {
       web3utils.setIsWaiting('Encrypting the file...');
       let zipBlobFile;
@@ -112,10 +114,8 @@ const Upload = () => {
     } else {
       web3utils.setIsWaiting('Uploading content to Arweave...');
       const formData = new FormData();
-
       const buf = await file.arrayBuffer();
       let bytes = new Uint8Array(buf);
-
       formData.append(
         'file',
         new Blob([bytes], {
@@ -127,6 +127,7 @@ const Upload = () => {
         body: formData,
       });
     }
+
     response
       .text()
       .then(async function (arweave_id) {
@@ -139,6 +140,7 @@ const Upload = () => {
         };
         const NFTMetadata = {
           description: description,
+          subscribersDescription,
           name: fileName,
           image: ARWEAVE_GATEWAY + arweave_id,
         };
@@ -181,6 +183,60 @@ const Upload = () => {
         web3utils.setIsWaiting(false);
       });
   }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function encryptDescription(text: string){
+    if(!currentCreator) return;
+
+    // Encrypting subscribers tags on description text
+    const regex = /<p class="subscribersText">(.*?)<\/p>/gmi
+    const matches = text.match(regex);
+
+    if(matches){
+      const toEncrypt = JSON.stringify(matches);
+      const toNotEncrypt = text.replace(regex, '<p class="subscribersText" />');
+
+      const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+      const subConditions = [
+        {
+          contractAddress: currentCreator.creatorContract,
+          standardContractType: 'Creaton',
+          chain: 'mumbai',
+          method: 'subscribers',
+          parameters: [':userAddress'],
+          returnValueTest: {
+            comparator: '=',
+            value: 'true',
+          },
+        },
+      ];
+
+      const {zipBlob, encryptedSymmetricKey} = await LitJsSdk.encryptFileAndZipWithMetadata({
+        authSig,
+        accessControlConditions: subConditions,
+        chain: 'mumbai',
+        file: new Blob([toEncrypt], {
+          type: 'application/json',
+        }),
+        litNodeClient: litNode,
+        readme: 'test',
+      });
+
+      const encryptedText: string = await blobToBase64(zipBlob) as string;
+
+      text = toNotEncrypt + '<p class="encryptedText">'+(encryptedText)+'</p>';
+    }
+
+    setDescription(text);
+  }
+
 
   async function uploadChunks() {
     const playlistData = ffmpeg.FS('readFile', 'output.m3u8');
@@ -282,7 +338,7 @@ const Upload = () => {
       }
       upload(currentFile, type);
     } else {
-      //upload((new TextEncoder()).encode(""), "text");
+      upload(new File([""], "text"), "text");
     }
   }
 
@@ -324,6 +380,7 @@ const Upload = () => {
             init={{
               height: 500,
               menubar: false,
+              external_plugins: {subscribers: '/tinymce.subscribers.js'},
               plugins: [
                 'advlist autolink lists link image',
                 'charmap print preview anchor help',
@@ -331,11 +388,14 @@ const Upload = () => {
                 'insertdatetime media table paste wordcount',
               ],
               toolbar:
-                'undo redo | formatselect | bold italic | \
+                'subscribersElementButton | undo redo | formatselect | bold italic | \
                 alignleft aligncenter alignright | \
                 bullist numlist outdent indent | help',
+              extended_valid_elements: "subscribers",
+              custom_elements: "subscribers",
+              content_css: "tinymce.css"
             }}
-            onChange={(e) => setDescription(e.target.getContent())}
+            onChange={(e) => encryptDescription(e.target.getContent())}
             onInit={(e) => setEditorInit(true)}
           />
         </div>

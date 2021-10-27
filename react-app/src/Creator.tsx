@@ -434,6 +434,7 @@ export function Creator() {
           onHide={() => {
             hide(content.tokenId, !content.hide);
           }}
+          canDecrypt={canDecrypt}
           // reactionErc20Available={reactionErc20Available}
           // reactionErc20Symbol={reactionErc20Symbol}
           //onReact={(amount, callback) => { react(content, amount, callback) }}
