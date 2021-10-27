@@ -1,15 +1,14 @@
 const func = async function (hre) {
-  /*
-  const CreatorBeacon = await ethers.getContractFactory('CreatonBeacon');
-  console.log('Preparing Upgrade...');
-
-  const implementationContract = await deploy('CreatorV1', {
-    from: admin,
-    log: true,
-  });
-
-  CreatorBeacon.upgradeTo(implementationContract.address);
-*/
+  // let {admin} = await hre.getNamedAccounts();
+  // const CreatorBeacon = await ethers.getContractFactory('CreatorBeacon');
+  // console.log('Preparing Upgrade...' + admin);
+  // const {deploy} = deployments;
+  // const implementationContract = await deploy('CreatorV1', {
+  //   from: admin,
+  //   log: true,
+  // });
+  // console.log('Upgrading...');
+  // CreatorBeacon.upgradeTo(implementationContract.address);
 };
 
 module.exports = func;

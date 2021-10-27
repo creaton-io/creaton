@@ -46,12 +46,12 @@ def update_contracts_mumbai():
         if name == 'network':
             continue
         contracts_info[name] = {'abi': contract['abi'], 'address': contract['address']}  # remove all extra info
-    REACT_CONTRACT_PATH = Path('react-app/src/contracts-mumbai.json')
+    REACT_CONTRACT_PATH = Path('react-app/src/contracts-staging-mumbai.json')
     json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
     print(f'Updated {REACT_CONTRACT_PATH}')
     update_subgraph(creaton_admin, creator, network)
 
-def update_contracts():
+def update_contracts_dev():
     BASE_PATH = Path('contracts/deployments')
     #networks = list(os.listdir(BASE_PATH))
     #network = prompt([
@@ -73,12 +73,52 @@ def update_contracts():
     ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
     #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
-    paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
+    #paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
     #staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
     #token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
-    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator,
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator
                       #'TwitterVerification': twitter,
-                      'Paymaster': paymaster
+                      #'Paymaster': paymaster
+                      #'CreatonStaking': staking,
+                      #'CreatonToken': token
+                      }
+    for name, contract in contracts_info.items():
+        if name == 'network':
+            continue
+        contracts_info[name] = {'abi': contract['abi'], 'address': contract['address']}  # remove all extra info
+    REACT_CONTRACT_PATH = Path('react-app/src/contracts-dev-mumbai.json')
+    json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
+    print(f'Updated {REACT_CONTRACT_PATH}')
+    update_subgraph(creaton_admin, creator, network)
+
+def update_contracts():
+    BASE_PATH = Path('contracts/deployments')
+    #networks = list(os.listdir(BASE_PATH))
+    #network = prompt([
+    #    {
+    #        'type': 'list',
+    #        'name': 'network',
+    #        'message': 'Which network?',
+    #        'choices': networks
+    #    },
+    #])['network']
+    network = 'matic'
+    creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
+    creaton_admin['address'] = prompt([
+        {
+            'type': 'input',
+            'name': 'address',
+            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+        },
+    ])['address']
+    creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
+    #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
+    #paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
+    #staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
+    #token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator
+                      #'TwitterVerification': twitter,
+                      #'Paymaster': paymaster
                       #'CreatonStaking': staking,
                       #'CreatonToken': token
                       }
@@ -134,14 +174,22 @@ def update_subgraph(creaton_admin, creator, network):
 
 def deploy_contracts_mumbai():
     run_command('npm run mumbai:contracts')
+    if yesno('Update the contract addresses in staging subgraph and staging react?'):
+        return update_contracts_mumbai()
+    if yesno('Update the contract addresses in dev subgraph and dev react?'):
+        return update_contracts_dev()
+
+def upgrade_creator_mumbai():
+    run_command('npm run mumbai:upgradecreator')
     if yesno('Update the contract addresses in subgraph and react?'):
         return update_contracts_mumbai()
+    if yesno('Update the contract addresses in dev subgraph and dev react?'):
+        return update_contracts_dev()
 
 def deploy_contracts():
     run_command('npm run matic:contracts')
     if yesno('Update the contract addresses in subgraph and react?'):
         return update_contracts()
-
 
 def main():
     question = [
@@ -157,7 +205,8 @@ def main():
                 'deploy contracts',
                 'deploy contracts mumbai testnet',
                 'update contracts',
-                'update contracts mumbai testnet',
+                'update contracts staging mumbai testnet',
+                'update contracts dev mumbai testnet',
                 'run subgraph docker',
                 'upgrade Creator Beacon'
             ]
@@ -174,15 +223,17 @@ def main():
     if subproject == 'update contracts':
         return update_contracts()
 
-    if subproject == 'update contracts mumbai testnet':
+    if subproject == 'update contracts staging mumbai testnet':
         return update_contracts_mumbai()
+
+    if subproject == 'update contracts dev mumbai testnet':
+        return update_contracts_dev()
+
+    if subproject == 'upgrade Creator Beacon':
+        return upgrade_creator_mumbai()
 
     if subproject == 'run subgraph docker':
         run_command('cd subgraph && docker-compose up')
-        return
-
-    if subproject == 'upgrade Creator Beacon':
-        run_command('cd umbral-server && docker-compose up')
         return
 
     json_config = json.load(open(Path(subproject) / 'package.json'))

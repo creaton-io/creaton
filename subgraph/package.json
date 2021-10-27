@@ -4,11 +4,13 @@
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
-    "deploy": "graph deploy --access-token 2ff9c5bb004b4e7e9f1c256049b8623a --node https://api.thegraph.com/deploy/ creaton-io/mumbai",
+    "deploy": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/creaton-polygon",
+    "deploy-staging": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/mumbai",
+    "deploy-dev": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/creaton-dev",
     "deploy-goerli": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ creaton-io/creaton-goerli",
-    "create-staging": "graph create --node http://twitter.creaton.io:8020/ creaton-io/creaton",
-    "remove-staging": "graph remove --node http://twitter.creaton.io:8020/ creaton-io/creaton",
-    "deploy-staging": "graph deploy --node http://twitter.creaton.io:8020/ --ipfs http://twitter.creaton.io:5001 creaton-io/creaton",
+    "create-stagingserver": "graph create --node http://twitter.creaton.io:8020/ creaton-io/creaton",
+    "remove-stagingserver": "graph remove --node http://twitter.creaton.io:8020/ creaton-io/creaton",
+    "deploy-stagingserver": "graph deploy --node http://twitter.creaton.io:8020/ --ipfs http://twitter.creaton.io:5001 creaton-io/creaton",
     "create-local": "graph create --node http://localhost:8020/ creaton-io/creaton",
     "remove-local": "graph remove --node http://localhost:8020/ creaton-io/creaton",
     "deploy-local": "graph deploy --node http://localhost:8020/ --ipfs http://localhost:5001 creaton-io/creaton"

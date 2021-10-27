@@ -251,11 +251,6 @@
         "internalType": "address",
         "name": "_trustedForwarder",
         "type": "address"
-      },
-      {
-        "internalType": "address payable",
-        "name": "_paymaster",
-        "type": "address"
       }
     ],
     "name": "initialize",
@@ -288,19 +283,6 @@
     "outputs": [
       {
         "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "paymaster",
-    "outputs": [
-      {
-        "internalType": "address payable",
         "name": "",
         "type": "address"
       }

@@ -1,0 +1,124 @@
+{
+  "_from": "@biconomy/mexa@2.0.20",
+  "_id": "@biconomy/mexa@2.0.20",
+  "_inBundle": false,
+  "_integrity": "sha512-nYPFTzhboE9tHKSdwAIRvvt/i4O28CUMwaHuB9uZETbkvw95I+DZ7eGPPgUp3kdByTHQ3Lnl2ecF8CU5jMhc6A==",
+  "_location": "/@biconomy/mexa",
+  "_phantomChildren": {
+    "@babel/helper-get-function-arity": "7.15.4",
+    "@babel/helper-hoist-variables": "7.15.4",
+    "@babel/helper-validator-identifier": "7.15.7",
+    "@babel/highlight": "7.14.5",
+    "@ethersproject/abstract-provider": "5.4.1",
+    "@ethersproject/abstract-signer": "5.4.1",
+    "@ethersproject/address": "5.4.0",
+    "@ethersproject/base64": "5.4.0",
+    "@ethersproject/basex": "5.4.0",
+    "@ethersproject/bignumber": "5.4.2",
+    "@ethersproject/bytes": "5.4.0",
+    "@ethersproject/constants": "5.4.0",
+    "@ethersproject/contracts": "5.4.1",
+    "@ethersproject/hash": "5.4.0",
+    "@ethersproject/hdnode": "5.4.0",
+    "@ethersproject/json-wallets": "5.4.0",
+    "@ethersproject/keccak256": "5.4.0",
+    "@ethersproject/logger": "5.4.1",
+    "@ethersproject/networks": "5.4.2",
+    "@ethersproject/pbkdf2": "5.4.0",
+    "@ethersproject/properties": "5.4.1",
+    "@ethersproject/random": "5.4.0",
+    "@ethersproject/rlp": "5.4.0",
+    "@ethersproject/sha2": "5.4.0",
+    "@ethersproject/signing-key": "5.4.0",
+    "@ethersproject/solidity": "5.4.0",
+    "@ethersproject/strings": "5.4.0",
+    "@ethersproject/wallet": "5.4.0",
+    "@ethersproject/web": "5.4.0",
+    "@ethersproject/wordlists": "5.4.0",
+    "bech32": "1.1.4",
+    "convert-source-map": "1.7.0",
+    "debug": "4.3.1",
+    "escalade": "3.1.1",
+    "gensync": "1.0.0-beta.2",
+    "globals": "11.12.0",
+    "jsesc": "2.5.2",
+    "json5": "2.2.0",
+    "regenerator-runtime": "0.13.9",
+    "semver": "6.3.0",
+    "to-fast-properties": "2.0.0"
+  },
+  "_requested": {
+    "type": "version",
+    "registry": true,
+    "raw": "@biconomy/mexa@2.0.20",
+    "name": "@biconomy/mexa",
+    "escapedName": "@biconomy%2fmexa",
+    "scope": "@biconomy",
+    "rawSpec": "2.0.20",
+    "saveSpec": null,
+    "fetchSpec": "2.0.20"
+  },
+  "_requiredBy": [
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/@biconomy/mexa/-/mexa-2.0.20.tgz",
+  "_shasum": "c2005120ffdb015d0d1d29de6c34786fedbcf347",
+  "_spec": "@biconomy/mexa@2.0.20",
+  "_where": "D:\\Applications\\creaton\\react-app",
+  "author": {
+    "name": "Sachin Tomar"
+  },
+  "bugs": {
+    "url": "https://github.com/bcnmy/mexa-sdk/issues"
+  },
+  "bundleDependencies": false,
+  "dependencies": {
+    "@babel/core": "^7.12.13",
+    "@babel/runtime": "^7.12.13",
+    "abi-decoder": "^2.2.2",
+    "cross-fetch": "^3.1.4",
+    "ethereum-tx-decoder": "^3.0.0",
+    "ethereumjs-abi": "^0.6.8",
+    "ethers": "^5.0.24",
+    "events": "^3.0.0",
+    "promise": "^8.0.3"
+  },
+  "deprecated": false,
+  "description": "Mexa SDK to enable meta transaction in your DApps",
+  "devDependencies": {
+    "@babel/cli": "^7.12.13",
+    "@babel/plugin-transform-classes": "^7.12.13",
+    "@babel/plugin-transform-runtime": "^7.12.15",
+    "@babel/preset-env": "^7.12.13",
+    "babel-preset-env": "^1.7.0",
+    "browserify": "^16.5.0"
+  },
+  "engines": {
+    "node": ">=10.22.0"
+  },
+  "files": [
+    "*.js",
+    "/dist/*.js"
+  ],
+  "homepage": "https://github.com/bcnmy/mexa-sdk#readme",
+  "keywords": [
+    "mexa",
+    "sdk",
+    "meta-transactions",
+    "gasless",
+    "transactions"
+  ],
+  "license": "ISC",
+  "main": "common-js/index.js",
+  "name": "@biconomy/mexa",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bcnmy/mexa-sdk.git"
+  },
+  "scripts": {
+    "build": "browserify ./common-js/Biconomy.js -o ./dist/mexa.js -s Biconomy -d",
+    "build:babel": "babel src -d common-js && npm run build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "2.0.20"
+}

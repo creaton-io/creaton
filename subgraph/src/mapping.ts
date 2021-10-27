@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate} from '../generated/CreatonAdmin/CreatonAdmin';
 import {Content, Creator, Profile, Subscriber} from '../generated/schema';
-import {SubscriberEvent, PostContract, NewPost} from '../generated/templates/Creator/Creator';
+import {SubscriberEvent, PostContract, NewPost, HidePost} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
 import {DataSourceContext, dataSource, json, Bytes, log} from '@graphprotocol/graph-ts';
 
@@ -86,6 +86,7 @@ export function handleNewPost(event: NewPost): void {
   entity.ipfs = ipfs;
   entity.tokenId = tokenId;
   entity.tier = event.params.contentType;
+  entity.hide = false;
   entity.save();
 }
 
@@ -97,6 +98,16 @@ export function handleProfileUpdate(event: ProfileUpdate): void {
   }
   entity.address = event.params.user;
   entity.data = event.params.jsonData;
+  entity.save();
+}
+
+export function handleHidePost(event: HidePost): void {
+  let context = dataSource.context();
+  let creator_contract = context.getBytes('contract');
+  let tokenId = event.params.tokenId;
+  let id = creator_contract.toHex() + '-' + tokenId.toString();
+  let entity = Content.load(id);
+  entity.hide = event.params.hide;
   entity.save();
 }
 

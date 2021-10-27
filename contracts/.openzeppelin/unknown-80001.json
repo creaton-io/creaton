@@ -180,6 +180,41 @@
       "address": "0x9AF8d7C5F8A0b6b759DF2a44f379B611849593cb",
       "txHash": "0x3e72c1740fafcacb2a6c5d4ba151bcfea889d3aed61afd314092ad8c99313b21",
       "kind": "uups"
+    },
+    {
+      "address": "0xE53d371f11c248A91e4A985EFB951B29b0bDE878",
+      "txHash": "0xf0ca5de67ad561423de2dcc30bd1f65a8546ea7d602d90e6998fc06d8ac47273",
+      "kind": "uups"
+    },
+    {
+      "address": "0x4A3CC41935da45640A95367Cc2f2754e91527cEA",
+      "txHash": "0x44a227965bb7567b9d3faf4d527ad4c6a5c09d76e7680581d699c4833e205dee",
+      "kind": "uups"
+    },
+    {
+      "address": "0x88cb25783F2680e287171022F06d8830dE503e72",
+      "txHash": "0xcd053d025b81f9a5470f5a9dbcbe98104eeaa130a8dd942c671db6b433062c02",
+      "kind": "uups"
+    },
+    {
+      "address": "0x31686C9681bBB4A4204CA4AFC8734a913AC798f7",
+      "txHash": "0xa81a14b9d98e1f86febe6df283242dadd8e3284cf62f54069c222c5f89e59f9b",
+      "kind": "uups"
+    },
+    {
+      "address": "0xe4de38f1F6b6A204A8e0ad1976eB41Bad1B5915B",
+      "txHash": "0x17450e28e95270a90caa6b98314f01e1ce425af9b8787569632989526c3e02cb",
+      "kind": "uups"
+    },
+    {
+      "address": "0x5424b5eE0E9dB96DD1eD71e4D2720fA415BD6469",
+      "txHash": "0x48785d00b8778a1d5cb6d70681365ff4dfe53a43ff07e8c64a1158587c37c012",
+      "kind": "uups"
+    },
+    {
+      "address": "0xF37f671E79fC56d8ddF6D7600Dc20bFc262eA52c",
+      "txHash": "0x8f5296e3a3e6d35fafae8407edb29ce620736c6efc204d9f85aaca4d0a3bdf7a",
+      "kind": "uups"
     }
   ],
   "impls": {
@@ -1448,6 +1483,142 @@
           },
           "t_address_payable": {
             "label": "address payable"
+          }
+        }
+      }
+    },
+    "ffdb6f2b1cf2be9cc9847dd70685ab8d8972ec0be0161c1eedd657d424c6a741": {
+      "address": "0x943ea665476A3D8bF1D6f54127cc5090A2335939",
+      "txHash": "0x62f4b412cf3c7703a5410b9ee6a0c1953102a69ff5227589ed08a9b5e8a5383b",
+      "layout": {
+        "storage": [
+          {
+            "contract": "Initializable",
+            "label": "_initialized",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:21"
+          },
+          {
+            "contract": "Initializable",
+            "label": "_initializing",
+            "type": "t_bool",
+            "src": "@openzeppelin\\contracts\\proxy\\utils\\Initializable.sol:26"
+          },
+          {
+            "contract": "BaseRelayRecipient",
+            "label": "trustedForwarder",
+            "type": "t_address",
+            "src": "src\\dependency\\gsn\\BaseRelayRecipient.sol:15"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "owner",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:33"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creator2contract",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:35"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "contract2creator",
+            "type": "t_mapping(t_address,t_address)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:36"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "registeredUsers",
+            "type": "t_mapping(t_address,t_bool)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:37"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "user2twitter",
+            "type": "t_mapping(t_address,t_string_storage)",
+            "src": "src\\creaton\\CreatonAdminV1.sol:38"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_host",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:40"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_cfa",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:41"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "_acceptedToken",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:42"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "superFluid",
+            "type": "t_contract(ISuperfluid)10200",
+            "src": "src\\creaton\\CreatonAdminV1.sol:44"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasury",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:46"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "treasuryFee",
+            "type": "t_int96",
+            "src": "src\\creaton\\CreatonAdminV1.sol:47"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "creatorBeacon",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:49"
+          },
+          {
+            "contract": "CreatonAdmin",
+            "label": "nftFactory",
+            "type": "t_address",
+            "src": "src\\creaton\\CreatonAdminV1.sol:50"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)"
+          },
+          "t_bool": {
+            "label": "bool"
+          },
+          "t_mapping(t_address,t_string_storage)": {
+            "label": "mapping(address => string)"
+          },
+          "t_string_storage": {
+            "label": "string"
+          },
+          "t_contract(ISuperfluid)10200": {
+            "label": "contract ISuperfluid"
+          },
+          "t_int96": {
+            "label": "int96"
           }
         }
       }

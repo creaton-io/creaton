@@ -108,8 +108,9 @@ const ProfileEdit = (props) => {
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }
+    const {library} = web3Context;
     console.log(payload)
-    const connectedContract = creatorFactoryContract.connect(biconomyProvider.getSignerByAddress(web3Context.account))
+    const connectedContract = creatorFactoryContract.connect(library!.getSigner())
     console.log("connectedcontract", connectedContract.address)
     let result
     try {
@@ -128,7 +129,7 @@ const ProfileEdit = (props) => {
     refetch()
   }
 
-  if (!biconomyProvider)
+  if (!web3Context.library)
     return (<div>Connect your wallet</div>)
 
   return (
