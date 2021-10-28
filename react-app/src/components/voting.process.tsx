@@ -37,10 +37,8 @@ export const VotingProcess: FC<VotingProcessProps> = ({ process, voting }) => {
             const preDecimals = await erc20Contract.decimals();
             const decimals = ethers.BigNumber.from(10).pow(preDecimals);
             const votingAmount = ethers.BigNumber.from(amount).mul(decimals);
-            
-            console.log('...AAANDERE WE ARE AGAIN', userAddress, process.contract);
-            const allowance = await erc20Contract.allowance(userAddress, process.contract);
 
+            const allowance = await erc20Contract.allowance(userAddress, process.contract);
             if(votingAmount.gt(allowance)){
               let tx = await erc20Contract.approve(process.contract, votingAmount);
               await tx.wait();
@@ -65,7 +63,6 @@ export const VotingProcess: FC<VotingProcessProps> = ({ process, voting }) => {
         }
     }
 
-    console.log(process);
     return (
         <div className="mb-5 z-0">
             <div className="flex flex-col rounded-2xl border border-opacity-10 bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
