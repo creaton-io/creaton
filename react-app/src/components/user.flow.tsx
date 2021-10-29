@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from "../web3-react/core";
 import { ethers } from "ethers";
 import { FC, useEffect, useRef, useState } from "react";
 import creaton_contracts from "../Contracts";

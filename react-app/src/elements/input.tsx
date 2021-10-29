@@ -21,17 +21,18 @@ export const Input: FC<InputProps> = ({ className, invalid = false, type= 'text'
     return (
         <div className="mb-4">
             <div className="flex items-center mb-1">
-            {label !== "" 
-        ? 
-        <label className="block font-semibold mr-1.5">{label}</label>
-            :  <p>No Lbael</p>
-        }
-     {
-        tooltip && tooltip.length ? <Tooltip content={<div>{tooltip}</div>} hover>
-            <Icon name="question-circle" className="text-gray-500 " />
-        </Tooltip> : null
-        }
-
+                {label !== "" ? 
+                    <label className="block font-semibold mr-1.5">{label}</label>
+                    :  
+                    <p>No Label</p>
+                }
+                { tooltip && tooltip.length ? 
+                    <Tooltip content={<div>{tooltip}</div>} hover>
+                        <Icon name="question-circle" className="text-gray-500 " />
+                    </Tooltip>
+                    : 
+                    null
+                }
             </div>
     
             <input className={clsx(
