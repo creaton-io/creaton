@@ -182,7 +182,7 @@ contract CreatorCollections is Ownable, Pausable {
     @dev returns the address of a newer version of this contract
     @return newerVersionOfContract, the address of the newer contract.
      */
-    function getNewerContract() public returns (address) {
+    function getNewerContract() public view returns (address) {
         return newerVersionOfContract;
     }
 
