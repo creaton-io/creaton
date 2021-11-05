@@ -5,6 +5,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, ContractFactory } from "ethers";
 import { Test } from "mocha";
 
+//"0x0000014d00000000000000000000000000000000000000000000000000000000" For every $1.00 tipped.
+
 
 describe('Market Points Tipping', function(){
     let artistAccount: SignerWithAddress;
@@ -50,16 +52,26 @@ describe('Market Points Tipping', function(){
     it("test that next level works correctly", async function(){
         await testingToken.connect(tippingAccount).faucet();
         //should be set to level the user every $1 they tip!
-        await marketPoints.connect(artistAccount).setArtistLevels("0x00010000000000000000000000000000"); 
+        await marketPoints.connect(artistAccount).setArtistLevels("0x0000014d00000000000000000000000000000000000000000000000000000000"); 
         console.log("the next line is the tipping accounts level");
 
-        console.log(await marketPoints.getPointsForLevel(artistAccount.address, 1));
-        console.log(await marketPoints.getPointsForLevel(artistAccount.address, 100));
+        // console.log(await marketPoints.getPointsForLevel(artistAccount.address, 1));
+        // console.log(await marketPoints.getPointsForLevel(artistAccount.address, 100));
         expect(await marketPoints.getLevel(artistAccount.address, tippingAccount.address)).to.equal(0);
 
         await testingToken.connect(tippingAccount).approve(marketPoints.address, ethers.utils.parseEther("1"));
         
         await marketPoints.connect(tippingAccount).tipArtist(artistAccount.address, ethers.utils.parseEther("1"));
+        expect( await marketPoints.getLevel(artistAccount.address, tippingAccount.address)).to.equal(1);
+        expect (await marketPoints.getCurrentLevel(artistAccount.address, tippingAccount.address)).to.equal(0);
+        
+        console.log("currently at points " + await marketPoints.getCurrentPoints(artistAccount.address, tippingAccount.address));
+        
+        await marketPoints.connect(tippingAccount).levelUp(artistAccount.address);
+        await marketPoints.connect(tippingAccount).levelUp(artistAccount.address);
+        
+        //should be at level 3. give or take the math truncation.
+        expect (await marketPoints.getCurrentLevel(artistAccount.address, tippingAccount.address)).to.equal(1);
 
     });
     
