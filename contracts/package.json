@@ -72,7 +72,7 @@
     "mainnet:deploy": "hardhat --network mainnet deploy",
     "mainnet:export": "hardhat --network mainnet export",
     "matic:deploy": "hardhat --network matic deploy",
-    "matic:verify": "npx hardhat verify --network matic 0xb495304aed0a7366c5ee11db500a4eb3189cbc32",
+    "matic:verify": "npx hardhat verify --network matic 0xA69686876F6865bfdE38a7DDA6829b44cD2B6266",
     "rinkeby:run": "cross-env HARDHAT_NETWORK=rinkeby ts-node --files",
     "hardhat": "hardhat"
   },

@@ -647,7 +647,7 @@ function CreatorHome() {
   } else
     return (
       <Link
-        to="/subscribers/"
+        to="/signup/"
         className="border-transparent text-purple-500 hover:text-purple-700 hover:border-purple-300 w-1/5 py-4 px-1 text-center border-b-2 font-medium text-sm"
       >
         <svg
