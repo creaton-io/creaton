@@ -6,7 +6,7 @@ import {Contract} from 'ethers';
 import creaton_contracts from './Contracts';
 import {NotificationHandlerContext} from './ErrorHandler';
 import {LitContext, LitProvider} from './LitProvider';
-import {createFFmpeg, fetchFile} from './assets/ffmpeg/src';
+import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
 import {Base64} from 'js-base64';
 import {Button} from './elements/button';
 import {Input} from './elements/input';
@@ -46,12 +46,13 @@ const Upload = () => {
   const [editorInit, setEditorInit] = useState<boolean>(false);
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   useEffect(() => {
-    // if (ffmpeg === undefined) {
-    //   const _ffmpeg = createFFmpeg({corePath: 'http://localhost:3000/ffmpeg-core.js', log: true})
-    //   _ffmpeg.load().then(() => {
-    //     setffmpeg(_ffmpeg)
-    //   })
-    // }
+    ;(async () => {
+      if (ffmpeg === undefined) {
+        const _ffmpeg = createFFmpeg({corePath: '/ffmpeg-core.js', log: true})
+        await _ffmpeg.load();
+        setffmpeg(_ffmpeg);
+      }
+    })()
   }, [ffmpeg]);
 
   const {loading, error, currentCreator} = useCurrentCreator();

@@ -18,6 +18,8 @@
     "@ethereumjs/tx": "^3.3.1",
     "@ethersproject/providers": "^5.4.5",
     "@ethersproject/units": "^5.4.0",
+    "@ffmpeg/core": "^0.10.0",
+    "@ffmpeg/ffmpeg": "^0.10.1",
     "@heroicons/react": "^1.0.4",
     "@lottiefiles/react-lottie-player": "^3.4.1",
     "@opengsn/common": "^2.2.2",
