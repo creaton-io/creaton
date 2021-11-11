@@ -7,6 +7,7 @@ import "hardhat/console.sol";
 
 contract MarketPoints is Ownable {
     // using safeMath for uint256;
+
     //keeping track of the points on the site, this is for internal uses mostly
     mapping(address => uint256) private _siteWidePoints; //address of the user => points the user has for the entire site.
     mapping(address => uint256) private _siteWideLevel; //address of the user => level the user has for the entire site.
@@ -23,6 +24,15 @@ contract MarketPoints is Ownable {
         token = _tokenAddress;
     }
 
+    address NFTLanceAddress;
+    function setFanServiceAddress(address _NFTLanceAddress) public onlyOwner{
+        NFTLanceAddress = _NFTLanceAddress;
+    }
+    modifier onlyFanService{
+        require(msg.sender == NFTLanceAddress);
+        _;
+    }
+
     /**
      * @dev tips the artist the given amount and gives the user points.
      * @param artist the address of the artist
@@ -34,6 +44,7 @@ contract MarketPoints is Ownable {
             // console.log(uint256(uint128((amount/(5000000000000000)))));
 
             //the amount tipped is converted to cents, then divided by 3, just kinda makes it feel more random.
+            //hard coded to improve performance.
             _userPoints[artist][_msgSender()] += int128(uint128(amount/(3000000000000000)));
         }
     }
@@ -86,9 +97,9 @@ contract MarketPoints is Ownable {
             pointsForLevel += power * nextLevelModified;
             nextLevelModified*=level;//basically just raise it to another power.
         }
-        console.log(uint256(uint128(level)));
-        console.log(uint256(uint128(pointsForLevel)));
-        console.log();
+        // console.log(uint256(uint128(level)));
+        // console.log(uint256(uint128(pointsForLevel)));
+        // console.log();
         return pointsForLevel;
     }
 
@@ -113,6 +124,10 @@ contract MarketPoints is Ownable {
             return true;
         }
         return false;
+    }
+
+    function canLevelUp(address creator, address user) public view returns (bool){
+        return getPointsForLevel(creator, _userLevel[creator][user]+1)<=int128(_userPoints[creator][user]);
     }
 
 

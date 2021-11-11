@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "hardhat/console.sol";
 import "./FanCollectible.sol";
+import "../MarketPoints.sol";
 
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
@@ -73,6 +74,10 @@ contract CreatorCollections is Ownable, Pausable {
     ) {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
+    }
+    MarketPoints public marketPoints;
+    function setMarketPoints(MarketPoints _marketPoints) public onlyOwner {
+        marketPoints = _marketPoints;
     }
     
     function purchase(uint256 _catalogID, uint256 _cardID)
