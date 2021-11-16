@@ -1,4 +1,4 @@
-import { expect } from "./chai-setup";
+import { expect } from "chai";
 import { ethers,deployments } from "hardhat";
 import { Contract } from "@ethersproject/contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
@@ -163,8 +163,7 @@ describe('Leveling by tipping', function(){
         await levelToMax(artistAccount.address, tippingAccount, marketPoints);
         
         expect (await marketPoints.getCurrentLevel(artistAccount.address, tippingAccount.address)).to.equal(10);
-        console.log(calculateDesmosFormatting("0x0000014d00000000000000000000000000000000000000000000000000000000"));
+        console.log(calculateDesmosFormatting(calculateEquationFormatting([-10, 333])));
     });
-
 
 });
