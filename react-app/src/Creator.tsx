@@ -76,7 +76,7 @@ export function Creator() {
   const litNode = useContext(LitContext);
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
-  const context = useWeb3React<Web3Provider>();
+  const context: any = useWeb3React<Web3Provider>();
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery() {
     //updateReactions(creatorContractAddress);
@@ -302,6 +302,7 @@ export function Creator() {
     let {sf, usdc, usdcx} = await superfluid;
     let subscriber = context.account;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
+      //@ts-ignore
       context.library!.getSigner()
     );
     call = [
@@ -434,6 +435,7 @@ export function Creator() {
           onHide={() => {
             hide(content.tokenId, !content.hide);
           }}
+          canDecrypt={canDecrypt}
           // reactionErc20Available={reactionErc20Available}
           // reactionErc20Symbol={reactionErc20Symbol}
           //onReact={(amount, callback) => { react(content, amount, callback) }}
@@ -447,6 +449,7 @@ export function Creator() {
   async function subscribe() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
+      //@ts-ignore
       context.library!.getSigner()
     );
     const receipt = await creatorContract.subscribe();

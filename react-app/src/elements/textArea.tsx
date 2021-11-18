@@ -16,12 +16,14 @@ const classes = [
 
 export const Textarea: FC<TextAreaProps> = ({ className, invalid = false, label, ...attributes }) => {
     return (
-        <div>
-                  {label !== "" 
-                  ? 
-                  <label className="block font-semibold mb-1">{label}</label>
-                     :  <p>No Lbael</p>
-    }
+        <div className="mb-4">
+            <div className="flex items-center mb-1">
+                {label !== "" ? 
+                    <label className="block font-semibold mb-1">{label}</label>
+                    :
+                    <p>No Label</p>
+                }
+            </div>
             <textarea className={clsx(
                 classes,
                 className,

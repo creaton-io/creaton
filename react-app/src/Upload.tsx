@@ -6,7 +6,7 @@ import {Contract} from 'ethers';
 import creaton_contracts from './Contracts';
 import {NotificationHandlerContext} from './ErrorHandler';
 import {LitContext, LitProvider} from './LitProvider';
-import {createFFmpeg, fetchFile} from './assets/ffmpeg/src';
+import {createFFmpeg, fetchFile} from '@ffmpeg/ffmpeg';
 import {Base64} from 'js-base64';
 import {Button} from './elements/button';
 import {Input} from './elements/input';
@@ -26,11 +26,12 @@ import {Splash} from './components/splash';
 const CreatorContract = creaton_contracts.Creator;
 
 const Upload = () => {
-  const context = useWeb3React<Web3Provider>();
+  const context: any = useWeb3React<Web3Provider>();
   const web3utils = useContext(Web3UtilsContext);
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
   const [description, setDescription] = useState('');
+  const [subscribersDescription, setSubscribersDescription] = useState('');
   const [fileName, setFileName] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const handleFileSelection = (event) => {
@@ -45,12 +46,13 @@ const Upload = () => {
   const [editorInit, setEditorInit] = useState<boolean>(false);
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   useEffect(() => {
-    // if (ffmpeg === undefined) {
-    //   const _ffmpeg = createFFmpeg({corePath: 'http://localhost:3000/ffmpeg-core.js', log: true})
-    //   _ffmpeg.load().then(() => {
-    //     setffmpeg(_ffmpeg)
-    //   })
-    // }
+    (async () => {
+      if (ffmpeg === undefined) {
+        const _ffmpeg = createFFmpeg({corePath: '/ffmpeg-core.js', log: true});
+        await _ffmpeg.load();
+        setffmpeg(_ffmpeg);
+      }
+    })();
   }, [ffmpeg]);
 
   const {loading, error, currentCreator} = useCurrentCreator();
@@ -69,6 +71,7 @@ const Upload = () => {
     const creatorContract = new Contract(currentCreator!.creatorContract, CreatorContract.abi).connect(
       context.library!.getSigner()
     );
+
     if (uploadEncrypted && currentCreator !== undefined) {
       web3utils.setIsWaiting('Encrypting the file...');
       let zipBlobFile;
@@ -112,10 +115,8 @@ const Upload = () => {
     } else {
       web3utils.setIsWaiting('Uploading content to Arweave...');
       const formData = new FormData();
-
       const buf = await file.arrayBuffer();
       let bytes = new Uint8Array(buf);
-
       formData.append(
         'file',
         new Blob([bytes], {
@@ -127,6 +128,7 @@ const Upload = () => {
         body: formData,
       });
     }
+
     response
       .text()
       .then(async function (arweave_id) {
@@ -139,6 +141,7 @@ const Upload = () => {
         };
         const NFTMetadata = {
           description: description,
+          subscribersDescription,
           name: fileName,
           image: ARWEAVE_GATEWAY + arweave_id,
         };
@@ -180,6 +183,59 @@ const Upload = () => {
         notificationHandler.setNotification({description: error.toString(), type: 'error'});
         web3utils.setIsWaiting(false);
       });
+  }
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  async function encryptDescription(text: string) {
+    if (!currentCreator) return;
+
+    // Encrypting subscribers tags on description text
+    const regex = /<p class="subscribersText">(.*?)<\/p>/gim;
+    const matches = text.match(regex);
+
+    if (matches) {
+      const toEncrypt = JSON.stringify(matches);
+      const toNotEncrypt = text.replace(regex, '<p class="subscribersText" />');
+
+      const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'polygon'});
+      const subConditions = [
+        {
+          contractAddress: currentCreator.creatorContract,
+          standardContractType: 'Creaton',
+          chain: 'polygon',
+          method: 'subscribers',
+          parameters: [':userAddress'],
+          returnValueTest: {
+            comparator: '=',
+            value: 'true',
+          },
+        },
+      ];
+
+      const {zipBlob, encryptedSymmetricKey} = await LitJsSdk.encryptFileAndZipWithMetadata({
+        authSig,
+        accessControlConditions: subConditions,
+        chain: 'polygon',
+        file: new Blob([toEncrypt], {
+          type: 'application/json',
+        }),
+        litNodeClient: litNode,
+        readme: 'test',
+      });
+
+      const encryptedText: string = (await blobToBase64(zipBlob)) as string;
+
+      text = toNotEncrypt + '<p class="encryptedText">' + encryptedText + '</p>';
+    }
+
+    setDescription(text);
   }
 
   async function uploadChunks() {
@@ -282,7 +338,7 @@ const Upload = () => {
       }
       upload(currentFile, type);
     } else {
-      //upload((new TextEncoder()).encode(""), "text");
+      upload(new File([''], 'text'), 'text');
     }
   }
 
@@ -324,6 +380,7 @@ const Upload = () => {
             init={{
               height: 500,
               menubar: false,
+              external_plugins: {subscribers: '/tinymce.subscribers.js'},
               plugins: [
                 'advlist autolink lists link image',
                 'charmap print preview anchor help',
@@ -331,11 +388,14 @@ const Upload = () => {
                 'insertdatetime media table paste wordcount',
               ],
               toolbar:
-                'undo redo | formatselect | bold italic | \
+                'subscribersElementButton | undo redo | formatselect | bold italic | \
                 alignleft aligncenter alignright | \
                 bullist numlist outdent indent | help',
+              extended_valid_elements: 'subscribers',
+              custom_elements: 'subscribers',
+              content_css: 'tinymce.css',
             }}
-            onChange={(e) => setDescription(e.target.getContent())}
+            onChange={(e) => encryptDescription(e.target.getContent())}
             onInit={(e) => setEditorInit(true)}
           />
         </div>

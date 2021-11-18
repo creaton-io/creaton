@@ -45,7 +45,7 @@ function Creators() {
       title: creator.profile !== null ? JSON.parse(creator.profile.data).username : creator.id.slice(0, 6),
       //subtitle: subtitle,
       description: creator.description,
-      count: creator.subscribers.length,
+      count: creator.subscribers.length - 1,
       source: 'subscribers',
       url: '/creator/' + creator.creatorContract,
       creatorAddress: creator.id,

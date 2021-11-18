@@ -6,7 +6,9 @@ let APOLLO_URI,
   CREATE_TOKEN_ADDRESS,
   GOVERNANCE_SQUAD_TOKENS,
   BICONOMY_API,
-  BICONOMY_AUTH;
+  BICONOMY_AUTH,
+  VOTING_GRAPHQL_URI,
+  CREATOR_VOTING_ADDRESS;
 const ARWEAVE_GATEWAY = 'https://arweave.net/';
 const REPORT_URI = 'https://report.creaton.io/report';
 const ARWEAVE_URI = 'https://arweave.creaton.io';
@@ -68,4 +70,6 @@ export {
   GOVERNANCE_SQUAD_TOKENS,
   BICONOMY_API,
   BICONOMY_AUTH,
+  VOTING_GRAPHQL_URI,
+  CREATOR_VOTING_ADDRESS,
 };

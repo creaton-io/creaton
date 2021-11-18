@@ -155,7 +155,7 @@ const config: HardhatUserConfig = {
     },
     mumbai: {
       url: 'https://matic-mumbai.p2pify.com',
-      accounts,
+      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : "remote",
     },
     matic: {
       url: 'https://matic-mainnet--jsonrpc.datahub.figment.io/apikey/0ae5f13919ed451371d1e07481351f70',

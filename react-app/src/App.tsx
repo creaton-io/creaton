@@ -35,6 +35,7 @@ import {Icon} from './icons';
 import Tooltip from './elements/tooltip';
 import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import {CreatorVoting} from './CreatorVoting';
 
 initFontAwesome();
 
@@ -798,7 +799,7 @@ const App = () => {
                                 </div>
                               </div>
                             )}
-                            <ChainIdChecker />
+                            {/* <ChainIdChecker /> */}
                             <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
                               <Switch>
                                 <Route exact path="/">
@@ -829,6 +830,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/governance">
                                   <Governance />
+                                </Route>
+                                <Route path="/creator-voting">
+                                  <CreatorVoting />
                                 </Route>
                               </Switch>
                             </div>
