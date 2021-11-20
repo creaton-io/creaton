@@ -22,6 +22,8 @@ import LitJsSdk from 'lit-js-sdk';
 import {ExecutableDefinitionsRule} from 'graphql';
 import {Editor} from '@tinymce/tinymce-react';
 import {Splash} from './components/splash';
+import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
+import {FAUCET_URI} from './Config';
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -45,6 +47,25 @@ const Upload = () => {
   const [ffmpeg, setffmpeg] = useState<any>(undefined);
   const [editorInit, setEditorInit] = useState<boolean>(false);
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
+
+  const CONTRACT_INFO_QUERY = gql`
+    query GET_CONTRACT($user: Bytes!) {
+      creators(where: {user: $user}) {
+        id
+        user
+        creatorContract
+        description
+        subscriptionPrice
+        timestamp
+        profile {
+          data
+        }
+      }
+    }
+  `;
+
+  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {user: context.account}});
+
   useEffect(() => {
     (async () => {
       if (ffmpeg === undefined) {
@@ -67,6 +88,12 @@ const Upload = () => {
   if (!litNode) return <div>Lit Node not loaded yet</div>;
 
   async function upload(file: File, file_type: string) {
+    let faucet = await fetch(FAUCET_URI + '?address=' + contractQuery.data.creators[0].creatorContract);
+
+    if (faucet.ok) {
+      console.log('creator contract activated');
+    }
+
     let response;
     const creatorContract = new Contract(currentCreator!.creatorContract, CreatorContract.abi).connect(
       context.library!.getSigner()
