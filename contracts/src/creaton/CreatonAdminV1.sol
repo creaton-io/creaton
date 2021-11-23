@@ -26,6 +26,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice);
     event NewSubscriber(address user, uint256 amount);
     event ProfileUpdate(address user, string jsonData);
+    event ReactionFactoryDeployed(address factoryContractAddress);
 
     // -----------------------------------------
     // Storage
@@ -48,6 +49,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
 
     address public creatorBeacon;
     address public override nftFactory;
+    address public reactionFactory;
 
     // -----------------------------------------
     // Constructor
@@ -61,7 +63,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         int96 _treasuryFee,
         address _creatorBeacon,
         address _nftFactory,
-        address _trustedForwarder
+        address _trustedForwarder,
+        address _reactionFactory
     ) public payable initializer {
         owner = msg.sender;
 
@@ -82,6 +85,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         nftFactory = _nftFactory;
 
         trustedForwarder = _trustedForwarder;
+
+        reactionFactory = _reactionFactory;
     }
 
     // -----------------------------------------

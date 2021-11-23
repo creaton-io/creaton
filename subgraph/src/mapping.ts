@@ -1,5 +1,5 @@
 /* eslint-disable prefer-const */
-import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate} from '../generated/CreatonAdmin/CreatonAdmin';
+import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate, ReactionFactoryDeployed } from '../generated/CreatonAdmin/CreatonAdmin';
 import {Content, Creator, Profile, Subscriber} from '../generated/schema';
 import {SubscriberEvent, PostContract, NewPost, HidePost} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
@@ -8,7 +8,7 @@ import { ReactionDeployed } from "../generated/templates/ReactionFactory/Reactio
 import { Staked, Reacted, Flowed } from "../generated/templates/ReactionToken/ReactionToken";
 import { Flowing } from "../generated/templates/StakedFlow/StakedFlow";
 import { ReactionDef, Stake, Reaction, User, Flow, StakedFlow } from "../generated/schema";
-import { ReactionToken as ReactionTokenTemplate, StakedFlow as StakedFlowTemplate } from "../generated/templates";
+import { ReactionToken as ReactionTokenTemplate, StakedFlow as StakedFlowTemplate, ReactionFactory as ReactionFactoryTemplate} from "../generated/templates";
 
 // const zeroAddress = '0x0000000000000000000000000000000000000000';
 
@@ -133,6 +133,12 @@ export function handleHidePost(event: HidePost): void {
 //   entity.timestamp = event.block.timestamp;
 //   entity.save();
 // }
+
+export function handleReactionFactoryDeployed(event: ReactionFactoryDeployed): void{ 
+  let context = new DataSourceContext();
+  context.setBytes('contract', event.params.factoryContractAddress);
+  ReactionFactoryTemplate.createWithContext(event.params.factoryContractAddress, context);
+}
 
 export function handleReactionDeployed(event: ReactionDeployed): void {
   let entity = ReactionDef.load(event.params.reactionContractAddr.toHex());
