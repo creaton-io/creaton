@@ -299,7 +299,16 @@ export function Creator() {
     let call;
     const contract = contractQuery.data.creators[0];
     let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
+    if (!(await superfluid)) notificationHandler.setNotification({description: 'Please connect wallet', type: 'error'});
     let {sf, usdc, usdcx} = await superfluid;
+    if (wad4human(await usdcx.balanceOf(context.account)) <= 0)
+      notificationHandler.setNotification({
+        description: 'Wrap at least ' + contract.subscriptionPrice * 2 + 'to get access for a full month',
+        type: 'error',
+      });
+    if (wad4human(await usdc.balanceOf(context.account)) <= 0)
+      notificationHandler.setNotification({description: 'Please add USDC funds', type: 'error'});
+
     let subscriber = context.account;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
       //@ts-ignore
@@ -564,7 +573,7 @@ export function Creator() {
             onClick={() => {
               startStreaming();
             }}
-            label={'Start $' + contract.subscriptionPrice + ' Subscription'}
+            label={'Start $' + contract.subscriptionPrice + ' USDCx Subscription'}
           />
         )}
         {subscription === 'subscribed' && !isSelf && (

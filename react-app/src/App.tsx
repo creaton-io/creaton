@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState, useMemo} from 'react';
 import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
-import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
+import {ApolloClient, ApolloProvider, gql, InMemoryCache, useQuery} from '@apollo/client';
 import Home from './Home';
 import WalletConnect from './WalletConnect';
 import {useWeb3React, Web3ReactProvider} from './web3-react/core';
@@ -500,8 +500,11 @@ const ProfileMenu = (props) => {
         </div>
         <div className="grid grid-cols-1 divide-y divide-gray-200">
           {currentCreator && <NavigationLink to="/subscribers" label="Subscribers" />}
-          {currentCreator && <NavigationLink to="/upload" label="Upload" />}
+          {currentCreator && <NavigationLink to="/upload" label="CREATE!" />}
           {<NavigationLink to="/signup" label={currentProfile ? 'My Profile' : 'Make Profile'} />}
+          {currentCreator && (
+            <NavigationLink to={'/creator/' + currentCreator.creatorContract} label="My Creator Page" />
+          )}
           {/* {currentProfile &&
           <NavigationLink to="/flows" label="My Flows"/>
           } */}
@@ -542,7 +545,7 @@ const HeaderButtons = () => {
       )}
       {currentCreator && (
         <Link to="/upload">
-          <Button label="Upload" theme="unfocused"></Button>
+          <Button label="CREATE" theme="unfocused"></Button>
         </Link>
       )}
       {/* {isAdmin && (<Link to="/staking"> */}
@@ -799,7 +802,7 @@ const App = () => {
                                 </div>
                               </div>
                             )}
-                            {/* <ChainIdChecker /> */}
+                            <ChainIdChecker />
                             <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
                               <Switch>
                                 <Route exact path="/">

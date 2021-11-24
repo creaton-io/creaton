@@ -13,7 +13,7 @@ import {Checkbox} from './elements/checkbox';
 import {NotificationHandlerContext} from './ErrorHandler';
 import clsx from 'clsx';
 import {Web3UtilsContext} from './Web3Utils';
-import {Example} from './components/error-notification';
+import {Notification} from './components/error-notification';
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -100,7 +100,7 @@ const Subscribers = () => {
   if (creator === undefined)
     return (
       <div>
-        <Example />
+        <Notification />
       </div>
     );
   if (loading) return <div>Loading subscribers...</div>;

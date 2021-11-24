@@ -4,7 +4,7 @@ import {Transition} from '@headlessui/react';
 import {XIcon} from '@heroicons/react/solid';
 import {Link} from 'react-router-dom';
 
-export const Example = () => {
+export const Notification = () => {
   const [show, setShow] = useState(true);
 
   return (
