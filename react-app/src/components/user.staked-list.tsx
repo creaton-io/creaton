@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
-import { REACTIONS_GRAPHQL_URI } from "../Config";
+import { APOLLO_URI } from "../Config";
 import { UserStaked } from "./user.staked";
 
 interface UserStakedListProps {
@@ -35,7 +35,7 @@ export const UserStakedList: FC<UserStakedListProps> = ({ address }) => {
         `;
 
         const client = new ApolloClient({
-            uri: REACTIONS_GRAPHQL_URI,
+            uri: APOLLO_URI,
             cache: new InMemoryCache()
         });
 
