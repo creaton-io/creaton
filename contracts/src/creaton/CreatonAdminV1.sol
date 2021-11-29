@@ -87,6 +87,8 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         trustedForwarder = _trustedForwarder;
 
         reactionFactory = _reactionFactory;
+
+        emit ReactionFactoryDeployed(reactionFactory);
     }
 
     // -----------------------------------------
