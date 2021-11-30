@@ -23,8 +23,26 @@ dataSources:
           handler: handleProfileUpdate
         - event: CreatorDeployed(address,address,string,uint256)
           handler: handleCreatorDeployed
-        - event: ReactionFactoryDeployed(address)
-          handler: handleReactionFactoryDeployed
+      file: ./src/mapping.ts
+  - kind: ethereum/contract
+    name: ReactionFactory
+    network: mumbai
+    source:
+      address: "0xca57c5D70E6A6018e6BC93C784e3cbee0D8842a9"
+      abi: ReactionFactory
+      startBlock: 13489903
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ReactionDef
+      abis:
+        - name: ReactionFactory
+          file: ./abis/ReactionFactory.json
+      eventHandlers:
+        - event: ReactionDeployed(address,address,string,string,string,address)
+          handler: handleReactionDeployed
       file: ./src/mapping.ts
 templates:
   - kind: ethereum/contract
@@ -49,25 +67,7 @@ templates:
           handler: handleNewPost
         - event: HidePost(uint256,bool)
           handler: handleHidePost
-      file: ./src/mapping.ts
-  - kind: ethereum/contract
-    name: ReactionFactory
-    network: mumbai
-    source:
-      abi: ReactionFactory
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - ReactionDef
-      abis:
-        - name: ReactionFactory
-          file: ./abis/ReactionFactory.json
-      eventHandlers:
-        - event: ReactionDeployed(address,address,string,string,string,address)
-          handler: handleReactionDeployed
-      file: ./src/mapping.ts
+      file: ./src/mapping.ts   
   - kind: ethereum/contract
     name: ReactionToken
     network: mumbai
