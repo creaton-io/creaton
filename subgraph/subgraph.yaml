@@ -28,7 +28,7 @@ dataSources:
     name: ReactionFactory
     network: mumbai
     source:
-      address: "0xca57c5D70E6A6018e6BC93C784e3cbee0D8842a9"
+      address: "0x408f2da91f23433E1703FAdb412a8d10648cC8ce"
       abi: ReactionFactory
       startBlock: 13489903
     mapping:
