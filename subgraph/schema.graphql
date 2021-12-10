@@ -13,6 +13,8 @@ type Creator @entity {
   subscriptionPrice: BigInt!
   timestamp: BigInt!
   subscribers: [Subscriber!]! @derivedFrom(field: "creator")
+  reactionUser: ReactionUser!
+  reactionsReceived: BigInt!
 }
 
 type Subscriber @entity {
@@ -38,18 +40,20 @@ type Content @entity {
   hide: Boolean!
 }
 
-type User @entity {
+type ReactionUser @entity {
   id: ID!
   address: Bytes! # address
-  reactionsDefined: [ReactionDef!] @derivedFrom(field: "user")
-  staked: [Stake!] @derivedFrom(field: "user")
-  reactions: [Reaction!]  @derivedFrom(field: "user")
+  reactionsReceived: BigInt!
+  reactionsDefined: [ReactionDef!] @derivedFrom(field: "reactionUser")
+  staked: [Stake!] @derivedFrom(field: "reactionUser")
+  reactions: [Reaction!]  @derivedFrom(field: "reactionUser")
   flowed: [Flow!]  @derivedFrom(field: "recipient")
+  creator: Creator! @derivedFrom(field: "reactionUser")
 }
 
 type ReactionDef @entity {
   id: ID!
-  user: User!
+  reactionUser: ReactionUser!
   contract: Bytes! # address
   name: String!
   symbol: String!
@@ -58,7 +62,7 @@ type ReactionDef @entity {
 
 type Stake @entity {
   id: ID!
-  user: User!
+  reactionUser: ReactionUser!
   token: Bytes! # address
   amount: BigInt!
   reaction: Reaction!
@@ -66,7 +70,7 @@ type Stake @entity {
 
 type Reaction @entity {
   id: ID!
-  user: User!
+  reactionUser: ReactionUser!
   reaction: ReactionDef!
   amount: BigInt!
   reactionRecipientAddress: Bytes! # address
@@ -79,7 +83,7 @@ type Flow @entity {
   id: ID!
   amount: BigInt!
   stakingTokenAddress: Bytes!
-  recipient: User!
+  recipient: ReactionUser!
   stakingSuperTokenAddress: Bytes!
   reaction: Reaction!
   stakedFlow: StakedFlow!
@@ -89,7 +93,7 @@ type StakedFlow @entity {
   id: ID!
   stakingSuperToken: Bytes
   balance: BigInt
-  recipient: User
+  recipient: ReactionUser
   flowRate: BigInt
   flowed: [Flow!] @derivedFrom(field: "stakedFlow")
 }
