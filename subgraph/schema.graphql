@@ -46,7 +46,7 @@ type ReactionUser @entity {
   reactionsReceived: BigInt!
   reactionsDefined: [ReactionDef!] @derivedFrom(field: "reactionUser")
   staked: [Stake!] @derivedFrom(field: "reactionUser")
-  reactions: [Reaction!]  @derivedFrom(field: "reactionUser")
+  reactions: [Reaction!]  @derivedFrom(field: "reactingUser")
   flowed: [Flow!]  @derivedFrom(field: "recipient")
   creator: Creator
 }
@@ -70,7 +70,7 @@ type Stake @entity {
 
 type Reaction @entity {
   id: ID!
-  reactionUser: ReactionUser!
+  reactingUser: ReactionUser!
   reaction: ReactionDef!
   amount: BigInt!
   reactionRecipientAddress: Bytes! # address

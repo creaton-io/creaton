@@ -7,7 +7,7 @@ import {Splash} from './components/splash';
 
 const CREATORS_QUERY = gql`
   query {
-    creators(orderBy: timestamp, orderDirection: asc) {
+    creators(orderBy: reactionsReceived, orderDirection: desc) {
       id
       user
       creatorContract

@@ -25,6 +25,7 @@ import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
 import {BICONOMY_API, BICONOMY_AUTH} from './Config';
+import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 
 interface params {
   id: string;
@@ -78,7 +79,7 @@ export function Creator() {
         amount,
         reactionRecipientAddress,
         tokenId
-        user {
+        reactingUser {
           address
         }
       }
@@ -446,11 +447,13 @@ export function Creator() {
     const count = reactions
       .filter((r) => r.tokenId === content.tokenId)
       .reduce((sum, current) => sum + +current.amount, 0);
-    return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
+
+    let res = ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
+    return (Math.round(+res*1e2) / 1e2).toString();
   }
   function hasReacted(content) {
     if (!reactions) return false;
-    return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+    return reactions.some((r) => r.tokenId === content.tokenId && r.reactingUser.address === context.account?.toLowerCase());
   }
 
   async function hide(tokenId, hide: boolean) {

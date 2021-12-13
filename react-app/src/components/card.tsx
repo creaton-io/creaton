@@ -57,13 +57,11 @@ export const Card: FC<ButtonProps> = ({
   isCreator,
   canDecrypt,
 }) => {
-  const ircount: number = initialReactCount ? +initialReactCount : 0;
-
   const litNode = useContext(LitContext);
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
   const [hiding, setHiding] = useState(false);
-  const [reactCount, setReactCount] = useState<number>(+ircount);
+  const [reactCount, setReactCount] = useState<number>();
   const [descriptionReactElement, setDescriptionReactElement] = useState('');
 
   function showAmountModal(e) {
@@ -107,9 +105,11 @@ export const Card: FC<ButtonProps> = ({
 
   useEffect(() => {
     ;(async () => {
+      setReactCount(initialReactCount ? +initialReactCount : 0);
+
       if(!description) return;
       let desc: string = description;
-      
+
       const regexSubscribersText = /<p class="subscribersText" \/>/gmi
 
       if(!canDecrypt){

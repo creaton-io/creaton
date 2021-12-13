@@ -177,20 +177,22 @@ export function handleReacted(event: Reacted): void {
 
   let reactionDef = ReactionDef.load(event.params.reactionTokenAddress.toHex());
 
-  let ruser: ReactionUser = createReactionUser(event.params.reactionRecipientAddress)
-  ruser.reactionsReceived = ruser.reactionsReceived.plus(event.params.amount);
-  ruser.save();
-
-  let creator = Creator.load(ruser.creator);
-  creator.reactionsReceived = ruser.reactionsReceived;
-  creator.save();
-
-  entity.reactionUser = ruser.id;
+  let ruser: ReactionUser = createReactionUser(event.params.author)
+  entity.reactingUser = ruser.id;
   entity.reaction = reactionDef.id;
   entity.amount = event.params.amount;
   entity.reactionRecipientAddress = event.params.reactionRecipientAddress;
   entity.tokenId = event.params.tokenId;
   entity.save();
+
+  // Ading reaction to the Recipient
+  let recipientReactionUser: ReactionUser = createReactionUser(event.params.reactionRecipientAddress)
+  recipientReactionUser.reactionsReceived = recipientReactionUser.reactionsReceived.plus(event.params.amount);
+  recipientReactionUser.save();
+
+  let creator = Creator.load(recipientReactionUser.creator);
+  creator.reactionsReceived = recipientReactionUser.reactionsReceived;
+  creator.save();
 }
 
 export function handleFlowed(event: Flowed): void {
