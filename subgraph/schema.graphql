@@ -13,7 +13,7 @@ type Creator @entity {
   subscriptionPrice: BigInt!
   timestamp: BigInt!
   subscribers: [Subscriber!]! @derivedFrom(field: "creator")
-  reactionUser: ReactionUser!
+  reactionUser: [ReactionUser]! @derivedFrom(field: "creator")
   reactionsReceived: BigInt!
 }
 
@@ -48,7 +48,7 @@ type ReactionUser @entity {
   staked: [Stake!] @derivedFrom(field: "reactionUser")
   reactions: [Reaction!]  @derivedFrom(field: "reactionUser")
   flowed: [Flow!]  @derivedFrom(field: "recipient")
-  creator: Creator! @derivedFrom(field: "reactionUser")
+  creator: Creator
 }
 
 type ReactionDef @entity {
@@ -77,6 +77,7 @@ type Reaction @entity {
   tokenId: BigInt!
   staked: [Stake!] @derivedFrom(field: "reaction")
   flowed: [Flow!] @derivedFrom(field: "reaction")
+  what: String
 }
 
 type Flow @entity {

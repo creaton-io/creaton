@@ -33,8 +33,9 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   }
 
   entity.reactionsReceived = BigInt.fromI32(0);
-  entity.reactionUser = createReactionUser(event.params.creatorContract).id;
   entity.save();
+
+  linkCreatorWithReactionUser(id, event.params.creatorContract);
 }
 
 export function handleSubscriberEvent(event: SubscriberEvent): void {
@@ -176,7 +177,7 @@ export function handleReacted(event: Reacted): void {
 
   let reactionDef = ReactionDef.load(event.params.reactionTokenAddress.toHex());
 
-  let ruser = createReactionUser(event.params.reactionRecipientAddress)
+  let ruser: ReactionUser = createReactionUser(event.params.reactionRecipientAddress)
   ruser.reactionsReceived = ruser.reactionsReceived.plus(event.params.amount);
   ruser.save();
 
@@ -229,6 +230,14 @@ export function createReactionUser(address: Address): ReactionUser {
     ruser.address = address;
     ruser.save();
   }
+
+  return ruser as ReactionUser;
+}
+
+export function linkCreatorWithReactionUser(creatorId: string, address: Address): ReactionUser {
+  let ruser = createReactionUser(address);
+  ruser.creator = creatorId;
+  ruser.save();
 
   return ruser as ReactionUser;
 }
