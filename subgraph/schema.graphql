@@ -38,5 +38,58 @@ type Content @entity {
   hide: Boolean!
 }
 
+type User @entity {
+  id: ID!
+  address: Bytes! # address
+  reactionsDefined: [ReactionDef!] @derivedFrom(field: "user")
+  staked: [Stake!] @derivedFrom(field: "user")
+  reactions: [Reaction!]  @derivedFrom(field: "user")
+  flowed: [Flow!]  @derivedFrom(field: "recipient")
+}
 
+type ReactionDef @entity {
+  id: ID!
+  user: User!
+  contract: Bytes! # address
+  name: String!
+  symbol: String!
+  stakingTokenAddress: Bytes!
+}
 
+type Stake @entity {
+  id: ID!
+  user: User!
+  token: Bytes! # address
+  amount: BigInt!
+  reaction: Reaction!
+}
+
+type Reaction @entity {
+  id: ID!
+  user: User!
+  reaction: ReactionDef!
+  amount: BigInt!
+  reactionRecipientAddress: Bytes! # address
+  tokenId: BigInt!
+  staked: [Stake!] @derivedFrom(field: "reaction")
+  flowed: [Flow!] @derivedFrom(field: "reaction")
+}
+
+type Flow @entity {
+  id: ID!
+  amount: BigInt!
+  stakingTokenAddress: Bytes!
+  recipient: User!
+  stakingSuperTokenAddress: Bytes!
+  reaction: Reaction!
+  stakedFlow: StakedFlow!
+}
+
+type StakedFlow @entity {
+  id: ID!
+  stakingSuperToken: Bytes
+  balance: BigInt
+  recipient: User
+  flowRate: BigInt
+  flowed: [Flow!] @derivedFrom(field: "stakedFlow")
+}
