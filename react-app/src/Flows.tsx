@@ -1,7 +1,7 @@
 import { FC, useEffect, useState } from "react";
-import { ApolloClient, gql, InMemoryCache, useQuery } from "@apollo/client";
+import { gql, useQuery } from "@apollo/client";
 import { UserFlow } from "./components/user.flow";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from './web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 
 export const Flows: FC = () => {
@@ -22,7 +22,7 @@ export const Flows: FC = () => {
     `;
 
     const reactionsQuery = useQuery(FLOWS_QUERY, {
-        variables: {'userAddress': userAddress},
+        variables: {'userAddress': userAddress.toLocaleLowerCase()},
         pollInterval: 10000,
     });
 
@@ -33,8 +33,9 @@ export const Flows: FC = () => {
 
             const signer = library!.getSigner();
             const address = await signer.getAddress();
-            setUserAddress(userAddress);
-
+            setUserAddress(address);
+            console.log('hmmm', address);
+            console.log('reactionsQuery data:', reactionsQuery.data);
             if(reactionsQuery.data){
                 setFlows(reactionsQuery.data.stakedFlows);
             }
