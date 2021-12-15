@@ -1,10 +1,8 @@
-import { expect } from "./chai-setup";
-import { ethers,deployments } from "hardhat";
+import { expect } from "chai";
+import { ethers } from "hardhat";
 import { Contract } from "@ethersproject/contracts";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { BigNumber, ContractFactory } from "ethers";
-import { Test } from "mocha";
-
 
 let OwnerAccount: SignerWithAddress;
 let TestingAccount1: SignerWithAddress;
