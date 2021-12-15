@@ -2,7 +2,7 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-import "../dependency/sablier/ISablier.sol";
+import "../dependency/sablier/interfaces/ISablier.sol";
 
 
 // "dependency/sablier/ISablier.sol"
