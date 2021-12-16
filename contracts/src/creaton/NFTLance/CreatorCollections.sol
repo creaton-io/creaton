@@ -97,12 +97,13 @@ contract CreatorCollections is Ownable, Pausable {
         token.transferFrom(_msgSender(), address(this), c.price);
 
         p.feesCollected = p.feesCollected.add(c.price);
-        // console.log(c.ids[c.idPointOfNextEmpty]);
         
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
         heldBalances[c.ids[c.idPointOfNextEmpty]].catalog = _catalogID;
+
         c.idPointOfNextEmpty++;
+        catalogs[_catalogID].cardsArray[_cardID].idPointOfNextEmpty = c.idPointOfNextEmpty;
         emit Redeemed(_msgSender(), _catalogID, c.price);
         return c.ids[c.idPointOfNextEmpty - 1];
     }

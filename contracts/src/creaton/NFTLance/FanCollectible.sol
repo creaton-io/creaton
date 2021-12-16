@@ -20,7 +20,9 @@ contract FanCollectible is ERC1155, Ownable {
     mapping(uint256 => states) private stateOfCollectibles; //tokenID to state of collectible.
     mapping(uint256 => string) private collectibleRequestData; //tokenID to data about collectible request.
 
-    constructor(string memory _uri) ERC1155(_uri) {}
+    constructor(string memory _uri) ERC1155(_uri) {
+        _minter = msg.sender;
+    }
 
     /**
      * @dev Throws if called by any account other than the minter.
