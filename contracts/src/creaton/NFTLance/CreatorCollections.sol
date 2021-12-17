@@ -225,4 +225,12 @@ contract CreatorCollections is Ownable, Pausable {
         token.transfer(recipient, creatonBalance);
         creatonBalance = 0;
     }
+
+    function pause() public onlyOwner whenNotPaused {
+        _pause();
+    }
+
+    function unpause() public onlyOwner whenPaused {
+        _unpause();
+    }
 }
