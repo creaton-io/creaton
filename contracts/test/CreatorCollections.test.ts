@@ -113,6 +113,23 @@ describe('CreatorCollections', function(){
         expect(sCatalogCards[0].price).to.be.equal(ethers.utils.parseEther("10000"));
         expect(sCatalogCards[0].releaseTime).to.be.equal(now);
     });
+
+    it ('Failing Create Catalog and Card', async function(){
+        [OwnerAccount,TestingAccount1,TestingAccount2] = await ethers.getSigners();
+
+        let collectionId = 666;
+        await expect(CollectionsContract.createCard(collectionId, 10, ethers.utils.parseEther("10000"), now))
+            .to.be.revertedWith("catalog does not exists");
+
+        await expect(CollectionsContract.createCatalog(collectionId, "Catalog Title"))
+            .to.emit(CollectionsContract, "CatalogAdded");
+
+        await expect(CollectionsContract.createCatalog(collectionId, "Catalog Title"))
+            .to.be.revertedWith("catalog exists");
+
+        await expect(CollectionsContract.connect(TestingAccount1).createCard(collectionId, 10, ethers.utils.parseEther("10000"), now))
+            .to.be.revertedWith("You Do Not Have Authorization To Change This");
+    });
 });
 
 describe('Purchasing single', function(){
@@ -277,6 +294,34 @@ describe('Purchasing multiples', function(){
             await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, i)).to.emit(CollectionsContract, "Redeemed");
         }
     });
+
+    it('1 of 1 cards, 1 catalog, purchased failing', async function(){
+        const catalogId = 2;
+        const cardsSupply = 1;
+        const cardsAmount = 1;
+
+        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
+
+        for(let i = 0; i < cardsAmount; i++){
+            await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+        }
+
+        const cardsArray = await CollectionsContract.getCardsArray(catalogId);
+        expect(cardsArray.length).to.be.equal(cardsAmount);
+
+        await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
+
+        // Failed because unexisting card
+        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 23)).to.be.revertedWith("card may not exist");
+
+        // Failed because pause/unpause
+        await expect(CollectionsContract.connect(artistAccount).pause()).to.be.revertedWith("Ownable: caller is not the owner");
+        await CollectionsContract.pause();
+        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.be.revertedWith("Pausable: paused");
+        await expect(CollectionsContract.connect(artistAccount).unpause()).to.be.revertedWith("Ownable: caller is not the owner");
+        await CollectionsContract.unpause();
+        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+    });
 });
 
 describe('Checking Payment to artist works correctly', function(){
@@ -322,10 +367,17 @@ describe('Checking Payment to artist works correctly', function(){
         const catalogCards = await CollectionsContract.getCardsArray(catalogId);
 
         //1068 *should* be gotten by the Graph API, but instead it is hardcoded to whatever the ID would be after running this code.
+        await expect(CollectibleContract.connect(brokeAccount).setRequestData(catalogCards[catalogId].ids[0], "hello world"))
+            .to.be.revertedWith("Token not owned by sender");
+
         await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[catalogId].ids[0], "hello world"))
             .to.emit(CollectibleContract, "RequestDataSet");
-        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(catalogId, catalogCards[catalogId].ids[0], "0xabcdef")).to.be.revertedWith("not the artist");
+        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(catalogId, catalogCards[catalogId].ids[0], "0xabcdef"))
+            .to.be.revertedWith("not the artist");
         await CollectionsContract.connect(artistAccount).setFanCollectibleData(catalogId, catalogCards[catalogId].ids[0], "0xabcdef");
+
+        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[catalogId].ids[0], "hello world"))
+            .to.be.revertedWith("Token has already been finalized");
 
         //testing that artists get their money
         await CollectionsContract.connect(artistAccount).withdrawFee();
