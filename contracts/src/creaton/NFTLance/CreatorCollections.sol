@@ -36,6 +36,7 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
         address artist;
         string title;
+        string description;
         uint256 cardsInCatalog;
         Card[] cardsArray;
     }
@@ -45,7 +46,7 @@ contract CreatorCollections is Ownable, Pausable {
     uint256 public catalogsCount;
 
     event UpdatedArtist(uint256 catalogId, address artist);
-    event CatalogAdded(uint256 catalogId, address artist, uint256 periodStart);
+    event CatalogAdded(uint256 catalogId, string title, string description, address artist, uint256 periodStart);
     event CardAdded(uint256 catalogId, uint256[] cardIds, uint256 price, uint256 releaseTime);
 
     event Redeemed(address indexed user, uint256 catalogId, uint256 amount);
@@ -74,6 +75,7 @@ contract CreatorCollections is Ownable, Pausable {
     ) {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
+        catalogsCount = 0;
     }
     MarketPoints public marketPoints;
     function setMarketPoints(MarketPoints _marketPoints) public onlyOwner {
@@ -133,24 +135,25 @@ contract CreatorCollections is Ownable, Pausable {
 
     /**
     @dev creates a catalog.
-    @param id the id of the catalog. Must be unique.
     @param title the title of the catalog
+    @param description some catalog description
     */
     function createCatalog(
-        uint256 id,
-        string memory title
+        string memory title,
+        string memory description
     ) public returns (uint256) {
-        //TODO: find a better way to check if a catalog is active.
+        uint256 id = catalogsCount;
         require(catalogs[id].artist == address(0), "catalog exists");
 
         Catalog storage p = catalogs[id];
 
         p.artist = _msgSender();
         p.title = title;
+        p.description = description;
 
         catalogsCount++;
 
-        emit CatalogAdded(id, _msgSender(), block.timestamp);
+        emit CatalogAdded(id, title, description, _msgSender(), block.timestamp);
         return id;
     }
 

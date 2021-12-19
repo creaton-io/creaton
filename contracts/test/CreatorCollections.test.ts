@@ -73,42 +73,45 @@ describe('CreatorCollections', function(){
 
     it ('Testing Create Card', async function(){
         // Catalog Creation
-        let fCollectionId = 0;
+        let expectedFCollectionId = 0;
         let fCatalogTitle = "My first collection";
-        await expect(CollectionsContract.createCatalog(fCollectionId, fCatalogTitle)).to.emit(CollectionsContract, "CatalogAdded");
+        let fCatalogDescription = "The catalog description";
+        await expect(CollectionsContract.createCatalog(fCatalogTitle, fCatalogDescription)).to.emit(CollectionsContract, "CatalogAdded");
 
-        let fCreatedCatalog = await CollectionsContract.catalogs(fCollectionId);
+        let fCreatedCatalog = await CollectionsContract.catalogs(expectedFCollectionId);
         expect(fCreatedCatalog.title).to.be.equal(fCatalogTitle);
+        expect(fCreatedCatalog.description).to.be.equal(fCatalogDescription);
         expect(fCreatedCatalog.artist).to.be.equal(OwnerAccount.address);
         expect(fCreatedCatalog.cardsInCatalog).to.be.equal(0);
         expect(fCreatedCatalog.feesCollected).to.be.equal(0);
 
-        let sCollectionId = 1;
+        let expectedSCollectionId = 1;
         let sCatalogTitle = "My second collection";
-        await expect(CollectionsContract.createCatalog(sCollectionId, sCatalogTitle)).to.emit(CollectionsContract, "CatalogAdded");
+        let sCatalogDescription = "Another catalog description";
+        await expect(CollectionsContract.createCatalog(sCatalogTitle, sCatalogDescription)).to.emit(CollectionsContract, "CatalogAdded");
 
-        let sCreatedCatalog = await CollectionsContract.catalogs(sCollectionId);
+        let sCreatedCatalog = await CollectionsContract.catalogs(expectedSCollectionId);
         expect(sCreatedCatalog.title).to.be.equal(sCatalogTitle);
+        expect(sCreatedCatalog.description).to.be.equal(sCatalogDescription);
         expect(sCreatedCatalog.artist).to.be.equal(OwnerAccount.address);
         expect(sCreatedCatalog.cardsInCatalog).to.be.equal(0);
         expect(sCreatedCatalog.feesCollected).to.be.equal(0);
 
-
         // Cards Creation
-        await CollectionsContract.createCard(fCollectionId, 10, ethers.utils.parseEther("10000"), now);
-        fCreatedCatalog = await CollectionsContract.catalogs(fCollectionId);
+        await CollectionsContract.createCard(expectedFCollectionId, 10, ethers.utils.parseEther("10000"), now);
+        fCreatedCatalog = await CollectionsContract.catalogs(expectedFCollectionId);
         expect(fCreatedCatalog.cardsInCatalog).to.be.equal(1);
 
-        await CollectionsContract.createCard(sCollectionId, 10, ethers.utils.parseEther("10000"), now);
-        sCreatedCatalog = await CollectionsContract.catalogs(sCollectionId);
+        await CollectionsContract.createCard(expectedSCollectionId, 10, ethers.utils.parseEther("10000"), now);
+        sCreatedCatalog = await CollectionsContract.catalogs(expectedSCollectionId);
         expect(sCreatedCatalog.cardsInCatalog).to.be.equal(1);
 
-        const fCatalogCards = await CollectionsContract.getCardsArray(fCollectionId);
+        const fCatalogCards = await CollectionsContract.getCardsArray(expectedFCollectionId);
         expect(fCatalogCards.length).to.be.equal(1);
         expect(fCatalogCards[0].price).to.be.equal(ethers.utils.parseEther("10000"));
         expect(fCatalogCards[0].releaseTime).to.be.equal(now);
 
-        const sCatalogCards = await CollectionsContract.getCardsArray(sCollectionId);
+        const sCatalogCards = await CollectionsContract.getCardsArray(expectedSCollectionId);
         expect(sCatalogCards.length).to.be.equal(1);
         expect(sCatalogCards[0].price).to.be.equal(ethers.utils.parseEther("10000"));
         expect(sCatalogCards[0].releaseTime).to.be.equal(now);
@@ -121,11 +124,8 @@ describe('CreatorCollections', function(){
         await expect(CollectionsContract.createCard(collectionId, 10, ethers.utils.parseEther("10000"), now))
             .to.be.revertedWith("catalog does not exists");
 
-        await expect(CollectionsContract.createCatalog(collectionId, "Catalog Title"))
+        await expect(CollectionsContract.createCatalog("Catalog Title", "Desc"))
             .to.emit(CollectionsContract, "CatalogAdded");
-
-        await expect(CollectionsContract.createCatalog(collectionId, "Catalog Title"))
-            .to.be.revertedWith("catalog exists");
 
         await expect(CollectionsContract.connect(TestingAccount1).createCard(collectionId, 10, ethers.utils.parseEther("10000"), now))
             .to.be.revertedWith("You Do Not Have Authorization To Change This");
@@ -156,44 +156,44 @@ describe('Purchasing single', function(){
     });
 
     it('Single Purchase', async function(){
-        const catalogId = 0;
+        const expectedCatalogId = 0;
         const cardPrice = ethers.utils.parseEther("1");
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
-        await CollectionsContract.connect(artistAccount).createCard(catalogId, 10, cardPrice, now);
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
+        await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, 10, cardPrice, now);
 
         await timeTravel(30);
         
-        const catalogCards = await CollectionsContract.getCardsArray(catalogId);
+        const catalogCards = await CollectionsContract.getCardsArray(expectedCatalogId);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0))
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0))
             .to.emit(CollectionsContract,"Redeemed")
-            .withArgs(fanAccount.address, catalogId, cardPrice);
+            .withArgs(fanAccount.address, expectedCatalogId, cardPrice);
         
-        await CollectibleContract.connect(fanAccount).setRequestData(catalogCards[catalogId].ids[0], "Hello World Image! Please and thank you!");
+        await CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "Hello World Image! Please and thank you!");
     });
 
     it('Single purchase with errors', async function(){
-        const catalogId = 0;
+        const expectedCatalogId = 0;
         const releaseTime = Math.floor(Date.now()/1000);
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
-        await CollectionsContract.connect(artistAccount).createCard(catalogId, 1, ethers.utils.parseEther("1"), releaseTime);
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
+        await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, 1, ethers.utils.parseEther("1"), releaseTime);
 
         // Card not for sale yet
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.revertedWith("card not open");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.revertedWith("card not open");
         
         timeTravel(100);
 
         // No funds
         expect(await testingTokenContract.balanceOf(brokeAccount.address)).to.equal(0);
         await testingTokenContract.connect(brokeAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(brokeAccount).purchase(catalogId, 0)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
+        await expect(CollectionsContract.connect(brokeAccount).purchase(expectedCatalogId, 0)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
 
         // Card sold out
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.emit(CollectionsContract, "Redeemed");
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.be.revertedWith("Card Is Sold Out");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.be.revertedWith("Card Is Sold Out");
     });
 });
 
@@ -221,17 +221,17 @@ describe('Purchasing multiples', function(){
     });
 
     it('100 of 5 cards, 1 catalog, 0 Purchased', async function(){
-        const catalogId = 0;
+        const expectedCatalogId = 0;
         const cardsSupply = 100;
         const cardsAmount = 5;
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
 
         for(let i = 0; i < cardsAmount; i++){
-            await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+            await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, cardsSupply, ethers.utils.parseEther("1"), now);
         }
 
-        const cardsArray = await CollectionsContract.getCardsArray(catalogId);
+        const cardsArray = await CollectionsContract.getCardsArray(expectedCatalogId);
         expect(cardsArray.length).to.be.equal(cardsAmount);
         for(let i = 0; i < cardsAmount; i++){
             expect(cardsArray[i].ids.length).to.be.equal(cardsSupply);
@@ -239,17 +239,17 @@ describe('Purchasing multiples', function(){
     });
 
     it('5 of 100 cards, 1 catalog, 0 purchased', async function(){
-        const catalogId = 1;
+        const expectedCatalogId = 0;
         const cardsSupply = 5;
         const cardsAmount = 100;
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
 
         for(let i = 0; i < cardsAmount; i++){
-            await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+            await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, cardsSupply, ethers.utils.parseEther("1"), now);
         }
 
-        const cardsArray = await CollectionsContract.getCardsArray(catalogId);
+        const cardsArray = await CollectionsContract.getCardsArray(expectedCatalogId);
         expect(cardsArray.length).to.be.equal(cardsAmount);
         for(let i = 0; i < cardsAmount; i++){
             expect(cardsArray[i].ids.length).to.be.equal(cardsSupply);
@@ -257,70 +257,70 @@ describe('Purchasing multiples', function(){
     });
 
     it('1 of 1 cards, 1 catalog, 1 purchased', async function(){
-        const catalogId = 2;
+        const expectedCatalogId = 0;
         const cardsSupply = 1;
         const cardsAmount = 1;
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
 
         for(let i = 0; i < cardsAmount; i++){
-            await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+            await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, cardsSupply, ethers.utils.parseEther("1"), now);
         }
 
-        const cardsArray = await CollectionsContract.getCardsArray(catalogId);
+        const cardsArray = await CollectionsContract.getCardsArray(expectedCatalogId);
         expect(cardsArray.length).to.be.equal(cardsAmount);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
     });
 
     it('5 of 5 cards, 1 catalog, 2 purchased', async function(){
-        const catalogId = 3;
+        const expectedCatalogId = 0;
         const cardsSupply = 5;
         const cardsAmount = 5;
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
 
         for(let i = 0; i < cardsAmount; i++){
-            await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+            await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, cardsSupply, ethers.utils.parseEther("1"), now);
         }
 
-        const cardsArray = await CollectionsContract.getCardsArray(catalogId);
+        const cardsArray = await CollectionsContract.getCardsArray(expectedCatalogId);
         expect(cardsArray.length).to.be.equal(cardsAmount);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
 
         for(let i = 0; i < cardsAmount; i++){
-            await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, i)).to.emit(CollectionsContract, "Redeemed");
+            await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, i)).to.emit(CollectionsContract, "Redeemed");
         }
     });
 
     it('1 of 1 cards, 1 catalog, purchased failing', async function(){
-        const catalogId = 2;
+        const expectedCatalogId = 0;
         const cardsSupply = 1;
         const cardsAmount = 1;
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
 
         for(let i = 0; i < cardsAmount; i++){
-            await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+            await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, cardsSupply, ethers.utils.parseEther("1"), now);
         }
 
-        const cardsArray = await CollectionsContract.getCardsArray(catalogId);
+        const cardsArray = await CollectionsContract.getCardsArray(expectedCatalogId);
         expect(cardsArray.length).to.be.equal(cardsAmount);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
 
         // Failed because unexisting card
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 23)).to.be.revertedWith("card may not exist");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 23)).to.be.revertedWith("card may not exist");
 
         // Failed because pause/unpause
         await expect(CollectionsContract.connect(artistAccount).pause()).to.be.revertedWith("Ownable: caller is not the owner");
         await CollectionsContract.pause();
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.be.revertedWith("Pausable: paused");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.be.revertedWith("Pausable: paused");
         await expect(CollectionsContract.connect(artistAccount).unpause()).to.be.revertedWith("Ownable: caller is not the owner");
         await CollectionsContract.unpause();
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
     });
 });
 
@@ -348,35 +348,35 @@ describe('Checking Payment to artist works correctly', function(){
     });
 
     it('1 fulfilled purchase', async function(){
-        const catalogId = 0;
+        const expectedCatalogId = 0;
         const cardsSupply = 5;
 
         let startingArtistBalance = await testingTokenContract.balanceOf(artistAccount.address);
         let startingFanBalance = await testingTokenContract.balanceOf(fanAccount.address);
 
-        await CollectionsContract.connect(artistAccount).createCatalog(catalogId, "My first collection");
-        await CollectionsContract.connect(artistAccount).createCard(catalogId, cardsSupply, ethers.utils.parseEther("1"), now);
+        await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
+        await CollectionsContract.connect(artistAccount).createCard(expectedCatalogId, cardsSupply, ethers.utils.parseEther("1"), now);
         timeTravel(60);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(catalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
 
         expect(await testingTokenContract.balanceOf(fanAccount.address)).to.be.below(startingFanBalance);
         expect(await testingTokenContract.balanceOf(artistAccount.address)).to.be.equal(startingArtistBalance);
 
-        const catalogCards = await CollectionsContract.getCardsArray(catalogId);
+        const catalogCards = await CollectionsContract.getCardsArray(expectedCatalogId);
 
         //1068 *should* be gotten by the Graph API, but instead it is hardcoded to whatever the ID would be after running this code.
-        await expect(CollectibleContract.connect(brokeAccount).setRequestData(catalogCards[catalogId].ids[0], "hello world"))
+        await expect(CollectibleContract.connect(brokeAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
             .to.be.revertedWith("Token not owned by sender");
 
-        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[catalogId].ids[0], "hello world"))
+        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
             .to.emit(CollectibleContract, "RequestDataSet");
-        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(catalogId, catalogCards[catalogId].ids[0], "0xabcdef"))
+        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef"))
             .to.be.revertedWith("not the artist");
-        await CollectionsContract.connect(artistAccount).setFanCollectibleData(catalogId, catalogCards[catalogId].ids[0], "0xabcdef");
+        await CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef");
 
-        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[catalogId].ids[0], "hello world"))
+        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
             .to.be.revertedWith("Token has already been finalized");
 
         //testing that artists get their money
