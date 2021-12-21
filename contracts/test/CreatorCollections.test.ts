@@ -68,7 +68,7 @@ describe('CreatorCollections', function(){
     });
 
     it('Check initial supply', async function(){
-        expect(await CollectionsContract.totalSupply()).to.equal(0);
+        expect(await CollectionsContract.getTotalSupply()).to.equal(0);
     });
 
     it ('Testing Create Card', async function(){
@@ -157,6 +157,7 @@ describe('Purchasing single', function(){
 
     it('Single Purchase', async function(){
         const expectedCatalogId = 0;
+        const cardId = 0;
         const cardPrice = ethers.utils.parseEther("1");
 
         await CollectionsContract.connect(artistAccount).createCatalog("My first collection", "Desc");
@@ -167,9 +168,9 @@ describe('Purchasing single', function(){
         const catalogCards = await CollectionsContract.getCardsArray(expectedCatalogId);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0))
-            .to.emit(CollectionsContract,"Redeemed")
-            .withArgs(fanAccount.address, expectedCatalogId, cardPrice);
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, cardId))
+            .to.emit(CollectionsContract,"Purchased")
+            .withArgs(fanAccount.address, expectedCatalogId, cardId, cardPrice);
         
         await CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "Hello World Image! Please and thank you!");
     });
@@ -192,7 +193,7 @@ describe('Purchasing single', function(){
         await expect(CollectionsContract.connect(brokeAccount).purchase(expectedCatalogId, 0)).to.be.revertedWith("ERC20: transfer amount exceeds balance");
 
         // Card sold out
-        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Purchased");
         await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.be.revertedWith("Card Is Sold Out");
     });
 });
@@ -271,7 +272,7 @@ describe('Purchasing multiples', function(){
         expect(cardsArray.length).to.be.equal(cardsAmount);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Purchased");
     });
 
     it('5 of 5 cards, 1 catalog, 2 purchased', async function(){
@@ -291,7 +292,7 @@ describe('Purchasing multiples', function(){
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
 
         for(let i = 0; i < cardsAmount; i++){
-            await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, i)).to.emit(CollectionsContract, "Redeemed");
+            await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, i)).to.emit(CollectionsContract, "Purchased");
         }
     });
 
@@ -320,7 +321,7 @@ describe('Purchasing multiples', function(){
         await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.be.revertedWith("Pausable: paused");
         await expect(CollectionsContract.connect(artistAccount).unpause()).to.be.revertedWith("Ownable: caller is not the owner");
         await CollectionsContract.unpause();
-        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Purchased");
     });
 });
 
@@ -359,7 +360,7 @@ describe('Checking Payment to artist works correctly', function(){
         timeTravel(60);
 
         await testingTokenContract.connect(fanAccount).approve(CollectionsContract.address, ethers.utils.parseEther("10"));
-        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Redeemed");
+        await expect(CollectionsContract.connect(fanAccount).purchase(expectedCatalogId, 0)).to.emit(CollectionsContract, "Purchased");
 
         expect(await testingTokenContract.balanceOf(fanAccount.address)).to.be.below(startingFanBalance);
         expect(await testingTokenContract.balanceOf(artistAccount.address)).to.be.equal(startingArtistBalance);
@@ -374,7 +375,8 @@ describe('Checking Payment to artist works correctly', function(){
             .to.emit(CollectibleContract, "RequestDataSet");
         await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef"))
             .to.be.revertedWith("not the artist");
-        await CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef");
+        await expect(CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef"))
+            .to.emit(CollectionsContract,"FanCollectibleDataSet").withArgs(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef");
 
         await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
             .to.be.revertedWith("Token has already been finalized");

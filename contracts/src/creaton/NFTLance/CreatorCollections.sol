@@ -45,11 +45,13 @@ contract CreatorCollections is Ownable, Pausable {
     mapping(uint256 => Catalog) public catalogs;
     uint256 public catalogsCount;
 
-    event UpdatedArtist(uint256 catalogId, address artist);
+    MarketPoints public marketPoints;
+
     event CatalogAdded(uint256 catalogId, string title, string description, address artist, uint256 periodStart);
     event CardAdded(uint256 catalogId, uint256[] cardIds, uint256 price, uint256 releaseTime);
-
-    event Redeemed(address indexed user, uint256 catalogId, uint256 amount);
+    event UpdatedArtist(uint256 catalogId, address artist);
+    event Purchased(address indexed user, uint256 catalogId, uint256 cardId, uint256 amount);
+    event FanCollectibleDataSet(uint256 catalogId, uint256 fanId, bytes data);
 
     modifier catalogExists(uint256 id) {
         require(catalogs[id].artist != address(0), "catalog does not exists");
@@ -77,61 +79,6 @@ contract CreatorCollections is Ownable, Pausable {
         token = IERC20(_tokenAddress);
         catalogsCount = 0;
     }
-    MarketPoints public marketPoints;
-    function setMarketPoints(MarketPoints _marketPoints) public onlyOwner {
-        marketPoints = _marketPoints;
-    }
-    
-    function purchase(uint256 _catalogID, uint256 _cardID)
-        public
-        whenNotPaused
-        cardExists(_catalogID, _cardID)
-        returns (uint256)
-    {
-        Catalog storage p = catalogs[_catalogID];
-        Card memory c = p.cardsArray[_cardID];
-        require(block.timestamp >= c.releaseTime, "card not open");
-
-        require(c.idPointOfNextEmpty < c.ids.length, "Card Is Sold Out");
-
-        _totalSupply = _totalSupply.add(c.price);
-
-        token.transferFrom(_msgSender(), address(this), c.price);
-
-        p.feesCollected = p.feesCollected.add(c.price);
-        
-        collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
-        heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
-        heldBalances[c.ids[c.idPointOfNextEmpty]].catalog = _catalogID;
-
-        c.idPointOfNextEmpty++;
-        catalogs[_catalogID].cardsArray[_cardID].idPointOfNextEmpty = c.idPointOfNextEmpty;
-        emit Redeemed(_msgSender(), _catalogID, c.price);
-        return c.ids[c.idPointOfNextEmpty - 1];
-    }
-
-    /**
-     * @dev creates a card (inside a FanCollectible) for the given catalog
-     * @param catalog the catalog id to add it to
-     * @param supply the supply of these to be made
-     * @param price the cost of each item in price
-     * @param releaseTime the time you can start buying these
-     */
-    function createCard(
-        uint256 catalog,
-        uint256 supply,
-        uint256 price,
-        uint256 releaseTime
-    ) public onlyOwnerOrArtist(catalog) catalogExists(catalog) returns (uint256) {
-        uint256[] memory tokenIdsGenerated = new uint256[](supply);
-        for (uint256 x = 0; x < supply; x++) {
-            tokenIdsGenerated[x] = collectible.create("", ""); //URI and Data seem important... and most likely are! well! HAVE FUN!
-            //so this generates all the token IDs that will be used, and makes each one unique.
-        }
-        catalogs[catalog].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
-
-        catalogs[catalog].cardsInCatalog++;
-    }
 
     /**
     @dev creates a catalog.
@@ -157,51 +104,59 @@ contract CreatorCollections is Ownable, Pausable {
         return id;
     }
 
-    function cardReleaseTime(uint256 catalog, uint256 card) public view returns (uint256) {
-        return catalogs[catalog].cardsArray[card].releaseTime;
-    }
-
     /**
-     * @dev calculates the total supply of tokens that are being staked in this contract
+     * @dev creates a card (inside a FanCollectible) for the given catalog
+     * @param catalog the catalog id to add it to
+     * @param supply the supply of these to be made
+     * @param price the cost of each item in price
+     * @param releaseTime the time you can start buying these
      */
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
+    function createCard(
+        uint256 catalog,
+        uint256 supply,
+        uint256 price,
+        uint256 releaseTime
+    ) public onlyOwnerOrArtist(catalog) catalogExists(catalog) {
+        uint256[] memory tokenIdsGenerated = new uint256[](supply);
+        for (uint256 x = 0; x < supply; x++) {
+            tokenIdsGenerated[x] = collectible.create("", ""); //URI and Data seem important... and most likely are! well! HAVE FUN!
+            //so this generates all the token IDs that will be used, and makes each one unique.
+        }
+        catalogs[catalog].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
+        catalogs[catalog].cardsInCatalog++;
 
-    function cardsInCatalog(uint256 id) public view returns (uint256) {
-        return catalogs[id].cardsInCatalog;
+        emit CardAdded(catalog, tokenIdsGenerated, price, releaseTime);
     }
+    
+    function purchase(uint256 _catalogID, uint256 _cardID)
+        public
+        whenNotPaused
+        cardExists(_catalogID, _cardID)
+        returns (uint256)
+    {
+        Catalog storage p = catalogs[_catalogID];
+        Card memory c = p.cardsArray[_cardID];
+        require(block.timestamp >= c.releaseTime, "card not open");
 
-    function getCardsArray(uint256 id) public view returns (Card[] memory) {
-        return catalogs[id].cardsArray;
-    }
+        require(c.idPointOfNextEmpty < c.ids.length, "Card Is Sold Out");
 
-    /**
-     * @dev called by the artist for them to get their money out of the contract!   
-     */
-    function withdrawFee() public {
-        uint256 amount = pendingWithdrawals[_msgSender()].mul(ARTIST_PERCENTAGE).div(100);
-        require(amount > 0, "nothing to withdraw");
-        creatonBalance = creatonBalance.add(pendingWithdrawals[_msgSender()].mul(CREATON_PERCENTAGE).div(100));
-        pendingWithdrawals[_msgSender()] = 0;
-        token.transfer(_msgSender(), amount);
-    }
+        _totalSupply = _totalSupply.add(c.price);
 
-    /**
-    @dev returns the address of a newer version of this contract
-    @return newerVersionOfContract, the address of the newer contract.
-     */
-    function getNewerContract() public view returns (address) {
-        return newerVersionOfContract;
-    }
+        token.transferFrom(_msgSender(), address(this), c.price);
 
-    /**
-    @dev sets a new contract as the newerVersionOfContract, if theres a newer contract address, you should use that.
-    @param _newerContract the address of the newer version of this contract.  
-    */
-    function setNewerContract(address _newerContract, string calldata versionName) public onlyOwner {
-        //TODO: make this use an emit event to let the frontend team know theres a newer version of this contract.
-        newerVersionOfContract = _newerContract;
+        p.feesCollected = p.feesCollected.add(c.price);
+        
+        collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
+
+        heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
+        heldBalances[c.ids[c.idPointOfNextEmpty]].catalog = _catalogID;
+
+        c.idPointOfNextEmpty++;
+        catalogs[_catalogID].cardsArray[_cardID].idPointOfNextEmpty = c.idPointOfNextEmpty;
+
+        emit Purchased(_msgSender(), _catalogID, _cardID, c.price);
+
+        return c.ids[c.idPointOfNextEmpty - 1];
     }
 
     /**
@@ -222,6 +177,52 @@ contract CreatorCollections is Ownable, Pausable {
 
         collectible.finalizedByArtist(_fanID, _data);
         //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
+
+        emit FanCollectibleDataSet(_catalog, _fanID, _data);
+    }
+
+    /**
+     * @dev called by the artist for them to get their money out of the contract!   
+     */
+    function withdrawFee() public {
+        uint256 amount = pendingWithdrawals[_msgSender()].mul(ARTIST_PERCENTAGE).div(100);
+        require(amount > 0, "nothing to withdraw");
+        creatonBalance = creatonBalance.add(pendingWithdrawals[_msgSender()].mul(CREATON_PERCENTAGE).div(100));
+        pendingWithdrawals[_msgSender()] = 0;
+        token.transfer(_msgSender(), amount);
+    }
+
+    function getCardReleaseTime(uint256 catalog, uint256 card) public view returns (uint256) {
+        return catalogs[catalog].cardsArray[card].releaseTime;
+    }
+
+    function getTotalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function getCardsArray(uint256 id) public view returns (Card[] memory) {
+        return catalogs[id].cardsArray;
+    }
+
+    /**
+    @dev returns the address of a newer version of this contract
+    @return newerVersionOfContract, the address of the newer contract.
+     */
+    function getNewerContract() public view returns (address) {
+        return newerVersionOfContract;
+    }
+
+    /**
+    @dev sets a new contract as the newerVersionOfContract, if theres a newer contract address, you should use that.
+    @param _newerContract the address of the newer version of this contract.  
+    */
+    function setNewerContract(address _newerContract, string calldata versionName) public onlyOwner {
+        //TODO: make this use an emit event to let the frontend team know theres a newer version of this contract.
+        newerVersionOfContract = _newerContract;
+    }
+
+    function setMarketPoints(MarketPoints _marketPoints) public onlyOwner {
+        marketPoints = _marketPoints;
     }
 
     function getCreatonCut(address recipient) public onlyOwner {

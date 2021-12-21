@@ -5,8 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 // import "hardhat/console.sol";
 
 contract FanCollectible is ERC1155, Ownable {
-
-
     uint256 private _currentTokenID = 0;
     address private _minter; //I was wrong! this is actually *very* important, and needs to be the address of the controlling contract!
     
@@ -19,6 +17,11 @@ contract FanCollectible is ERC1155, Ownable {
 
     mapping(uint256 => states) private stateOfCollectibles; //tokenID to state of collectible.
     mapping(uint256 => string) private collectibleRequestData; //tokenID to data about collectible request.
+
+    event MinterTransferred(address indexed previousMinter, address indexed newMinter);
+    event TokenAdded(uint256 indexed tokenID);
+    event Minted(address to, uint256 id, bytes data);
+    event RequestDataSet(uint256 indexed tokenID, string indexed collectibleRequestData);
 
     constructor(string memory _uri) ERC1155(_uri) {
         _minter = msg.sender;
@@ -46,9 +49,6 @@ contract FanCollectible is ERC1155, Ownable {
         _minter = newMinter;
     }
 
-    event MinterTransferred(address indexed previousMinter, address indexed newMinter);
-    event TokenAdded(uint256 indexed tokenID);
-    event RequestDataSet(uint256 indexed tokenID, string indexed collectibleRequestData);
     /**
      * @dev Mints some amount of tokens to an address
      * @param _to          Address of the future owner of the token
@@ -64,6 +64,8 @@ contract FanCollectible is ERC1155, Ownable {
         require(stateOfCollectibles[_id] == states.UNPURCHASED, "Max supply reached");
         _mint(_to, _id, 1, _data);
         stateOfCollectibles[_id] = states.PURCHASED;
+
+        emit Minted(_to, _id, _data);
     }
 
     /**
