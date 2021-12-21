@@ -13,7 +13,7 @@ contract NFTLance is Ownable, Pausable {
 
     event DeployedCreatorCollection(address creatorCollections, address fanCollectible, string fanCollectibleURI, address token);
 
-    constructor(string memory _fanCollectibleURI, IERC20 _tokenAddress) {
+    function deployCreatorCollection(string memory _fanCollectibleURI, IERC20 _tokenAddress) public {
         FanCollectible _fanCollectible = new FanCollectible(_fanCollectibleURI);
         CreatorCollections _creatorCollections = new CreatorCollections(_fanCollectible, _tokenAddress);
 

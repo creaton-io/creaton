@@ -62,7 +62,8 @@ describe('CreatorCollections', function(){
         testingTokenContract = await testingToken.deploy(6);
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
-        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        NFTLanceContract = await NFTLanceFactory.deploy();
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         const fanCollectibleAddress = await NFTLanceContract.fanCollectibleAddress();
         const creatorCollectionsAddress = await NFTLanceContract.creatorsCollections(OwnerAccount.address);
@@ -152,7 +153,8 @@ describe('Purchasing single', function(){
         testingTokenContract = await testingToken.deploy(6);
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
-        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        NFTLanceContract = await NFTLanceFactory.deploy();
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
@@ -226,7 +228,8 @@ describe('Purchasing multiples', function(){
         testingTokenContract = await testingToken.deploy(6);
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
-        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        NFTLanceContract = await NFTLanceFactory.deploy();
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
@@ -361,7 +364,8 @@ describe('Checking Payment to artist works correctly', function(){
         testingTokenContract = await testingToken.connect(testTokenOwner).deploy(6);
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
-        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        NFTLanceContract = await NFTLanceFactory.deploy();
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();

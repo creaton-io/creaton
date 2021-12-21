@@ -31,6 +31,17 @@ const func = async function (hre) {
     address: reactionFactory.address,
   });
 
+  console.log('NFTLance Deploy');
+  const nftLanceFactory = await deploy('NFTLance', {
+    from: admin,
+    log: true,
+  });
+
+  await hre.tenderly.verify({
+    name: 'NFTLance',
+    address: nftLanceFactory.address,
+  });
+
   console.log('CreatorV1');
   let implementationContract = await deploy('CreatorV1', {
     from: admin,
