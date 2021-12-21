@@ -7,10 +7,13 @@ import { BigNumber, ContractFactory } from "ethers";
 let OwnerAccount: SignerWithAddress;
 let TestingAccount1: SignerWithAddress;
 let TestingAccount2: SignerWithAddress;
+let testTokenOwner: SignerWithAddress;
+let NFTLanceFactory;
 let CollectibleFactory;
 let CollectionsFactory;
 let CollectibleContract: Contract;
 let CollectionsContract: Contract;
+let NFTLanceContract: Contract;
 let testingToken: ContractFactory;
 let testingTokenContract: Contract;
 const now = Math.floor(Date.now()/1000) -50;
@@ -56,14 +59,21 @@ describe('CreatorCollections', function(){
         [OwnerAccount,TestingAccount1,TestingAccount2] = await ethers.getSigners();
 
         testingToken = await ethers.getContractFactory('TestingToken');
-        CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectibleFactory = await ethers.getContractFactory('FanCollectible');
-
         testingTokenContract = await testingToken.deploy(6);
-        CollectibleContract = await CollectibleFactory.deploy('Pyrocoin');
 
-        CollectionsContract = await CollectionsFactory.deploy(CollectibleContract.address , testingTokenContract.address);
-        await CollectibleContract.transferMinter(CollectionsContract.address);
+        NFTLanceFactory = await ethers.getContractFactory('NFTLance');
+        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+
+        const fanCollectibleAddress = await NFTLanceContract.fanCollectibleAddress();
+        const creatorCollectionsAddress = await NFTLanceContract.creatorsCollections(OwnerAccount.address);
+        expect(fanCollectibleAddress).to.be.a.properAddress;
+        expect(creatorCollectionsAddress).to.be.a.properAddress;
+
+        CollectionsContract = await ethers.getContractAt('CreatorCollections', creatorCollectionsAddress);
+        CollectibleContract = await ethers.getContractAt('FanCollectible', fanCollectibleAddress);
+
+        expect(await CollectionsContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.owner()).to.equal(OwnerAccount.address);
         expect(await CollectibleContract.minter()).to.equal(CollectionsContract.address);
     });
 
@@ -118,11 +128,9 @@ describe('CreatorCollections', function(){
     });
 
     it ('Failing Create Catalog and Card', async function(){
-        [OwnerAccount,TestingAccount1,TestingAccount2] = await ethers.getSigners();
-
         let collectionId = 666;
         await expect(CollectionsContract.createCard(collectionId, 10, ethers.utils.parseEther("10000"), now))
-            .to.be.revertedWith("catalog does not exists");
+            .to.be.revertedWith("Catalog does not exists");
 
         await expect(CollectionsContract.createCatalog("Catalog Title", "Desc"))
             .to.emit(CollectionsContract, "CatalogAdded");
@@ -139,20 +147,28 @@ describe('Purchasing single', function(){
     beforeEach(async function(){
         [OwnerAccount,artistAccount,fanAccount, brokeAccount] = await ethers.getSigners();
 
-        CollectibleFactory = await ethers.getContractFactory('FanCollectible');
-        CollectibleContract = await CollectibleFactory.deploy('Pyrocoin');
-
         // make the testing currency 
         testingToken = await ethers.getContractFactory('TestingToken');
         testingTokenContract = await testingToken.deploy(6);
+
+        NFTLanceFactory = await ethers.getContractFactory('NFTLance');
+        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
         await testingTokenContract.connect(fanAccount).faucet();
 
-        CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.deploy(CollectibleContract.address , testingTokenContract.address);
-        await CollectibleContract.transferMinter(CollectionsContract.address);
+        const fanCollectibleAddress = await NFTLanceContract.fanCollectibleAddress();
+        const creatorCollectionsAddress = await NFTLanceContract.creatorsCollections(OwnerAccount.address);
+        expect(fanCollectibleAddress).to.be.a.properAddress;
+        expect(creatorCollectionsAddress).to.be.a.properAddress;
+
+        CollectionsContract = await ethers.getContractAt('CreatorCollections', creatorCollectionsAddress);
+        CollectibleContract = await ethers.getContractAt('FanCollectible', fanCollectibleAddress);
+
+        expect(await CollectionsContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.minter()).to.equal(CollectionsContract.address);
     });
 
     it('Single Purchase', async function(){
@@ -205,20 +221,28 @@ describe('Purchasing multiples', function(){
     beforeEach(async function(){
         [OwnerAccount, artistAccount, fanAccount, brokeAccount] = await ethers.getSigners();
 
-        CollectibleFactory = await ethers.getContractFactory('FanCollectible');
-        CollectibleContract = await CollectibleFactory.deploy('Pyrocoin');
-
         // make the testing currency 
         testingToken = await ethers.getContractFactory('TestingToken');
-        testingTokenContract = await testingToken.connect(fanAccount).deploy(6);
+        testingTokenContract = await testingToken.deploy(6);
+
+        NFTLanceFactory = await ethers.getContractFactory('NFTLance');
+        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
         await testingTokenContract.connect(fanAccount).faucet();
 
-        CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.connect(OwnerAccount).deploy(CollectibleContract.address , testingTokenContract.address);
-        await CollectibleContract.transferMinter(CollectionsContract.address);
+        const fanCollectibleAddress = await NFTLanceContract.fanCollectibleAddress();
+        const creatorCollectionsAddress = await NFTLanceContract.creatorsCollections(OwnerAccount.address);
+        expect(fanCollectibleAddress).to.be.a.properAddress;
+        expect(creatorCollectionsAddress).to.be.a.properAddress;
+
+        CollectionsContract = await ethers.getContractAt('CreatorCollections', creatorCollectionsAddress);
+        CollectibleContract = await ethers.getContractAt('FanCollectible', fanCollectibleAddress);
+
+        expect(await CollectionsContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.minter()).to.equal(CollectionsContract.address);
     });
 
     it('100 of 5 cards, 1 catalog, 0 Purchased', async function(){
@@ -330,22 +354,30 @@ describe('Checking Payment to artist works correctly', function(){
     let fanAccount: SignerWithAddress;
     let brokeAccount: SignerWithAddress;
     beforeEach(async function(){
-        [OwnerAccount, artistAccount, fanAccount, brokeAccount] = await ethers.getSigners();
-        
-        CollectibleFactory = await ethers.getContractFactory('FanCollectible');
-        CollectibleContract = await CollectibleFactory.deploy('Pyrocoin');
+        [OwnerAccount, artistAccount, fanAccount, brokeAccount, testTokenOwner] = await ethers.getSigners();
 
         // make the testing currency 
         testingToken = await ethers.getContractFactory('TestingToken');
-        testingTokenContract = await testingToken.connect(fanAccount).deploy(6);
+        testingTokenContract = await testingToken.connect(testTokenOwner).deploy(6);
+
+        NFTLanceFactory = await ethers.getContractFactory('NFTLance');
+        NFTLanceContract = await NFTLanceFactory.deploy("https://token-cdn-domain/{id}.json", testingTokenContract.address);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
         await testingTokenContract.connect(fanAccount).faucet();
 
-        CollectionsFactory = await ethers.getContractFactory('CreatorCollections');
-        CollectionsContract = await CollectionsFactory.connect(OwnerAccount).deploy(CollectibleContract.address , testingTokenContract.address);
-        await CollectibleContract.transferMinter(CollectionsContract.address);
+        const fanCollectibleAddress = await NFTLanceContract.fanCollectibleAddress();
+        const creatorCollectionsAddress = await NFTLanceContract.creatorsCollections(OwnerAccount.address);
+        expect(fanCollectibleAddress).to.be.a.properAddress;
+        expect(creatorCollectionsAddress).to.be.a.properAddress;
+
+        CollectionsContract = await ethers.getContractAt('CreatorCollections', creatorCollectionsAddress);
+        CollectibleContract = await ethers.getContractAt('FanCollectible', fanCollectibleAddress);
+
+        expect(await CollectionsContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.owner()).to.equal(OwnerAccount.address);
+        expect(await CollectibleContract.minter()).to.equal(CollectionsContract.address);
     });
 
     it('1 fulfilled purchase', async function(){

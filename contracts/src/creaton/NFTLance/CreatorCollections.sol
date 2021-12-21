@@ -3,7 +3,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "hardhat/console.sol";
+
 import "./FanCollectible.sol";
 import "../MarketPoints.sol";
 
@@ -54,7 +54,7 @@ contract CreatorCollections is Ownable, Pausable {
     event FanCollectibleDataSet(uint256 catalogId, uint256 fanId, bytes data);
 
     modifier catalogExists(uint256 id) {
-        require(catalogs[id].artist != address(0), "catalog does not exists");
+        require(catalogs[id].artist != address(0), "Catalog does not exists");
         _;
     }
 
@@ -90,7 +90,7 @@ contract CreatorCollections is Ownable, Pausable {
         string memory description
     ) public returns (uint256) {
         uint256 id = catalogsCount;
-        require(catalogs[id].artist == address(0), "catalog exists");
+        require(catalogs[id].artist == address(0), "Catalog exists");
 
         Catalog storage p = catalogs[id];
 
