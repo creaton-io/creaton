@@ -1,14 +1,14 @@
 /* eslint-disable prefer-const */
-import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate, ReactionFactoryDeployed } from '../generated/CreatonAdmin/CreatonAdmin';
+import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate } from '../generated/CreatonAdmin/CreatonAdmin';
 import {Content, Creator, Profile, Subscriber} from '../generated/schema';
 import {SubscriberEvent, PostContract, NewPost, HidePost} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
-import {Address, DataSourceContext, dataSource, json, Bytes, log} from '@graphprotocol/graph-ts';
+import {Address, DataSourceContext, dataSource, json, Bytes, log, BigInt} from '@graphprotocol/graph-ts';
 import { ReactionDeployed } from "../generated/templates/ReactionFactory/ReactionFactory";
 import { Staked, Reacted, Flowed } from "../generated/templates/ReactionToken/ReactionToken";
 import { Flowing } from "../generated/templates/StakedFlow/StakedFlow";
-import { ReactionDef, Stake, Reaction, User, Flow, StakedFlow } from "../generated/schema";
-import { ReactionToken as ReactionTokenTemplate, StakedFlow as StakedFlowTemplate, ReactionFactory as ReactionFactoryTemplate} from "../generated/templates";
+import { ReactionDef, Stake, Reaction, ReactionUser, Flow, StakedFlow } from "../generated/schema";
+import { ReactionToken as ReactionTokenTemplate, StakedFlow as StakedFlowTemplate} from "../generated/templates";
 
 // const zeroAddress = '0x0000000000000000000000000000000000000000';
 
@@ -31,7 +31,11 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   if (profile) {
     entity.profile = profile.id;
   }
+
+  entity.reactionsReceived = BigInt.fromI32(0);
   entity.save();
+
+  linkCreatorWithReactionUser(id, event.params.creatorContract);
 }
 
 export function handleSubscriberEvent(event: SubscriberEvent): void {
@@ -134,19 +138,13 @@ export function handleHidePost(event: HidePost): void {
 //   entity.save();
 // }
 
-export function handleReactionFactoryDeployed(event: ReactionFactoryDeployed): void{ 
-  let context = new DataSourceContext();
-  context.setBytes('contract', event.params.factoryContractAddress);
-  ReactionFactoryTemplate.createWithContext(event.params.factoryContractAddress, context);
-}
-
 export function handleReactionDeployed(event: ReactionDeployed): void {
   let entity = ReactionDef.load(event.params.reactionContractAddr.toHex());
   if (entity == null) {
     entity = new ReactionDef(event.params.reactionContractAddr.toHex());
   }
   
-  entity.user = createUser(event.params.creator).id;
+  entity.reactionUser = createReactionUser(event.params.creator).id;
   entity.contract = event.params.reactionContractAddr;
   entity.name = event.params.reactionTokenName;
   entity.symbol = event.params.reactionTokenSymbol;
@@ -164,7 +162,7 @@ export function handleStake(event: Staked): void {
     entity = new Stake(event.transaction.hash.toHex());
   }
 
-  entity.user = createUser(event.params.author).id;
+  entity.reactionUser = createReactionUser(event.params.author).id;
   entity.token = event.params.stakingTokenAddress;
   entity.amount = event.params.amount;
   entity.reaction = event.transaction.hash.toHex();
@@ -179,13 +177,22 @@ export function handleReacted(event: Reacted): void {
 
   let reactionDef = ReactionDef.load(event.params.reactionTokenAddress.toHex());
 
-  entity.user = createUser(event.params.author).id;
+  let ruser: ReactionUser = createReactionUser(event.params.author)
+  entity.reactingUser = ruser.id;
   entity.reaction = reactionDef.id;
   entity.amount = event.params.amount;
   entity.reactionRecipientAddress = event.params.reactionRecipientAddress;
   entity.tokenId = event.params.tokenId;
-  
   entity.save();
+
+  // Ading reaction to the Recipient
+  let recipientReactionUser: ReactionUser = createReactionUser(event.params.reactionRecipientAddress)
+  recipientReactionUser.reactionsReceived = recipientReactionUser.reactionsReceived.plus(event.params.amount);
+  recipientReactionUser.save();
+
+  let creator = Creator.load(recipientReactionUser.creator);
+  creator.reactionsReceived = recipientReactionUser.reactionsReceived;
+  creator.save();
 }
 
 export function handleFlowed(event: Flowed): void {
@@ -197,7 +204,7 @@ export function handleFlowed(event: Flowed): void {
   entity.stakedFlow = createStakedFlow(event.params.flow).id;
   entity.amount = event.params.amount;
   entity.stakingTokenAddress = event.params.stakingTokenAddress;
-  entity.recipient = createUser(event.params.recipient).id;
+  entity.recipient = createReactionUser(event.params.recipient).id;
   entity.stakingSuperTokenAddress = event.params.stakingSuperTokenAddress;
   entity.reaction = event.transaction.hash.toHex();
   entity.save();
@@ -212,20 +219,29 @@ export function handleFlowing(event: Flowing): void {
   
   stakedFlow.stakingSuperToken = event.params.stakingSuperToken;
   stakedFlow.balance = event.params.balance;
-  stakedFlow.recipient = createUser(event.params.recipient).id;
+  stakedFlow.recipient = createReactionUser(event.params.recipient).id;
   stakedFlow.flowRate = event.params.flowRate;
   stakedFlow.save();
 }
 
-export function createUser(address: Address): User {
-  let user = User.load(address.toHexString());
-  if (user === null) {
-    user = new User(address.toHexString());
-    user.address = address;
-    user.save();
+export function createReactionUser(address: Address): ReactionUser {
+  let ruser = ReactionUser.load(address.toHexString());
+  if (ruser === null) {
+    ruser = new ReactionUser(address.toHexString());
+    ruser.reactionsReceived = BigInt.fromI32(0);
+    ruser.address = address;
+    ruser.save();
   }
 
-  return user as User;
+  return ruser as ReactionUser;
+}
+
+export function linkCreatorWithReactionUser(creatorId: string, address: Address): ReactionUser {
+  let ruser = createReactionUser(address);
+  ruser.creator = creatorId;
+  ruser.save();
+
+  return ruser as ReactionUser;
 }
 
 export function createStakedFlow(address: Address): StakedFlow {
