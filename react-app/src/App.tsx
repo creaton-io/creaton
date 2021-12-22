@@ -500,9 +500,9 @@ const ProfileMenu = (props) => {
           {currentCreator && <NavigationLink to="/subscribers" label="Subscribers" />}
           {canBecomeCreator && <NavigationLink to="/upload" label="Upload" />}
           {<NavigationLink to="/signup" label={currentProfile ? 'My Profile' : 'Make Profile'} />}
-          {/* {currentProfile &&
-          <NavigationLink to="/flows" label="My Flows"/>
-          } */}
+          {currentProfile &&
+            <NavigationLink to="/flows" label="My Flows"/>
+          }
         </div>
       </div>
     </div>

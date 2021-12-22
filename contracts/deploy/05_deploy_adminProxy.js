@@ -43,8 +43,7 @@ const func = async function (hre) {
       treasuryFee,
       beaconContract.address,
       nftFactory.address,
-      trustedforwarder,
-      reactionFactory.address,
+      trustedforwarder
     ],
     {kind: 'uups'}
   );

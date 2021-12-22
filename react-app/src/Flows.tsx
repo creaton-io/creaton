@@ -1,14 +1,30 @@
 import { FC, useEffect, useState } from "react";
-import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
-import { REACTIONS_GRAPHQL_URI } from "./Config";
+import { gql, useQuery } from "@apollo/client";
 import { UserFlow } from "./components/user.flow";
-import { useWeb3React } from "@web3-react/core";
+import { useWeb3React } from './web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 
 export const Flows: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
 
     const [flows, setFlows] = useState([]);
+    const [userAddress, setUserAddress] = useState('');
+
+    const FLOWS_QUERY = gql`
+        query($userAddress: Bytes!) {
+            stakedFlows(where: {recipient: $userAddress}) {
+                id
+                stakingSuperToken
+                balance
+                flowRate
+            }
+        }
+    `;
+
+    const reactionsQuery = useQuery(FLOWS_QUERY, {
+        variables: {'userAddress': userAddress.toLocaleLowerCase()},
+        pollInterval: 10000,
+    });
 
     useEffect(() => {
         (async function iife() {
@@ -17,31 +33,14 @@ export const Flows: FC = () => {
 
             const signer = library!.getSigner();
             const address = await signer.getAddress();
-
-            getFlows(address);
-        })();
-    }, [web3Context]);
-
-    async function getFlows(userAddress: string){
-        const flowsQuery = `
-            query($userAddress: Bytes!) {
-                stakedFlows(where: {recipient: $userAddress}) {
-                    id
-                    stakingSuperToken
-                    balance
-                    flowRate
-                }
+            setUserAddress(address);
+            console.log('hmmm', address);
+            console.log('reactionsQuery data:', reactionsQuery.data);
+            if(reactionsQuery.data){
+                setFlows(reactionsQuery.data.stakedFlows);
             }
-        `;
-
-        const client = new ApolloClient({
-            uri: REACTIONS_GRAPHQL_URI,
-            cache: new InMemoryCache()
-        });
-
-        const data = await client.query({query: gql(flowsQuery), variables: {'userAddress': userAddress.toLowerCase()}});
-        setFlows(data.data.stakedFlows);
-    }
+        })();
+    }, [reactionsQuery, web3Context]);
 
     return (
         <>
