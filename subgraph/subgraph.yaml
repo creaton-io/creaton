@@ -23,6 +23,8 @@ dataSources:
           handler: handleProfileUpdate
         - event: CreatorDeployed(address,address,string,uint256)
           handler: handleCreatorDeployed
+        - event: ReactionFactoryDeployed(address)
+          handler: handleReactionFactoryDeployed
       file: ./src/mapping.ts
   - kind: ethereum/contract
     name: ReactionFactory
