@@ -1,0 +1,112 @@
+@font-face {
+    font-family: "inter";
+    src: url("./fonts/Inter-Regular.ttf") format("truetype");
+    font-weight: normal;
+    font-style: normal;
+}
+
+main {
+    position: relative;
+}
+
+* {
+    font-family: "inter";
+}
+
+.w-fit {
+    width: fit-content;
+}
+
+.address-wrapper {
+    background-color: rgba(67, 226, 150, 0.1);
+}
+
+.content-wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+.content-wrapper > div,
+.content-wrapper > main {
+    width: 50%;
+}
+
+.slider-container {
+    background-image: url("/assets/images/background.png");
+    background-size: 100% 100%;
+}
+
+.slider-container > div {
+    max-width: 400px;
+    margin-left: calc((100% - 400px) / 3 * 2);
+}
+
+.slick-slide img {
+    max-width: fit-content;
+}
+
+.slick-dots li,
+.slick-dots li button {
+    width: 8px !important;
+    height: 8px !important;
+}
+
+.slick-dots li.slick-active {
+    width: 24px !important;
+}
+
+.slick-dots li {
+    margin: 0 8px !important;
+}
+
+.slick-dots li button::before {
+    opacity: 0.5 !important;
+    font-size: 0px !important;
+    background-color: white;
+    width: 8px !important;
+    height: 8px !important;
+    border-radius: 50%;
+}
+
+.slick-dots li.slick-active button::before {
+    background-color: #43e296 !important;
+    opacity: 1 !important;
+    width: 24px !important;
+    border-radius: 10px !important;
+}
+
+.footer-container {
+    left: calc((100% - 28rem) / 2);
+}
+
+.partner-container::-webkit-scrollbar {
+    display: none;
+}
+
+.partner-container {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+}
+
+a.active::before{
+    content: '.';
+    background-color: #43e296;
+    width: 12px;
+    height: 3px;
+    border-radius: 10px;
+    font-size: 0px;
+    position: absolute;
+    bottom: -12px;
+    left: calc(50% - 6px);
+}
+
+@media screen and (max-width: 1024px) {
+    .content-wrapper {
+        flex-direction: column;
+    }
+    .content-wrapper > div,
+    .content-wrapper > main {
+        width: 100%;
+        min-height: 100vh;
+    }
+}
