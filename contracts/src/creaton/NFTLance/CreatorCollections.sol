@@ -48,8 +48,7 @@ contract CreatorCollections is Ownable, Pausable {
     MarketPoints public marketPoints;
 
     event CatalogAdded(uint256 catalogId, string title, string description, address artist, uint256 periodStart);
-    event CardAdded(uint256 catalogId, uint256[] cardIds, uint256 price, uint256 releaseTime);
-    event UpdatedArtist(uint256 catalogId, address artist);
+    event CardAdded(uint256 cardId, uint256 catalogId, uint256[] tokenIds, uint256 price, uint256 releaseTime);
     event Purchased(address indexed user, uint256 catalogId, uint256 cardId, uint256 amount);
     event FanCollectibleDataSet(uint256 catalogId, uint256 fanId, bytes data);
 
@@ -123,9 +122,10 @@ contract CreatorCollections is Ownable, Pausable {
             //so this generates all the token IDs that will be used, and makes each one unique.
         }
         catalogs[catalog].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
+        uint256 cardId = catalogs[catalog].cardsInCatalog;
         catalogs[catalog].cardsInCatalog++;
 
-        emit CardAdded(catalog, tokenIdsGenerated, price, releaseTime);
+        emit CardAdded(cardId, catalog, tokenIdsGenerated, price, releaseTime);
     }
     
     function purchase(uint256 _catalogID, uint256 _cardID)

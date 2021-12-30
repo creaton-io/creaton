@@ -18,7 +18,6 @@ contract FanCollectible is ERC1155, Ownable {
     mapping(uint256 => string) private collectibleRequestData; //tokenID to data about collectible request.
 
     event MinterTransferred(address indexed previousMinter, address indexed newMinter);
-    event TokenAdded(uint256 indexed tokenID);
     event Minted(address to, uint256 id, bytes data);
     event RequestDataSet(uint256 indexed tokenID, string indexed collectibleRequestData);
 

@@ -8,7 +8,6 @@ import "./CreatorCollections.sol";
 import "./FanCollectible.sol";
 
 contract NFTLance is Ownable, Pausable {
-    address public fanCollectibleAddress;
     mapping (address => address) public creatorsCollections;  // deployer(creator) -> CreatorCollections registry
 
     event DeployedCreatorCollection(address creatorCollections, address fanCollectible, string fanCollectibleURI, address token);
@@ -21,9 +20,8 @@ contract NFTLance is Ownable, Pausable {
         _fanCollectible.transferMinter(address(_creatorCollections));
         _fanCollectible.transferOwnership(_msgSender());
 
-        fanCollectibleAddress = address(_fanCollectible);
         creatorsCollections[_msgSender()] = address(_creatorCollections);
 
-        emit DeployedCreatorCollection(creatorsCollections[_msgSender()], fanCollectibleAddress, _fanCollectibleURI, address(_tokenAddress));
+        emit DeployedCreatorCollection(creatorsCollections[_msgSender()], address(_fanCollectible), _fanCollectibleURI, address(_tokenAddress));
     }
 }
