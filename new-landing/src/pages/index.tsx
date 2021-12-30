@@ -2,10 +2,14 @@ import Link from 'next/link';
 import Layout from '../layout/Layout';
 import { Button } from '../components/button/Button';
 
-export default function Index() {
+type IndexProps = {
+	theme: string;
+};
+
+export default function Index(props: IndexProps) {
 
     return (
-        <Layout>
+        <Layout theme={props.theme}>
             <div className='flex flex-col'>
                 <h2 className='text-indigo-900 text-2xl font-bold mb-2'>Connect Directly</h2>
                 <p className='text-gray-500 text-sm opacity-90'>Engage Fans, Build an Unstoppable Income</p>

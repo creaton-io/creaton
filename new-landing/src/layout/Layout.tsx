@@ -9,16 +9,17 @@ import Banner from './banner'
 
 type Props = {
     children: ReactNode;
+    theme: string;
 };
 
-export default function Layout({ children }: Props) {
+export default function Layout(props: Props) {
     const router = useRouter();
     return (
         <>
-            <Header />
+            <Header theme={props.theme} />
             <div className='content-wrapper min-h-screen'>
                 <Banner />
-                <main>
+                <main className='w-1/2'>
                     <div className="antialiased text-gray-600 h-full">
                         <Meta title={AppConfig.title} description={AppConfig.description} />
                         <div className='w-full flex items-center h-full'>
@@ -27,7 +28,7 @@ export default function Layout({ children }: Props) {
                                     <p className='text-indigo-900 text-xs px-2 font-bold'>0x89021...28931</p>
                                     <img src={`${router.basePath}/assets/images/avatar.png`} alt={'Avatar'} />
                                 </div>
-                                {children}
+                                {props.children}
                                 <Footer />
                             </div>
                         </div>

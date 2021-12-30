@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 
 type ILogoProps = {
   xl?: boolean;
+  noTheme?: boolean;
+  theme?: string;
 };
 
 const Logo = (props: ILogoProps) => {
@@ -12,7 +14,7 @@ const Logo = (props: ILogoProps) => {
     : 'font-semibold text-2xl';
 
   return (
-    <span className={`text-white inline-flex items-center ${fontStyle}`}>
+    <span className={`${props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'} inline-flex items-center ${fontStyle}`}>
       <img src={`${router.basePath}/assets/images/logo.png`} alt={'Logo'} />
       {AppConfig.site_name}
     </span>

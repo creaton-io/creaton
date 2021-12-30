@@ -1,12 +1,15 @@
-import { useRef, useState } from 'react'
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import Layout from '../layout/Layout';
 import { Input } from '../components/input/Input';
 import { Button } from '../components/button/Button';
 import { FaCamera } from "react-icons/fa";
-import { url } from 'inspector';
 
-export default function SignupUser() {
+type IndexProps = {
+	theme: string;
+};
+
+export default function SignupUser(props: IndexProps) {
     const [image, setImage] = useState<any>();
     const inputFile = useRef<HTMLInputElement>(null);
 
@@ -25,7 +28,7 @@ export default function SignupUser() {
     }
 
     return (
-        <Layout>
+        <Layout theme={props.theme}>
             <div className='flex flex-col'>
                 <Link href='/'>
                     <a className='w-fit text-indigo-900 text-sm font-bold'>

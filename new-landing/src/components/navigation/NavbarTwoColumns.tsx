@@ -5,6 +5,8 @@ import Link from 'next/link';
 type INavbarProps = {
   logo: ReactNode;
   children: ReactNode;
+  noTheme?: boolean;
+  theme: string;
 };
 
 export default function NavbarTwoColumns(props: INavbarProps) {
@@ -16,15 +18,15 @@ export default function NavbarTwoColumns(props: INavbarProps) {
   }, [])
   return (
     <div className="flex flex-wrap justify-between items-center">
-      <div className='flex items-center text-white'>
+      <div className='flex items-center text-white z-10'>
         <Link href="/">
           <a>{props.logo}</a>
         </Link>
-        <Link href="/">
-          <a className='ml-10 text-base'>Creators</a>
+        <Link href="/creators">
+          <a className={`ml-10 font-bold text-sm ${props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'} ${path === '/creators' ? 'active relative' : ''}`}>Creators</a>
         </Link>
         <Link href="/partner">
-          <a className={path == '/partner' ? 'mx-5 text-base active relative' : 'mx-5 text-base'}>Partners</a>
+          <a className={`mx-5 font-bold text-sm ${props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'} ${path === '/partner' ? 'active relative' : ''}`}>Partners</a>
         </Link>
       </div>
 
@@ -33,18 +35,6 @@ export default function NavbarTwoColumns(props: INavbarProps) {
           {props.children}
         </ul>
       </nav>
-
-      <style jsx>
-        {`
-      .navbar :global(li:not(:first-child)) {
-        @apply mt-0;
-      }
-
-      .navbar :global(li:not(:last-child)) {
-        @apply mr-5;
-      }
-    `}
-      </style>
     </div>
   )
 }

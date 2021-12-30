@@ -44,7 +44,7 @@ export default function Banner() {
         slidesToScroll: 1
     };
     return (
-        <div className='slider-container p-5 flex items-center'>
+        <div className='w-1/2 slider-container p-5 flex items-center'>
             <div>
                 <Slider {...settings} className='w-full'>
                     {

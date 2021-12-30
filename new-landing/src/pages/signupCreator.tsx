@@ -3,10 +3,14 @@ import Layout from '../layout/Layout';
 import { Input } from '../components/input/Input';
 import { Button } from '../components/button/Button';
 
-export default function SignupCreator() {
+type IndexProps = {
+	theme: string;
+};
+
+export default function SignupCreator(props: IndexProps) {
 
     return (
-        <Layout>
+        <Layout theme={props.theme}>
             <div className='flex flex-col'>
                 <Link href='/'>
                     <a className='w-fit text-indigo-900 text-sm font-bold'>

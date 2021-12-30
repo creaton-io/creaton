@@ -3,7 +3,11 @@ import Layout from '../layout/Layout';
 import { Button } from '../components/button/Button';
 import { PartnerItem } from '../components/partner/Item';
 
-export default function Partner() {
+type IndexProps = {
+	theme: string;
+};
+
+export default function Partner(props: IndexProps) {
     const items = [
         {
             image: '/assets/images/partnerImage1.png',
@@ -32,7 +36,7 @@ export default function Partner() {
     ];
 
     return (
-        <Layout>
+        <Layout theme={props.theme}>
             <div>
                 <Link href='/'>
                     <a className='w-fit text-indigo-900 text-sm font-bold'>
