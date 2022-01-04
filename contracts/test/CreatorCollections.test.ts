@@ -190,7 +190,7 @@ describe('Purchasing single', function(){
             .to.emit(CollectionsContract,"Purchased")
             .withArgs(fanAccount.address, expectedCatalogId, cardId, cardPrice);
         
-        await CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "Hello World Image! Please and thank you!");
+        await CollectibleContract.connect(fanAccount).setRequestData(cardId, catalogCards[cardId].ids[0], "Hello World Image! Please and thank you!");
     });
 
     it('Single purchase with errors', async function(){
@@ -402,19 +402,19 @@ describe('Checking Payment to artist works correctly', function(){
         expect(await testingTokenContract.balanceOf(artistAccount.address)).to.be.equal(startingArtistBalance);
 
         const catalogCards = await CollectionsContract.getCardsArray(expectedCatalogId);
-
+        const testCardId = 0;
         //1068 *should* be gotten by the Graph API, but instead it is hardcoded to whatever the ID would be after running this code.
-        await expect(CollectibleContract.connect(brokeAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
+        await expect(CollectibleContract.connect(brokeAccount).setRequestData(testCardId, catalogCards[testCardId].ids[0], "hello world"))
             .to.be.revertedWith("Token not owned by sender");
 
-        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
+        await expect(CollectibleContract.connect(fanAccount).setRequestData(testCardId, catalogCards[testCardId].ids[0], "hello world"))
             .to.emit(CollectibleContract, "RequestDataSet");
-        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef"))
+        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(expectedCatalogId, testCardId, catalogCards[testCardId].ids[0], "0xabcdef"))
             .to.be.revertedWith("not the artist");
-        await expect(CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef"))
-            .to.emit(CollectionsContract,"FanCollectibleDataSet").withArgs(expectedCatalogId, catalogCards[expectedCatalogId].ids[0], "0xabcdef");
+        await expect(CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, testCardId, catalogCards[testCardId].ids[0], "0xabcdef"))
+            .to.emit(CollectionsContract,"FanCollectibleDataSet").withArgs(expectedCatalogId, testCardId, catalogCards[testCardId].ids[0], "0xabcdef");
 
-        await expect(CollectibleContract.connect(fanAccount).setRequestData(catalogCards[expectedCatalogId].ids[0], "hello world"))
+        await expect(CollectibleContract.connect(fanAccount).setRequestData(testCardId, catalogCards[testCardId].ids[0], "hello world"))
             .to.be.revertedWith("Token has already been finalized");
 
         //testing that artists get their money

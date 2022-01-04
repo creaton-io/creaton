@@ -4685,6 +4685,19 @@
       },
       {
         "inputs": [],
+        "name": "fanCollectibleAddress",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
         "name": "owner",
         "outputs": [
           {
@@ -4730,7 +4743,7 @@
         "type": "function"
       }
     ],
-    "address": "0x0003c6dFc5c7e20D25F907676dCcf359B2972CA2"
+    "address": "0x26264e9333fFDbdcd1e797168A1Dc93bc078d9CA"
   },
   "creatorCollections": {
     "abi": [
@@ -4831,6 +4844,12 @@
             "indexed": false,
             "internalType": "uint256",
             "name": "catalogId",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "cardId",
             "type": "uint256"
           },
           {
@@ -5238,6 +5257,11 @@
           },
           {
             "internalType": "uint256",
+            "name": "_cardId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
             "name": "_fanID",
             "type": "uint256"
           },
@@ -5430,6 +5454,12 @@
       {
         "anonymous": false,
         "inputs": [
+          {
+            "indexed": true,
+            "internalType": "uint256",
+            "name": "cardID",
+            "type": "uint256"
+          },
           {
             "indexed": true,
             "internalType": "uint256",
@@ -5808,6 +5838,11 @@
       },
       {
         "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "cardId",
+            "type": "uint256"
+          },
           {
             "internalType": "uint256",
             "name": "_id",

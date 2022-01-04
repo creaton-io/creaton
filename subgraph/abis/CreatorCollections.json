@@ -101,6 +101,12 @@
       {
         "indexed": false,
         "internalType": "uint256",
+        "name": "cardId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
         "name": "fanId",
         "type": "uint256"
       },
@@ -499,6 +505,11 @@
       {
         "internalType": "uint256",
         "name": "_catalog",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_cardId",
         "type": "uint256"
       },
       {

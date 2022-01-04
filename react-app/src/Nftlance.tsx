@@ -9,6 +9,7 @@ import { Textarea } from "./elements/textArea";
 import { NotificationHandlerContext } from "./ErrorHandler";
 import creaton_contracts from "./Contracts";
 import { gql, useQuery } from "@apollo/client";
+import { NftlanceCollection } from "./components/nftlance.collection";
 
 export const Nftlance: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
@@ -17,7 +18,7 @@ export const Nftlance: FC = () => {
     const [createCreatorsCollectionsVisible, setCreateCreatorsCollectionsVisible] = useState<boolean>(false);
     const [creatorCollectionsAddress, setCreatorCollectionsAddress] = useState<string|boolean>(false);
     const [createNftCatalogVisible, setCreateNftCatalogVisible] = useState<boolean>(false);
-    const [nftLances, setNftLances] = useState();
+    const [collectionsData, setCollectionsData] = useState([]);
     const [creatorAddress, setCreatorAddress] = useState("");
 
     useEffect(() => {
@@ -37,14 +38,26 @@ export const Nftlance: FC = () => {
                 id
                 creatorCollections (where: {creator: $creatorAddress}) {
                     id
-                    creatonBalance
-                    artistPercentage
-                    newerVersionOfContract
                     token
                     collectible
-                    totalSupply
                     catalogs {
                         id
+                        artist
+                        title
+                        description
+                        cardsInCatalog
+                        cards {
+                            id
+                            price
+                            releaseTime
+                            idPointOfNextEmpty
+                            tokensCount
+                            tokens {
+                                id
+                                state
+                                requestData
+                            }
+                        }
                     }
                     catalogsCount
                 }
@@ -53,9 +66,9 @@ export const Nftlance: FC = () => {
     `;
     const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: creatorAddress.toLocaleLowerCase()}});
     useEffect(() => {
-    if (contentsQuery.data) {
-        setNftLances(contentsQuery.data.nftlances[0].creatorCollections);
+    if (contentsQuery.data && contentsQuery.data.nftlances[0]) {
         if(contentsQuery.data.nftlances[0].creatorCollections.length > 0){
+            setCollectionsData(contentsQuery.data.nftlances[0].creatorCollections[0].catalogs);
             setCreatorCollectionsAddress(contentsQuery.data.nftlances[0].creatorCollections[0].id);
         }
     }
@@ -149,6 +162,10 @@ export const Nftlance: FC = () => {
                     }
                 </div>
             }
+
+            { collectionsData.length > 0 && <div className="mt-10">
+                {collectionsData.map((c,i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} />)}
+            </div>}
         </div>
     )
 };

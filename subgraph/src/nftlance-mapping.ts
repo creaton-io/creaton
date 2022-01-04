@@ -4,7 +4,7 @@ import { Card, Catalog, Creator, CreatorCollections, FanCollectible, NFTLance, T
 import { CreatorCollections as CreatorCollectionsTemplate, FanCollectible as FanCollectibleTemplate, ReactionToken } from "../generated/templates";
 
 import { CardAdded, CatalogAdded, FanCollectibleDataSet, Purchased } from "../generated/templates/CreatorCollections/CreatorCollections";
-import { Minted, RequestDataSet } from "../generated/templates/FanCollectible/FanCollectible";
+import { RequestDataSet } from "../generated/templates/FanCollectible/FanCollectible";
 
 export function handleDeployedCreatorCollections(event: DeployedCreatorCollectionsEvent): void {
     let id = event.transaction.hash.toHex();
@@ -19,11 +19,11 @@ export function handleDeployedCreatorCollections(event: DeployedCreatorCollectio
 
     let context = new DataSourceContext()
     context.setBytes('contract', event.params.creatorCollections);
-    CreatorCollectionsTemplate.createWithContext(event.params.fanCollectible, context);
+    CreatorCollectionsTemplate.createWithContext(event.params.creatorCollections, context);
 
     let context2 = new DataSourceContext()
-    context2.setBytes('contract', event.params.creatorCollections);
-    FanCollectibleTemplate.createWithContext(event.params.fanCollectible, context);
+    context2.setBytes('contract', event.params.fanCollectible);
+    FanCollectibleTemplate.createWithContext(event.params.fanCollectible, context2);
 }
 
 export function handleCatalogAdded(event: CatalogAdded): void {
@@ -64,6 +64,7 @@ export function handleCardAdded(event: CardAdded): void {
     card.price = event.params.price;
     card.releaseTime = event.params.releaseTime;
     card.idPointOfNextEmpty = BigInt.fromI32(0);
+    card.tokensCount = BigInt.fromI32(event.params.tokenIds.length);
     card.save();
 
     for(let i = 0; i < event.params.tokenIds.length; i++){
@@ -74,12 +75,12 @@ export function handleCardAdded(event: CardAdded): void {
 export function handlePurchased(event: Purchased): void {
     let cardId = event.transaction.to.toHex() + "-" + event.params.cardId.toString();
     let card = Card.load(cardId);
-
-    let tokenId: string = cardId.toString() + "-" + card.idPointOfNextEmpty.toString();
-
     card.idPointOfNextEmpty = card.idPointOfNextEmpty.plus(BigInt.fromI32(1));
     card.save();
 
+    let creatorCollection = CreatorCollections.load(event.transaction.to.toHex());
+
+    let tokenId: string = creatorCollection.collectible.toString() + "-" + cardId.toString() + "-" + card.idPointOfNextEmpty.toString();
     let token = Token.load(tokenId);
     token.state = "PURCHASED";
     token.owner = event.params.user;
@@ -87,15 +88,17 @@ export function handlePurchased(event: Purchased): void {
 }
 
 export function handleRequestDataSet(event: RequestDataSet): void {   
-    let tokenId: string = event.transaction.to.toHex() + "-" + event.params.tokenID.toString();
+    let cardId = event.params.cardID;
+    let tokenId: string = event.transaction.to.toHex() + "-" + cardId.toString() + "-" + event.params.tokenID.toString();
     let token = Token.load(tokenId);
     token.requestData = event.params.collectibleRequestData.toString();
     token.save();
     
 }
 export function handleFanCollectibleDataSet(event: FanCollectibleDataSet): void {
+    let cardId = event.params.cardId;
     let creatorsCollection = CreatorCollections.load(event.transaction.to.toHex());
-    let tokenId: string = creatorsCollection.collectible.toString() + "-" + event.params.fanId.toString();
+    let tokenId: string = creatorsCollection.collectible.toString() + "-" + cardId.toString() + "-" + event.params.fanId.toString();
     let token = Token.load(tokenId);
     token.state = "PURCHASED_AND_FINALIZED";
     token.save();
@@ -145,7 +148,7 @@ export function createFanCollectible(
 }
 
 export function createCardToken(tokenId: number, cardId: string, fanCollectibleId: string): Token {
-    let id: string = fanCollectibleId.toString() + "-" + tokenId.toString();
+    let id: string = fanCollectibleId.toString() + "-" + cardId.toString() + "-" + tokenId.toString();
 
     let token = Token.load(id);
     if (token === null) {
