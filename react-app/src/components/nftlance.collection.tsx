@@ -1,7 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "../web3-react/core";
 import { Contract, ethers } from "ethers";
-import { FC, useContext, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import creaton_contracts from "../Contracts";
 import { Button } from "../elements/button";
 import { Input } from "../elements/input";
@@ -11,15 +11,30 @@ import { NotificationHandlerContext } from "../ErrorHandler";
 interface NftlanceCollectionProps {
     collection: any
     creatorCollectionsAddress: any
+    collectionsToken: any
 }
 
-export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, creatorCollectionsAddress }) => {
+export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, creatorCollectionsAddress, collectionsToken }) => {
     const web3Context = useWeb3React<Web3Provider>();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [createCardsVisible, setCreateCardsVisible] = useState(false);
-    const [cardsVisible, setcardsVisible] = useState(false);
-console.log('Collection: ', collection);
+    const [collectionsTokenDecimals, setCollectionsTokenDecimals] = useState(0);
+    const [collectionsTokenSymbol, setCollectionsTokenSymbol] = useState("");
+
+    useEffect(() => {
+        (async function iife() {
+            const { library } = web3Context;
+            if(!library) return;
+
+            const signer = library!.getSigner();
+
+            const erc20Contract: Contract = new Contract(collectionsToken, creaton_contracts.erc20.abi, signer);
+            setCollectionsTokenDecimals(await erc20Contract.decimals());
+            setCollectionsTokenSymbol(await erc20Contract.symbol());
+        })();
+    }, [web3Context]);
+
     async function handleCreateCards(e){
         web3utils.setIsWaiting(true);
         e.preventDefault();
@@ -49,8 +64,44 @@ console.log('Collection: ', collection);
         }
     }
 
-    async function handleBuy(id) { 
-        alert(id);
+    async function handleBuy(card) { 
+        web3utils.setIsWaiting(true);
+        const { library } = web3Context;
+        if(!library) return;
+
+        try {
+            const catalogId = collection.id.split("-")[1];
+            const cardId = card.id.split("-")[1];
+            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const userAddress = await signer.getAddress();
+
+            const creatorCollectionContract: Contract = new Contract(creatorCollectionsAddress, creaton_contracts.creatorCollections.abi, signer);
+
+            // Allowance
+            const erc20Contract: Contract = new Contract(collectionsToken, creaton_contracts.erc20.abi, signer);
+            const purchaseAmount = ethers.BigNumber.from(card.price).mul(ethers.BigNumber.from(10).pow(collectionsTokenDecimals));
+
+            const allowance = await erc20Contract.allowance(userAddress, creatorCollectionsAddress);
+            if(purchaseAmount.gt(allowance)){
+              let tx = await erc20Contract.approve(creatorCollectionsAddress, purchaseAmount);
+              await tx.wait();
+              let receipt = await tx.wait();
+              receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+              if(receipt.length == 0){
+                throw Error('Error allowing token for purchasing');
+              }
+            }
+
+            await creatorCollectionContract.purchase(catalogId, cardId);
+            creatorCollectionContract.once("Purchased", async (user, catalogId, cardId, amount) => {
+                web3utils.setIsWaiting(false);
+                notificationHandler.setNotification({description: 'Card purchased successfully!', type: 'success'});
+            });
+        } catch (error: any) {
+            web3utils.setIsWaiting(false);
+            notificationHandler.setNotification({description: 'Could not purchase card: ' + error.message, type: 'error'});
+        }
+
     }
 
     return (
@@ -76,11 +127,11 @@ console.log('Collection: ', collection);
                             <h5 className="mt-5 text-lg font-semibold text-white">{`${collection.cardsInCatalog} cards in this collection`}</h5>
                             <ul className="text-left text-white">
                                 {collection.cards.map((c,i) => 
-                                    <li className="mb-2">
-                                        <span className="mr-2">Price: { ethers.utils.formatEther(c.price) }</span>
-                                        <span className="mr-2">Release Time: { c.releaseTime }</span>
-                                        <span className="mr-2">Tokens available: {`${c.tokensCount-c.idPointOfNextEmpty} of ${c.tokensCount}`}</span>
-                                        <Button label="Buy one!" onClick={() => handleBuy(c.id)} />
+                                    <li className="mb-2" key={`card-${i}`}>
+                                        <div className="inline-block"><span className="mr-2 font-bold">Price:</span><span className="mr-3">{ `${ethers.utils.formatEther(c.price)} ${collectionsTokenSymbol}`}</span></div>
+                                        <div className="inline-block"><span className="mr-2 font-bold">Release Time:</span><span className="mr-3">{ c.releaseTime }</span></div>
+                                        <div className="inline-block"><span className="mr-2 font-bold">Tokens available:</span><span className="mr-3">{`${c.tokensCount-c.idPointOfNextEmpty} of ${c.tokensCount}`}</span></div>
+                                        <div className="inline-block"><Button theme="secondary" label="Buy one!" onClick={() => handleBuy(c)} /></div>
                                     </li>
                                 )}
                             </ul>

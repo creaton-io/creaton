@@ -20,6 +20,7 @@ export const Nftlance: FC = () => {
     const [createNftCatalogVisible, setCreateNftCatalogVisible] = useState<boolean>(false);
     const [collectionsData, setCollectionsData] = useState([]);
     const [creatorAddress, setCreatorAddress] = useState("");
+    const [collectionsToken, setCollectionsToken] = useState("");
 
     useEffect(() => {
         (async function iife() {
@@ -70,6 +71,7 @@ export const Nftlance: FC = () => {
         if(contentsQuery.data.nftlances[0].creatorCollections.length > 0){
             setCollectionsData(contentsQuery.data.nftlances[0].creatorCollections[0].catalogs);
             setCreatorCollectionsAddress(contentsQuery.data.nftlances[0].creatorCollections[0].id);
+            setCollectionsToken(contentsQuery.data.nftlances[0].creatorCollections[0].token);
         }
     }
     }, [contentsQuery]);
@@ -164,7 +166,7 @@ export const Nftlance: FC = () => {
             }
 
             { collectionsData.length > 0 && <div className="mt-10">
-                {collectionsData.map((c,i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} />)}
+                {collectionsData.map((c,i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} />)}
             </div>}
         </div>
     )
