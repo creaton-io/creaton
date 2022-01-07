@@ -19,7 +19,7 @@ contract FanCollectible is ERC1155, Ownable {
 
     event MinterTransferred(address indexed previousMinter, address indexed newMinter);
     event Minted(address to, uint256 id, bytes data);
-    event RequestDataSet(uint256 indexed cardID, uint256 indexed tokenID, string indexed collectibleRequestData);
+    event RequestDataSet(string cardID, uint256 indexed tokenID, string collectibleRequestData);
 
     constructor(string memory _uri) ERC1155(_uri) {
         _minter = msg.sender;
@@ -112,7 +112,7 @@ contract FanCollectible is ERC1155, Ownable {
      * @param _id Token ID to set data for
      * @param _request Data to set (graphQL on ceramic's meta data)
     */
-    function setRequestData(uint256 cardId, uint256 _id, string memory _request) public {
+    function setRequestData(string memory cardId, uint256 _id, string memory _request) public {
         require(stateOfCollectibles[_id] != states.PURCHASED_AND_FINALIZED, "Token has already been finalized");
         // require(stateOfCollectibles[_id] != states.UNPURCHASED, "Token not purchased");
         require(balanceOf(_msgSender(), _id) >=1, "Token not owned by sender");

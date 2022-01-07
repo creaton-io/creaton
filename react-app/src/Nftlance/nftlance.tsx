@@ -69,14 +69,15 @@ export const Nftlance: FC = () => {
         }
     `;
     const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: creatorAddress.toLocaleLowerCase()}});
+
     useEffect(() => {
-    if (contentsQuery.data && contentsQuery.data.nftlances[0]) {
-        if(contentsQuery.data.nftlances[0].creatorCollections.length > 0){
-            setCollectionsData(contentsQuery.data.nftlances[0].creatorCollections[0].catalogs);
-            setCreatorCollectionsAddress(contentsQuery.data.nftlances[0].creatorCollections[0].id);
-            setCollectionsToken(contentsQuery.data.nftlances[0].creatorCollections[0].token);
+        if (contentsQuery.data && contentsQuery.data.nftlances[0]) {
+            if(contentsQuery.data.nftlances[0].creatorCollections.length > 0){
+                setCollectionsData(contentsQuery.data.nftlances[0].creatorCollections[0].catalogs);
+                setCreatorCollectionsAddress(contentsQuery.data.nftlances[0].creatorCollections[0].id);
+                setCollectionsToken(contentsQuery.data.nftlances[0].creatorCollections[0].token);
+            }
         }
-    }
     }, [contentsQuery]);
 
     async function newCreatorCollections(e) { 

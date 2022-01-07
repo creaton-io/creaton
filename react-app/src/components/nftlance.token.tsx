@@ -40,12 +40,16 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
         const { library } = web3Context;
         if(!library) return;
 
+        console.log('With: ', token.card.id, token.tokenId, e.target.request.value);
         try {
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
             const collectibleContract: Contract = new Contract(token.card.catalog.creatorCollections.collectible.id, creaton_contracts.fanCollectible.abi, signer);
-            await collectibleContract.setRequestData(token.card.cardId, token.tokenId, e.target.request.value);
+            await collectibleContract.setRequestData(token.card.id, token.tokenId, e.target.request.value);
 
             collectibleContract.once("RequestDataSet", async(cardId, tokenId, collectibleRequestData) => {
+                console.log('CardId emitted: ', cardId);
+                console.log('tokenId emitted: ', tokenId);
+                console.log('collectibleRequestData emitted: ', collectibleRequestData);
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'Request set successfully!', type: 'success'});
             });
@@ -73,7 +77,7 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
                             </div>
                         </div>
 
-                        {token.state == "PURCHASED" && <div className="flex items-center justify-between">
+                        {token.state == "PURCHASED" && (token.requestData == null) && <div className="flex items-center justify-between">
                             <form onSubmit={handleRequest} className="grid grid-cols-1 place-items-center text-white">
                                 <div className="p-5 text-white">
                                     <Input className="bg-gray-900 text-white" type="text" name="request" placeholder="Your request" label="Request text" />
@@ -82,6 +86,10 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
                             </form>
                         </div>
                         }
+
+                        {token.state == "PURCHASED" && (token.requestData != null) && <div className="text-white text-left">
+                            <p><span className="font-semibold">Requested:</span>{token.requestData}</p>
+                        </div>}
                     </div>
                 </div>
             </div>

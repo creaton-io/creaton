@@ -26,18 +26,36 @@ export const MytokensRequests: FC = () => {
     }, [web3Context]);
 
     const CONTENTS_QUERY = gql`
-        query GET_TOKENS($userAddress: Bytes!) {
-            tokens {
+        query GET_COLLECTIONS($creatorAddress: Bytes!) {
+            nftlances {
                 id
+                creatorCollections (where: {creator: $creatorAddress}) {
+                    id
+                    catalogs {
+                        id
+                        title
+                        description
+                        cards {
+                            id
+                            price
+                            tokens (where {state: "PURCHASED"}) {
+                                id
+                                state
+                                requestData
+                            }
+                        }
+                    }
+                }
             }
         }
     `;
-    const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {userAddress: userAddress.toLocaleLowerCase()}});
+    const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: userAddress.toLocaleLowerCase()}});
+
+    console.log(contentsQuery);
 
     return (
         <div className="max-w-5xl my-0 mx-auto text-center text-center">
             { contentsQuery.data && contentsQuery.data.tokens && <div className="mt-10">
-                {contentsQuery.data.tokens.map((t,i) => <Token key={`token-${i}`} token={t} /> )}
             </div>}
         </div>
     )

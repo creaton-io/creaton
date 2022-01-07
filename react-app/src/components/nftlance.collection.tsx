@@ -127,7 +127,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
                                     <li className="mb-2" key={`card-${i}`}>
                                         <div className="inline-block"><span className="mr-2 font-bold">Price:</span><span className="mr-3">{ `${ethers.utils.formatEther(c.price)} $${collectionsTokenSymbol}`}</span></div>
                                         <div className="inline-block"><span className="mr-2 font-bold">Release Time:</span><span className="mr-3">{ c.releaseTime }</span></div>
-                                        <div className="inline-block"><span className="mr-2 font-bold">Tokens available:</span><span className="mr-3">{`${c.tokensCount-c.idPointOfNextEmpty} of ${c.tokensCount}`}</span></div>
+                                        <div className="inline-block"><span className="mr-2 font-bold">Tokens available:</span><span className="mr-3">{`${c.tokensCount-(c.idPointOfNextEmpty-1)} of ${c.tokensCount}`}</span></div>
                                         <div className="inline-block"><Button theme="secondary" label="Buy one!" onClick={() => handleBuy(c)} /></div>
                                     </li>
                                 )}

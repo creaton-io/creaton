@@ -4743,7 +4743,7 @@
         "type": "function"
       }
     ],
-    "address": "0x26264e9333fFDbdcd1e797168A1Dc93bc078d9CA"
+    "address": "0xF37f671E79fC56d8ddF6D7600Dc20bFc262eA52c"
   },
   "creatorCollections": {
     "abi": [
@@ -4848,9 +4848,9 @@
           },
           {
             "indexed": false,
-            "internalType": "uint256",
+            "internalType": "string",
             "name": "cardId",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "indexed": false,
@@ -5256,9 +5256,9 @@
             "type": "uint256"
           },
           {
-            "internalType": "uint256",
+            "internalType": "string",
             "name": "_cardId",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "internalType": "uint256",
@@ -5455,10 +5455,10 @@
         "anonymous": false,
         "inputs": [
           {
-            "indexed": true,
-            "internalType": "uint256",
+            "indexed": false,
+            "internalType": "string",
             "name": "cardID",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "indexed": true,
@@ -5467,7 +5467,7 @@
             "type": "uint256"
           },
           {
-            "indexed": true,
+            "indexed": false,
             "internalType": "string",
             "name": "collectibleRequestData",
             "type": "string"
@@ -5839,9 +5839,9 @@
       {
         "inputs": [
           {
-            "internalType": "uint256",
+            "internalType": "string",
             "name": "cardId",
-            "type": "uint256"
+            "type": "string"
           },
           {
             "internalType": "uint256",

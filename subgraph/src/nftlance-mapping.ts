@@ -90,7 +90,9 @@ export function handlePurchased(event: Purchased): void {
 }
 
 export function handleRequestDataSet(event: RequestDataSet): void {   
-    let token = createCardToken(event.params.tokenID.toString(), event.params.cardID.toString(), event.transaction.to.toHex());
+    let cardId = event.params.cardID.toString();
+
+    let token = createCardToken(event.params.tokenID.toString(), cardId, event.transaction.to.toHex());
     token.requestData = event.params.collectibleRequestData.toString();
     token.save();
 }

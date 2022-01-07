@@ -50,9 +50,9 @@ dataSources:
     name: NFTLance
     network: mumbai
     source:
-      address: "0x26264e9333fFDbdcd1e797168A1Dc93bc078d9CA"
+      address: "0xebdcAfb44492d4EE3Bc670e6e2458D0d48AFAb6a"
       abi: NFTLance
-      startBlock: 23518723
+      startBlock: 23643424
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -154,7 +154,7 @@ templates:
           handler: handleCardAdded
         - event: CatalogAdded(uint256,string,string,address,uint256)
           handler: handleCatalogAdded
-        - event: FanCollectibleDataSet(uint256,uint256,uint256,bytes)
+        - event: FanCollectibleDataSet(uint256,string,uint256,bytes)
           handler: handleFanCollectibleDataSet
         - event: Purchased(indexed address,uint256,uint256,uint256)
           handler: handlePurchased
@@ -174,7 +174,7 @@ templates:
         - name: FanCollectible
           file: ./abis/FanCollectible.json
       eventHandlers:
-        - event: RequestDataSet(indexed uint256,indexed uint256,indexed string)
+        - event: RequestDataSet(string,indexed uint256,string)
           handler: handleRequestDataSet
         - event: URI(string,indexed uint256)
           handler: handleURI
