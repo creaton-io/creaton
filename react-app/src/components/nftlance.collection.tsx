@@ -31,7 +31,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
 
             const erc20Contract: Contract = new Contract(collectionsToken, creaton_contracts.erc20.abi, signer);
             setCollectionsTokenDecimals(await erc20Contract.decimals());
-            setCollectionsTokenSymbol(await erc20Contract.symbol());
+            setCollectionsTokenSymbol((await erc20Contract.symbol()).toUpperCase());
         })();
     }, [web3Context]);
 
@@ -41,7 +41,6 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
         const { library } = web3Context;
         if(!library) return;
        
-        const collectionId = collection.id.split("-")[1];
         const amount = e.target.amount.value;
         const price = ethers.utils.parseEther(e.target.price.value);
         // const releaseTime = e.target.releaseTime.value;
@@ -50,7 +49,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
         try {
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
             const creatorCollectionContract: Contract = new Contract(creatorCollectionsAddress, creaton_contracts.creatorCollections.abi, signer);
-            await creatorCollectionContract.createCard(collectionId, amount, price, releaseTime);
+            await creatorCollectionContract.createCard(collection.catalogId, amount, price, releaseTime);
 
             creatorCollectionContract.once("CardAdded", async (cardId, catalog, tokenIdsGenerated, price, releaseTime) => {
                 web3utils.setIsWaiting(false);
@@ -70,8 +69,6 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
         if(!library) return;
 
         try {
-            const catalogId = collection.id.split("-")[1];
-            const cardId = card.id.split("-")[1];
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
             const userAddress = await signer.getAddress();
 
@@ -92,7 +89,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
               }
             }
 
-            await creatorCollectionContract.purchase(catalogId, cardId);
+            await creatorCollectionContract.purchase(collection.catalogId, card.cardId);
             creatorCollectionContract.once("Purchased", async (user, catalogId, cardId, amount) => {
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'Card purchased successfully!', type: 'success'});
@@ -128,7 +125,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
                             <ul className="text-left text-white">
                                 {collection.cards.map((c,i) => 
                                     <li className="mb-2" key={`card-${i}`}>
-                                        <div className="inline-block"><span className="mr-2 font-bold">Price:</span><span className="mr-3">{ `${ethers.utils.formatEther(c.price)} ${collectionsTokenSymbol}`}</span></div>
+                                        <div className="inline-block"><span className="mr-2 font-bold">Price:</span><span className="mr-3">{ `${ethers.utils.formatEther(c.price)} $${collectionsTokenSymbol}`}</span></div>
                                         <div className="inline-block"><span className="mr-2 font-bold">Release Time:</span><span className="mr-3">{ c.releaseTime }</span></div>
                                         <div className="inline-block"><span className="mr-2 font-bold">Tokens available:</span><span className="mr-3">{`${c.tokensCount-c.idPointOfNextEmpty} of ${c.tokensCount}`}</span></div>
                                         <div className="inline-block"><Button theme="secondary" label="Buy one!" onClick={() => handleBuy(c)} /></div>

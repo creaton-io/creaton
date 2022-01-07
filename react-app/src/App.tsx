@@ -36,7 +36,7 @@ import Tooltip from './elements/tooltip';
 import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { CreatorVoting } from './CreatorVoting';
-import { Nftlance } from './Nftlance';
+import { Mytokens, MytokensRequests, Nftlance } from './Nftlance';
 
 initFontAwesome();
 
@@ -834,6 +834,12 @@ const App = () => {
                                 </Route>
                                 <Route path="/nftlance">
                                   <Nftlance />
+                                </Route>
+                                <Route path="/nftlance-mytokens">
+                                  <Mytokens />
+                                </Route>
+                                <Route path="/nftlance-mytokens-requests">
+                                  <MytokensRequests />
                                 </Route>
                               </Switch>
                             </div>

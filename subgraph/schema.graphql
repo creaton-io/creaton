@@ -128,6 +128,7 @@ type FanCollectible @entity {
 
 type Catalog @entity {
   id: ID!
+  catalogId: String!
   creatorCollections: CreatorCollections!
   feesCollected: BigInt!
   artist: Creator!
@@ -139,6 +140,7 @@ type Catalog @entity {
 
 type Card @entity {
   id: ID!
+  cardId: String!
   catalog: Catalog!
   price: BigInt!
   releaseTime: BigInt!
@@ -149,6 +151,7 @@ type Card @entity {
 
 type Token @entity {
   id: ID!
+  tokenId: String!
   card: Card!
   state: String!
   requestData: String

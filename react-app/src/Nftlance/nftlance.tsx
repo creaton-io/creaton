@@ -1,15 +1,15 @@
 import { FC, useEffect, useState, useContext } from "react";
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '../web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
-import { Web3UtilsContext } from "./Web3Utils";
+import { Web3UtilsContext } from "../Web3Utils";
 import { Contract, ethers } from "ethers";
-import { Button } from "./elements/button";
-import { Input } from "./elements/input";
-import { Textarea } from "./elements/textArea";
-import { NotificationHandlerContext } from "./ErrorHandler";
-import creaton_contracts from "./Contracts";
+import { Button } from "../elements/button";
+import { Input } from "../elements/input";
+import { Textarea } from "../elements/textArea";
+import { NotificationHandlerContext } from "../ErrorHandler";
+import creaton_contracts from "../Contracts";
 import { gql, useQuery } from "@apollo/client";
-import { NftlanceCollection } from "./components/nftlance.collection";
+import { NftlanceCollection } from "../components/nftlance.collection";
 
 export const Nftlance: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
@@ -43,18 +43,21 @@ export const Nftlance: FC = () => {
                     collectible
                     catalogs {
                         id
+                        catalogId
                         artist
                         title
                         description
                         cardsInCatalog
                         cards {
                             id
+                            cardId
                             price
                             releaseTime
                             idPointOfNextEmpty
                             tokensCount
                             tokens {
                                 id
+                                tokenId
                                 state
                                 requestData
                             }
@@ -166,7 +169,7 @@ export const Nftlance: FC = () => {
             }
 
             { collectionsData.length > 0 && <div className="mt-10">
-                {collectionsData.map((c,i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} />)}
+                {collectionsData.map((c,i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} key={`collection-${i}`} />)}
             </div>}
         </div>
     )

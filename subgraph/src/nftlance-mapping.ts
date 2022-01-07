@@ -37,6 +37,7 @@ export function handleCatalogAdded(event: CatalogAdded): void {
     creatorCollection.catalogsCount = creatorCollection.catalogsCount.plus(BigInt.fromI32(1));
     creatorCollection.save();
 
+    catalog.catalogId = event.params.catalogId.toString();
     catalog.creatorCollections = creatorCollection.id;
     catalog.feesCollected = BigInt.fromI32(0);
     catalog.title = event.params.title;
@@ -47,10 +48,11 @@ export function handleCatalogAdded(event: CatalogAdded): void {
 }
 
 export function handleCardAdded(event: CardAdded): void {
-    let cardId = event.transaction.to.toHex() + "-" + event.params.cardId.toString();
+    let cardId = event.transaction.to.toHex() + "-" + event.params.catalogId.toString() + "-" + event.params.cardId.toString();
     let card = Card.load(cardId);
     if(card === null){
         card = new Card(cardId);
+        card.cardId = event.params.cardId.toString();
     }
 
     let creatorCollection = CreatorCollections.load(event.transaction.to.toHex())
@@ -63,43 +65,39 @@ export function handleCardAdded(event: CardAdded): void {
     card.catalog = catalog.id;
     card.price = event.params.price;
     card.releaseTime = event.params.releaseTime;
-    card.idPointOfNextEmpty = BigInt.fromI32(0);
+    card.idPointOfNextEmpty = BigInt.fromI32(1);
     card.tokensCount = BigInt.fromI32(event.params.tokenIds.length);
     card.save();
 
-    for(let i = 0; i < event.params.tokenIds.length; i++){
-        createCardToken(i, cardId, creatorCollection.collectible);
+    for(let i = 1; i <= event.params.tokenIds.length; i++){
+        createCardToken(i.toString(), cardId, creatorCollection.collectible);
     }    
 }
 
 export function handlePurchased(event: Purchased): void {
-    let cardId = event.transaction.to.toHex() + "-" + event.params.cardId.toString();
+    let cardId = event.transaction.to.toHex() + "-" + event.params.catalogId.toString() + "-" + event.params.cardId.toString();
     let card = Card.load(cardId);
+    let purchasedTokenId = card.idPointOfNextEmpty;
     card.idPointOfNextEmpty = card.idPointOfNextEmpty.plus(BigInt.fromI32(1));
     card.save();
 
     let creatorCollection = CreatorCollections.load(event.transaction.to.toHex());
-
-    let tokenId: string = creatorCollection.collectible.toString() + "-" + cardId.toString() + "-" + card.idPointOfNextEmpty.toString();
-    let token = Token.load(tokenId);
+    
+    let token = createCardToken(purchasedTokenId.toString(), cardId, creatorCollection.collectible.toString());
     token.state = "PURCHASED";
     token.owner = event.params.user;
     token.save();
 }
 
 export function handleRequestDataSet(event: RequestDataSet): void {   
-    let cardId = event.params.cardID;
-    let tokenId: string = event.transaction.to.toHex() + "-" + cardId.toString() + "-" + event.params.tokenID.toString();
-    let token = Token.load(tokenId);
+    let token = createCardToken(event.params.tokenID.toString(), event.params.cardID.toString(), event.transaction.to.toHex());
     token.requestData = event.params.collectibleRequestData.toString();
     token.save();
-    
 }
+
 export function handleFanCollectibleDataSet(event: FanCollectibleDataSet): void {
-    let cardId = event.params.cardId;
     let creatorsCollection = CreatorCollections.load(event.transaction.to.toHex());
-    let tokenId: string = creatorsCollection.collectible.toString() + "-" + cardId.toString() + "-" + event.params.fanId.toString();
-    let token = Token.load(tokenId);
+    let token = createCardToken(event.params.fanId.toString(), event.params.cardId.toString(), creatorsCollection.collectible.toString());
     token.state = "PURCHASED_AND_FINALIZED";
     token.save();
 }
@@ -147,12 +145,13 @@ export function createFanCollectible(
     return fc as FanCollectible;
 }
 
-export function createCardToken(tokenId: number, cardId: string, fanCollectibleId: string): Token {
-    let id: string = fanCollectibleId.toString() + "-" + cardId.toString() + "-" + tokenId.toString();
+export function createCardToken(tokenId: string, cardId: string, fanCollectibleId: string): Token {
+    let id: string = fanCollectibleId + "-" + cardId + "-" + tokenId;
 
     let token = Token.load(id);
     if (token === null) {
         token = new Token(id);
+        token.tokenId = tokenId;
         token.card = Card.load(cardId).id;
         token.state = "UNPURCHASED";
         token.save();
