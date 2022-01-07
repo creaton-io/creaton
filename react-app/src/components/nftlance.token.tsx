@@ -14,7 +14,6 @@ interface NftlanceTokenProps {
 }
 
 export const Token: FC<NftlanceTokenProps> = ({ token }) => {
-    console.log(token);
     const web3Context = useWeb3React<Web3Provider>();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
@@ -88,7 +87,7 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
                         }
 
                         {token.state == "PURCHASED" && (token.requestData != null) && <div className="text-white text-left">
-                            <p><span className="font-semibold">Requested:</span>{token.requestData}</p>
+                            <p><span className="font-semibold">Requested: </span>{token.requestData}</p>
                         </div>}
                     </div>
                 </div>

@@ -38,7 +38,7 @@ export const MytokensRequests: FC = () => {
                         cards {
                             id
                             price
-                            tokens (where {state: "PURCHASED"}) {
+                            tokens (where:{state: "PURCHASED"}) {
                                 id
                                 state
                                 requestData

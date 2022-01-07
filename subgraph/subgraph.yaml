@@ -50,7 +50,7 @@ dataSources:
     name: NFTLance
     network: mumbai
     source:
-      address: "0xebdcAfb44492d4EE3Bc670e6e2458D0d48AFAb6a"
+      address: "0x27B219a681E898E086aada88Dffe79A413B83744"
       abi: NFTLance
       startBlock: 23643424
     mapping:
