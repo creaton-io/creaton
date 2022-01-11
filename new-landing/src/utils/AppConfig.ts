@@ -1,6 +1,6 @@
 export const AppConfig = {
-  site_name: 'creation',
-  title: 'Creation',
-  description: 'Creation Project by React/Next, Tailwind',
+  site_name: 'creaton',
+  title: 'Creaton',
+  description: 'Creaton, Web3 Patreon',
   locale: 'en',
 };

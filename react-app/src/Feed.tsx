@@ -30,7 +30,7 @@ interface params {
   id: string;
 }
 
-export function Creator() {
+export function Feed() {
   let {id} = useParams<params>();
   const creatorContractAddress = id
 
@@ -574,4 +574,4 @@ export function Creator() {
 // //I'll need to only load the subscribers, but do this in TheGraph
 
 // export {CREATORS_QUERY};
-// export default Creators;
+export default Feed;

@@ -8,30 +8,30 @@ export default function Banner() {
     const items = [
         {
             title: 'Start Creating',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod',
+            description: 'Upload images, videos, blogs & audio all owned by you through the power of Web3',
             image: '/assets/images/homeSlider1.png',
             buttonTitle: 'Start creating',
             buttonLink: '/',
         },
         {
             title: 'Join our Discord',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod',
+            description: 'Join our community, help build a more equitable internet & creator economy and get rewarded!',
             image: '/assets/images/homeSlider2.png',
-            buttonTitle: 'Join to Discord ',
+            buttonTitle: 'Join Discord',
             buttonLink: '/',
         },
         {
             title: 'Meet our partners',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod',
+            description: 'The people behind the technologies enabling a better digital future',
             image: '/assets/images/homeSlider3.png',
-            buttonTitle: 'Partners ',
+            buttonTitle: 'Partners',
             buttonLink: '/',
         },
         {
             title: 'Discover new creators',
-            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod',
+            description: 'Support the creatives who are living the edge of creativity & technology',
             image: '/assets/images/homeSlider4.png',
-            buttonTitle: 'Discover ',
+            buttonTitle: 'Discover',
             buttonLink: '/',
         },
     ];

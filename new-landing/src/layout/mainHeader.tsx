@@ -56,7 +56,7 @@ export default function MainHeader(props: Props) {
 						</Link>
 						<Button link='/upload' title='Upload' class='mx-5' icon={<FaArrowUp />} />
 						<div className='flex flex-col items-end relative'>
-							<div className='flex w-fit my-2 address-wrapper rounded-full p-1.5 items-center cursor-pointer' onClick={toggling}>
+							<div className='flex w-fit my-2 address-wrapper rounded-full p-1.5 items-center cursor-pointer invisible' onClick={toggling}>
 								<p className={`${props.theme === 'dark' ? 'text-white' : 'text-indigo-900'} text-xs px-2 font-bold`}>0x89021...28931</p>
 								<img src={`${router.basePath}/assets/images/avatar.png`} alt={'Avatar'} />
 							</div>

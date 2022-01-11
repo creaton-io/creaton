@@ -6,6 +6,7 @@ import { AppConfig } from '../utils/AppConfig';
 import { Footer } from '../templates/Footer';
 import Header from './header'
 import Banner from './banner'
+import { Button } from '../components/button/Button';
 
 type Props = {
     children: ReactNode;
@@ -24,10 +25,7 @@ export default function Layout(props: Props) {
                         <Meta title={AppConfig.title} description={AppConfig.description} />
                         <div className='w-full flex items-center h-full'>
                             <div className='max-w-md mx-auto w-full flex flex-col justify-between items-end h-screen overflow-y-scroll partner-container'>
-                                <div className='flex w-fit my-6 address-wrapper rounded-full p-1.5 items-center'>
-                                    <p className='text-indigo-900 text-xs px-2 font-bold'>0x89021...28931</p>
-                                    <img src={`${router.basePath}/assets/images/avatar.png`} alt={'Avatar'} />
-                                </div>
+                                <Button link="/signupCreator" className="hidden ml-4 bg-red-600 text-white h-14" title="Sign up as creator now!" />
                                 {props.children}
                                 <Footer />
                             </div>

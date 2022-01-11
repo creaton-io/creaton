@@ -30,15 +30,10 @@
       "static/chunks/main.js",
       "static/chunks/pages/_error.js"
     ],
-    "/creators": [
+    "/signupCreator": [
       "static/chunks/webpack.js",
       "static/chunks/main.js",
-      "static/chunks/pages/creators.js"
-    ],
-    "/partner": [
-      "static/chunks/webpack.js",
-      "static/chunks/main.js",
-      "static/chunks/pages/partner.js"
+      "static/chunks/pages/signupCreator.js"
     ]
   },
   "ampFirstPages": []
