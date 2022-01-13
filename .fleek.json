@@ -2,6 +2,6 @@
   "build": {
     "image": "fleek/create-react-app",
     "command": "yarn && yarn build && yarn export",
-    "publicDir": "new-landing/out"
+    "publicDir": "out"
   }
  }
