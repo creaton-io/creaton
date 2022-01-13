@@ -2,6 +2,7 @@ import {useRouter} from 'next/router';
 import MainLayout from '../layout/MainLayout';
 
 type IndexProps = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   handleSwitch: Function;
   theme: string;
 };
@@ -33,7 +34,7 @@ export default function Index(props: IndexProps) {
           </p>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-3  gap-6 pt-8">
-          {data.map((item, index) => (
+          {data.map((item) => (
             <div
               className={`${
                 props.theme === 'dark' ? 'border-border-200' : 'border-border-100'

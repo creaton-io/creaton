@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { useRouter } from 'next/router';
 
 import { Meta } from './Meta';
 import { AppConfig } from '../utils/AppConfig';
@@ -12,7 +11,6 @@ type Props = {
 };
 
 export default function MainLayout(props: Props) {
-	const router = useRouter();
 	return (
 		<div className={`${props.theme === 'light' ? 'bg-white' : 'bg-main-100'}`}>
 			<MainHeader theme={props.theme} handleSwitch={props.handleSwitch} />

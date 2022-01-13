@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { useRouter } from 'next/router';
 
 import { Meta } from './Meta';
 import { AppConfig } from '../utils/AppConfig';
@@ -14,7 +13,6 @@ type Props = {
 };
 
 export default function Layout(props: Props) {
-    const router = useRouter();
     return (
         <>
             <Header theme={props.theme} />
@@ -25,7 +23,7 @@ export default function Layout(props: Props) {
                         <Meta title={AppConfig.title} description={AppConfig.description} />
                         <div className='w-full flex items-center h-full'>
                             <div className='max-w-md mx-auto w-full flex flex-col justify-between items-end h-screen overflow-y-scroll partner-container'>
-                                <Button link="/signupCreator" className="hidden ml-4 bg-red-600 text-white h-14" title="Sign up as creator now!" />
+                                <Button link="/signupCreator" title="Sign up as creator now!" />
                                 {props.children}
                                 <Footer />
                             </div>

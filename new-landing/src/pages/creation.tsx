@@ -4,6 +4,7 @@ import {Button} from '../components/button/Button';
 import {FaEye} from 'react-icons/fa';
 
 type IndexProps = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   handleSwitch: Function;
   theme: string;
 };

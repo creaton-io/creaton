@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import {ReactNode} from 'react';
 
 type IFooterIconListProps = {
   children: ReactNode;
@@ -30,4 +30,4 @@ const FooterIconList = (props: IFooterIconListProps) => (
   </div>
 );
 
-export { FooterIconList };
+export {FooterIconList};

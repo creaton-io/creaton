@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState } from 'react';
+import {ReactNode, useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
 import Link from 'next/link';
 
@@ -15,28 +15,38 @@ export default function NavbarTwoColumns(props: INavbarProps) {
 
   useEffect(() => {
     setPath(router.pathname);
-  }, [])
+  }, []);
   return (
     <div className="flex flex-wrap justify-between items-center">
-      <div className='flex items-center text-white z-10'>
+      <div className="flex items-center text-white z-10">
         <Link href="/">
           <a>{props.logo}</a>
         </Link>
         <Link href="/creators">
-          <a className={`ml-10 font-bold text-sm ${props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'} ${path === '/creators' ? 'active relative' : ''}`}>Creators</a>
+          <a
+            className={`ml-10 font-bold text-sm ${
+              props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'
+            } ${path === '/creators' ? 'active relative' : ''}`}
+          >
+            Creators
+          </a>
         </Link>
         <Link href="/partner">
-          <a className={`mx-5 font-bold text-sm ${props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'} ${path === '/partner' ? 'active relative' : ''}`}>Partners</a>
+          <a
+            className={`mx-5 font-bold text-sm ${
+              props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'
+            } ${path === '/partner' ? 'active relative' : ''}`}
+          >
+            Partners
+          </a>
         </Link>
       </div>
 
       <nav>
-        <ul className="navbar flex items-center font-medium text-xl text-gray-800">
-          {props.children}
-        </ul>
+        <ul className="navbar flex items-center font-medium text-xl text-gray-800">{props.children}</ul>
       </nav>
     </div>
-  )
+  );
 }
 
-export { NavbarTwoColumns };
+export {NavbarTwoColumns};

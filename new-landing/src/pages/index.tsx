@@ -17,7 +17,7 @@ export default function Index(props: IndexProps) {
           Subscription income from fans in real-time Ownership of your content - With NFT's Permanent storage - Content
           is forever available Super low fees - No middlemen
         </p>
-        <Button link="/signupCreator" title="Sign up as creator now!"  theme="purple" />
+        <Button link="/signupCreator" title="Sign up as creator now!" />
         <Link href="/">
           <a className="w-fit p-3 text-indigo-900 text-sm font-bold">Learn More -&gt;</a>
         </Link>

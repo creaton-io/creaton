@@ -1,16 +1,14 @@
-import {useRouter} from 'next/router';
-import {useRef, useState} from 'react';
+import {useRef} from 'react';
 import MainLayout from '../layout/MainLayout';
-import {Input} from '../components/input/Input';
 import {Button} from '../components/button/Button';
 
 type IndexProps = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
   handleSwitch: Function;
   theme: string;
 };
 
 export default function Index(props: IndexProps) {
-  const router = useRouter();
   const inputFile = useRef<HTMLInputElement>(null);
 
   const onShowFileSelector = () => {

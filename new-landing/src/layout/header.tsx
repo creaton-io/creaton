@@ -1,5 +1,3 @@
-import { useRouter } from 'next/router';
-
 import { Background } from '../components/background/Background';
 import { Section } from './Section';
 import { NavbarTwoColumns } from '../components/navigation/NavbarTwoColumns';
@@ -10,7 +8,6 @@ type Props = {
 };
 
 export default function Header(props: Props) {
-    const router = useRouter();
     return (
         <Background color="bg-transparent fixed w-full">
             <Section yPadding="py-6">
