@@ -28,7 +28,7 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
 
             const signer = library!.getSigner();
 
-            const erc20Contract: Contract = new Contract(token.card.catalog.creatorCollections.token, creaton_contracts.erc20.abi, signer);
+            const erc20Contract: Contract = new Contract(token.card.catalog.creatorCollection.token, creaton_contracts.erc20.abi, signer);
             setCollectionsTokenDecimals(await erc20Contract.decimals());
             setCollectionsTokenSymbol((await erc20Contract.symbol()).toUpperCase());
         })();
@@ -42,7 +42,7 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
 
         try {
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
-            const collectibleContract: Contract = new Contract(token.card.catalog.creatorCollections.collectible.id, creaton_contracts.fanCollectible.abi, signer);
+            const collectibleContract: Contract = new Contract(token.card.catalog.creatorCollection.collectible.id, creaton_contracts.fanCollectible.abi, signer);
             await collectibleContract.setRequestData(token.card.id, token.tokenId, e.target.request.value);
 
             collectibleContract.once("RequestDataSet", async(cardId, tokenId, collectibleRequestData) => {
@@ -63,7 +63,7 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
 
         try {
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
-            const creatorCollectionContract: Contract = new Contract(token.card.catalog.creatorCollections.id, creaton_contracts.creatorCollections.abi, signer);
+            const creatorCollectionContract: Contract = new Contract(token.card.catalog.creatorCollection.id, creaton_contracts.creatorCollections.abi, signer);
 
             let data = ethers.utils.formatBytes32String(e.target.data.value);
             let cardId = token.card.id;

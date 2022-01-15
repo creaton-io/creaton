@@ -835,10 +835,10 @@ const App = () => {
                                 <Route path="/nftlance/:id?">
                                   <Nftlance />
                                 </Route>
-                                <Route path="/nftlance-mytokens">
+                                <Route path="/nftlance-mycards">
                                   <Mytokens />
                                 </Route>
-                                <Route path="/nftlance-mytokensrequests">
+                                <Route path="/nftlance-mycardsrequests">
                                   <MytokensRequests />
                                 </Route>
                               </Switch>

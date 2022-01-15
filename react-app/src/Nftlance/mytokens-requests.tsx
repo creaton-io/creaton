@@ -8,7 +8,7 @@ import { Token } from "../components/nftlance.token";
 export const MytokensRequests: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
     const [userAddress, setUserAddress] = useState("");
-    const [requestsAmount, setRequestsAmount] = useState(0);
+    const [tokens, setTokens] = useState([]);
 
     useEffect(() => {
         (async function iife() {
@@ -55,7 +55,7 @@ export const MytokensRequests: FC = () => {
                                             data
                                         }
                                     }
-                                    creatorCollections {
+                                    creatorCollection {
                                         id
                                         token
                                         collectible {
@@ -72,22 +72,32 @@ export const MytokensRequests: FC = () => {
     `;
     const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: userAddress.toLocaleLowerCase()}});
 
-    return (
-        <div className="max-w-5xl my-0 mx-auto text-center text-center">
-            { contentsQuery.data && contentsQuery.data && <div className="mt-10">
-                {contentsQuery.data.creatorCollections.map((cc, i) => {
-                    return cc.catalogs.map((catalog, j) => {
-                        return catalog.cards.map((card, x) => {
-                            return card.tokens.map((token, z) => {
-                                setRequestsAmount(requestsAmount+1);
-                                return <Token creator={true} key={`token-${z}`} token={token} />
-                            });
+    useEffect(() => {
+        (async function iife() {
+            const tokens: any = [];
+            if(contentsQuery.data && contentsQuery.data.creatorCollections){
+                contentsQuery.data.creatorCollections[0].catalogs.map((catalog, i) => {
+                    return catalog.cards.map((card, x) => {
+                        return card.tokens.map((token, z) => {
+                            tokens.push(token);
                         });
                     });
-                })}
-            </div>}
+                })
+            }
 
-            {!requestsAmount && <h2 className="text-white font-bold">No requests for your tokens</h2>}
+            setTokens(tokens);
+        })();
+    }, [contentsQuery]);
+
+
+    return (
+        <div className="max-w-5xl my-0 mx-auto text-center text-center pt-10">
+            {tokens.length > 0 && <>
+                {tokens.map((token, z) => (
+                    <Token creator={true} key={`token-${z}`} token={token} />
+                ))}
+            </>}
+            {tokens.length <= 0 && <h2 className="text-white font-bold">No requests for your tokens</h2>}
         </div>
     )
 };

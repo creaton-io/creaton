@@ -45,7 +45,7 @@ export const Mytokens: FC = () => {
                                 data
                             }
                         }
-                        creatorCollections {
+                        creatorCollection {
                             id
                             token
                             collectible {
