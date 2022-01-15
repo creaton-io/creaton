@@ -10,8 +10,20 @@ import { NotificationHandlerContext } from "../ErrorHandler";
 import creaton_contracts from "../Contracts";
 import { gql, useQuery } from "@apollo/client";
 import { NftlanceCollection } from "../components/nftlance.collection";
+import { useCurrentCreator } from "../Utils";
+import SignUp from "../Signup";
+import { useCanBecomeCreator } from "../Whitelist";
+import { Splash } from "../components/splash";
+import { useParams } from "react-router-dom";
+
+interface params {
+    id: string;
+}
 
 export const Nftlance: FC = () => {
+    let {id} = useParams<params>();
+    if(id) id = id.toLowerCase();
+
     const web3Context = useWeb3React<Web3Provider>();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
@@ -19,7 +31,7 @@ export const Nftlance: FC = () => {
     const [creatorCollectionsAddress, setCreatorCollectionsAddress] = useState<string|boolean>(false);
     const [createNftCatalogVisible, setCreateNftCatalogVisible] = useState<boolean>(false);
     const [collectionsData, setCollectionsData] = useState([]);
-    const [creatorAddress, setCreatorAddress] = useState("");
+    const [creatorAddress, setCreatorAddress] = useState(id);
     const [collectionsToken, setCollectionsToken] = useState("");
 
     useEffect(() => {
@@ -27,58 +39,64 @@ export const Nftlance: FC = () => {
             const { library } = web3Context;
             if(!library) return;
 
-            const signer = library!.getSigner();
-            const creatorAddress = await signer.getAddress();
-            setCreatorAddress(creatorAddress);
+            if(!creatorAddress){
+                const signer = library!.getSigner();
+                const libCreatorAddress = await signer.getAddress();
+                setCreatorAddress(libCreatorAddress.toLowerCase());
+            }
         })();
     }, [web3Context]);
 
     const CONTENTS_QUERY = gql`
         query GET_COLLECTIONS($creatorAddress: Bytes!) {
-            nftlances {
+            creatorCollections (where: {creator: $creatorAddress}) {
                 id
-                creatorCollections (where: {creator: $creatorAddress}) {
+                token
+                collectible
+                catalogs {
                     id
-                    token
-                    collectible
-                    catalogs {
+                    catalogId
+                    artist
+                    title
+                    description
+                    cardsInCatalog
+                    cards {
                         id
-                        catalogId
-                        artist
-                        title
-                        description
-                        cardsInCatalog
-                        cards {
+                        cardId
+                        price
+                        releaseTime
+                        idPointOfNextEmpty
+                        tokensCount
+                        tokensAvailable
+                        tokens {
                             id
-                            cardId
-                            price
-                            releaseTime
-                            idPointOfNextEmpty
-                            tokensCount
-                            tokens {
-                                id
-                                tokenId
-                                state
-                                requestData
-                            }
+                            tokenId
+                            state
+                            requestData
                         }
                     }
-                    catalogsCount
                 }
+                catalogsCount
             }
         }
     `;
-    const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: creatorAddress.toLocaleLowerCase()}});
+    const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: creatorAddress}});
 
     useEffect(() => {
-        if (contentsQuery.data && contentsQuery.data.nftlances[0]) {
-            if(contentsQuery.data.nftlances[0].creatorCollections.length > 0){
-                setCollectionsData(contentsQuery.data.nftlances[0].creatorCollections[0].catalogs);
-                setCreatorCollectionsAddress(contentsQuery.data.nftlances[0].creatorCollections[0].id);
-                setCollectionsToken(contentsQuery.data.nftlances[0].creatorCollections[0].token);
+        if (contentsQuery.data && contentsQuery.data) {
+            if(contentsQuery.data.creatorCollections.length > 0){
+                setCollectionsData(contentsQuery.data.creatorCollections[0].catalogs);
+                setCreatorCollectionsAddress(contentsQuery.data.creatorCollections[0].id);
+                setCollectionsToken(contentsQuery.data.creatorCollections[0].token);
             }
         }
     }, [contentsQuery]);
+
+    const {loading, error, currentCreator} = useCurrentCreator();
+    const canBecomeCreator = useCanBecomeCreator();
+    if (!canBecomeCreator) return <div>Not allowed, you are not whitelisted</div>;
+    if (loading) return <Splash src="https://assets5.lottiefiles.com/packages/lf20_bkmfzg9t.json"></Splash>;
+    if (!id && currentCreator === undefined) return <SignUp />;
 
     async function newCreatorCollections(e) { 
         web3utils.setIsWaiting(true);

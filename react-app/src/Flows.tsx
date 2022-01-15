@@ -34,8 +34,6 @@ export const Flows: FC = () => {
             const signer = library!.getSigner();
             const address = await signer.getAddress();
             setUserAddress(address);
-            console.log('hmmm', address);
-            console.log('reactionsQuery data:', reactionsQuery.data);
             if(reactionsQuery.data){
                 setFlows(reactionsQuery.data.stakedFlows);
             }

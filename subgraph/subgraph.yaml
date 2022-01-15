@@ -50,15 +50,14 @@ dataSources:
     name: NFTLance
     network: mumbai
     source:
-      address: "0x27B219a681E898E086aada88Dffe79A413B83744"
+      address: "0x83C79703571d095c8A197beB5b6d9748E2740578"
       abi: NFTLance
-      startBlock: 23643424
+      startBlock: 23914703
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
       language: wasm/assemblyscript
       entities:
-        - NFTLance
         - CreatorCollections
         - FanCollectible
       abis:

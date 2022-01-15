@@ -409,10 +409,10 @@ describe('Checking Payment to artist works correctly', function(){
 
         await expect(CollectibleContract.connect(fanAccount).setRequestData(testCardId, catalogCards[testCardId].ids[0], "hello world"))
             .to.emit(CollectibleContract, "RequestDataSet");
-        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(expectedCatalogId, testCardId, catalogCards[testCardId].ids[0], "0xabcdef"))
+        await expect(CollectionsContract.connect(fanAccount).setFanCollectibleData(expectedCatalogId, testCardId.toString(), catalogCards[testCardId].ids[0], "0xabcdef"))
             .to.be.revertedWith("not the artist");
-        await expect(CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, testCardId, catalogCards[testCardId].ids[0], "0xabcdef"))
-            .to.emit(CollectionsContract,"FanCollectibleDataSet").withArgs(expectedCatalogId, testCardId, catalogCards[testCardId].ids[0], "0xabcdef");
+        await expect(CollectionsContract.connect(artistAccount).setFanCollectibleData(expectedCatalogId, testCardId.toString(), catalogCards[testCardId].ids[0], "0xabcdef"))
+            .to.emit(CollectionsContract,"FanCollectibleDataSet").withArgs(expectedCatalogId, testCardId.toString(), catalogCards[testCardId].ids[0], "0xabcdef");
 
         await expect(CollectibleContract.connect(fanAccount).setRequestData(testCardId, catalogCards[testCardId].ids[0], "hello world"))
             .to.be.revertedWith("Token has already been finalized");

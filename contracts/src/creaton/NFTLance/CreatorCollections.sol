@@ -7,6 +7,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "./FanCollectible.sol";
 import "../MarketPoints.sol";
 
+import "hardhat/console.sol";
+
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
     uint256 private creatonBalance;

@@ -1,21 +1,13 @@
-import { Address, DataSourceContext, Bytes, BigInt } from '@graphprotocol/graph-ts';
+import { Address, DataSourceContext, BigInt, log } from '@graphprotocol/graph-ts';
 import { DeployedCreatorCollection as DeployedCreatorCollectionsEvent } from '../generated/NFTLance/NFTLance';
-import { Card, Catalog, Creator, CreatorCollections, FanCollectible, NFTLance, Token } from '../generated/schema';
+import { Card, Catalog, Creator, FanCollectible, CreatorCollection, Token } from '../generated/schema';
 import { CreatorCollections as CreatorCollectionsTemplate, FanCollectible as FanCollectibleTemplate, ReactionToken } from "../generated/templates";
 
 import { CardAdded, CatalogAdded, FanCollectibleDataSet, Purchased } from "../generated/templates/CreatorCollections/CreatorCollections";
 import { RequestDataSet } from "../generated/templates/FanCollectible/FanCollectible";
 
 export function handleDeployedCreatorCollections(event: DeployedCreatorCollectionsEvent): void {
-    let id = event.transaction.hash.toHex();
-    let entity = NFTLance.load(id);
-    if (!entity) {
-        entity = new NFTLance(id);
-    }
-    entity.save();
-    
-    createFanCollectible(event.params.fanCollectible, event.params.fanCollectibleURI);
-    createCreatorCollections(event.params.creatorCollections, event.transaction.hash as Address, event.transaction.from, event.params.fanCollectible, event.params.token);
+    createCreatorCollection(event.params.creatorCollections, event.transaction.from, event.params.fanCollectible, event.params.token);
 
     let context = new DataSourceContext()
     context.setBytes('contract', event.params.creatorCollections);
@@ -24,13 +16,15 @@ export function handleDeployedCreatorCollections(event: DeployedCreatorCollectio
     let context2 = new DataSourceContext()
     context2.setBytes('contract', event.params.fanCollectible);
     FanCollectibleTemplate.createWithContext(event.params.fanCollectible, context2);
+
+    createFanCollectible(event.params.fanCollectible, event.params.fanCollectibleURI);
 }
 
 export function handleCatalogAdded(event: CatalogAdded): void {
-    let creatorCollection = CreatorCollections.load(event.transaction.to.toHex());
+    let creatorCollection = CreatorCollection.load(event.transaction.to.toHex());
     let catalogId = creatorCollection.id.toString() + "-" + event.params.catalogId.toString();
     let catalog = Catalog.load(catalogId);
-    if(catalog === null){
+    if(catalog === null){   
         catalog = new Catalog(catalogId);
     }
 
@@ -38,7 +32,7 @@ export function handleCatalogAdded(event: CatalogAdded): void {
     creatorCollection.save();
 
     catalog.catalogId = event.params.catalogId.toString();
-    catalog.creatorCollections = creatorCollection.id;
+    catalog.creatorCollection = creatorCollection.id;
     catalog.feesCollected = BigInt.fromI32(0);
     catalog.title = event.params.title;
     catalog.description = event.params.description;
@@ -55,23 +49,26 @@ export function handleCardAdded(event: CardAdded): void {
         card.cardId = event.params.cardId.toString();
     }
 
-    let creatorCollection = CreatorCollections.load(event.transaction.to.toHex())
+    let creatorCollection = CreatorCollection.load(event.transaction.to.toHex())
     let catalogId = creatorCollection.id.toString() + "-" + event.params.catalogId.toString();
 
     let catalog = Catalog.load(catalogId);
     catalog.cardsInCatalog = catalog.cardsInCatalog + 1;
     catalog.save();
 
+    let tids = event.params.tokenIds as BigInt[]; // So we can loop and access its values ...
+
     card.catalog = catalog.id;
     card.price = event.params.price;
     card.releaseTime = event.params.releaseTime;
-    card.idPointOfNextEmpty = BigInt.fromI32(1);
+    card.idPointOfNextEmpty = tids[0];
     card.tokensCount = BigInt.fromI32(event.params.tokenIds.length);
+    card.tokensAvailable = BigInt.fromI32(event.params.tokenIds.length);
     card.save();
-
-    for(let i = 1; i <= event.params.tokenIds.length; i++){
-        createCardToken(i.toString(), cardId, creatorCollection.collectible);
-    }    
+    
+    for(let i = 0; i<tids.length; i++){
+        createCardToken(tids[i].toString(), cardId, creatorCollection.collectible);
+    }
 }
 
 export function handlePurchased(event: Purchased): void {
@@ -79,9 +76,10 @@ export function handlePurchased(event: Purchased): void {
     let card = Card.load(cardId);
     let purchasedTokenId = card.idPointOfNextEmpty;
     card.idPointOfNextEmpty = card.idPointOfNextEmpty.plus(BigInt.fromI32(1));
+    card.tokensAvailable = card.tokensAvailable.minus(BigInt.fromI32(1))
     card.save();
 
-    let creatorCollection = CreatorCollections.load(event.transaction.to.toHex());
+    let creatorCollection = CreatorCollection.load(event.transaction.to.toHex());
     
     let token = createCardToken(purchasedTokenId.toString(), cardId, creatorCollection.collectible.toString());
     token.state = "PURCHASED";
@@ -98,35 +96,35 @@ export function handleRequestDataSet(event: RequestDataSet): void {
 }
 
 export function handleFanCollectibleDataSet(event: FanCollectibleDataSet): void {
-    let creatorsCollection = CreatorCollections.load(event.transaction.to.toHex());
-    let token = createCardToken(event.params.fanId.toString(), event.params.cardId.toString(), creatorsCollection.collectible.toString());
+    let creatorCollection = CreatorCollection.load(event.transaction.to.toHex());
+    let token = createCardToken(event.params.fanId.toString(), event.params.cardId.toString(), creatorCollection.collectible.toString());
     token.state = "PURCHASED_AND_FINALIZED";
     token.save();
 }
 
-export function createCreatorCollections(
+export function createCreatorCollection(
     creatorCollections: Address, 
-    nftLance: Address, 
-    creator: Address,
+    creator: Address, 
     fanCollectible: Address,
     token: Address
-): CreatorCollections {
-    let ccollection = CreatorCollections.load(creatorCollections.toHex());
-    if (ccollection === null) {
-        ccollection = new CreatorCollections(creatorCollections.toHex());
-        ccollection.nftLance = NFTLance.load(nftLance.toHex()).id;
-        ccollection.creator = Creator.load(creator.toHex()).id;
-        ccollection.creatonBalance = BigInt.fromI32(0);
-        ccollection.creatonPercentage = 0;
-        ccollection.artistPercentage = BigInt.fromI32(0);
-        ccollection.token = token;
-        ccollection.collectible = createFanCollectible(fanCollectible, "").id;
-        ccollection.totalSupply = BigInt.fromI32(0);
-        ccollection.catalogsCount = BigInt.fromI32(0);
-        ccollection.save();
+): CreatorCollection {
+    let id = creatorCollections.toHex();
+    let entity = CreatorCollection.load(id);
+    if (!entity) {
+        entity = new CreatorCollection(id);
+        entity.creator = Creator.load(creator.toHex()).id;
+        entity.creatonBalance = BigInt.fromI32(0);
+        entity.creatonPercentage = 0;
+        entity.artistPercentage = BigInt.fromI32(0);
+        entity.token = token;
+        entity.collectible = createFanCollectible(fanCollectible, "").id;
+        entity.totalSupply = BigInt.fromI32(0);
+        entity.catalogsCount = BigInt.fromI32(0);
     }
 
-    return ccollection as CreatorCollections;
+    entity.save();
+
+    return entity as CreatorCollection;
 }
 
 export function createFanCollectible(

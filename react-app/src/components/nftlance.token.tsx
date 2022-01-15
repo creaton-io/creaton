@@ -11,9 +11,10 @@ import { Button } from "../elements/button";
 
 interface NftlanceTokenProps {
     token: any
+    creator: Boolean
 }
 
-export const Token: FC<NftlanceTokenProps> = ({ token }) => {
+export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
     const web3Context = useWeb3React<Web3Provider>();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
@@ -39,22 +40,42 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
         const { library } = web3Context;
         if(!library) return;
 
-        console.log('With: ', token.card.id, token.tokenId, e.target.request.value);
         try {
             const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
             const collectibleContract: Contract = new Contract(token.card.catalog.creatorCollections.collectible.id, creaton_contracts.fanCollectible.abi, signer);
             await collectibleContract.setRequestData(token.card.id, token.tokenId, e.target.request.value);
 
             collectibleContract.once("RequestDataSet", async(cardId, tokenId, collectibleRequestData) => {
-                console.log('CardId emitted: ', cardId);
-                console.log('tokenId emitted: ', tokenId);
-                console.log('collectibleRequestData emitted: ', collectibleRequestData);
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'Request set successfully!', type: 'success'});
             });
         } catch (error: any) {
             web3utils.setIsWaiting(false);
             notificationHandler.setNotification({description: 'Could not set request: ' + error.message, type: 'error'});
+        }
+    }
+
+    async function handleFinalize(e){
+        web3utils.setIsWaiting(true);
+        e.preventDefault();
+        const { library } = web3Context;
+        if(!library) return;
+
+        try {
+            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const creatorCollectionContract: Contract = new Contract(token.card.catalog.creatorCollections.id, creaton_contracts.creatorCollections.abi, signer);
+
+            let data = ethers.utils.formatBytes32String(e.target.data.value);
+            let cardId = token.card.id;
+            await creatorCollectionContract.setFanCollectibleData(token.card.catalog.catalogId, cardId, token.tokenId, data);
+
+            creatorCollectionContract.once("FanCollectibleDataSet", async(catalogId, cardId, tokenId, data) => {
+                web3utils.setIsWaiting(false);
+                notificationHandler.setNotification({description: 'Token finalized successfully!', type: 'success'});
+            });
+        } catch (error: any) {
+            web3utils.setIsWaiting(false);
+            notificationHandler.setNotification({description: 'Could not finalize token: ' + error.message, type: 'error'});
         }
     }
 
@@ -76,7 +97,7 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
                             </div>
                         </div>
 
-                        {token.state == "PURCHASED" && (token.requestData == null) && <div className="flex items-center justify-between">
+                        {!creator && token.state == "PURCHASED" && (token.requestData == null) && <div className="flex items-center justify-between">
                             <form onSubmit={handleRequest} className="grid grid-cols-1 place-items-center text-white">
                                 <div className="p-5 text-white">
                                     <Input className="bg-gray-900 text-white" type="text" name="request" placeholder="Your request" label="Request text" />
@@ -89,6 +110,17 @@ export const Token: FC<NftlanceTokenProps> = ({ token }) => {
                         {token.state == "PURCHASED" && (token.requestData != null) && <div className="text-white text-left">
                             <p><span className="font-semibold">Requested: </span>{token.requestData}</p>
                         </div>}
+
+                        {creator && token.state == "PURCHASED" && (token.requestData != null) && <div className="flex items-center justify-between">
+                            <form onSubmit={handleFinalize} className="grid grid-cols-1 place-items-center text-white">
+                                <div className="p-5 text-white">
+                                    <Input className="bg-gray-900 text-white" type="text" name="data" placeholder="Data" label="Set Data:" />
+                                    <Button type="submit" label="Set data & Finalize!" />
+                                </div>
+                            </form>
+                        </div>
+                        }
+                        
                     </div>
                 </div>
             </div>

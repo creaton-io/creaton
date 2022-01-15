@@ -98,14 +98,8 @@ type StakedFlow @entity {
   flowed: [Flow!] @derivedFrom(field: "stakedFlow")
 }
 
-type NFTLance @entity {
+type CreatorCollection @entity {
   id: ID!
-  creatorCollections: [CreatorCollections!] @derivedFrom(field: "nftLance")
-}
-
-type CreatorCollections @entity {
-  id: ID!
-  nftLance: NFTLance!
   creator: Creator!
   creatonBalance: BigInt!
   creatonPercentage: Int!
@@ -114,7 +108,7 @@ type CreatorCollections @entity {
   token: Bytes!
   collectible: FanCollectible!
   totalSupply: BigInt!
-  catalogs: [Catalog!] @derivedFrom(field: "creatorCollections")
+  catalogs: [Catalog!] @derivedFrom(field: "creatorCollection")
   catalogsCount: BigInt!
   #marketPoints: MarketPoints
   #heldBalances: [HoldingToken]
@@ -129,7 +123,7 @@ type FanCollectible @entity {
 type Catalog @entity {
   id: ID!
   catalogId: String!
-  creatorCollections: CreatorCollections!
+  creatorCollection: CreatorCollection!
   feesCollected: BigInt!
   artist: Creator!
   title: String!
@@ -147,6 +141,7 @@ type Card @entity {
   idPointOfNextEmpty: BigInt!
   tokensCount: BigInt!
   tokens: [Token!] @derivedFrom(field: "card")
+  tokensAvailable: BigInt!
 }
 
 type Token @entity {

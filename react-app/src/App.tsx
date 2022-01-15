@@ -832,13 +832,13 @@ const App = () => {
                                 <Route path="/creator-voting">
                                   <CreatorVoting />
                                 </Route>
-                                <Route path="/nftlance">
+                                <Route path="/nftlance/:id?">
                                   <Nftlance />
                                 </Route>
                                 <Route path="/nftlance-mytokens">
                                   <Mytokens />
                                 </Route>
-                                <Route path="/nftlance-mytokens-requests">
+                                <Route path="/nftlance-mytokensrequests">
                                   <MytokensRequests />
                                 </Route>
                               </Switch>

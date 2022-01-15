@@ -24,6 +24,6 @@ contract NFTLance is Ownable, Pausable {
 
         creatorsCollections[_msgSender()] = address(_creatorCollections);
 
-        emit DeployedCreatorCollection(creatorsCollections[_msgSender()], address(_fanCollectible), _fanCollectibleURI, address(_tokenAddress));
+        emit DeployedCreatorCollection(address(_creatorCollections), address(_fanCollectible), _fanCollectibleURI, address(_tokenAddress));
     }
 }
