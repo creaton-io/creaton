@@ -28,6 +28,7 @@ export const Mytokens: FC = () => {
                 state
                 owner
                 requestData
+                data
                 card {
                     id
                     cardId

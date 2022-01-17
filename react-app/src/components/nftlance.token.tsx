@@ -121,6 +121,10 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
                         </div>
                         }
                         
+                        {token.state == "PURCHASED_AND_FINALIZED" && (token.data != null) && <div className="text-white text-left">
+                            <p><span className="font-semibold">Requested: </span>{token.requestData}</p>
+                            <p><span className="font-semibold">Finalized: </span>{new TextDecoder().decode(ethers.utils.arrayify(token.data))}</p>
+                        </div>}
                     </div>
                 </div>
             </div>
