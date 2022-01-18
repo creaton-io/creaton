@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import {
     ISuperfluid
 } from "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
-import "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/misc/IResolver.sol";
+import "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/ux/IResolver.sol";
 
 import "./ReactionToken.sol";
 import "./StakedFlow.sol";

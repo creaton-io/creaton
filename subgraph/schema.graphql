@@ -77,7 +77,6 @@ type Reaction @entity {
   tokenId: BigInt!
   staked: [Stake!] @derivedFrom(field: "reaction")
   flowed: [Flow!] @derivedFrom(field: "reaction")
-  what: String
 }
 
 type Flow @entity {
@@ -97,4 +96,57 @@ type StakedFlow @entity {
   recipient: ReactionUser
   flowRate: BigInt
   flowed: [Flow!] @derivedFrom(field: "stakedFlow")
+}
+
+type CreatorCollection @entity {
+  id: ID!
+  creator: Creator!
+  creatonBalance: BigInt!
+  creatonPercentage: Int!
+  artistPercentage: BigInt!
+  newerVersionOfContract: Bytes
+  token: Bytes!
+  collectible: FanCollectible!
+  totalSupply: BigInt!
+  catalogs: [Catalog!] @derivedFrom(field: "creatorCollection")
+  catalogsCount: BigInt!
+}
+
+type FanCollectible @entity {
+  id: ID!
+  uri: String
+}
+
+type Catalog @entity {
+  id: ID!
+  catalogId: String!
+  creatorCollection: CreatorCollection!
+  feesCollected: BigInt!
+  artist: Creator!
+  title: String!
+  description: String!
+  cardsInCatalog: Int!
+  cards: [Card!] @derivedFrom(field: "catalog")
+}
+
+type Card @entity {
+  id: ID!
+  cardId: String!
+  catalog: Catalog!
+  price: BigInt!
+  releaseTime: BigInt!
+  idPointOfNextEmpty: BigInt!
+  tokensCount: BigInt!
+  tokens: [Token!] @derivedFrom(field: "card")
+  tokensAvailable: BigInt!
+}
+
+type Token @entity {
+  id: ID!
+  tokenId: String!
+  card: Card!
+  state: String!
+  requestData: String
+  owner: Bytes
+  data: Bytes
 }

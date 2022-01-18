@@ -3,9 +3,11 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
-import "hardhat/console.sol";
+
 import "./FanCollectible.sol";
 import "../MarketPoints.sol";
+
+import "hardhat/console.sol";
 
 contract CreatorCollections is Ownable, Pausable {
     using SafeMath for uint256;
@@ -36,6 +38,7 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 feesCollected; // Tally of eth collected from cards that require an additional $ to be minted
         address artist;
         string title;
+        string description;
         uint256 cardsInCatalog;
         Card[] cardsArray;
     }
@@ -44,14 +47,15 @@ contract CreatorCollections is Ownable, Pausable {
     mapping(uint256 => Catalog) public catalogs;
     uint256 public catalogsCount;
 
-    event UpdatedArtist(uint256 catalogId, address artist);
-    event CatalogAdded(uint256 catalogId, address artist, uint256 periodStart);
-    event CardAdded(uint256 catalogId, uint256[] cardIds, uint256 price, uint256 releaseTime);
+    MarketPoints public marketPoints;
 
-    event Redeemed(address indexed user, uint256 catalogId, uint256 amount);
+    event CatalogAdded(uint256 catalogId, string title, string description, address artist, uint256 periodStart);
+    event CardAdded(uint256 cardId, uint256 catalogId, uint256[] tokenIds, uint256 price, uint256 releaseTime);
+    event Purchased(address indexed user, uint256 catalogId, uint256 cardId, uint256 amount);
+    event FanCollectibleDataSet(uint256 catalogId, string cardId, uint256 fanId, bytes data);
 
     modifier catalogExists(uint256 id) {
-        require(catalogs[id].artist != address(0), "catalog does not exists");
+        require(catalogs[id].artist != address(0), "Catalog does not exists");
         _;
     }
 
@@ -74,10 +78,56 @@ contract CreatorCollections is Ownable, Pausable {
     ) {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
+        catalogsCount = 0;
     }
-    MarketPoints public marketPoints;
-    function setMarketPoints(MarketPoints _marketPoints) public onlyOwner {
-        marketPoints = _marketPoints;
+
+    /**
+    @dev creates a catalog.
+    @param title the title of the catalog
+    @param description some catalog description
+    */
+    function createCatalog(
+        string memory title,
+        string memory description
+    ) public returns (uint256) {
+        uint256 id = catalogsCount;
+        require(catalogs[id].artist == address(0), "Catalog exists");
+
+        Catalog storage p = catalogs[id];
+
+        p.artist = _msgSender();
+        p.title = title;
+        p.description = description;
+
+        catalogsCount++;
+
+        emit CatalogAdded(id, title, description, _msgSender(), block.timestamp);
+        return id;
+    }
+
+    /**
+     * @dev creates a card (inside a FanCollectible) for the given catalog
+     * @param catalog the catalog id to add it to
+     * @param supply the supply of these to be made
+     * @param price the cost of each item in price
+     * @param releaseTime the time you can start buying these
+     */
+    function createCard(
+        uint256 catalog,
+        uint256 supply,
+        uint256 price,
+        uint256 releaseTime
+    ) public onlyOwnerOrArtist(catalog) catalogExists(catalog) {
+        uint256[] memory tokenIdsGenerated = new uint256[](supply);
+        for (uint256 x = 0; x < supply; x++) {
+            tokenIdsGenerated[x] = collectible.create("", ""); //URI and Data seem important... and most likely are! well! HAVE FUN!
+            //so this generates all the token IDs that will be used, and makes each one unique.
+        }
+        catalogs[catalog].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
+        uint256 cardId = catalogs[catalog].cardsInCatalog;
+        catalogs[catalog].cardsInCatalog++;
+
+        emit CardAdded(cardId, catalog, tokenIdsGenerated, price, releaseTime);
     }
     
     function purchase(uint256 _catalogID, uint256 _cardID)
@@ -97,79 +147,41 @@ contract CreatorCollections is Ownable, Pausable {
         token.transferFrom(_msgSender(), address(this), c.price);
 
         p.feesCollected = p.feesCollected.add(c.price);
-        // console.log(c.ids[c.idPointOfNextEmpty]);
         
         collectible.mint(_msgSender(), c.ids[c.idPointOfNextEmpty], "");
+
         heldBalances[c.ids[c.idPointOfNextEmpty]].quantityHeld = c.price;
         heldBalances[c.ids[c.idPointOfNextEmpty]].catalog = _catalogID;
+
         c.idPointOfNextEmpty++;
-        emit Redeemed(_msgSender(), _catalogID, c.price);
+        catalogs[_catalogID].cardsArray[_cardID].idPointOfNextEmpty = c.idPointOfNextEmpty;
+
+        emit Purchased(_msgSender(), _catalogID, _cardID, c.price);
+
         return c.ids[c.idPointOfNextEmpty - 1];
     }
 
     /**
-     * @dev creates a card (inside a FanCollectible) for the given catalog
-     * @param catalog the catalog id to add it to
-     * @param supply the supply of these to be made
-     * @param price the cost of each item in price
-     * @param releaseTime the time you can start buying these
-     */
-    function createCard(
-        uint256 catalog,
-        uint256 supply,
-        uint256 price,
-        uint256 releaseTime
-    ) public onlyOwnerOrArtist(catalog) catalogExists(catalog) returns (uint256) {
-        uint256[] memory tokenIdsGenerated = new uint256[](supply);
-        for (uint256 x = 0; x < supply; x++) {
-            tokenIdsGenerated[x] = collectible.create("", ""); //URI and Data seem important... and most likely are! well! HAVE FUN!
-            //so this generates all the token IDs that will be used, and makes each one unique.
-        }
-        catalogs[catalog].cardsArray.push(Card(tokenIdsGenerated, price, releaseTime, 0));
-
-        catalogs[catalog].cardsInCatalog++;
-    }
-
-    /**
-    @dev creates a catalog.
-    @param id the id of the catalog. Must be unique.
-    @param title the title of the catalog
+    @dev return the data for a FanCollectible and then get the money they have staked.
+    @param _catalog the catalog id
+    @param _fanID the id of the FanCollectible you want to get the data for.
+    @param _data the URI to the data for the FanCollectible.
     */
-    function createCatalog(
-        uint256 id,
-        string memory title
-    ) public returns (uint256) {
-        //TODO: find a better way to check if a catalog is active.
-        require(catalogs[id].artist == address(0), "catalog exists");
+    function setFanCollectibleData(
+        uint256 _catalog,
+        string memory _cardId,
+        uint256 _fanID,
+        bytes memory _data
+    ) public {
+        require(_msgSender() == catalogs[_catalog].artist, "not the artist");
 
-        Catalog storage p = catalogs[id];
+        pendingWithdrawals[_msgSender()] = pendingWithdrawals[_msgSender()].add(heldBalances[_fanID].quantityHeld);
+        heldBalances[_fanID].quantityHeld = 0;
 
-        p.artist = _msgSender();
-        p.title = title;
+        collectible.finalizedByArtist(_fanID, _data);
+        //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
 
-        catalogsCount++;
-
-        emit CatalogAdded(id, _msgSender(), block.timestamp);
-        return id;
-    }
-
-    function cardReleaseTime(uint256 catalog, uint256 card) public view returns (uint256) {
-        return catalogs[catalog].cardsArray[card].releaseTime;
-    }
-
-    /**
-     * @dev calculates the total supply of tokens that are being staked in this contract
-     */
-    function totalSupply() public view returns (uint256) {
-        return _totalSupply;
-    }
-
-    function cardsInCatalog(uint256 id) public view returns (uint256) {
-        return catalogs[id].cardsInCatalog;
-    }
-
-    function getCardsArray(uint256 id) public view returns (Card[] memory) {
-        return catalogs[id].cardsArray;
+        emit FanCollectibleDataSet(_catalog, _cardId, _fanID, _data);
     }
 
     /**
@@ -181,6 +193,18 @@ contract CreatorCollections is Ownable, Pausable {
         creatonBalance = creatonBalance.add(pendingWithdrawals[_msgSender()].mul(CREATON_PERCENTAGE).div(100));
         pendingWithdrawals[_msgSender()] = 0;
         token.transfer(_msgSender(), amount);
+    }
+
+    function getCardReleaseTime(uint256 catalog, uint256 card) public view returns (uint256) {
+        return catalogs[catalog].cardsArray[card].releaseTime;
+    }
+
+    function getTotalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function getCardsArray(uint256 id) public view returns (Card[] memory) {
+        return catalogs[id].cardsArray;
     }
 
     /**
@@ -200,28 +224,20 @@ contract CreatorCollections is Ownable, Pausable {
         newerVersionOfContract = _newerContract;
     }
 
-    /**
-    @dev return the data for a FanCollectible and then get the money they have staked.
-    @param _catalog the catalog id
-    @param _fanID the id of the FanCollectible you want to get the data for.
-    @param _data the URI to the data for the FanCollectible.
-    */
-    function setFanCollectibleData(
-        uint256 _catalog,
-        uint256 _fanID,
-        bytes memory _data
-    ) public {
-        require(_msgSender() == catalogs[_catalog].artist, "not the artist");
-
-        pendingWithdrawals[_msgSender()] = pendingWithdrawals[_msgSender()].add(heldBalances[_fanID].quantityHeld);
-        heldBalances[_fanID].quantityHeld = 0;
-
-        collectible.finalizedByArtist(_fanID, _data);
-        //TODO: have an emit here that changes the data at the link of the fan collectible to this data.
+    function setMarketPoints(MarketPoints _marketPoints) public onlyOwner {
+        marketPoints = _marketPoints;
     }
 
     function getCreatonCut(address recipient) public onlyOwner {
         token.transfer(recipient, creatonBalance);
         creatonBalance = 0;
+    }
+
+    function pause() public onlyOwner whenNotPaused {
+        _pause();
+    }
+
+    function unpause() public onlyOwner whenPaused {
+        _unpause();
     }
 }
