@@ -6,6 +6,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract ProtoCreateAdvisor is ERC20, Ownable {
     //only exists to be converted into Create for the Advisors.
     constructor() ERC20("Proto Create Advisor", "PCA") {
-        _mint(msg.sender, 8400000);
+        _mint(msg.sender, 8400000*(10**18));
     }
 }

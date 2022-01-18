@@ -5,6 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract ProtoCreateSeed is ERC20, Ownable {
     //only exists to be converted into Create for the team.
     constructor() ERC20("Proto Create Seed", "PCS") {
-        _mint(msg.sender, 9000000);
+        _mint(msg.sender, 9000000*(10**18));
     }
 }
