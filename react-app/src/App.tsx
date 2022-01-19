@@ -35,6 +35,7 @@ import {Icon} from './icons';
 import Tooltip from './elements/tooltip';
 import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
+import { TokenRedemption } from './stakedinput';
 
 initFontAwesome();
 
@@ -826,6 +827,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/governance">
                                   <Governance />
+                                </Route>
+                                <Route path="/tokenredemption">
+                                  < TokenRedemption /> 
                                 </Route>
                               </Switch>
                             </div>
