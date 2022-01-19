@@ -6,6 +6,7 @@ import {Parser as HtmlToReactParser} from 'html-to-react';
 import {Splash} from './splash';
 import LitJsSdk from 'lit-js-sdk';
 import { LitContext } from '../LitProvider';
+import { ethers } from 'ethers';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -56,13 +57,11 @@ export const Card: FC<ButtonProps> = ({
   isCreator,
   canDecrypt,
 }) => {
-  const ircount: number = initialReactCount ? +initialReactCount : 0;
-
   const litNode = useContext(LitContext);
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
   const [hiding, setHiding] = useState(false);
-  const [reactCount, setReactCount] = useState<number>(+ircount);
+  const [reactCount, setReactCount] = useState<number>();
   const [descriptionReactElement, setDescriptionReactElement] = useState('');
 
   function showAmountModal(e) {
@@ -106,9 +105,11 @@ export const Card: FC<ButtonProps> = ({
 
   useEffect(() => {
     ;(async () => {
+      setReactCount(initialReactCount ? +initialReactCount : 0);
+
       if(!description) return;
       let desc: string = description;
-      
+
       const regexSubscribersText = /<p class="subscribersText" \/>/gmi
 
       if(!canDecrypt){
@@ -174,7 +175,7 @@ export const Card: FC<ButtonProps> = ({
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-semibold text-white">{name}</h4>
                 <div className="flex justify-between">
-                  {/* <div className=" mr-5 ">
+                  <div className=" mr-5 ">
                     <Icon
                       onClick={onLike}
                       name="heart"
@@ -182,7 +183,7 @@ export const Card: FC<ButtonProps> = ({
                     />
                     <span className="ml-2 text-white">{likeCount}</span>
                   </div> likes are a web2 construct 
-                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />*/}
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />
                   <Icon
                     onClick={onHide}
                     name={hide ? 'eye-slash' : 'eye'}
@@ -224,15 +225,15 @@ export const Card: FC<ButtonProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="text-lg font-semibold text-white">{name}</h4>
             <div className="flex justify-between">
-              {/* <div className=" mr-5 ">
+              <div className=" mr-5 ">
                 <Icon
                   onClick={onLike}
                   name="heart"
                   className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
                 />
                 <span className="ml-2 text-white">{likeCount}</span>
-              </div> likes are a web2 construct*/}
-              {/* <div className=" mr-5 ">
+              </div>
+              <div className=" mr-5 ">
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
                               <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
@@ -274,7 +275,7 @@ export const Card: FC<ButtonProps> = ({
                             {reactCount}
                           </span>
                         </div> 
-              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />*/}
+              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />
               <Icon
                 onClick={onHide}
                 name={hide ? 'eye-slash' : 'eye'}
