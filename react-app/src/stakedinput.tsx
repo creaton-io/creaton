@@ -12,7 +12,7 @@ export const ClaimToken: FC = () => {
 
     const [createAmount, setCreateAmount] = useState<number>(0)
     const [sgtAmount, setSgtAmount] = useState<number>(0)
-    const [sgtSymbol, setSgtSymbol] = useState<string>('GOV')
+    const [sgtSymbol, setSgtSymbol] = useState<string>('CREATE')
     const [submitting, setSubmitting] = useState<boolean>(false)
 
     async function handleSubmit(e) {
@@ -65,7 +65,7 @@ export const ClaimToken: FC = () => {
 
     return (
         <form onSubmit={handleSubmit} className="grid grid-cols-1 place-items-center w-max m-auto py-10 text-white">
-            <h3 className="text-5xl pt-12 pb-6 text-white">Mint $GOV governance token</h3>
+            <h3 className="text-5xl pt-12 pb-6 text-white">Mint $CREATE governance token</h3>
             
           
 

@@ -35,7 +35,7 @@ import {Icon} from './icons';
 import Tooltip from './elements/tooltip';
 import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import { ClaimToken, TokenRedemption } from './stakedinput';
+import { ClaimToken } from './stakedinput';
 
 initFontAwesome();
 
