@@ -54,7 +54,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         await protoTeam.connect(teamMember).approve(redeemCreate.address, ethers.utils.parseEther("63072"));
         await redeemCreate.connect(teamMember).startTeamStream(ethers.utils.parseEther("63072"));
 
-        await timeTravel(365*2*24*60*60+ 10);//2 years
+        await timeTravel(365*2*24*60*60+ 10 + 180*86400);//2 years
         console.log(await sablierContract.balanceOf(100000, teamMember.address));
 
         //100000 is the stream id, should just query the streams the user has on the graph instead.
