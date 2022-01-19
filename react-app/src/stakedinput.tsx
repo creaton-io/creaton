@@ -7,7 +7,7 @@ import { Contract, ethers } from "ethers";
 import creaton_contracts from "./Contracts";
 import { CREATE_TOKEN_ADDRESS, GOVERNANCE_SQUAD_TOKENS } from "./Config";
 
-export const TokenRedemption: FC = () => {
+export const ClaimToken: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
 
     const [createAmount, setCreateAmount] = useState<number>(0)
