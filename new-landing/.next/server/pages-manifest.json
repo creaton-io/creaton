@@ -1,5 +1,14 @@
 {
   "/_app": "pages/_app.js",
   "/_document": "pages/_document.js",
-  "/_error": "pages/_error.js"
+  "/creation": "pages/creation.html",
+  "/creators": "pages/creators.html",
+  "/": "pages/index.html",
+  "/partner": "pages/partner.html",
+  "/signupCreator": "pages/signupCreator.html",
+  "/signupUser": "pages/signupUser.html",
+  "/subscribers": "pages/subscribers.html",
+  "/uploads": "pages/uploads.html",
+  "/_error": "pages/_error.js",
+  "/404": "pages/404.html"
 }

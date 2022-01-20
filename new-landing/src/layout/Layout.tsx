@@ -5,7 +5,6 @@ import {AppConfig} from '../utils/AppConfig';
 import {Footer} from '../templates/Footer';
 import Header from './header';
 import Banner from './banner';
-import {Button} from '../components/button/Button';
 
 type Props = {
   children: ReactNode;

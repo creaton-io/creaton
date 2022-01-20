@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import Layout from '../layout/Layout';
-import {Button} from '../components/button/Button';
 
 type IndexProps = {
   theme: string;
