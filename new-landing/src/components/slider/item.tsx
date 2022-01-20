@@ -15,8 +15,8 @@ export default function SliderItem(props: ItemProps) {
   return (
     <div className="flex flex-col items-center">
       <img src={`${router.basePath}${props.image}`} alt={'slider image'} />
-      <h2 className="text-white text-2xl font-bold mt-8 mb-3">{props.title}</h2>
-      <p className="text-white opacity-80 text-sm text-center">{props.description}</p>
+      <h2 className="text-white text-3xl font-bold mt-8 mb-3">{props.title}</h2>
+      <p className="text-white opacity-80 text-base text-center">{props.description}</p>
       <Button link={`${props.buttonLink}`} title={props.buttonTitle} />
     </div>
   );
