@@ -69,7 +69,7 @@ const Footer = ()=>/*#__PURE__*/ jsx_runtime_.jsx(Background/* Background */.A, 
                     /*#__PURE__*/ jsx_runtime_.jsx("li", {
                         className: "ml-6",
                         children: /*#__PURE__*/ jsx_runtime_.jsx(next_link["default"], {
-                            href: "/",
+                            href: "mailto:contact@creaton.io",
                             children: /*#__PURE__*/ jsx_runtime_.jsx("a", {
                                 children: /*#__PURE__*/ jsx_runtime_.jsx(si_.SiGmail, {
                                     size: "20px",
@@ -81,7 +81,7 @@ const Footer = ()=>/*#__PURE__*/ jsx_runtime_.jsx(Background/* Background */.A, 
                     /*#__PURE__*/ jsx_runtime_.jsx("li", {
                         className: "ml-6",
                         children: /*#__PURE__*/ jsx_runtime_.jsx(next_link["default"], {
-                            href: "/",
+                            href: "https://twitter.com/creaton_io",
                             children: /*#__PURE__*/ jsx_runtime_.jsx("a", {
                                 children: /*#__PURE__*/ jsx_runtime_.jsx(fa_.FaTwitter, {
                                     size: "20px",
@@ -93,7 +93,7 @@ const Footer = ()=>/*#__PURE__*/ jsx_runtime_.jsx(Background/* Background */.A, 
                     /*#__PURE__*/ jsx_runtime_.jsx("li", {
                         className: "ml-6",
                         children: /*#__PURE__*/ jsx_runtime_.jsx(next_link["default"], {
-                            href: "/",
+                            href: "https://discord.gg/krSNH2SghC",
                             children: /*#__PURE__*/ jsx_runtime_.jsx("a", {
                                 children: /*#__PURE__*/ jsx_runtime_.jsx(fa_.FaDiscord, {
                                     size: "20px",
@@ -105,7 +105,7 @@ const Footer = ()=>/*#__PURE__*/ jsx_runtime_.jsx(Background/* Background */.A, 
                     /*#__PURE__*/ jsx_runtime_.jsx("li", {
                         className: "ml-6",
                         children: /*#__PURE__*/ jsx_runtime_.jsx(next_link["default"], {
-                            href: "/",
+                            href: "https://t.me/creaton_io",
                             children: /*#__PURE__*/ jsx_runtime_.jsx("a", {
                                 children: /*#__PURE__*/ jsx_runtime_.jsx(fa_.FaTelegramPlane, {
                                     size: "20px",
@@ -117,7 +117,7 @@ const Footer = ()=>/*#__PURE__*/ jsx_runtime_.jsx(Background/* Background */.A, 
                     /*#__PURE__*/ jsx_runtime_.jsx("li", {
                         className: "ml-6",
                         children: /*#__PURE__*/ jsx_runtime_.jsx(next_link["default"], {
-                            href: "/",
+                            href: "https://github.com/creaton-io/creaton",
                             children: /*#__PURE__*/ jsx_runtime_.jsx("a", {
                                 children: /*#__PURE__*/ jsx_runtime_.jsx(fa_.FaGithub, {
                                     size: "20px",
@@ -222,14 +222,14 @@ function Banner() {
         },
         {
             title: 'Discover new Creators',
-            description: 'Support the creatives who are creating the edge of creativity & technology',
+            description: 'Support the creatives who are creating Podcasts, Music, Vlogs & Metaverse Content on Web3!',
             image: '/assets/images/homeSlider4.png',
             buttonTitle: 'Discover',
             buttonLink: 'https://creaton.io/#/creators'
         },
         {
             title: 'Meet our Partners',
-            description: 'The people behind the technologies enabling a better digital future',
+            description: 'The people behind the Technologies enabling a Better Digital Future',
             image: '/assets/images/homeSlider3.png',
             buttonTitle: 'Partners',
             buttonLink: '/partner'

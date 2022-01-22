@@ -11,7 +11,7 @@ export default function Partner(props: IndexProps) {
   const items = [
     {
       image: '/assets/images/partnerImage1.png',
-      descrition: 'Polygon is an Ethereum sidechain providing fast & cheap transaction fees',
+      descrition: 'Polygon is an eco-friendly Ethereum sidechain providing fast & cheap transaction fees',
     },
     {
       image: '/assets/images/partnerImage3.png',
@@ -24,7 +24,7 @@ export default function Partner(props: IndexProps) {
     },
     {
       image: '/assets/images/partnerImage4.png',
-      descrition: 'NuCypher (soon Threshold Network) provides privacy to the blockchain',
+      descrition: 'NuCypher (soon Threshold Network) provides a privacy layer on the blockchain',
     },
     {
       image: '/assets/images/partnerImage5.png',
