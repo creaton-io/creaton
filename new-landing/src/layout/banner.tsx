@@ -11,7 +11,7 @@ export default function Banner() {
       description: 'Upload images, videos, blogs & audio all owned by you through the power of Web3',
       image: '/assets/images/homeSlider1.png',
       buttonTitle: 'Start Creating',
-      buttonLink: 'https://creaton.io',
+      buttonLink: 'https://app.creaton.io',
     },
     {
       title: 'Join our Discord',

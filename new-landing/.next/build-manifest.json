@@ -5,9 +5,9 @@
   "devFiles": [],
   "ampDevFiles": [],
   "lowPriorityFiles": [
-    "static/ar_KwvQAqrcEkVOrOjbMF/_buildManifest.js",
-    "static/ar_KwvQAqrcEkVOrOjbMF/_ssgManifest.js",
-    "static/ar_KwvQAqrcEkVOrOjbMF/_middlewareManifest.js"
+    "static/BFoFOR5hz0rXkt3vBelYO/_buildManifest.js",
+    "static/BFoFOR5hz0rXkt3vBelYO/_ssgManifest.js",
+    "static/BFoFOR5hz0rXkt3vBelYO/_middlewareManifest.js"
   ],
   "pages": {
     "/": [
@@ -19,7 +19,7 @@
       "static/chunks/397-5edb0afd3ab45ba3.js",
       "static/chunks/842-9d104c1abd472477.js",
       "static/css/5674832e1468d24d.css",
-      "static/chunks/pages/index-1dcf8cc70362f337.js"
+      "static/chunks/pages/index-96b7912f1f156cf3.js"
     ],
     "/_app": [
       "static/chunks/webpack-49b6f2937c9ce9f4.js",
@@ -61,7 +61,7 @@
       "static/chunks/397-5edb0afd3ab45ba3.js",
       "static/chunks/842-9d104c1abd472477.js",
       "static/css/5674832e1468d24d.css",
-      "static/chunks/pages/partner-fa58ade2674cb705.js"
+      "static/chunks/pages/partner-fe717ce425d1f182.js"
     ],
     "/signupCreator": [
       "static/chunks/webpack-49b6f2937c9ce9f4.js",
@@ -71,8 +71,9 @@
       "static/chunks/d0447323-4738afd3091c7ac5.js",
       "static/chunks/397-5edb0afd3ab45ba3.js",
       "static/chunks/842-9d104c1abd472477.js",
+      "static/chunks/821-63155add62518346.js",
       "static/css/5674832e1468d24d.css",
-      "static/chunks/pages/signupCreator-525db37a5d49a21a.js"
+      "static/chunks/pages/signupCreator-b8f7b975c6bda064.js"
     ],
     "/signupUser": [
       "static/chunks/webpack-49b6f2937c9ce9f4.js",
@@ -82,8 +83,9 @@
       "static/chunks/d0447323-4738afd3091c7ac5.js",
       "static/chunks/397-5edb0afd3ab45ba3.js",
       "static/chunks/842-9d104c1abd472477.js",
+      "static/chunks/821-63155add62518346.js",
       "static/css/5674832e1468d24d.css",
-      "static/chunks/pages/signupUser-d5159a6fe09b9f5c.js"
+      "static/chunks/pages/signupUser-f80bde047e1b6042.js"
     ],
     "/subscribers": [
       "static/chunks/webpack-49b6f2937c9ce9f4.js",
