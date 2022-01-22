@@ -26,7 +26,7 @@ export default function Banner() {
       description: 'Support the creatives who are creating Podcasts, Music, Vlogs & Metaverse Content on Web3!',
       image: '/assets/images/homeSlider4.png',
       buttonTitle: 'Discover',
-      buttonLink: 'https://creaton.io/#/creators',
+      buttonLink: 'https://app.creaton.io/#/creators',
     },
     {
       title: 'Meet our Partners',
