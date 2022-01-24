@@ -13,15 +13,17 @@ contract RedeemCreate{
     address create;
     ERC20 protoTeam;
     ERC20 protoAdvisor;
+    ERC20 protoAmbassador;
     ERC20 ProtoPrivate;
     ERC20 protoSeed;
     uint256 days180 = 180*86400;
-    constructor(address sablierAddress, address _create, address _protoTeam, address _protoAdvisor, address _ProtoPrivate, address _protoSeed){
+    constructor(address sablierAddress, address _create, address _protoTeam, address _protoAdvisor, address _protoAmbassador, address _ProtoPrivate, address _protoSeed){
         //ISablier(0xAC18EAB6592F5fF6F9aCf5E0DCE0Df8E49124C06)
         sablier = ISablier(sablierAddress);
         create = _create;
         protoTeam = ERC20(_protoTeam);
         protoAdvisor = ERC20(_protoAdvisor);
+        protoAmbassador = ERC20(_protoAmbassador);
         ProtoPrivate = ERC20(_ProtoPrivate);
         protoSeed = ERC20(_protoSeed);
 
@@ -42,6 +44,16 @@ contract RedeemCreate{
 
         ERC20(create).approve(address(sablier), amountPutIn);
         uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + days180, block.timestamp + 86400*304 + days180);
+        //86400 for seconds in a day, 304 for 10 months
+        console.log(streamID);
+        return streamID;
+    }
+    
+    function startAmbassadorStream(uint256 amountPutIn) public returns (uint256 streamID){
+        protoAmbassador.transferFrom(msg.sender, address(this), amountPutIn);
+
+        ERC20(create).approve(address(sablier), amountPutIn);
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*304 + 86400*30);
         //86400 for seconds in a day, 304 for 10 months
         console.log(streamID);
         return streamID;
