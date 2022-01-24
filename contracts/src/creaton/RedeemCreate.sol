@@ -17,6 +17,9 @@ contract RedeemCreate{
     ERC20 ProtoPrivate;
     ERC20 protoSeed;
     uint256 days180 = 180*86400;
+
+    event streamStarted(address tokenType, uint256 amount, uint256 startTime, uint256 endTime, address recipient, uint256 streamId);
+
     constructor(address sablierAddress, address _create, address _protoTeam, address _protoAdvisor, address _protoAmbassador, address _ProtoPrivate, address _protoSeed){
         //ISablier(0xAC18EAB6592F5fF6F9aCf5E0DCE0Df8E49124C06)
         sablier = ISablier(sablierAddress);
@@ -36,6 +39,7 @@ contract RedeemCreate{
         ERC20(create).approve(address(sablier), amountPutIn);
         uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + days180, block.timestamp + 86400*365*2 + days180);
         console.log(streamID);
+        emit streamStarted(address(protoTeam), amountPutIn, block.timestamp+days180, block.timestamp+86400*365*2+days180, msg.sender, streamID);
         return streamID;
     }
 
@@ -46,6 +50,7 @@ contract RedeemCreate{
         uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + days180, block.timestamp + 86400*304 + days180);
         //86400 for seconds in a day, 304 for 10 months
         console.log(streamID);
+        emit streamStarted(address(protoAdvisor), amountPutIn, block.timestamp+days180, block.timestamp+86400*304+days180, msg.sender, streamID);
         return streamID;
     }
     
@@ -56,6 +61,7 @@ contract RedeemCreate{
         uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*304 + 86400*30);
         //86400 for seconds in a day, 304 for 10 months
         console.log(streamID);
+        emit streamStarted(address(protoAmbassador), amountPutIn, block.timestamp+86400*30, block.timestamp+86400*304+86400*30, msg.sender, streamID);
         return streamID;
     }
 
@@ -64,9 +70,10 @@ contract RedeemCreate{
         protoAdvisor.transferFrom(msg.sender, address(this), amountPutIn);
 
         ERC20(create).approve(address(sablier), amountPutIn);
-        uint256 streamID = sablier.createStream(msg.sender, (amountPutIn*3)/4, create, block.timestamp + 86400*30, block.timestamp + 86400*(243+30));
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*(243+30));
         //86400 for seconds in a day, 273 for 8 months, starting one month from now.
         console.log(streamID);
+        emit streamStarted(address(protoSeed), amountPutIn, block.timestamp+86400*30, block.timestamp+86400*(243+30), msg.sender, streamID);
         return streamID;
     }
 
@@ -78,6 +85,7 @@ contract RedeemCreate{
         uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*(121+30));
         //86400 for seconds in a day, 152 for 4 months, starting one month from now.
         console.log(streamID);
+        emit streamStarted(address(ProtoPrivate), amountPutIn, block.timestamp+86400*30, block.timestamp+86400*(121+30), msg.sender, streamID);
         return streamID;
     }
 }
