@@ -35,6 +35,7 @@ type Content @entity {
   description: String!
   date: String!
   ipfs: String!
+  link: String!
   tier: Int!
   tokenId: BigInt!
   hide: Boolean!
