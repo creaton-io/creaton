@@ -1,5 +1,6 @@
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
+import Web3Modal from 'web3modal';
 import {useWeb3React} from './web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
@@ -25,6 +26,41 @@ import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
 import {BICONOMY_API, BICONOMY_AUTH} from './Config';
+import ScriptTag from 'react-script-tag';
+import {captureRejectionSymbol} from 'stream';
+import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
+
+let web3Modal = new Web3Modal({
+  network: 'polygon',
+  cacheProvider: true,
+});
+
+let ethersProvider;
+let cyberConnect;
+
+const IdentifyQuery = () => {
+  return {};
+};
+
+function connect() {
+  return new Promise((resolve, reject) => {
+    web3Modal
+      .connect()
+      .then((modalProvider) => {
+        ethersProvider = new Web3Provider(modalProvider);
+        cyberConnect = new CyberConnect({
+          provider: ethersProvider.provider,
+          namespace: 'Creaton',
+          chain: Blockchain.ETH,
+          env: Env.PRODUCTION,
+        });
+        resolve(cyberConnect);
+      })
+      .catch(reject);
+  });
+}
+
+connect();
 
 interface params {
   id: string;
@@ -71,6 +107,31 @@ export function Creator() {
       }
     }
   `;
+
+  const FOLLOWERS_INFO_QUERY = gql`
+    query GET_FOLLOWERS($walletAddress: Bytes!) {
+      identity(where: {address: $walletAddress}) {
+        address
+        followers {
+          list {
+            address
+          }
+        }
+        followings {
+          list {
+            address
+          }
+        }
+      }
+    }
+  `;
+
+  const followersQuery = useQuery(FOLLOWERS_INFO_QUERY, {
+    variables: {walletAddress: id},
+    context: {clientName: 'cyberConnect'},
+  });
+
+  console.log('----->>> followers QUery', followersQuery);
 
   //const textile = useContext(TextileContext)
   const litNode = useContext(LitContext);
@@ -402,6 +463,21 @@ export function Creator() {
     }
   }
 
+  // const script = () => {
+  //   <>
+  //   <ScriptTag>
+  //     async function initCyberConnect() {
+  //       await capi.follow.init({
+  //         ethProvider: '',
+  //         namespace: 'CyberConnect',
+  //         env: 'PRODUCTION'
+  //       });
+  //     }
+  //   </ScriptTag>
+  //   <ScriptTag src="https://connect.cybertino.io/js/cyberconnect-follow-button.min.js"></ScriptTag>
+  //   </>
+  // }
+
   function showItem(content) {
     let src = getSrc(content);
     let fileType;
@@ -418,29 +494,37 @@ export function Creator() {
     console.log(content);
     if (!content.hide || isSelf) {
       return (
-        <Card
-          key={content.ipfs}
-          fileUrl={src || null}
-          name={content.name}
-          description={content.description}
-          fileType={fileType}
-          date={content.date}
-          avatarUrl=""
-          onReport={() => {
-            report(content);
-          }}
-          isCreator={isSelf}
-          hide={content.hide}
-          onHide={() => {
-            hide(content.tokenId, !content.hide);
-          }}
-          canDecrypt={canDecrypt}
-          // reactionErc20Available={reactionErc20Available}
-          // reactionErc20Symbol={reactionErc20Symbol}
-          //onReact={(amount, callback) => { react(content, amount, callback) }}
-          // hasReacted={hasReacted(content)}
-          // initialReactCount={countReacted(content)}
-        />
+        <React.Fragment>
+          <Card
+            key={content.ipfs}
+            fileUrl={src || null}
+            name={content.name}
+            description={content.description}
+            fileType={fileType}
+            date={content.date}
+            avatarUrl=""
+            onReport={() => {
+              report(content);
+            }}
+            isCreator={isSelf}
+            hide={content.hide}
+            onHide={() => {
+              hide(content.tokenId, !content.hide);
+            }}
+            canDecrypt={canDecrypt}
+            // reactionErc20Available={reactionErc20Available}
+            // reactionErc20Symbol={reactionErc20Symbol}
+            //onReact={(amount, callback) => { react(content, amount, callback) }}
+            // hasReacted={hasReacted(content)}
+            // initialReactCount={countReacted(content)}
+          />
+          <iframe
+            src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
+            style={{border: 'none', height: 600, width: '100%'}}
+          >
+            Comments
+          </iframe>
+        </React.Fragment>
       );
     } else return;
   }
@@ -628,6 +712,7 @@ export function Creator() {
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
           {generateButton()}
+          <Button onClick={() => cyberConnect.connect(id)} label="Follow" />
           {context.chainId === 80000 && (
             <span>
               <div className="flex space-x-5">

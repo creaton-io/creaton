@@ -17,7 +17,8 @@ services:
       postgres_pass: let-me-in
       postgres_db: graph-node
       ipfs: 'ipfs:5001'
-      ethereum: 'goerli:https://goerli.infura.io/v3/5da64f50a6764ab3bf78ad6d39d7c97f'
+      #ethereum: 'goerli:https://goerli.infura.io/v3/5da64f50a6764ab3bf78ad6d39d7c97f'
+      ethereum: 'mumbai:https://polygon-mumbai.infura.io/v3/pEB5PfxrmHpdv1kZqmF3z8QVg4rjAv3Q'
       RUST_LOG: info
       RUST_BACKTRACE: full
   ipfs:
@@ -36,4 +37,3 @@ services:
       POSTGRES_PASSWORD: let-me-in
       POSTGRES_DB: graph-node
       PGDATA: /tmp
-

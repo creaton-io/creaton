@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState, useMemo} from 'react';
 import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
-import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
+import {ApolloClient, ApolloProvider, InMemoryCache, HttpLink} from '@apollo/client';
 import Home from './Home';
 import WalletConnect from './WalletConnect';
 import {useWeb3React, Web3ReactProvider} from './web3-react/core';
@@ -35,7 +35,9 @@ import {Icon} from './icons';
 import Tooltip from './elements/tooltip';
 import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
-import { CreatorVoting } from './CreatorVoting';
+import {CreatorVoting} from './CreatorVoting';
+import {ApolloLink} from 'apollo-link';
+import {RetryLink} from '@apollo/client/link/retry';
 
 initFontAwesome();
 
@@ -44,10 +46,39 @@ const styles = {
   textAlign: 'center',
 };
 
+// const client = new ApolloClient({
+//   uri: APOLLO_URI,
+//   cache: new InMemoryCache(),
+// });
+
+const directionalLink = new RetryLink().split(
+  (operation) => operation.getContext().clientName === 'cyberConnect',
+  new HttpLink({uri: 'https://api.cybertino.io/connect'}),
+  new HttpLink({uri: APOLLO_URI})
+);
+
 const client = new ApolloClient({
-  uri: APOLLO_URI,
+  link: directionalLink,
   cache: new InMemoryCache(),
 });
+
+// const link = new ApolloLink().split(
+//   (operation) => operation.getContext().clientName === 'cyberConnect',
+//   new HttpLink({ uri: APOLLO_URI }),
+//   new HttpLink({uri: 'https://api.cybertino.io/connect/' })
+// )
+
+// const client = new ApolloClient({
+//   link: ApolloLink.split(
+//     (operation) => operation.getContext().clientName === 'cyberConnect',
+//     // the string "third-party" can be anything you want,
+//     // we will use it in a bit
+//     localLink, // <= apollo will send to this if clientName is "third-party"
+//     cyberConnectLink // <= otherwise will send to this
+//   ),
+
+//   // other options
+// });
 
 const paymaster = creaton_contracts.Paymaster;
 
