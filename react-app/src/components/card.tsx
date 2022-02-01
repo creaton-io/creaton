@@ -182,8 +182,8 @@ export const Card: FC<ButtonProps> = ({
                       className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
                     />
                     <span className="ml-2 text-white">{likeCount}</span>
-                  </div> likes are a web2 construct 
-                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />
+                  </div>
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1 mr-5')} />
                   <Icon
                     onClick={onHide}
                     name={hide ? 'eye-slash' : 'eye'}
@@ -275,7 +275,7 @@ export const Card: FC<ButtonProps> = ({
                             {reactCount}
                           </span>
                         </div> 
-              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />
+              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
               <Icon
                 onClick={onHide}
                 name={hide ? 'eye-slash' : 'eye'}
