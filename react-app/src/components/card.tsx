@@ -7,6 +7,7 @@ import {Splash} from './splash';
 import LitJsSdk from 'lit-js-sdk';
 import { LitContext } from '../LitProvider';
 import { ethers } from 'ethers';
+import { LinkPreview } from '@dhaiwat10/react-link-preview';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -313,6 +314,7 @@ export const Card: FC<ButtonProps> = ({
           <div className="text-left text-white">{descriptionReactElement}</div>
 
           {linkContent && <div className="text-left text-white mt-2"><span className="font-bold">Link: </span><a target="_blank" href={linkContent}>{linkContent}</a></div>}
+          {linkContent && <LinkPreview url={linkContent} showLoader={false} /> }
 
           {price && (
             <div>
