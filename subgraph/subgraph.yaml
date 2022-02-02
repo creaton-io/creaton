@@ -45,7 +45,7 @@ dataSources:
       eventHandlers:
         - event: ReactionDeployed(address,address,string,string,string,address)
           handler: handleReactionDeployed
-      file: ./src/mapping.ts
+      file: ./src/reaction-mapping.ts
   - kind: ethereum/contract
     name: NFTLance
     network: mumbai
@@ -115,7 +115,7 @@ templates:
           handler: handleReacted
         - event: Flowed(address,uint256,address,address,address)
           handler: handleFlowed
-      file: ./src/mapping.ts
+      file: ./src/reaction-mapping.ts
   - kind: ethereum/contract
     name: StakedFlow
     network: mumbai
@@ -133,7 +133,7 @@ templates:
       eventHandlers:
         - event: Flowing(address,uint256,address,uint256)
           handler: handleFlowing
-      file: ./src/mapping.ts
+      file: ./src/reaction-mapping.ts
   - kind: ethereum/contract
     name: CreatorCollections
     network: mumbai
