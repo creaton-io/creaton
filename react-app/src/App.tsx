@@ -37,6 +37,8 @@ import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { CreatorVoting } from './CreatorVoting';
 import { Mytokens, MytokensRequests, Nftlance } from './Nftlance';
+import { Feed } from './Feed';
+import { Discovery } from './Discovery';
 
 initFontAwesome();
 
@@ -801,7 +803,7 @@ const App = () => {
                             <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
                               <Switch>
                                 <Route exact path="/">
-                                  <Home />
+                                  <Discovery />
                                 </Route>
                                 <Route exact path="/creators">
                                   <Creators />
@@ -840,6 +842,12 @@ const App = () => {
                                 </Route>
                                 <Route path="/nftlance-mycardsrequests">
                                   <MytokensRequests />
+                                </Route>
+                                <Route path="/feed">
+                                  <Feed />
+                                </Route>
+                                <Route path="/discovery">
+                                  <Discovery />
                                 </Route>
                               </Switch>
                             </div>

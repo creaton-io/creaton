@@ -187,7 +187,7 @@ export const Card: FC<ButtonProps> = ({
                   <Icon
                     onClick={onHide}
                     name={hide ? 'eye-slash' : 'eye'}
-                    className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300')}
+                    className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300' && isCreator ? ' visible' : ' invisible')}
                   />
                 </div>
               </div>
@@ -279,7 +279,7 @@ export const Card: FC<ButtonProps> = ({
               <Icon
                 onClick={onHide}
                 name={hide ? 'eye-slash' : 'eye'}
-                className={clsx(hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1')}
+                className={clsx(isCreator ? (hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1') : ' invisible')}
               />
             </div>
           </div>
