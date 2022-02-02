@@ -35,45 +35,80 @@ contract RedeemCreate{
     function startTeamStream(uint256 amountPutIn) public returns (uint256 streamID){
         //sender, amount, create Address, now, to two years from now
         protoTeam.transferFrom(msg.sender, address(this), amountPutIn);
-        
+
+
+        uint256 roundOver = amountPutIn%(86400*365*2);
         ERC20(create).approve(address(sablier), amountPutIn);
-        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + days180, block.timestamp + 86400*365*2 + days180);
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn - roundOver, create, block.timestamp + days180, block.timestamp + 86400*365*2 + days180);
         console.log(streamID);
-        emit streamStarted(address(protoTeam), amountPutIn, block.timestamp+days180, block.timestamp+86400*365*2+days180, msg.sender, streamID);
+        emit streamStarted(address(protoTeam), amountPutIn - roundOver, block.timestamp+days180, block.timestamp+86400*365*2+days180, msg.sender, streamID);
+
+        if (roundOver > 0){
+            uint256 overflowStream = sablier.createStream(msg.sender, roundOver, create, block.timestamp + 86400*365*2 + days180, block.timestamp + 86400*365*2 + days180+1);
+            console.log(overflowStream);
+        }
         return streamID;
     }
 
     function startAdvisorStream(uint256 amountPutIn) public returns (uint256 streamID){
         protoAdvisor.transferFrom(msg.sender, address(this), amountPutIn);
 
+        uint256 roundOver = amountPutIn%(86400*304);
         ERC20(create).approve(address(sablier), amountPutIn);
-        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + days180, block.timestamp + 86400*304 + days180);
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn - roundOver, create, block.timestamp + days180, block.timestamp + 86400*304 + days180);
         //86400 for seconds in a day, 304 for 10 months
         console.log(streamID);
-        emit streamStarted(address(protoAdvisor), amountPutIn, block.timestamp+days180, block.timestamp+86400*304+days180, msg.sender, streamID);
+        emit streamStarted(address(protoAdvisor), amountPutIn - roundOver, block.timestamp+days180, block.timestamp+86400*304+days180, msg.sender, streamID);
+
+        if (roundOver > 0){
+            uint256 overflowStream = sablier.createStream(msg.sender, roundOver, create, block.timestamp+86400*304+days180, block.timestamp+86400*304+days180 + 1);
+            console.log(overflowStream);
+        }
         return streamID;
     }
     
     function startAmbassadorStream(uint256 amountPutIn) public returns (uint256 streamID){
         protoAmbassador.transferFrom(msg.sender, address(this), amountPutIn);
 
+        uint256 roundOver = amountPutIn%(86400*304);
         ERC20(create).approve(address(sablier), amountPutIn);
-        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*304 + 86400*30);
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn - roundOver, create, block.timestamp + 86400*30, block.timestamp + 86400*304 + 86400*30);
         //86400 for seconds in a day, 304 for 10 months
         console.log(streamID);
-        emit streamStarted(address(protoAmbassador), amountPutIn, block.timestamp+86400*30, block.timestamp+86400*304+86400*30, msg.sender, streamID);
+        emit streamStarted(address(protoAmbassador), amountPutIn - roundOver, block.timestamp+86400*30, block.timestamp+86400*304+86400*30, msg.sender, streamID);
+
+        if (roundOver>0){
+            console.log(sablier.createStream(msg.sender, roundOver, create, block.timestamp + 86400*304, block.timestamp + 86400*304+1));
+        }
+
         return streamID;
     }
 
     function startSeedStream(uint256 amountPutIn) public returns (uint256 streamID){
         //sender, amount, create Address, now, to two years from now
-        protoAdvisor.transferFrom(msg.sender, address(this), amountPutIn);
+        protoSeed.transferFrom(msg.sender, address(this), amountPutIn);
+        uint256 roundOver = amountPutIn%(86400*243);
 
         ERC20(create).approve(address(sablier), amountPutIn);
-        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*(243+30));
-        //86400 for seconds in a day, 273 for 8 months, starting one month from now.
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn - roundOver, create, block.timestamp + 86400*30, block.timestamp + 86400*(243+30));
+        //86400 for seconds in a day
         console.log(streamID);
-        emit streamStarted(address(protoSeed), amountPutIn, block.timestamp+86400*30, block.timestamp+86400*(243+30), msg.sender, streamID);
+        emit streamStarted(address(protoSeed), amountPutIn - roundOver, block.timestamp+86400*30, block.timestamp+86400*(243+30), msg.sender, streamID);
+
+        if (roundOver>0){
+            emit streamStarted(
+                address(protoSeed),
+                roundOver,
+                block.timestamp + 86400*(243+30),
+                block.timestamp + 86400*(243+30)+1,
+                msg.sender, 
+                sablier.createStream(
+                    msg.sender, 
+                    roundOver, 
+                    create, 
+                    block.timestamp + 86400*(243+30), 
+                    block.timestamp + 86400*(243+30)+1));
+        }
         return streamID;
     }
 
