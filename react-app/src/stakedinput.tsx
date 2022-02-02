@@ -53,6 +53,7 @@ export const ClaimToken: FC = () => {
     const [submitting, setSubmitting] = useState<boolean>(false)
 
     
+// Polygon mainnet contract address: 0xAC18EAB6592F5fF6F9aCf5E0DCE0Df8E49124C06
 
 
     async function handleSubmit(e) {
