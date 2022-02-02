@@ -34,6 +34,7 @@
     "matic:verifycontracts": "dotenv -e .env.production -- npm --prefix contracts run matic:verify"
   },
   "dependencies": {
-    "@apollo/client": "^3.5.5"
+    "@apollo/client": "^3.5.8",
+    "graphql": "^16.3.0"
   }
 }

@@ -3,9 +3,46 @@ import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { Button } from "./elements/button";
 import { Input } from "./elements/input";
-import { Contract, ethers } from "ethers";
+import { Contract, ethers, providers } from "ethers";
 import creaton_contracts from "./Contracts";
 import { CREATE_TOKEN_ADDRESS, GOVERNANCE_SQUAD_TOKENS } from "./Config";
+import { gql } from "@apollo/client";
+
+// Stream GraphQL query
+const streamQuery = gql`
+   {
+    id
+    deposit
+    recipient
+    sender
+    startTime
+    stopTime
+    token {
+      id
+      name
+      symbol
+    }
+  }
+`;
+
+
+
+
+
+// To Do 
+// Enable investors to redeem tokens 
+// Call from smart contract
+
+
+// Use Sablier to redeem investor types and then push the code!
+// Sablier GraphQL
+
+// Ethers integration 
+
+
+const investorTokenType = ["Investor", "Team", "Advisor"];
+
+// if token type is 0, stream token to that address
 
 export const ClaimToken: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
@@ -14,6 +51,9 @@ export const ClaimToken: FC = () => {
     const [sgtAmount, setSgtAmount] = useState<number>(0)
     const [sgtSymbol, setSgtSymbol] = useState<string>('CREATE')
     const [submitting, setSubmitting] = useState<boolean>(false)
+
+    
+
 
     async function handleSubmit(e) {
         setSubmitting(true);
@@ -50,6 +90,49 @@ export const ClaimToken: FC = () => {
             console.log('Successfully Staked: ', author, amount.toString(), stakingTokenAddress, stakingSuperTokenAddress);
             setSubmitting(false);
         });
+    }
+
+    // MUST NEEDED 
+    // Contract address 
+    // Stream ID
+
+    async function createStream() {
+
+        const recipient = "Wallet info";
+
+
+        const deposit = "user deposit";
+
+        const now = Math.round(new Date().getTime() / 1000);
+        const startTime = now + 48; // 48 hours from now 
+        const stopTime = now + 216 // 9 days from now 
+
+
+        // get a handle for the token contract
+        const token = new ethers.Contract(0xcafe..., erc20ABI, signerOrProvider); 
+        
+        // This approves the transfer
+        const approveTx = await token.approve(sablier.address, deposit); 
+        await approveTx.wait();
+
+        const createStreamTx = await sablier.createStream(recipient, deposit, token.address, startTime, stopTime);
+        await createStreamTx.wait();
+
+    }
+
+    async function withdrawStream(contract: string, signer: ethers.providers.JsonRpcSigner, provider: providers) {
+        ‌const sablier = new ethers.Contract(contractAddress, signer, provider);
+        const streamId = 42;
+        const amount = 100;
+        const withdrawFromStreamTx = await sablier.withdrawFromStream(streamId, amount);
+        await withdrawFromStreamTx.wait()
+    }
+
+    async function cancelStream() {
+        ‌const sablier = new ethers.Contract(0xabcd..., sablierABI, signerOrProvider);
+        const streamId = 42;
+        const cancelStreamTx = await sablier.cancelStream(streamId);
+        await cancelStreamTx.wait()
     }
 
     async function handleInputChange(e) {
