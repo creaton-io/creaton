@@ -47,6 +47,7 @@ export function Creator() {
         tokenId
         tier
         hide
+        link
       }
     }
   `;
@@ -389,6 +390,7 @@ export function Creator() {
           onReact={(amount, callback) => { react(content, amount, callback) }}
           hasReacted={hasReacted(content)}
           initialReactCount={countReacted(content)}
+          link={content.link}
         />
       );
     } else return;

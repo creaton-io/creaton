@@ -76,11 +76,13 @@ export function handleNewPost(event: NewPost): void {
   let description = '';
   let date = '';
   let ipfs = '';
+  let link = '';
   if (metadata.isSet('name')) name = metadata.get('name').toString();
   if (metadata.isSet('type')) type = metadata.get('type').toString();
   if (metadata.isSet('description')) description = metadata.get('description').toString();
   if (metadata.isSet('date')) date = metadata.get('date').toString();
   if (metadata.isSet('ipfs')) ipfs = metadata.get('ipfs').toString();
+  if (metadata.isSet('link')) link = metadata.get('link').toString();
   if (ipfs === '') return;
   let entity = Content.load(id);
   if (!entity) {
@@ -96,6 +98,7 @@ export function handleNewPost(event: NewPost): void {
   entity.tokenId = tokenId;
   entity.tier = event.params.contentType;
   entity.hide = false;
+  entity.link = link;
   entity.save();
 }
 
