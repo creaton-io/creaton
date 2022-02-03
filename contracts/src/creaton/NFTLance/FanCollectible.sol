@@ -2,11 +2,8 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-// import "hardhat/console.sol";
 
 contract FanCollectible is ERC1155, Ownable {
-
-
     uint256 private _currentTokenID = 0;
     address private _minter; //I was wrong! this is actually *very* important, and needs to be the address of the controlling contract!
     
@@ -20,7 +17,13 @@ contract FanCollectible is ERC1155, Ownable {
     mapping(uint256 => states) private stateOfCollectibles; //tokenID to state of collectible.
     mapping(uint256 => string) private collectibleRequestData; //tokenID to data about collectible request.
 
-    constructor(string memory _uri) ERC1155(_uri) {}
+    event MinterTransferred(address indexed previousMinter, address indexed newMinter);
+    event Minted(address to, uint256 id, bytes data);
+    event RequestDataSet(string cardID, uint256 indexed tokenID, string collectibleRequestData);
+
+    constructor(string memory _uri) ERC1155(_uri) {
+        _minter = msg.sender;
+    }
 
     /**
      * @dev Throws if called by any account other than the minter.
@@ -44,9 +47,6 @@ contract FanCollectible is ERC1155, Ownable {
         _minter = newMinter;
     }
 
-    event MinterTransferred(address indexed previousMinter, address indexed newMinter);
-    event TokenAdded(uint256 indexed tokenID);
-    event RequestDataSet(uint256 indexed tokenID, string indexed collectibleRequestData);
     /**
      * @dev Mints some amount of tokens to an address
      * @param _to          Address of the future owner of the token
@@ -62,6 +62,8 @@ contract FanCollectible is ERC1155, Ownable {
         require(stateOfCollectibles[_id] == states.UNPURCHASED, "Max supply reached");
         _mint(_to, _id, 1, _data);
         stateOfCollectibles[_id] = states.PURCHASED;
+
+        emit Minted(_to, _id, _data);
     }
 
     /**
@@ -106,16 +108,17 @@ contract FanCollectible is ERC1155, Ownable {
 
     /**
      * @dev sets the request data for a collectible
+     * @param cardId Card ID the token belongs to
      * @param _id Token ID to set data for
      * @param _request Data to set (graphQL on ceramic's meta data)
     */
-    function setRequestData(uint256 _id, string memory _request) public {
+    function setRequestData(string memory cardId, uint256 _id, string memory _request) public {
         require(stateOfCollectibles[_id] != states.PURCHASED_AND_FINALIZED, "Token has already been finalized");
         // require(stateOfCollectibles[_id] != states.UNPURCHASED, "Token not purchased");
         require(balanceOf(_msgSender(), _id) >=1, "Token not owned by sender");
 
         collectibleRequestData[_id] = _request;
-        emit RequestDataSet(_id, _request);
+        emit RequestDataSet(cardId, _id, _request);
     }
 
     /**

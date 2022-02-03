@@ -26,6 +26,7 @@ const func = async function (hre) {
       : '0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b'; //testnet USDCx
   const beaconContract = await hre.deployments.get('CreatorBeacon');
   const nftFactory = await hre.deployments.get('NFTFactory');
+  const reactionFactory = await hre.deployments.get('ReactionFactory');
   const treasuryFee = 98;
 
   const CreatonAdmin = await ethers.getContractFactory('CreatonAdmin');
@@ -42,7 +43,7 @@ const func = async function (hre) {
       treasuryFee,
       beaconContract.address,
       nftFactory.address,
-      trustedforwarder,
+      trustedforwarder
     ],
     {kind: 'uups'}
   );

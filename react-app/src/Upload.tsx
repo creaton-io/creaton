@@ -31,6 +31,7 @@ const Upload = () => {
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
   const [description, setDescription] = useState('');
+  const [rawLink, setRawLink] = useState('');
   const [subscribersDescription, setSubscribersDescription] = useState('');
   const [fileName, setFileName] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -72,7 +73,10 @@ const Upload = () => {
       context.library!.getSigner()
     );
 
-    if (uploadEncrypted && currentCreator !== undefined) {
+    let link = rawLink;
+    if (uploadEncrypted && currentCreator !== undefined) {     
+      const jsonLink = JSON.stringify([rawLink]);
+      link = await encryptText(jsonLink) as string;
       web3utils.setIsWaiting('Encrypting the file...');
       let zipBlobFile;
       try {
@@ -136,11 +140,13 @@ const Upload = () => {
           name: fileName,
           type: file_type,
           description: description,
+          link: link,
           date: new Date().getTime().toString(),
           ipfs: arweave_id,
         };
         const NFTMetadata = {
           description: description,
+          link: link,
           subscribersDescription,
           name: fileName,
           image: ARWEAVE_GATEWAY + arweave_id,
@@ -193,6 +199,19 @@ const Upload = () => {
     });
   }
 
+  function base64ToBlob(base64Data: string) {
+    const parts = base64Data.split(';base64,');
+    const contentType = parts[0].split(':')[1];
+    const decodedData = window.atob(parts[1]);
+
+    const uInt8Array = new Uint8Array(decodedData.length);
+    for (let i = 0; i < decodedData.length; ++i) {
+      uInt8Array[i] = decodedData.charCodeAt(i);
+    }
+
+    return new Blob([uInt8Array], { type: contentType });
+  }
+
   async function encryptDescription(text: string){
     if(!currentCreator) return;
 
@@ -204,7 +223,16 @@ const Upload = () => {
       const toEncrypt = JSON.stringify(matches);
       const toNotEncrypt = text.replace(regex, '<p class="subscribersText" />');
 
-      const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+      const encryptedText: string = await encryptText(toEncrypt) as string;
+      text = toNotEncrypt + '<p class="encryptedText">'+(encryptedText)+'</p>';
+    }
+
+    setDescription(text);
+  }
+
+  async function encryptText(text: string){
+    if(!currentCreator) return;
+    const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
       const subConditions = [
         {
           contractAddress: currentCreator.creatorContract,
@@ -223,7 +251,7 @@ const Upload = () => {
         authSig,
         accessControlConditions: subConditions,
         chain: 'mumbai',
-        file: new Blob([toEncrypt], {
+        file: new Blob([text], {
           type: 'application/json',
         }),
         litNodeClient: litNode,
@@ -231,13 +259,8 @@ const Upload = () => {
       });
 
       const encryptedText: string = await blobToBase64(zipBlob) as string;
-
-      text = toNotEncrypt + '<p class="encryptedText">'+(encryptedText)+'</p>';
-    }
-
-    setDescription(text);
+      return encryptedText;
   }
-
 
   async function uploadChunks() {
     const playlistData = ffmpeg.FS('readFile', 'output.m3u8');
@@ -430,6 +453,21 @@ const Upload = () => {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="w-full m-5">
+          <div className="flex items-center mb-1">
+            <label className="block font-semibold mb-1">Add a Link</label>
+          </div>
+
+          <div className="w-full">
+            <Input
+              className="text-black w-full"
+              type="text"
+              placeholder="Type or paste link URL"
+              onChange={(e) => setRawLink(e.target.value)}
+            />
+          </div>
         </div>
 
         <div className="w-full m-5">

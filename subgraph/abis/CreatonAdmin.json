@@ -104,6 +104,19 @@
     "anonymous": false,
     "inputs": [
       {
+        "indexed": false,
+        "internalType": "address",
+        "name": "factoryContractAddress",
+        "type": "address"
+      }
+    ],
+    "name": "ReactionFactoryDeployed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
         "internalType": "address",
         "name": "implementation",
@@ -251,6 +264,11 @@
         "internalType": "address",
         "name": "_trustedForwarder",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_reactionFactory",
+        "type": "address"
       }
     ],
     "name": "initialize",
@@ -280,6 +298,19 @@
   {
     "inputs": [],
     "name": "nftFactory",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "reactionFactory",
     "outputs": [
       {
         "internalType": "address",

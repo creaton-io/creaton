@@ -13,6 +13,8 @@ type Creator @entity {
   subscriptionPrice: BigInt!
   timestamp: BigInt!
   subscribers: [Subscriber!]! @derivedFrom(field: "creator")
+  reactionUser: [ReactionUser]! @derivedFrom(field: "creator")
+  reactionsReceived: BigInt!
 }
 
 type Subscriber @entity {
@@ -33,10 +35,119 @@ type Content @entity {
   description: String!
   date: String!
   ipfs: String!
+  link: String!
   tier: Int!
   tokenId: BigInt!
   hide: Boolean!
 }
 
+type ReactionUser @entity {
+  id: ID!
+  address: Bytes! # address
+  reactionsReceived: BigInt!
+  reactionsDefined: [ReactionDef!] @derivedFrom(field: "reactionUser")
+  staked: [Stake!] @derivedFrom(field: "reactionUser")
+  reactions: [Reaction!]  @derivedFrom(field: "reactingUser")
+  flowed: [Flow!]  @derivedFrom(field: "recipient")
+  creator: Creator
+}
 
+type ReactionDef @entity {
+  id: ID!
+  reactionUser: ReactionUser!
+  contract: Bytes! # address
+  name: String!
+  symbol: String!
+  stakingTokenAddress: Bytes!
+}
 
+type Stake @entity {
+  id: ID!
+  reactionUser: ReactionUser!
+  token: Bytes! # address
+  amount: BigInt!
+  reaction: Reaction!
+}
+
+type Reaction @entity {
+  id: ID!
+  reactingUser: ReactionUser!
+  reaction: ReactionDef!
+  amount: BigInt!
+  reactionRecipientAddress: Bytes! # address
+  tokenId: BigInt!
+  staked: [Stake!] @derivedFrom(field: "reaction")
+  flowed: [Flow!] @derivedFrom(field: "reaction")
+}
+
+type Flow @entity {
+  id: ID!
+  amount: BigInt!
+  stakingTokenAddress: Bytes!
+  recipient: ReactionUser!
+  stakingSuperTokenAddress: Bytes!
+  reaction: Reaction!
+  stakedFlow: StakedFlow!
+}
+
+type StakedFlow @entity {
+  id: ID!
+  stakingSuperToken: Bytes
+  balance: BigInt
+  recipient: ReactionUser
+  flowRate: BigInt
+  flowed: [Flow!] @derivedFrom(field: "stakedFlow")
+}
+
+type CreatorCollection @entity {
+  id: ID!
+  creator: Creator!
+  creatonBalance: BigInt!
+  creatonPercentage: Int!
+  artistPercentage: BigInt!
+  newerVersionOfContract: Bytes
+  token: Bytes!
+  collectible: FanCollectible!
+  totalSupply: BigInt!
+  catalogs: [Catalog!] @derivedFrom(field: "creatorCollection")
+  catalogsCount: BigInt!
+}
+
+type FanCollectible @entity {
+  id: ID!
+  uri: String
+}
+
+type Catalog @entity {
+  id: ID!
+  catalogId: String!
+  creatorCollection: CreatorCollection!
+  feesCollected: BigInt!
+  artist: Creator!
+  title: String!
+  description: String!
+  cardsInCatalog: Int!
+  cards: [Card!] @derivedFrom(field: "catalog")
+}
+
+type Card @entity {
+  id: ID!
+  cardId: String!
+  catalog: Catalog!
+  price: BigInt!
+  releaseTime: BigInt!
+  idPointOfNextEmpty: BigInt!
+  tokensCount: BigInt!
+  tokens: [Token!] @derivedFrom(field: "card")
+  tokensAvailable: BigInt!
+}
+
+type Token @entity {
+  id: ID!
+  tokenId: String!
+  card: Card!
+  state: String!
+  requestData: String
+  owner: Bytes
+  data: Bytes
+}

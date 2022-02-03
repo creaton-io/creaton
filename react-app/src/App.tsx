@@ -38,6 +38,7 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {CreatorVoting} from './CreatorVoting';
 import {ApolloLink} from 'apollo-link';
 import {RetryLink} from '@apollo/client/link/retry';
+import {Mytokens, MytokensRequests, Nftlance} from './Nftlance';
 
 initFontAwesome();
 
@@ -531,9 +532,7 @@ const ProfileMenu = (props) => {
           {currentCreator && <NavigationLink to="/subscribers" label="Subscribers" />}
           {canBecomeCreator && <NavigationLink to="/upload" label="Upload" />}
           {<NavigationLink to="/signup" label={currentProfile ? 'My Profile' : 'Make Profile'} />}
-          {/* {currentProfile &&
-          <NavigationLink to="/flows" label="My Flows"/>
-          } */}
+          {currentProfile && <NavigationLink to="/flows" label="My Flows" />}
         </div>
       </div>
     </div>
@@ -861,6 +860,15 @@ const App = () => {
                                 </Route>
                                 <Route path="/creator-voting">
                                   <CreatorVoting />
+                                </Route>
+                                <Route path="/nftlance/:id?">
+                                  <Nftlance />
+                                </Route>
+                                <Route path="/nftlance-mycards">
+                                  <Mytokens />
+                                </Route>
+                                <Route path="/nftlance-mycardsrequests">
+                                  <MytokensRequests />
                                 </Route>
                               </Switch>
                             </div>

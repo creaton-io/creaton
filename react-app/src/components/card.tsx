@@ -6,6 +6,8 @@ import {Parser as HtmlToReactParser} from 'html-to-react';
 import {Splash} from './splash';
 import LitJsSdk from 'lit-js-sdk';
 import { LitContext } from '../LitProvider';
+import { ethers } from 'ethers';
+import { LinkPreview } from '@dhaiwat10/react-link-preview';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -30,6 +32,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   onHide?: any;
   isCreator?: boolean;
   canDecrypt?: boolean;
+  link?: string;
 }
 
 export const Card: FC<ButtonProps> = ({
@@ -55,15 +58,15 @@ export const Card: FC<ButtonProps> = ({
   onHide,
   isCreator,
   canDecrypt,
+  link,
 }) => {
-  const ircount: number = initialReactCount ? +initialReactCount : 0;
-
   const litNode = useContext(LitContext);
   const [stakingAmount, setStakingAmount] = useState('');
   const [reacting, setReacting] = useState(false);
   const [hiding, setHiding] = useState(false);
-  const [reactCount, setReactCount] = useState<number>(+ircount);
+  const [reactCount, setReactCount] = useState<number>();
   const [descriptionReactElement, setDescriptionReactElement] = useState('');
+  const [linkContent, setLinkContent] = useState('');
 
   function showAmountModal(e) {
     hideAllAmountModal();
@@ -106,57 +109,80 @@ export const Card: FC<ButtonProps> = ({
 
   useEffect(() => {
     ;(async () => {
-      if(!description) return;
+      setReactCount(initialReactCount ? +initialReactCount : 0);
+
+      if(!description || !link) return;
       let desc: string = description;
-      
+
       const regexSubscribersText = /<p class="subscribersText" \/>/gmi
 
       if(!canDecrypt){
-        console.log('here cant decrypt');
         console.log(desc.match(regexSubscribersText));
         desc = desc.replace(regexSubscribersText, '<p class="subscribersText">YOU NEED TO SUBSCRIBE TO SEE THIS TEXT</p>');
         description = desc;
+
+        if(link.indexOf("data:application/zip") === 0){
+          link = "YOU NEED TO SUBSCRIBE TO SEE THIS LINK";
+        }
+
       } else{
-        const regex = /<p class="encryptedText">((.|\n)*?)<\/p>/gmi
-        const matches = desc.match(regex);
-  
-        if(matches){
-          desc = desc.replace(regex, "");
-  
           try{
-            const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+            let authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
   
-            const encryptedZipBlob = base64ToBlob(matches[0].slice(25,-4));
-            let {decryptedFile} = await LitJsSdk.decryptZipFileWithMetadata({
-              authSig: authSig,
-              file: encryptedZipBlob,
-              litNodeClient: litNode,
-            });
-  
-            const blob = new Blob([decryptedFile], {type: 'application/json'});
-            const decryptedText = JSON.parse(await blob.text());
-  
-            const reversed = Array.from(desc.matchAll(regexSubscribersText)).reverse();
-  
-            let counter = reversed.length-1;
-            for(let v of reversed){
-              desc = desc.slice(0, v.index) + decryptedText[counter] + desc.slice(v.index as number + v[0].length);
-              counter--;
+            // Description
+            const regex = /<p class="encryptedText">((.|\n)*?)<\/p>/gmi
+            const matches = desc.match(regex);
+      
+            if(matches){
+              desc = desc.replace(regex, "");
+              const encryptedZipBlob = base64ToBlob(matches[0].slice(25,-4));
+              let {decryptedFile} = await LitJsSdk.decryptZipFileWithMetadata({
+                authSig: authSig,
+                file: encryptedZipBlob,
+                litNodeClient: litNode,
+              });
+              
+              const decBlob = new Blob([decryptedFile], {type: 'application/json'});
+              console.log('SHIT LINK', decBlob);
+              const decDecryptedText = JSON.parse(await decBlob.text());
+    
+              const reversed = Array.from(desc.matchAll(regexSubscribersText)).reverse();
+    
+              let counter = reversed.length-1;
+              for(let v of reversed){
+                desc = desc.slice(0, v.index) + decDecryptedText[counter] + desc.slice(v.index as number + v[0].length);
+                counter--;
+              }
+
+              description = desc;
+            }
+
+            //Link
+            if(link && link.indexOf("data:application/zip") === 0){
+              const encryptedLinkZipBlob = base64ToBlob(link);
+              authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
+              let decrypted = await LitJsSdk.decryptZipFileWithMetadata({
+                authSig: authSig,
+                file: encryptedLinkZipBlob,
+                litNodeClient: litNode,
+              });
+
+              const linkBlob = new Blob([decrypted.decryptedFile], {type: 'application/json'});
+              link = JSON.parse(await linkBlob.text());
             }
             
           } catch(e) {
             console.error('Error while decrypting text: ', e);
+            link = '';
           }
-
-          description = desc;
-        }
       }
 
 
       const htmlToReactParser = new HtmlToReactParser();
-      setDescriptionReactElement(htmlToReactParser.parse(description))
+      setDescriptionReactElement(htmlToReactParser.parse(description));
+      setLinkContent(link as string);
     })()
-  },[description]);
+  },[description, link, canDecrypt]);
 
 
   if (isEncrypted)
@@ -174,15 +200,15 @@ export const Card: FC<ButtonProps> = ({
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-semibold text-white">{name}</h4>
                 <div className="flex justify-between">
-                  {/* <div className=" mr-5 ">
+                  <div className=" mr-5 ">
                     <Icon
                       onClick={onLike}
                       name="heart"
                       className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
                     />
                     <span className="ml-2 text-white">{likeCount}</span>
-                  </div> likes are a web2 construct 
-                  <Icon name="flag" className={clsx('text-gray-500 mt-1')} />*/}
+                  </div>
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1 mr-5')} />
                   <Icon
                     onClick={onHide}
                     name={hide ? 'eye-slash' : 'eye'}
@@ -224,15 +250,15 @@ export const Card: FC<ButtonProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="text-lg font-semibold text-white">{name}</h4>
             <div className="flex justify-between">
-              {/* <div className=" mr-5 ">
+              <div className=" mr-5 ">
                 <Icon
                   onClick={onLike}
                   name="heart"
                   className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
                 />
                 <span className="ml-2 text-white">{likeCount}</span>
-              </div> likes are a web2 construct*/}
-              {/* <div className=" mr-5 ">
+              </div>
+              <div className=" mr-5 ">
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
                               <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
@@ -274,7 +300,7 @@ export const Card: FC<ButtonProps> = ({
                             {reactCount}
                           </span>
                         </div> 
-              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1')} />*/}
+              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
               <Icon
                 onClick={onHide}
                 name={hide ? 'eye-slash' : 'eye'}
@@ -286,6 +312,9 @@ export const Card: FC<ButtonProps> = ({
           <h5 className="text-left text-sm text-gray-400 mb-2">{new Date(parseInt(date!)).toLocaleString()}</h5>
 
           <div className="text-left text-white">{descriptionReactElement}</div>
+
+          {linkContent && <div className="text-left text-white mt-2"><span className="font-bold">Link: </span><a target="_blank" href={linkContent}>{linkContent}</a></div>}
+          {linkContent && <LinkPreview url={linkContent} showLoader={false} /> }
 
           {price && (
             <div>

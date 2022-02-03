@@ -18,7 +18,7 @@ import {VideoPlayer} from "./VideoPlayer";
 import {Button} from "./elements/button";
 import {Card} from "./components/card";
 import {Avatar} from "./components/avatar";
-import {REACTIONS_GRAPHQL_URI, REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from "./Config";
+import {APOLLO_URI, REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from "./Config";
 import {Web3UtilsContext} from "./Web3Utils";
 import {
   Link
@@ -188,7 +188,7 @@ export function Creator() {
   //   `;
 
   //   const client = new ApolloClient({
-  //     uri: REACTIONS_GRAPHQL_URI,
+  //     uri: APOLLO_URI,
   //     cache: new InMemoryCache()
   //   });
 
