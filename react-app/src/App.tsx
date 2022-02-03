@@ -53,7 +53,7 @@ const styles = {
 
 const directionalLink = new RetryLink().split(
   (operation) => operation.getContext().clientName === 'cyberConnect',
-  new HttpLink({uri: 'https://api.cybertino.io/connect'}),
+  new HttpLink({uri: 'https://api.cybertino.io/connect/'}),
   new HttpLink({uri: APOLLO_URI})
 );
 

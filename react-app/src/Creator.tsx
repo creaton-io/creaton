@@ -38,10 +38,6 @@ let web3Modal = new Web3Modal({
 let ethersProvider;
 let cyberConnect;
 
-const IdentifyQuery = () => {
-  return {};
-};
-
 function connect() {
   return new Promise((resolve, reject) => {
     web3Modal
@@ -109,9 +105,11 @@ export function Creator() {
   `;
 
   const FOLLOWERS_INFO_QUERY = gql`
-    query GET_FOLLOWERS($walletAddress: Bytes!) {
-      identity(where: {address: $walletAddress}) {
+    query GET_FOLLOWERS($walletAddress: String!) {
+      identity(address: $walletAddress) {
         address
+        followerCount(namespace: "Creaton")
+        followingCount(namespace: "Creaton")
         followers {
           list {
             address
@@ -131,13 +129,20 @@ export function Creator() {
     context: {clientName: 'cyberConnect'},
   });
 
-  console.log('----->>> followers QUery', followersQuery);
-
   //const textile = useContext(TextileContext)
   const litNode = useContext(LitContext);
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
   const context = useWeb3React<Web3Provider>();
+
+  let isFollowing = false;
+  followersQuery?.data?.identity?.followers?.list?.map((item) => {
+    if (item.address === context.account) {
+      isFollowing = true;
+    }
+    return;
+  });
+
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery() {
     //updateReactions(creatorContractAddress);
@@ -463,21 +468,6 @@ export function Creator() {
     }
   }
 
-  // const script = () => {
-  //   <>
-  //   <ScriptTag>
-  //     async function initCyberConnect() {
-  //       await capi.follow.init({
-  //         ethProvider: '',
-  //         namespace: 'CyberConnect',
-  //         env: 'PRODUCTION'
-  //       });
-  //     }
-  //   </ScriptTag>
-  //   <ScriptTag src="https://connect.cybertino.io/js/cyberconnect-follow-button.min.js"></ScriptTag>
-  //   </>
-  // }
-
   function showItem(content) {
     let src = getSrc(content);
     let fileType;
@@ -709,10 +699,20 @@ export function Creator() {
             : contractQuery.data.creators[0].id.slice(0, 6)}
         </h3>
         <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
+        <h1 className="text-white">#Followers {followersQuery?.data?.identity?.followerCount}</h1>
+        <h1 className="text-white">#Following {followersQuery?.data?.identity?.followingCount}</h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
           {generateButton()}
-          <Button onClick={() => cyberConnect.connect(id)} label="Follow" />
+          <Button
+            onClick={
+              !isFollowing
+                ? () => cyberConnect.connect(context.account)
+                : () => cyberConnect.disconnect(context.account)
+            }
+            label={isFollowing ? 'Unfollow' : 'Follow'}
+          />
+
           {context.chainId === 80000 && (
             <span>
               <div className="flex space-x-5">
