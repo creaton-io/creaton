@@ -45,6 +45,7 @@ contract RedeemCreate{
 
         if (roundOver > 0){
             uint256 overflowStream = sablier.createStream(msg.sender, roundOver, create, block.timestamp + 86400*365*2 + days180, block.timestamp + 86400*365*2 + days180+1);
+            emit streamStarted(address(protoTeam), roundOver, block.timestamp + 86400*365*2 + days180, block.timestamp + 86400*365*2 + days180 + 1, msg.sender, overflowStream);
             console.log(overflowStream);
         }
         return streamID;
@@ -62,6 +63,7 @@ contract RedeemCreate{
 
         if (roundOver > 0){
             uint256 overflowStream = sablier.createStream(msg.sender, roundOver, create, block.timestamp+86400*304+days180, block.timestamp+86400*304+days180 + 1);
+            emit streamStarted(address(protoAdvisor),roundOver, block.timestamp+86400*304+days180, block.timestamp+86400*304+days180 + 1, msg.sender, overflowStream);
             console.log(overflowStream);
         }
         return streamID;
@@ -78,7 +80,8 @@ contract RedeemCreate{
         emit streamStarted(address(protoAmbassador), amountPutIn - roundOver, block.timestamp+86400*30, block.timestamp+86400*304+86400*30, msg.sender, streamID);
 
         if (roundOver>0){
-            console.log(sablier.createStream(msg.sender, roundOver, create, block.timestamp + 86400*304, block.timestamp + 86400*304+1));
+            emit streamStarted(address(protoAmbassador),roundOver, block.timestamp + 86400*304, block.timestamp + 86400*304+1, msg.sender, 
+                sablier.createStream(msg.sender, roundOver, create, block.timestamp + 86400*304, block.timestamp + 86400*304+1));
         }
 
         return streamID;
@@ -116,11 +119,18 @@ contract RedeemCreate{
         //sender, amount, create Address, now, to two years from now
         ProtoPrivate.transferFrom(msg.sender, address(this), amountPutIn);
 
+        uint256 roundOver = amountPutIn%(86400*121);
+
         ERC20(create).approve(address(sablier), amountPutIn);
-        uint256 streamID = sablier.createStream(msg.sender, amountPutIn, create, block.timestamp + 86400*30, block.timestamp + 86400*(121+30));
+        uint256 streamID = sablier.createStream(msg.sender, amountPutIn - roundOver, create, block.timestamp + 86400*30, block.timestamp + 86400*(121+30));
         //86400 for seconds in a day, 152 for 4 months, starting one month from now.
         console.log(streamID);
-        emit streamStarted(address(ProtoPrivate), amountPutIn, block.timestamp+86400*30, block.timestamp+86400*(121+30), msg.sender, streamID);
+        emit streamStarted(address(ProtoPrivate), amountPutIn - roundOver, block.timestamp+86400*30, block.timestamp+86400*(121+30), msg.sender, streamID);
+
+        if (roundOver>0){
+            emit streamStarted(address(ProtoPrivate), amountPutIn - roundOver, block.timestamp + 86400*(121+30), block.timestamp + 86400*(121+30)+1, msg.sender, 
+                sablier.createStream(msg.sender, amountPutIn - roundOver, create, block.timestamp + 86400*(121+30), block.timestamp + 86400*(121+30)+1));
+        }
         return streamID;
     }
 }
