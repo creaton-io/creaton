@@ -289,6 +289,24 @@ export function Creator() {
     console.log('subscribed');
   }
 
+  async function stopStreaming() {
+    let {sf, usdc, usdcx} = await superfluid;
+
+    const tx = await sf.host.callAgreement(
+      sf.agreements.cfa.address,
+      sf.agreements.cfa.contract.methods
+        .deleteFlow(usdcx.address, context.account, creatorContractAddress, "0x")
+        .encodeABI(),
+      "0x",
+      { from: context.account }
+    );
+    web3utils.setIsWaiting(true);
+    await tx.wait(1);
+    web3utils.setIsWaiting(false);
+
+    console.log('unsubscribed');
+  }
+
   async function decrypt(content) {
     //if (content.ipfs.startsWith('/ipfs'))
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
@@ -519,7 +537,7 @@ export function Creator() {
         {subscription === 'subscribed' && !isSelf && (
           <Button
             onClick={() => {
-              alert('still need to implement, can cancel manually through Superfluid dashboard');
+              stopStreaming();
             }}
             label="Stop Subscription"
           />

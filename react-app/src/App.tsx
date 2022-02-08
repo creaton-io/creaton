@@ -454,6 +454,13 @@ const ProfileMenu = (props) => {
                     Converting to USDCx...
                   </span>
                 )}
+                <a href="https://sandbox.wert.io/01FSWT1NPWHTG08D4GQWT7J3JX/redirect?commodity=USDC%3APolygon" target="_blank">
+                  Buy Polygon USDC
+                </a> 
+                <br/>
+                <a href="https://li.finance/swap?fromChain=eth&fromToken=0x0000000000000000000000000000000000000000&toChain=pol&toToken=0x2791bca1f2de4661ed88a30c99a7a9449aa84174" target="_blank">
+                  Swap tokens cross-chain to USDC
+                </a> 
               </div>
             </div>
             <div className="flex"></div>
