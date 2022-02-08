@@ -143,7 +143,7 @@ function Home() {
               <div className="flex flex-wrap mb-16 lg:mb-4">
                 <a
                   className="block w-full md:w-auto text-center mb-2 py-4 px-8 md:mr-4 text-sm text-white font-medium leading-normal rounded transition duration-200 to-indigo-700 bg-gradient-to-l from-indigo-500 hover:from-indigo-400 hover:to-indigo-600"
-                  href="https://creaton.io/#/upload"
+                  href="https://app.creaton.io/#/upload"
                 >
                   Sign up as creator now!
                 </a>
