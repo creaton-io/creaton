@@ -22,11 +22,11 @@ export default function NavbarTwoColumns(props: INavbarProps) {
         <Link href="/">
           <a>{props.logo}</a>
         </Link>
-        <Link href="https://creaton.io/#/creators">
+        <Link href="https://app.creaton.io/#/creators">
           <a
             className={`ml-10 font-bold text-sm ${
               props.noTheme || props.theme === 'dark' ? 'text-white' : 'text-indigo-900'
-            } ${path === 'https://creaton.io/#/creators' ? 'active relative' : ''}`}
+            } ${path === 'https://app.creaton.io/#/creators' ? 'active relative' : ''}`}
           >
             Creators
           </a>
