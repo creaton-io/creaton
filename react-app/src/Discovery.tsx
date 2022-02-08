@@ -183,101 +183,6 @@ export function Discovery() {
     }
   }, [downloadStatus, canDecrypt]);
 
-  async function addGasless() {
-    if(!context.library) return;
-    const signer = context.library.getSigner()
-    const walletAddress = await signer.getAddress();
-
-    const signedMessage = await signer.signMessage(`Creaton: Enabling gasless transactions for ${walletAddress}`);
-    const response = await fetch(`http://localhost:3333/gasless`, {
-      method: "post",
-      headers:{
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({signedMessage, walletAddress, creatorContractAddress})
-    });
-  }
-
-  async function mint() {
-    let {sf, usdc, usdcx} = superfluid;
-    let subscriber = context.account;
-    console.log('minted', wad4human(await usdc.balanceOf(subscriber)), 'usdc');
-    const tx = await usdc.mint(subscriber, parseUnits('1000', 18), {from: subscriber});
-    await tx.wait();
-    console.log('this is mint tx', tx);
-    console.log('minted', wad4human(await usdc.balanceOf(subscriber)), 'usdc');
-  }
-
-  async function approveUSDC() {
-    let {sf, usdc, usdcx} = superfluid;
-    let subscriber = context.account;
-    console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
-    const tx = await usdc.approve(usdcx.address, parseUnits('1800', 18), {from: subscriber});
-    await tx.wait();
-    console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
-  }
-
-  async function getAllContent() {
-
-  }
-
-  async function convertUSDCx() {
-    let {sf, usdc, usdcx} = superfluid;
-    let subscriber = context.account;
-    console.log('converted', wad4human(await usdcx.balanceOf(subscriber)), 'usdc to usdcx');
-    const tx = await usdcx.upgrade(parseUnits('900', 18), {from: subscriber});
-    await tx.wait();
-    let usdcxBalance = wad4human(await usdcx.balanceOf(subscriber));
-    setUsdcx(usdcxBalance);
-    console.log('converted', usdcxBalance, 'usdc to usdcx');
-  }
-
-  async function startStreaming() {
-    let call;
-    const contract = contractQuery.data.creators[0];
-    let MINIMUM_FLOW_RATE = parseUnits(contract.subscriptionPrice, 18).div(3600 * 24 * 30);
-    let {sf, usdc, usdcx} = await superfluid;
-    let subscriber = context.account;
-    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
-    );
-    call = [
-      [
-        1, // approve the ticket fee
-        usdcx.address,
-        defaultAbiCoder.encode(
-          ['address', 'uint256'],
-          [creatorContractAddress, parseUnits(contract.subscriptionPrice, 18).toString()]
-        ),
-      ],
-      [
-        202, // callAppAction to participate
-        creatorContractAddress,
-        creatorContract.interface.encodeFunctionData('upfrontFee', ['0x']),
-        //app.contract.methods.upfrontFee("0x").encodeABI()
-        //defaultAbiCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]
-      ],
-      [
-        201, // create constant flow (10/mo)
-        sf.agreements.cfa.address,
-        defaultAbiCoder.encode(
-          ['bytes', 'bytes'],
-          [
-            sf.agreements.cfa.contract.methods
-              .createFlow(usdcx.address, creatorContractAddress, MINIMUM_FLOW_RATE.toString(), '0x')
-              .encodeABI(),
-            defaultAbiCoder.encode(['string'], ['']),
-          ]
-        ),
-      ],
-    ];
-    const tx = await sf.host.batchCall(call, {from: subscriber});
-    web3utils.setIsWaiting(true);
-    await tx.wait(1);
-    web3utils.setIsWaiting(false);
-    console.log('subscribed');
-  }
-
   async function decrypt(content) {
     //if (content.ipfs.startsWith('/ipfs'))
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
@@ -372,9 +277,6 @@ export function Discovery() {
           avatarUrl=""
           isCreator={isSelf}
           hide={content.hide}
-          onHide={() => {
-            hide(content.tokenId, !content.hide);
-          }}
           canDecrypt={canDecrypt}
           reactionErc20Available={reactionErc20Available}
           reactionErc20Symbol={reactionErc20Symbol}
@@ -383,32 +285,6 @@ export function Discovery() {
     } else return;
   }
 
-  async function subscribe() {
-    if (!web3utils.isSignedUp()) return;
-    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
-    );
-    const receipt = await creatorContract.subscribe();
-    web3utils.setIsWaiting(true);
-    await receipt.wait(1);
-    web3utils.setIsWaiting(false);
-    notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
-  }
-
-  async function hide(tokenId, hide: boolean) {
-    if (!web3utils.isSignedUp()) return;
-    const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
-    );
-    const receipt = await creatorContract.hidePost(tokenId, hide);
-    web3utils.setIsWaiting(true);
-    await receipt.wait(1);
-    web3utils.setIsWaiting(false);
-    notificationHandler.setNotification({
-      description: hide ? 'Content hidden from public or subscribers' : 'Content visible again',
-      type: 'success',
-    });
-  }
 
   return (
     <div>
