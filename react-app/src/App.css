@@ -29,6 +29,10 @@ body, .bg-primary-gradient {
   pointer-events: none;
 }
 
+.h-128 {
+  height: 32rem;
+}	
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
