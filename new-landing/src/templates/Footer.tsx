@@ -25,11 +25,6 @@ const Footer = () => (
           </Link>
         </li>
         <li className='ml-6'>
-          <Link href="https://t.me/creaton_io">
-            <a><FaTelegramPlane size='20px' fill='#312880' /></a>
-          </Link>
-        </li>
-        <li className='ml-6'>
           <Link href="https://github.com/creaton-io/creaton">
             <a><FaGithub size='20px' fill='#312880' /></a>
           </Link>
