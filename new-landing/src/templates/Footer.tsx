@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Background } from '../components/background/Background';
 import { Section } from '../layout/Section';
 import { SiGmail } from "react-icons/si";
-import { FaTwitter, FaDiscord, FaTelegramPlane, FaGithub } from "react-icons/fa";
+import { FaTwitter, FaDiscord, FaGithub } from "react-icons/fa";
 
 const Footer = () => (
   <Background color="footer-container bg-transparent w-full max-w-md mx-auto w-full">
