@@ -22,6 +22,8 @@ import {
 
 import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
+import "./CreatorToken.sol";
+
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Errors
@@ -53,6 +55,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     ISuperfluid private _host; // host
     IConstantFlowAgreementV1 private _cfa; // the stored constant flow agreement class address
     ISuperToken private _acceptedToken; // accepted token
+
+    ISuperToken private _creatorToken; // creator token
+    bool private doesUseCreatorToken; // does use creator token
 
     address public admin;
     address public creator;
@@ -108,6 +113,20 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         createPostNFT(nftName, nftSymbol);
 
         _addSubscriber(creator);
+    }
+
+    function createCreatorToken(string memory _name, string memory _symbol) public onlyCreator{
+        assert(doesUseCreatorToken == false);
+        doesUseCreatorToken = true;
+        _creatorToken = ISuperToken(address(new CreatorToken(_name, _symbol)));
+    }
+
+    function linkCreatorToken(address creatorToken) public onlyCreator{
+        assert(doesUseCreatorToken == false);
+        doesUseCreatorToken = true;
+        assert(address(creatorToken) != address(0));
+
+        _creatorToken = ISuperToken(address(creatorToken));
     }
 
     // -----------------------------------------
@@ -198,7 +217,12 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         // open flow to creator
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
-            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            abi.encodeWithSelector(
+                _cfa.createFlow.selector, 
+                _acceptedToken, 
+                creator, //address of the creator
+                contract2creator, 
+                new bytes(0)),
             new bytes(0),
             ctx
         );
@@ -216,6 +240,21 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
             new bytes(0),
             newCtx
         );
+        if (doesUseCreatorToken){
+            // open flow of fan token to user
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.createFlow.selector,
+                    _creatorToken,
+                    address(this),
+                    _msgSender(),
+                    new bytes(0)
+                ),
+                new bytes(0),
+                newCtx
+            );
+        }
     }
 
     function _updateFlows(
@@ -244,6 +283,21 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
             new bytes(0), // user data
             newCtx // ctx
         );
+        if (doesUseCreatorToken){
+            // update flow of fan tokens to user
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.updateFlow.selector,
+                    _creatorToken,
+                    address(this),//sender
+                    _msgSender(),//recipient
+                    new bytes(0)
+                ), // call data
+                new bytes(0), // user data
+                newCtx // ctx
+            );
+        }
     }
 
     function _deleteFlows(bytes calldata ctx) private returns (bytes memory newCtx) {
@@ -268,6 +322,21 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
             new bytes(0), // user data
             newCtx // ctx
         );
+        if (doesUseCreatorToken){
+            // delete flow from contract
+            (newCtx, ) = _host.callAgreementWithContext(
+                _cfa,
+                abi.encodeWithSelector(
+                    _cfa.deleteFlow.selector,
+                    _acceptedToken,
+                    address(this),
+                    address(this),
+                    new bytes(0)
+                ), // call data
+                new bytes(0), // user data
+                newCtx // ctx
+            );
+        }
     }
 
     function _addSubscriber(address _address) private {
