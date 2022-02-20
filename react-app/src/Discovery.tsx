@@ -31,15 +31,15 @@ interface params {
   id: string;
 }
 
-export function Creator() {
+export function Discovery() {
   let {id} = useParams<params>();
   const creatorContractAddress = id;
-
   const CONTENTS_QUERY = gql`
-    query GET_CONTENTS($user: Bytes!) {
-      contents(orderBy: date, orderDirection: desc, where: {creatorContract: $user}) {
+    query GET_CONTENTS($user: [Bytes!]) {
+      contents(orderBy: date, orderDirection: desc, where: {tier: 0, hide: false}) {
         id
         name
+        creatorContract
         type
         description
         date
@@ -47,7 +47,6 @@ export function Creator() {
         tokenId
         tier
         hide
-        link
       }
     }
   `;
@@ -57,6 +56,16 @@ export function Creator() {
         status
       }
     }
+  `;
+  const GET_SUBSCRIPTIONS_QUERY = gql`
+    query GET_SUBSCRIPTIONS($user: Bytes!) {
+      subscribers(where: {user: $user, status: "subscribed"}) {
+    	creator {
+    	  id
+    	}
+      status
+    }
+  }
   `;
   const CONTRACT_INFO_QUERY = gql`
     query GET_CONTRACT($contractAddress: Bytes!) {
@@ -92,17 +101,25 @@ export function Creator() {
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
   const context = useWeb3React<Web3Provider>();
-  const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
+  const getSubscriptionsQuery = useQuery(GET_SUBSCRIPTIONS_QUERY, {variables: {user: context.account}, pollInterval: 10000});
+  console.log(getSubscriptionsQuery.data)
+  const contentsQuery = useQuery(CONTENTS_QUERY, { pollInterval: 10000});
+  
+  
   function updateContentsQuery() {
     //updateReactions(creatorContractAddress);
-    contentsQuery.refetch({user: creatorContractAddress});
+    contentsQuery.refetch({user: ["0xefd13a5e268e7c9acd05513090d043c8ae80608e", "0x65a7d5cc1ead16adbe2e83f59c73059f7ec3356f"]});
     console.log('"smart" refetch was run');
   }
-  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: creatorContractAddress}});
+  //function updateSubscriptionsQuery() {
+    //contentsQuery.refetch({user: context.account});
+    //console.log('"smart" refetch was run');
+  //}
+  const contractQuery = useQuery(CONTRACT_INFO_QUERY, {variables: {contractAddress: "0xefd13a5e268e7c9acd05513090d043c8ae80608e"}});
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     variables: {
       user: context.account,
-      creator: creatorContractAddress,
+      creator: "0xefd13a5e268e7c9acd05513090d043c8ae80608e",
     },
     pollInterval: 10000,
   });
@@ -147,7 +164,11 @@ export function Creator() {
     if (contentsQuery.loading || contentsQuery.error) return;
     //if (!textile) return;
     if (!canDecrypt) return;
+    
+    if (getSubscriptionsQuery.loading || getSubscriptionsQuery.error) return;
     const contents = contentsQuery.data.contents;
+    console.log('contentsQuery:', contentsQuery.data.contents[0]);
+
     if (Object.keys(downloadStatus).length === 0 || !contents) return;
     if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
       console.log('already downloading some stuff');
@@ -233,6 +254,10 @@ export function Creator() {
     console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
   }
 
+  async function getAllContent() {
+
+  }
+
   async function convertUSDCx() {
     let {sf, usdc, usdcx} = superfluid;
     let subscriber = context.account;
@@ -288,24 +313,6 @@ export function Creator() {
     await tx.wait(1);
     web3utils.setIsWaiting(false);
     console.log('subscribed');
-  }
-
-  async function stopStreaming() {
-    let {sf, usdc, usdcx} = await superfluid;
-
-    const tx = await sf.host.callAgreement(
-      sf.agreements.cfa.address,
-      sf.agreements.cfa.contract.methods
-        .deleteFlow(usdcx.address, context.account, creatorContractAddress, "0x")
-        .encodeABI(),
-      "0x",
-      { from: context.account }
-    );
-    web3utils.setIsWaiting(true);
-    await tx.wait(1);
-    web3utils.setIsWaiting(false);
-
-    console.log('unsubscribed');
   }
 
   async function decrypt(content) {
@@ -369,6 +376,12 @@ export function Creator() {
     }
   }
 
+  function loadContent() {
+    const myPromise = new Promise((resolve, reject) => {
+        
+    });
+  }
+
   function showItem(content) {
     let src = getSrc(content);
     let fileType;
@@ -408,7 +421,6 @@ export function Creator() {
           onReact={(amount, callback) => { react(content, amount, callback) }}
           hasReacted={hasReacted(content)}
           initialReactCount={countReacted(content)}
-          link={content.link}
         />
       );
     } else return;
@@ -523,122 +535,12 @@ export function Creator() {
     }
   }
 
-  function generateButton() {
-    let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
-
-    return (
-      <div>
-        {subscription === 'unsubscribed' && !isSelf && (
-          <Button
-            onClick={() => {
-              startStreaming();
-            }}
-            label={'Start $' + contract.subscriptionPrice + ' Subscription'}
-          />
-        )}
-        {subscription === 'subscribed' && !isSelf && (
-          <Button
-            onClick={() => {
-              stopStreaming();
-            }}
-            label="Stop Subscription"
-          />
-        )}
-      </div>
-    );
-  }
-
-  function getCoverPhotoUrl() {
-    let cover_url = JSON.parse(contractQuery.data.creators[0].profile.data).cover;
-    if (!cover_url)
-      cover_url = 'https://cdn.discordapp.com/attachments/790997156353015868/839540529992958012/banner.png';
-    return 'url(' + cover_url + ')';
-  }
-
   return (
     <div>
       {/* <StickyHeader name={contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).username : contractQuery.data.creators[0].id} src={ contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).image : ""} button={generateButton()}/> */}
-      <div className="relative w-full h-20 sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
-        <div className="object-cover w-20 h-20 rounded-full my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20 blur-none">
-          <div className="absolute p-0.5 -top-1">
-            <Avatar
-              size="profile"
-              src={
-                contractQuery.data.creators[0].profile !== null
-                  ? JSON.parse(contractQuery.data.creators[0].profile.data).image
-                  : ''
-              }
-            />
-          </div>
-        </div>
-        <Link
-          to="/signup"
-          className="sm:hidden fixed right-0 filter scale-125 border-transparent text-green-500 hover:text-green-700 hover:border-green-300 w-1/5 py-5 px-1 text-center border-b-2 font-medium text-sm"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-10 w-10 m-auto hover-tab p-1"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-          >
-            <path
-              fillRule="evenodd"
-              d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </Link>
-      </div>
       <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
-        <h3 className="text-l font-bold text-white">
-          {contractQuery.data.creators[0].profile !== null
-            ? JSON.parse(contractQuery.data.creators[0].profile.data).username
-            : contractQuery.data.creators[0].id.slice(0, 6)}
-        </h3>
-        <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
-
-        <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
-          {generateButton()}
-          {/* {context.chainId === 80000 && ( */}
-          {context.chainId === 80001 && (
-            <span>
-              <div className="flex space-x-5">
-                <Button
-                  onClick={() => {
-                    mint();
-                  }}
-                  label="Mint"
-                  theme="secondary-2"
-                />
-                <Button
-                  onClick={() => {
-                    approveUSDC();
-                  }}
-                  label="Approve"
-                  theme="secondary-2"
-                />
-              </div>
-
-              <Button
-                onClick={() => {
-                  convertUSDCx();
-                }}
-                label="Upgrade"
-              />
-
-              <Button
-                onClick={() => {
-                  addGasless();
-                }}
-                label="Enable no gas!"
-                theme="secondary-2"
-              />
-            </span>
-          )}
-        </div>
-
         <h1 className="mb-5 text-2xl font-bold text-white">
-          {contents.length === 0 ? 'No posts yet!' : 'Latest posts'}
+          Latest content
         </h1>
         <div className="py-5">
           {

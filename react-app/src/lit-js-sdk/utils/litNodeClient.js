@@ -120,7 +120,7 @@ export default class LitNodeClient {
     if (goodShares.length < this.config.minNodeCount) {
       console.log(`majority of shares are bad. goodShares is ${JSON.stringify(goodShares)}`)
       if (this.config.alertWhenUnauthorized) {
-        alert("You are not authorized to receive a signature to grant access to this content")
+        console.log("You are not authorized to receive a signature to grant access to this content")
       }
 
       throw {
@@ -209,7 +209,7 @@ export default class LitNodeClient {
     if (goodShares.length < this.config.minNodeCount) {
       console.log(`majority of shares are bad. goodShares is ${JSON.stringify(goodShares)}`)
       if (this.config.alertWhenUnauthorized) {
-        alert("You are not authorized to unlock this content")
+        console.log("You are not authorized to unlock this content")
       }
       throw {
         name: 'Unauthorized',
