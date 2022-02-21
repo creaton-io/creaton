@@ -5,6 +5,11 @@ import { BigNumber, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Address } from "hardhat-deploy/dist/types";
 
+const MIN_JURY_SIZE: number = 3;
+const CASE_STAKED_THRESHOLD: BigNumber = ethers.utils.parseEther("5000");
+
+const sampleContentId: string = "0x17f6989baf123ec9571adaafccf0b69ae6b1ef3a-0";
+
 const timeTravel = async (time: number) => {
     const startBlock = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
     await network.provider.send("evm_increaseTime", [time]);
@@ -31,10 +36,14 @@ describe("Moderation system", () => {
         // Deploy a dummy ERC20 token to be used later
         const dummyErc20Name = "DummyErc20";
         const contractFactory = await ethers.getContractFactory(dummyErc20Name);
-        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000"));
+        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("100000"));
 
         expect(erc20Contract.address).to.be.properAddress;
         expect(await erc20Contract.name()).to.be.equal(dummyErc20Name);
+
+        // Send some funds to alice and bob
+        await erc20Contract.transfer(alice.address, ethers.utils.parseEther("10000"));
+        await erc20Contract.transfer(bob.address, ethers.utils.parseEther("10000"));
 
         // Deploy a dummy ERC721(nft) token to be used later
         const dummyErc721Name = "DummyErc721";
@@ -50,7 +59,7 @@ describe("Moderation system", () => {
         moderationContract = await contractModerationFactory.deploy();
         expect(moderationContract.address).to.be.properAddress;
 
-        await expect(moderationContract.initialize(erc20Contract.address))
+        await expect(moderationContract.initialize(erc20Contract.address, CASE_STAKED_THRESHOLD, MIN_JURY_SIZE))
             .to.emit(moderationContract, "Initialized");
     });
 
@@ -69,6 +78,16 @@ describe("Moderation system", () => {
             await expect(moderationContract.addJuror(stake)).to.be.revertedWith("Moderation: MsgSender is already a Juror");
         });
 
+        it("Should fail removing a juror", async () => {
+            const stake: BigNumber = ethers.utils.parseEther("1000");
+           
+            // Not a Juror
+            await expect(moderationContract.removeJuror()).to.be.revertedWith("Moderation: MsgSender is not a Juror");
+
+            // Juror status is not active
+            // await expect(moderationContract.removeJuror()).to.be.revertedWith("Moderation: Juror must be idle");
+        });
+
         it("Should accept a juror when staking", async () => {
             const stake: BigNumber = ethers.utils.parseEther("1000");
             const initialBalance: BigNumber = await erc20Contract.balanceOf(owner.address);
@@ -81,7 +100,7 @@ describe("Moderation system", () => {
 
             expect(await erc20Contract.balanceOf(moderationContract.address)).to.be.equal(stake);
             expect(await erc20Contract.balanceOf(owner.address)).to.be.equal(expectedBalance);
-            expect(await moderationContract.jurors(owner.address)).to.be.equal(stake);
+            expect((await moderationContract.jurors(owner.address)).staked).to.be.equal(stake);
         });
 
         it("Should remove jurors and return the stake", async () => {
@@ -97,30 +116,72 @@ describe("Moderation system", () => {
 
             expect(await erc20Contract.balanceOf(moderationContract.address)).to.be.equal(0);
             expect(await erc20Contract.balanceOf(owner.address)).to.be.equal(initialBalance);
-            expect(await moderationContract.jurors(owner.address)).to.be.equal(0);
+            expect((await moderationContract.jurors(owner.address)).staked).to.be.equal(0);
         });
     });
 
-    // describe("Cases", async () => {
-    //     beforeEach(async function () {
-    //     });
+    describe("Cases", async () => {
+        it("Should report content", async () => {
+            const stake: BigNumber = ethers.utils.parseEther("1000");
+            const contentId: string = sampleContentId;
 
-    //     it("Should accept reported content", async () => {
-    //         expect(false).to.be.true;
-    //     });
+            await erc20Contract.approve(moderationContract.address, stake.mul(2));
+            await expect(moderationContract.reportContent(contentId, stake))
+                .to.emit(moderationContract, "ContentReported")
+                .withArgs(owner.address, contentId, stake);
 
-    //     it("Should return staked to reporter after deadline", async () => {
-    //         expect(false).to.be.true;
-    //     });
+            await expect(moderationContract.reportContent(contentId, stake))
+                .to.emit(moderationContract, "ContentReported")
+            expect(await moderationContract.reported(contentId)).to.be.equal(stake.mul(2));
+        });
 
-    //     it("Should set to dispute the content and assign jurors once threshold is hit", async () => {
-    //         expect(false).to.be.true;
-    //     });
-        
-    //     it("Should pick up a new juror if a juror didn't rule the dispute on deadline", async () => {
-    //         expect(false).to.be.true;
-    //     });
-    // });
+        it("Should set to dispute the content and assign jurors once threshold is hit and there's enough jurors", async () => {
+            // Report with no jurors
+            const stake: BigNumber = ethers.utils.parseEther("5000");
+            const contentId: string = sampleContentId;
+
+            await erc20Contract.approve(moderationContract.address, stake);
+            await expect(moderationContract.reportContent(contentId, stake))
+                .to.emit(moderationContract, "CaseBuilt")
+                .withArgs(contentId);
+
+            // Add some jurors
+            const jurorStake: BigNumber = ethers.utils.parseEther("1000");
+            await expect(erc20Contract.approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(alice).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(bob).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(moderationContract.addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(alice).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(bob).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+
+            // Report again an check there's a jury assigned
+            await erc20Contract.connect(alice).approve(moderationContract.address, stake);
+            let tx = await moderationContract.connect(alice).reportContent(contentId, stake);
+            let receipt = await tx.wait();
+            receipt = receipt.events?.filter((x: any) => {return x.event == "JuryAsigned"})[0];
+            expect(receipt.args.contentId).to.be.equal(contentId);
+            expect(receipt.args.jury).to.have.lengthOf(MIN_JURY_SIZE);
+            for(let i=0; i<MIN_JURY_SIZE; i++){
+                expect(receipt.args.jury[i]).to.be.a.properAddress;
+            }
+        });
+
+        it("Should fail reporting content", async () => {
+            const stake: BigNumber = ethers.utils.parseEther("5000");
+            const contentId: string = sampleContentId;
+
+            // Not enough allowance
+            await expect(moderationContract.reportContent(contentId, stake)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+        });
+
+        // it("Should return staked to reporter after deadline", async () => {
+        //     expect(false).to.be.true;
+        // });
+
+        // it("Should pick up a new juror if a juror didn't rule the dispute on deadline", async () => {
+        //     expect(false).to.be.true;
+        // });
+    });
 
     // describe("Ruling", async () => {
     //     beforeEach(async function () {
