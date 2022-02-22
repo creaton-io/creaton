@@ -6,6 +6,8 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { Address } from "hardhat-deploy/dist/types";
 
 const MIN_JURY_SIZE: number = 3;
+const JUROR_MAX_DAYS_DECIDING: number = 2;
+const JUROR_SLASHING_PENALY: number = 5;
 const CASE_STAKED_THRESHOLD: BigNumber = ethers.utils.parseEther("5000");
 
 const sampleContentId: string = "0x17f6989baf123ec9571adaafccf0b69ae6b1ef3a-0";
@@ -44,6 +46,9 @@ describe("Moderation system", () => {
         // Send some funds to alice and bob
         await erc20Contract.transfer(alice.address, ethers.utils.parseEther("10000"));
         await erc20Contract.transfer(bob.address, ethers.utils.parseEther("10000"));
+        await erc20Contract.transfer(addrs[0].address, ethers.utils.parseEther("10000"));
+        await erc20Contract.transfer(addrs[1].address, ethers.utils.parseEther("10000"));
+        await erc20Contract.transfer(addrs[2].address, ethers.utils.parseEther("10000"));
 
         // Deploy a dummy ERC721(nft) token to be used later
         const dummyErc721Name = "DummyErc721";
@@ -59,7 +64,7 @@ describe("Moderation system", () => {
         moderationContract = await contractModerationFactory.deploy();
         expect(moderationContract.address).to.be.properAddress;
 
-        await expect(moderationContract.initialize(erc20Contract.address, CASE_STAKED_THRESHOLD, MIN_JURY_SIZE))
+        await expect(moderationContract.initialize(erc20Contract.address, CASE_STAKED_THRESHOLD, MIN_JURY_SIZE, JUROR_MAX_DAYS_DECIDING, JUROR_SLASHING_PENALY))
             .to.emit(moderationContract, "Initialized");
     });
 
@@ -82,7 +87,7 @@ describe("Moderation system", () => {
             const stake: BigNumber = ethers.utils.parseEther("1000");
            
             // Not a Juror
-            await expect(moderationContract.removeJuror()).to.be.revertedWith("Moderation: MsgSender is not a Juror");
+            await expect(moderationContract.removeJuror()).to.be.revertedWith("Moderation: Address is not a Juror");
 
             // Juror status is not active
             // await expect(moderationContract.removeJuror()).to.be.revertedWith("Moderation: Juror must be idle");
@@ -158,7 +163,7 @@ describe("Moderation system", () => {
             await erc20Contract.connect(alice).approve(moderationContract.address, stake);
             let tx = await moderationContract.connect(alice).reportContent(contentId, stake);
             let receipt = await tx.wait();
-            receipt = receipt.events?.filter((x: any) => {return x.event == "JuryAsigned"})[0];
+            receipt = receipt.events?.filter((x: any) => {return x.event == "JuryAssigned"})[0];
             expect(receipt.args.contentId).to.be.equal(contentId);
             expect(receipt.args.jury).to.have.lengthOf(MIN_JURY_SIZE);
             for(let i=0; i<MIN_JURY_SIZE; i++){
@@ -172,15 +177,54 @@ describe("Moderation system", () => {
 
             // Not enough allowance
             await expect(moderationContract.reportContent(contentId, stake)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+
+            // Reassigning a jury when not assigned
+            await expect(moderationContract.reassignInactiveJurors(contentId)).to.be.revertedWith("Moderation: Case status must be ASSIGNED");
         });
 
-        // it("Should return staked to reporter after deadline", async () => {
-        //     expect(false).to.be.true;
-        // });
+        it("Should pick up a new juror if a juror didn't rule the dispute on deadline", async () => {
+            // Add some jurors
+            const jurorStake: BigNumber = ethers.utils.parseEther("1000");
+            await expect(erc20Contract.approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(alice).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(bob).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(addrs[0]).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(addrs[1]).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(addrs[2]).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(moderationContract.addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(alice).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(bob).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(addrs[0]).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(addrs[1]).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(addrs[2]).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
 
-        // it("Should pick up a new juror if a juror didn't rule the dispute on deadline", async () => {
-        //     expect(false).to.be.true;
-        // });
+            // Report
+            const stake: BigNumber = ethers.utils.parseEther("5000");
+            const contentId: string = sampleContentId;
+            await erc20Contract.approve(moderationContract.address, stake);
+            let tx = await moderationContract.reportContent(contentId, stake);
+            let receipt = await tx.wait();
+            receipt = receipt.events?.filter((x: any) => {return x.event == "JuryAssigned"})[0];
+            expect(receipt.args.contentId).to.be.equal(contentId);
+            expect(receipt.args.jury).to.have.lengthOf(MIN_JURY_SIZE);
+            for(let i=0; i<MIN_JURY_SIZE; i++){
+                expect(receipt.args.jury[i]).to.be.a.properAddress;
+            }
+
+            await timeTravel(3600 * 24 * JUROR_MAX_DAYS_DECIDING * 2);
+
+            // Reassign Jury
+            let tx2 = await moderationContract.reassignInactiveJurors(contentId);
+            let receipt2 = await tx2.wait();
+            receipt2 = receipt2.events?.filter((x: any) => {return x.event == "JuryReassigned"})[0];
+            expect(receipt2.args.contentId).to.be.equal(contentId);
+            expect(receipt2.args.jury).to.have.lengthOf(MIN_JURY_SIZE);
+            for(let i=0; i<MIN_JURY_SIZE; i++){
+                expect(receipt2.args.jury[i]).to.be.a.properAddress;
+            }
+
+            expect(receipt.args.jury).to.not.be.deep.equal(receipt2.args.jury);
+        });
     });
 
     // describe("Ruling", async () => {
