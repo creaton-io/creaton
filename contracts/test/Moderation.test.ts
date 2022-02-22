@@ -7,7 +7,7 @@ import { Address } from "hardhat-deploy/dist/types";
 
 const MIN_JURY_SIZE: number = 3;
 const JUROR_MAX_DAYS_DECIDING: number = 2;
-const JUROR_SLASHING_PENALY: number = 5;
+const JUROR_SLASHING_PENALTY: number = 5;
 const CASE_STAKED_THRESHOLD: BigNumber = ethers.utils.parseEther("5000");
 
 const sampleContentId: string = "0x17f6989baf123ec9571adaafccf0b69ae6b1ef3a-0";
@@ -64,7 +64,7 @@ describe("Moderation system", () => {
         moderationContract = await contractModerationFactory.deploy();
         expect(moderationContract.address).to.be.properAddress;
 
-        await expect(moderationContract.initialize(erc20Contract.address, CASE_STAKED_THRESHOLD, MIN_JURY_SIZE, JUROR_MAX_DAYS_DECIDING, JUROR_SLASHING_PENALY))
+        await expect(moderationContract.initialize(erc20Contract.address, CASE_STAKED_THRESHOLD, MIN_JURY_SIZE, JUROR_MAX_DAYS_DECIDING, JUROR_SLASHING_PENALTY))
             .to.emit(moderationContract, "Initialized");
     });
 
@@ -216,14 +216,18 @@ describe("Moderation system", () => {
             // Reassign Jury
             let tx2 = await moderationContract.reassignInactiveJurors(contentId);
             let receipt2 = await tx2.wait();
-            receipt2 = receipt2.events?.filter((x: any) => {return x.event == "JuryReassigned"})[0];
-            expect(receipt2.args.contentId).to.be.equal(contentId);
-            expect(receipt2.args.jury).to.have.lengthOf(MIN_JURY_SIZE);
+            let foundReceipt = receipt2.events?.filter((x: any) => {return x.event == "JuryReassigned"})[0];
+            expect(foundReceipt.args.contentId).to.be.equal(contentId);
+            expect(foundReceipt.args.jury).to.have.lengthOf(MIN_JURY_SIZE);
             for(let i=0; i<MIN_JURY_SIZE; i++){
-                expect(receipt2.args.jury[i]).to.be.a.properAddress;
+                expect(foundReceipt.args.jury[i]).to.be.a.properAddress;
             }
+            expect(receipt.args.jury).to.not.be.deep.equal(foundReceipt.args.jury);
 
-            expect(receipt.args.jury).to.not.be.deep.equal(receipt2.args.jury);
+            // Testing withdraw for the penalty balance
+            await expect(moderationContract.withdraw())
+                .to.emit(erc20Contract, "Transfer")
+                .withArgs(moderationContract.address, owner.address, jurorStake.mul(5).div(100).mul(3));
         });
     });
 

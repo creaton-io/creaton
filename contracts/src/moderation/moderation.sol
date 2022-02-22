@@ -21,6 +21,8 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
     uint8 public jurorMaxDaysDeciding;
     uint8 public jurorSlashingPenalty;
 
+    uint256 public balance;
+
     uint8 public constant JUROR_STATUS_IDLE = 1;
     uint8 public constant JUROR_STATUS_ACTIVE = 2;
 
@@ -60,6 +62,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
     event Initialized(address stakingToken);
     event JurorAdded(address juror, uint256 staked);
     event JurorRemoved(address juror, uint256 staked);
+    event JurorSlashed(address juror, uint256 penalty);
     event ContentReported(address reporter, string contentId, uint256 staked);
     event CaseBuilt(string contentId);
     event JuryAssigned(string contentId, address[] jury);
@@ -154,6 +157,14 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         emit JuryReassigned(_contentId, _selectedJury);
     }
 
+    function withdraw()
+        public
+        onlyOwner
+    {
+        IERC20(stakingToken).safeTransfer(owner, balance);
+        balance = 0;
+    }
+
     function _buildCase(string calldata _contentId)
         internal
     {
@@ -203,6 +214,12 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
     function _slashAndRemoveJuror(address _juror)
         internal
     {
+        uint256 _penalty = (jurors[_juror].staked*jurorSlashingPenalty)/100;
+        balance += _penalty;
+        jurors[_juror].staked -= _penalty;
+
+        emit JurorSlashed(_juror, _penalty);
+
         _removeJuror(_juror);
     }
 
