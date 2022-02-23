@@ -80,6 +80,7 @@
     "@opengsn/contracts": "^2.2.2",
     "@opengsn/gsn": "^2.1.0",
     "@openzeppelin/contracts": "^4.3.1",
+    "@openzeppelin/contracts-upgradeable": "^4.5.1",
     "@sablier/eslint-config": "^1.0.1",
     "web3-utils": "^1.5.2"
   }

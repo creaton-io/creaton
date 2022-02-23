@@ -1,21 +1,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity >=0.7.6;
 
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts/utils/Context.sol";
-import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 
-import "hardhat/console.sol";
-
-contract Moderation is Context, UUPSUpgradeable, Initializable {
-    using SafeERC20 for IERC20;
-    using EnumerableSet for EnumerableSet.AddressSet;
+contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, OwnableUpgradeable {
+    using SafeERC20Upgradeable for IERC20Upgradeable;
+    using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     address public stakingToken;
-    address public owner;
     uint256 public caseStakedThreshold;
     uint8 public minJurySize;
     uint8 public jurorMaxDaysDeciding;
@@ -53,7 +51,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         uint8 decision;
     } 
 
-    EnumerableSet.AddressSet private jurorsAddress;
+    EnumerableSetUpgradeable.AddressSet private jurorsAddress;
 
     mapping (address => Juror) public jurors; // All jurors in the system
     mapping (string => uint256) public reported; // (contentId -> staked) Staked amount in every reported content
@@ -80,7 +78,6 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         minJurySize = _minJurySize;
         jurorMaxDaysDeciding = _jurorMaxDaysDeciding;
         jurorSlashingPenalty = _jurorSlashingPenalty;
-        owner = _msgSender();
 
         emit Initialized(stakingToken);
     }
@@ -100,7 +97,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
     {
         require(jurors[_msgSender()].staked == 0, "Moderation: MsgSender is already a Juror");
 
-        IERC20(stakingToken).safeTransferFrom(_msgSender(), address(this), _stake);
+        IERC20Upgradeable(stakingToken).safeTransferFrom(_msgSender(), address(this), _stake);
         jurors[_msgSender()] = Juror({ staked: _stake, status: JUROR_STATUS_IDLE });
         jurorsAddress.add(_msgSender());
         emit JurorAdded(_msgSender(), _stake);
@@ -115,7 +112,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
     function reportContent(string calldata _contentId, uint256 _stake)
         public
     {
-        IERC20(stakingToken).safeTransferFrom(_msgSender(), address(this), _stake);
+        IERC20Upgradeable(stakingToken).safeTransferFrom(_msgSender(), address(this), _stake);
         reported[_contentId] += _stake;
         reporters[_msgSender()] += _stake;
 
@@ -205,7 +202,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         public
         onlyOwner
     {
-        IERC20(stakingToken).safeTransfer(owner, balance);
+        IERC20Upgradeable(stakingToken).safeTransfer(owner(), balance);
         balance = 0;
     }
 
@@ -279,7 +276,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         uint256 _staked = jurors[_juror].staked;
         jurors[_juror] = Juror({ staked: 0, status: JUROR_STATUS_IDLE });
         jurorsAddress.remove(_juror);
-        IERC20(stakingToken).safeTransfer(_juror, _staked);
+        IERC20Upgradeable(stakingToken).safeTransfer(_juror, _staked);
 
         emit JurorRemoved(_juror, _staked);
     }
@@ -300,8 +297,4 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
 
     /* ========== MODIFIERS ========== */
 
-    modifier onlyOwner() {
-        require(msg.sender == owner, "ReactionFactory: Caller is not owner");
-        _;
-    }
 }
