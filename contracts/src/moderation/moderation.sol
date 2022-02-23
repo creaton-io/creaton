@@ -45,6 +45,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         mapping(address => uint256) jurorTimestamp;
         mapping(uint256 => address) jury;
         uint256 jurySize;
+        uint256 pendingVotes;
     }
 
     struct JurorDecision {
@@ -63,8 +64,10 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
     event JurorAdded(address juror, uint256 staked);
     event JurorRemoved(address juror, uint256 staked);
     event JurorSlashed(address juror, uint256 penalty);
+    event JurorVoted(address juror, string contentId, uint256 vote);
     event ContentReported(address reporter, string contentId, uint256 staked);
     event CaseBuilt(string contentId);
+    event CaseClosed(string contentId, uint8 votedOK, uint8 votedKO);
     event JuryAssigned(string contentId, address[] jury);
     event JuryReassigned(string contentId, address[] jury);
 
@@ -123,6 +126,21 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         }
     }
 
+    function vote(string calldata _contentId, uint8 _vote)
+        public
+    {
+        address _juror = _msgSender();
+        require(_vote >= JUROR_DECISION_OK && _vote <= JUROR_DECISION_KO, "Moderation: Invalid vote value");
+        require(jurors[_juror].staked > 0, "Moderation: Address is not a Juror");
+        require(cases[_contentId].status == CASE_STATUS_JURY_ASSIGNED, "Moderation: Case status must be ASSIGNED");
+
+        cases[_contentId].jurorDecision[_juror] = _vote;
+        cases[_contentId].pendingVotes--;
+        jurors[_juror].status = JUROR_STATUS_IDLE;
+        
+        emit JurorVoted(_juror, _contentId, _vote);
+    }
+
     function reassignInactiveJurors(string calldata _contentId)
         public
     {
@@ -137,6 +155,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
 
             if(cases[_contentId].jurorDecision[_juror] == JUROR_DECISION_UNDEFINED 
                 && block.timestamp > cases[_contentId].jurorTimestamp[_juror] + jurorMaxDaysDeciding * 1 days){
+                    jurors[_juror].status = JUROR_STATUS_IDLE;
                     _slashAndRemoveJuror(_juror);
 
                     do{
@@ -147,6 +166,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
                             cases[_contentId].jury[_i] = _selectedJuror;
                             cases[_contentId].jurorDecision[_selectedJuror] = JUROR_DECISION_UNDEFINED;
                             cases[_contentId].jurorTimestamp[_selectedJuror] = block.timestamp;
+                            jurors[_selectedJuror].status = JUROR_STATUS_ACTIVE;
                         }
                     }while(cases[_contentId].jury[_i] == _juror); // Might trigger out of gas, but that's ok...
             }
@@ -155,6 +175,30 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
         }
 
         emit JuryReassigned(_contentId, _selectedJury);
+    }
+
+    function closeCase(string calldata _contentId)
+        public
+    {
+        require(cases[_contentId].status == CASE_STATUS_JURY_ASSIGNED, "Moderation: Case status must be ASSIGNED");
+        require(cases[_contentId].pendingVotes == 0, "Moderation: All jury must vote");
+
+        cases[_contentId].status = CASE_STATUS_RULED;
+
+        address _juror;
+        uint8 _votedOK = 0;
+        uint8 _votedKO = 0;
+        for(uint256 _i=0; _i<cases[_contentId].jurySize; _i++){
+            _juror = cases[_contentId].jury[_i];
+
+            if(cases[_contentId].jurorDecision[_juror] == JUROR_DECISION_OK){
+                _votedOK++;
+            }else if(cases[_contentId].jurorDecision[_juror] == JUROR_DECISION_KO){
+                _votedKO++;
+            }
+        }
+
+        emit CaseClosed(_contentId, _votedOK, _votedKO);
     }
 
     function withdraw()
@@ -174,6 +218,7 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
             Case storage c = cases[_contentId];
             c.status = CASE_STATUS_NEW;
             c.jurySize = 0;
+            c.pendingVotes = 0;
             emit CaseBuilt(_contentId);
         }
 
@@ -201,8 +246,10 @@ contract Moderation is Context, UUPSUpgradeable, Initializable {
                 _selectedJury[cases[_contentId].jurySize] = _selectedJuror;
                 cases[_contentId].jury[cases[_contentId].jurySize] = _selectedJuror;
                 cases[_contentId].jurySize++;
+                cases[_contentId].pendingVotes++;
                 cases[_contentId].jurorDecision[_selectedJuror] = JUROR_DECISION_UNDEFINED;
                 cases[_contentId].jurorTimestamp[_selectedJuror] = block.timestamp;
+                jurors[_selectedJuror].status = JUROR_STATUS_ACTIVE;
             }
         }while(cases[_contentId].jurySize < minJurySize);
 

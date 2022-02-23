@@ -3,7 +3,6 @@ import { expect } from "chai";
 import { ethers, network } from "hardhat";
 import { BigNumber, Contract } from "ethers";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { Address } from "hardhat-deploy/dist/types";
 
 const MIN_JURY_SIZE: number = 3;
 const JUROR_MAX_DAYS_DECIDING: number = 2;
@@ -68,7 +67,7 @@ describe("Moderation system", () => {
             .to.emit(moderationContract, "Initialized");
     });
 
-    describe("Court", async () => {
+    describe("Court formation", async () => {
         it("Should fail accepting a juror", async () => {
             const stake: BigNumber = ethers.utils.parseEther("1000");
 
@@ -125,7 +124,7 @@ describe("Moderation system", () => {
         });
     });
 
-    describe("Cases", async () => {
+    describe("Content reporting and Cases formation", async () => {
         it("Should report content", async () => {
             const stake: BigNumber = ethers.utils.parseEther("1000");
             const contentId: string = sampleContentId;
@@ -231,17 +230,64 @@ describe("Moderation system", () => {
         });
     });
 
-    // describe("Ruling", async () => {
-    //     beforeEach(async function () {
-    //     });
+    describe("Ruling", async () => {
+        beforeEach(async function () {
+            // Add some jurors
+            const jurorStake: BigNumber = ethers.utils.parseEther("1000");
+            await expect(erc20Contract.approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(alice).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(erc20Contract.connect(bob).approve(moderationContract.address, jurorStake)).to.emit(erc20Contract, "Approval");
+            await expect(moderationContract.addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(alice).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
+            await expect(moderationContract.connect(bob).addJuror(jurorStake)).to.emit(moderationContract, "JurorAdded");
 
-    //     it("Should set the content to remove if ruled", async () => {
-    //         expect(false).to.be.true;
-    //     });
+            // Report
+            const stake: BigNumber = ethers.utils.parseEther("5000");
+            const contentId: string = sampleContentId;
+            await erc20Contract.approve(moderationContract.address, stake);
+            await expect(moderationContract.reportContent(contentId, stake)).to.emit(moderationContract, "JuryAssigned");
+        });
 
-    //     it("Should auto-compound rewards to juror when ruled and staked to reporters", async () => {
-    //         expect(false).to.be.true;
-    //     });
-    // });
+        it("Jurors should be able to vote and case should conclude once the jury ruled", async () => {
+            const contentId: string = sampleContentId;
+            const voteOK: number = 2;
+            const voteKO: number = 3;
+            await expect(moderationContract.vote(contentId, voteOK))
+                .to.emit(moderationContract, "JurorVoted")
+                .withArgs(owner.address, contentId, voteOK);
+
+            await expect(moderationContract.connect(alice).vote(contentId, voteKO))
+                .to.emit(moderationContract, "JurorVoted")
+                .withArgs(alice.address, contentId, voteKO);
+
+            await expect(moderationContract.connect(bob).vote(contentId, voteOK))
+                .to.emit(moderationContract, "JurorVoted");
+
+            await expect(moderationContract.closeCase(contentId))
+                .to.emit(moderationContract, "CaseClosed")
+                .withArgs(contentId, 2, 1)
+        });
+
+        it("Should fail voting a non-juror or a wrong vote", async () => {
+            const contentId: string = sampleContentId;
+            const voteOK: number = 2;
+            
+            await expect(moderationContract.connect(addrs[0]).vote(contentId, voteOK))
+                    .to.be.revertedWith("Moderation: Address is not a Juror");
+            
+            const voteINVALID: number = 200;
+            await expect(moderationContract.vote(contentId, voteINVALID))
+                    .to.be.revertedWith("Moderation: Invalid vote value");
+
+            const wrongContentId: string = "0x2300089baf123ec9571adaafccf0b69ae6b1ef4b-9";
+            await expect(moderationContract.vote(wrongContentId, voteOK))
+                    .to.be.revertedWith("Moderation: Case status must be ASSIGNED");
+        });
+
+        // TODO:
+        // it("Should auto-compound rewards to juror when ruled and staked to reporters", async () => {
+        //     expect(false).to.be.true;
+        // });
+    });
     
 });
