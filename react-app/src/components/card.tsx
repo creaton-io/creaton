@@ -198,7 +198,7 @@ export const Card: FC<ButtonProps> = ({
           <div className="p-8">
             <div className="flex-1 flex flex-col justify-between">
               <div className="flex items-center justify-between">
-                <h4 className="text-lg font-semibold text-white">{name}</h4>
+                <h4 className="text-lg font-semibold truncate text-white">{name}</h4>
                 <div className="flex justify-between">
                   <div className=" mr-5 ">
                     <Icon
@@ -212,7 +212,7 @@ export const Card: FC<ButtonProps> = ({
                   <Icon
                     onClick={onHide}
                     name={hide ? 'eye-slash' : 'eye'}
-                    className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300')}
+                    className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300' && isCreator ? ' visible' : ' invisible')}
                   />
                 </div>
               </div>
@@ -239,7 +239,7 @@ export const Card: FC<ButtonProps> = ({
       <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
         {fileUrl && (
           <div className="flex justify-center flex-shrink-0 my-6">
-            {fileType === 'image' && <img className="w-auto max-w-2xl rounded-xl" src={fileUrl} alt="" />}
+            {fileType === 'image' && <img className="w-auto md:max-w-2xl max-w-full rounded-xl" src={fileUrl} alt="" />}
             {fileType === 'video' && <VideoPlayer url={fileUrl} />}
           </div>
         )}
@@ -248,7 +248,7 @@ export const Card: FC<ButtonProps> = ({
 
         <div className="flex-1 flex flex-col justify-between">
           <div className="flex items-center justify-between">
-            <h4 className="text-lg font-semibold text-white">{name}</h4>
+            <h4 className="text-lg font-semibold truncate text-white">{name}</h4>
             <div className="flex justify-between">
               <div className=" mr-5 ">
                 <Icon
@@ -261,7 +261,7 @@ export const Card: FC<ButtonProps> = ({
               <div className=" mr-5 ">
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
-                              <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
+                              <img src="/assets/images/logo.png" className="svg-inline--fa cursor-pointer" />
                             </button> 
                           }
 
@@ -304,7 +304,7 @@ export const Card: FC<ButtonProps> = ({
               <Icon
                 onClick={onHide}
                 name={hide ? 'eye-slash' : 'eye'}
-                className={clsx(hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1')}
+                className={clsx(isCreator ? (hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1') : ' invisible')}
               />
             </div>
           </div>
