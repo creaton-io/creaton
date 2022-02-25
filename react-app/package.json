@@ -46,6 +46,7 @@
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/torus-connector": "^6.2.9",
     "@web3-react/walletconnect-connector": "^6.2.13",
+    "@wert-io/widget-initializer": "^0.2.1",
     "authereum": "^0.1.14",
     "craco-babel-loader": "^1.0.3",
     "dag-jose": "^0.3.0",

@@ -29,6 +29,7 @@ import {Web3UtilsContext, Web3UtilsProvider, Web3UtilsProviderContext} from './W
 import Loader from './elements/loader';
 import {useCanBecomeCreator, useIsAdmin} from './Whitelist';
 import WalletModal from './components/walletModal';
+import WertModal from './components/wertModal';
 import {Flows} from './Flows';
 import {Governance} from './Governance';
 import {Icon} from './icons';
@@ -38,6 +39,10 @@ import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {CreatorVoting} from './CreatorVoting';
 import {RetryLink} from '@apollo/client/link/retry';
 import {Mytokens, MytokensRequests, Nftlance} from './Nftlance';
+import { Feed } from './Feed';
+import { Discovery } from './Discovery';
+import WertWidget from '@wert-io/widget-initializer';
+import LiFiModal from './components/lifiModal';
 
 initFontAwesome();
 
@@ -110,7 +115,7 @@ function ConnectOrSignup(props) {
   const web3utils = useContext(Web3UtilsContext);
   const {account, library} = useWeb3React();
 
-  if (currentProfile)
+  if (currentProfile && account)
     return (
       <a
         href=""
@@ -187,6 +192,8 @@ const ProfileMenu = (props) => {
   const [copyClip, setCopyClip] = useState<boolean>(false);
 
   useEffect(() => {
+    if(!account && !usdc && !usdcx) return;
+
     usdcx.balanceOf(account).then((balance) => {
       console.log('setting balance in profile menu');
       setUsdcxBalance(balance);
@@ -197,7 +204,7 @@ const ProfileMenu = (props) => {
   }, [usdc, usdcx, account]);
 
   useEffect(() => {
-    if (!library) return;
+    if (!library && !account) return;
 
     library.getBalance(account).then((balance) => {
       setMaticBalance(balance);
@@ -482,6 +489,8 @@ const ProfileMenu = (props) => {
                     Converting to USDCx...
                   </span>
                 )}
+                <WertModal></WertModal>
+                <LiFiModal></LiFiModal>
               </div>
             </div>
             <div className="flex"></div>
@@ -829,7 +838,7 @@ const App = () => {
                             <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
                               <Switch>
                                 <Route exact path="/">
-                                  <Home />
+                                  <Discovery />
                                 </Route>
                                 <Route exact path="/creators">
                                   <Creators />
@@ -868,6 +877,12 @@ const App = () => {
                                 </Route>
                                 <Route path="/nftlance-mycardsrequests">
                                   <MytokensRequests />
+                                </Route>
+                                <Route path="/feed">
+                                  <Feed />
+                                </Route>
+                                <Route path="/discovery">
+                                  <Discovery />
                                 </Route>
                               </Switch>
                             </div>

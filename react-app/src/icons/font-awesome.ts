@@ -66,6 +66,7 @@ export const resolveIconAlias = (name: string): IconProp => (
     iconMap[name] ? iconMap[name] : iconMap['default']
 )
 
+// @ts-ignore
 export const initFontAwesome = () => {
   // @ts-ignore
     library.add(fas, ...fasIcons)

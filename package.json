@@ -34,6 +34,7 @@
     "matic:verifycontracts": "dotenv -e .env.production -- npm --prefix contracts run matic:verify"
   },
   "dependencies": {
+    "@wert-io/widget-initializer": "^0.3.0",
     "apollo-link": "^1.2.14"
   }
 }
