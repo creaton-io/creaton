@@ -4464,6 +4464,11 @@
     "@webassemblyjs/wast-parser" "1.9.0"
     "@xtuc/long" "4.2.2"
 
+"@wert-io/widget-initializer@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@wert-io/widget-initializer/-/widget-initializer-0.3.0.tgz#b82eea465a452be820990fda281e4277b58c79b0"
+  integrity sha512-gtWchtskGEsYxszFngxubdKnnEtZwN9frC7pM+Nk79UGOZggqUfV09RLOiTWvGUVIcdhGbghmaG9oDfTbtwjiA==
+
 "@wry/context@^0.6.0":
   version "0.6.1"
   resolved "https://registry.yarnpkg.com/@wry/context/-/context-0.6.1.tgz#c3c29c0ad622adb00f6a53303c4f965ee06ebeb2"
