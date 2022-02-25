@@ -5,6 +5,8 @@ import React, {createContext, useContext, useEffect, useState} from 'react';
 import {NotificationHandlerContext} from './ErrorHandler';
 import {Web3UtilsProviderContext} from './Web3Utils';
 
+//
+
 const SuperfluidContext = createContext<any>(null);
 const SuperfluidProvider = (props) => {
   const [superfluid, setSuperfluid] = useState<any>(null);
