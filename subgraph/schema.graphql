@@ -151,3 +151,33 @@ type Token @entity {
   owner: Bytes
   data: Bytes
 }
+
+type ReportedContent @entity {
+  id: ID!
+  contentId: String!
+  staked: BigInt!
+  reporters: [Bytes!]
+}
+
+type Juror @entity {
+  id: ID!
+  address: Bytes!
+  staked: BigInt!
+  status: String!
+  cases: [JurorDecision!] @derivedFrom(field: "juror")
+}
+
+type ModerationCase @entity { #"Case" causes problems on compilation
+  id: ID!
+  status: String!
+  jurySize: BigInt!
+  pendingVotes: BigInt!
+  jurorDecisions: [JurorDecision!] @derivedFrom(field: "moderationCase")
+}
+
+type JurorDecision @entity {
+  id: ID!
+  moderationCase: ModerationCase!
+  juror: Juror!
+  decision: String!
+}

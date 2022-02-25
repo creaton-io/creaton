@@ -67,6 +67,45 @@ dataSources:
         - event: DeployedCreatorCollection(address,address,string,address)
           handler: handleDeployedCreatorCollections
       file: ./src/nftLance-mapping.ts
+  - kind: ethereum/contract
+    name: Moderation
+    network: mumbai
+    source:
+      address: "0x5a5059b6D67e75b5Cab5b688B5819BbaC9fE6447"
+      abi: Moderation
+      startBlock: 25216963
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ReportedContent
+        - Juror
+        - ModerationCase
+        - JurorDecision
+      abis:
+        - name: Moderation
+          file: ./abis/Moderation.json
+      eventHandlers:
+        - event: ContentReported(address,string,uint256)
+          handler: handleContentReported
+        - event: JurorAdded(address,uint256)
+          handler: handleJurorAdded
+        - event: JurorRemoved(address,uint256)
+          handler: handleJurorRemoved
+        - event: CaseBuilt(string)
+          handler: handleCaseBuilt
+        - event: JuryAssigned(string,address[])
+          handler: handleJuryAssigned
+        - event: JuryReassigned(string,address[])
+          handler: handleJuryReassigned
+        - event: JurorVoted(address,string,uint256)
+          handler: handleJurorVoted
+        - event: CaseClosed(string,uint8,uint8)
+          handler: handleCaseClosed
+        - event: JurorSlashed(address,uint256)
+          handler: handleJurorSlashed
+      file: ./src/moderation-mapping.ts
 templates:
   - kind: ethereum/contract
     name: Creator
