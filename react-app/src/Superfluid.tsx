@@ -19,7 +19,7 @@ import {Web3UtilsProviderContext} from './Web3Utils';
      which holds the value {sf,usdc,usdcx} which we are fetching and accessing all 
      over the applications. Reference: app.tsx, creators.tsx,feed.tsx, web3utils.tsx 
   5) The rest of the superfluid.tsx file consist of documented code to initialise 
-     and declare the superfluid sdk.
+     and declare the superfluid sdk. 
 */}
 
 
