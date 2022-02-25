@@ -33,10 +33,9 @@ import {Flows} from './Flows';
 import {Governance} from './Governance';
 import {Icon} from './icons';
 import Tooltip from './elements/tooltip';
-import {Biconomy} from './assets/mexa';
+import {Biconomy} from '@biconomy/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import {CreatorVoting} from './CreatorVoting';
-import {ApolloLink} from 'apollo-link';
 import {RetryLink} from '@apollo/client/link/retry';
 import {Mytokens, MytokensRequests, Nftlance} from './Nftlance';
 
