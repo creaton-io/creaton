@@ -9,17 +9,17 @@ import {Web3UtilsProviderContext} from './Web3Utils';
   Explanation on how streaming works in the React app / on the front-end:
 
   1) Superfluid takes care of the streaming, we are exporting the superfluid context 
-     and the providers from the superfluid.tsx file. Reference: superfluid.tsx 
+     and the providers from the superfluid.tsx file. Reference: Superfluid.tsx 
   2) We are importing them in different components for accessing the values declared 
-     and initialised inside the context. Reference: app.tsx,creators.tsx
-  3) We enclose the whole app.tsx file inside the superfluid provider so we can 
+     and initialised inside the context. Reference: App.tsx,Creator.tsx
+  3) We enclose the whole App.tsx file inside the superfluid provider so we can 
      conclude the scope of the context is globally over the whole application inside 
      every routes. Reference: App.tsx file    
   4) Ideally we are storing a variable called superfluid inside the superfluidcontext 
      which holds the value {sf,usdc,usdcx} which we are fetching and accessing all 
-     over the applications. Reference: app.tsx, creators.tsx,feed.tsx, web3utils.tsx 
-  5) The rest of the superfluid.tsx file consist of documented code to initialise 
-     and declare the superfluid sdk. 
+     over the applications. Reference: App.tsx, Creator.tsx,Feed.tsx, Web3Utils.tsx 
+  5) The rest of the Superfluid.tsx file consist of documented code to initialise 
+     and declare the superfluid SDK. 
 */}
 
 
