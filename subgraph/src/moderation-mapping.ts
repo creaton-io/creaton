@@ -62,6 +62,7 @@ export function handleJuryAssigned(event: JuryAssigned): void {
             entity.moderationCase = "case-" + event.params.contentId;
             entity.juror = jurorAddress.toHex();
             entity.decision = "undefined";
+            entity.timestamp = event.params.timestamp;
             entity.save();
         }
 
@@ -103,6 +104,7 @@ export function handleJuryReassigned(event: JuryReassigned): void {
                 entity.moderationCase = moderationCaseId;
                 entity.juror = jurorAddress.toHex();
                 entity.decision = "undefined";
+                entity.timestamp = event.params.timestamp;
                 entity.save();
             }
         }

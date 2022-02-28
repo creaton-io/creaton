@@ -71,7 +71,7 @@ dataSources:
     name: Moderation
     network: mumbai
     source:
-      address: "0xBf419d51971C1488E476D5deb5de3bECA316aA7D"
+      address: "0x09fABffEA17b38DC11163Bf3241Ca5842282940E"
       abi: Moderation
       startBlock: 25216963
     mapping:
@@ -95,9 +95,9 @@ dataSources:
           handler: handleJurorRemoved
         - event: CaseBuilt(string)
           handler: handleCaseBuilt
-        - event: JuryAssigned(string,address[])
+        - event: JuryAssigned(string,address[],uint256)
           handler: handleJuryAssigned
-        - event: JuryReassigned(string,address[])
+        - event: JuryReassigned(string,address[],uint256)
           handler: handleJuryReassigned
         - event: JurorVoted(address,string,uint256)
           handler: handleJurorVoted

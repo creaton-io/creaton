@@ -66,13 +66,15 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     event ContentReported(address reporter, string contentId, uint256 staked);
     event CaseBuilt(string contentId);
     event CaseClosed(string contentId, uint8 votedOK, uint8 votedKO);
-    event JuryAssigned(string contentId, address[] jury);
-    event JuryReassigned(string contentId, address[] jury);
+    event JuryAssigned(string contentId, address[] jury, uint256 timestamp);
+    event JuryReassigned(string contentId, address[] jury, uint256 timestamp);
 
     function initialize(address _stakingToken, uint256 _caseStakedThreshold, uint8 _minJurySize, uint8 _jurorMaxDaysDeciding, uint8 _jurorSlashingPenalty) 
         public 
         initializer 
     {
+        OwnableUpgradeable.__Ownable_init();
+
         stakingToken = _stakingToken;
         caseStakedThreshold = _caseStakedThreshold;
         minJurySize = _minJurySize;
@@ -171,7 +173,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
             _selectedJury[_i] = cases[_contentId].jury[_i];
         }
 
-        emit JuryReassigned(_contentId, _selectedJury);
+        emit JuryReassigned(_contentId, _selectedJury, block.timestamp);
     }
 
     function closeCase(string calldata _contentId)
@@ -252,7 +254,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
 
         cases[_contentId].status = CASE_STATUS_JURY_ASSIGNED;
 
-        emit JuryAssigned(_contentId, _selectedJury);
+        emit JuryAssigned(_contentId, _selectedJury, block.timestamp);
     }
 
     function _slashAndRemoveJuror(address _juror)

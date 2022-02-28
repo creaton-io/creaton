@@ -182,4 +182,5 @@ type JurorDecision @entity {
   moderationCase: ModerationCase!
   juror: Juror!
   decision: String!
+  timestamp: BigInt!
 }

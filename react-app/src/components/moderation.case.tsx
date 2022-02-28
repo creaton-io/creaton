@@ -18,7 +18,6 @@ export const Case: FC<CaseProps> = ({ moderationCase }) => {
     const notificationHandler = useContext(NotificationHandlerContext);
     const [userAddress, setUserAddress] = useState('');
     const [checkedOK, setCheckedOK] = useState(true);
-    const [checkedKO, setCheckedKO] = useState(false);
 
     useEffect(() => {
         (async function iife() {
@@ -67,27 +66,28 @@ export const Case: FC<CaseProps> = ({ moderationCase }) => {
                 <div className="flex-1 flex flex-col justify-between">
                     <div className="flex items-center justify-between">
                         <h4 className="text-lg font-semibold text-white">
-                            { moderationCase.moderationCase.contentId }
+                            { moderationCase.moderationCase.content.name }
                         </h4>
                         <div className="flex justify-between">
                             <div className="mr-5">
-                                { moderationCase.decision === "undefined" && <>
-                                    <form onSubmit={handleVote} className="grid grid-cols-1 place-items-left w-max m-auto text-white">
-                                        <input type={"hidden"} value="" name="vote" />
-                                        <Radio label="OK" checked={checkedOK} toggle={handleVoteToggle} />
-                                        <Radio label="KO" checked={!checkedOK} toggle={handleVoteToggle} />
-                                        <Button type="submit" label="Vote"/>
-                                    </form>
-                                </>}
-
-                                { moderationCase.decision !== "undefined" && <>
-                                    {moderationCase.decision}
-                                </>}
+                                {/* Reported on {moderationCase.timestamp } */}
                             </div> 
                         </div>
                     </div>
-
+                    
                     <p className="text-left text-white">
+                        { moderationCase.decision === "undefined" && <>
+                            <form onSubmit={handleVote} className="mt-5 m-auto text-white">
+                                <input type={"hidden"} value="" name="vote" />
+                                <Radio label="OK" checked={checkedOK} toggle={handleVoteToggle} />
+                                <Radio label="KO" checked={!checkedOK} toggle={handleVoteToggle} />
+                                <Button type="submit" label="Vote" className="mt-5"/>
+                            </form>
+                        </>}
+
+                        { moderationCase.decision !== "undefined" && <>
+                            {moderationCase.decision}
+                        </>}
                     </p>
                 </div>
             </div>

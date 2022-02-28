@@ -6132,6 +6132,12 @@
             "internalType": "address[]",
             "name": "jury",
             "type": "address[]"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
           }
         ],
         "name": "JuryAssigned",
@@ -6151,6 +6157,12 @@
             "internalType": "address[]",
             "name": "jury",
             "type": "address[]"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
           }
         ],
         "name": "JuryReassigned",
@@ -6689,6 +6701,6 @@
         "type": "function"
       }
     ],
-    "address": "0xBf419d51971C1488E476D5deb5de3bECA316aA7D"
+    "address": "0x09fABffEA17b38DC11163Bf3241Ca5842282940E"
   }
 }

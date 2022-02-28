@@ -48,6 +48,10 @@ export const Moderation: FC = () => {
                     moderationCase {
                         id
                         pendingVotes
+                        content {
+                            id
+                            name
+                        }
                     }
                 }
             }
@@ -106,27 +110,25 @@ export const Moderation: FC = () => {
 
     return (
         <div className="max-w-5xl my-0 mx-auto text-center text-center">
-            {moderationData && moderationData.length == 0 && <div>
-                <div className="grid grid-cols-1 place-items-center m-auto text-white">
-                    <p className="text-5xl pt-12 pb-6 pl-6">Become a Juror</p>
-                    <p className="text-xl opacity-50 pl-6">
-                        Become a Juror by staking some $CREATE and get rewarded for your opinion!
-                    </p>
-                    {!becomeAJurorVisible && <Button className="mt-5" onClick={() => setBecomeAJurorVisible(true)} label="Become a Juror"/>  }
+            {moderationData && moderationData.length == 0 && <>
+                <h1 className="text-5xl pt-12 pb-6 pl-6">Become a Juror</h1>
+                <p className="text-xl opacity-50 pl-6">
+                    Become a Juror by staking some $CREATE and get rewarded for your opinion!
+                </p>
+                {!becomeAJurorVisible && <Button className="mt-5" onClick={() => setBecomeAJurorVisible(true)} label="Become a Juror"/>  }
 
-                    {becomeAJurorVisible &&
-                        <form onSubmit={newJuror} className="grid grid-cols-1 place-items-center m-auto text-white">
-                            <div className="p-5 text-white">
-                                <Input className="bg-gray-900 text-white" type="text" name="amount" placeholder="Stake Amount" label="Amount to Stake" />
-                                <Button type="submit" label="Stake" />
-                            </div>
-                        </form>
-                    }
-                </div>
-            </div>}
+                {becomeAJurorVisible &&
+                    <form onSubmit={newJuror} className="grid grid-cols-1 place-items-center m-auto text-white">
+                        <div className="p-5 text-white">
+                            <Input className="bg-gray-900 text-white" type="text" name="amount" placeholder="Stake Amount" label="Amount to Stake" />
+                            <Button type="submit" label="Stake" />
+                        </div>
+                    </form>
+                }
+            </>}
 
-            {moderationData && moderationData.length > 0 && <div className="grid grid-cols-1 place-items-center m-auto text-white">
-                <p className="text-5xl pt-12 pb-6 pl-6">Moderation Panel</p>
+            {moderationData && moderationData.length > 0 && <div className="text-white">
+                <p className="text-5xl pt-12 pb-6 pl-6 m-auto">Moderation Panel</p>
 
                 { moderationData[0].cases.length == 0 && <p className="text-xl opacity-50 pl-6">No cases reported yet</p> }
 
