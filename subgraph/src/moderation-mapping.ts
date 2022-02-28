@@ -41,6 +41,7 @@ export function handleCaseBuilt(event: CaseBuilt): void {
         entity = new ModerationCase(id);
     }
 
+    entity.content = event.params.contentId;
     entity.status = "new";
     entity.jurySize = BigInt.fromI32(0);
     entity.pendingVotes = BigInt.fromI32(0);
@@ -50,9 +51,10 @@ export function handleCaseBuilt(event: CaseBuilt): void {
 export function handleJuryAssigned(event: JuryAssigned): void {
     let jurorAddress: Bytes;
     let jury = event.params.jury;
-    
+    let jurorsConcat: string;
     for(let i=0; i<=jury.length; i++){
         jurorAddress = jury.pop();
+        jurorsConcat = jurorsConcat + "-" + jurorAddress.toHex();
         let jurorDecisionId = jurorAddress.toHex() + "-" + event.params.contentId;
         let entity = JurorDecision.load(jurorDecisionId);
         if(entity === null){
@@ -70,6 +72,7 @@ export function handleJuryAssigned(event: JuryAssigned): void {
 
     let mCase = ModerationCase.load("case-" + event.params.contentId);
     mCase.status = "jury assigned";
+    mCase.jurors = jurorsConcat;
     mCase.jurySize = BigInt.fromI32(event.params.jury.length);
     mCase.pendingVotes = BigInt.fromI32(event.params.jury.length);
     mCase.save();

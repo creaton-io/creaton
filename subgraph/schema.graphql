@@ -169,9 +169,11 @@ type Juror @entity {
 
 type ModerationCase @entity { #"Case" causes problems on compilation
   id: ID!
+  content: Content!
   status: String!
   jurySize: BigInt!
   pendingVotes: BigInt!
+  jurors: String
   jurorDecisions: [JurorDecision!] @derivedFrom(field: "moderationCase")
 }
 

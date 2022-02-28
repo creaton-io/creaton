@@ -71,7 +71,7 @@ dataSources:
     name: Moderation
     network: mumbai
     source:
-      address: "0x5a5059b6D67e75b5Cab5b688B5819BbaC9fE6447"
+      address: "0xBf419d51971C1488E476D5deb5de3bECA316aA7D"
       abi: Moderation
       startBlock: 25216963
     mapping:

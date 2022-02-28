@@ -37,6 +37,7 @@ import {Biconomy} from './assets/mexa';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import { CreatorVoting } from './CreatorVoting';
 import { Mytokens, MytokensRequests, Nftlance } from './Nftlance';
+import { Moderation } from './moderation';
 
 initFontAwesome();
 
@@ -840,6 +841,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/nftlance-mycardsrequests">
                                   <MytokensRequests />
+                                </Route>
+                                <Route path="/moderation">
+                                  <Moderation />
                                 </Route>
                               </Switch>
                             </div>
