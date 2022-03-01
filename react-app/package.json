@@ -45,7 +45,7 @@
     "@web3-react/injected-connector": "^6.0.7",
     "@web3-react/torus-connector": "^6.2.9",
     "@web3-react/walletconnect-connector": "^6.2.10",
-    "@wert-io/widget-initializer": "^0.2.1",
+    "@wert-io/widget-initializer": "^0.3.0",
     "authereum": "^0.1.14",
     "dag-jose": "^0.3.0",
     "dids": "^2.4.3",
