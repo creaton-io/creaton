@@ -8,8 +8,9 @@ import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/structs/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, OwnableUpgradeable {
+contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
@@ -70,10 +71,12 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     event JuryReassigned(string contentId, address[] jury, uint256 timestamp);
 
     function initialize(address _stakingToken, uint256 _caseStakedThreshold, uint8 _minJurySize, uint8 _jurorMaxDaysDeciding, uint8 _jurorSlashingPenalty) 
-        public 
+        external 
         initializer 
     {
+        require(_stakingToken != address(0), "StakingToken: Host Address can't be 0x");
         OwnableUpgradeable.__Ownable_init();
+        ReentrancyGuardUpgradeable.__ReentrancyGuard_init();
 
         stakingToken = _stakingToken;
         caseStakedThreshold = _caseStakedThreshold;
@@ -85,7 +88,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function setConfig(uint256 _caseStakedThreshold, uint8 _minJurySize, uint8 _jurorMaxDaysDeciding, uint8 _jurorSlashingPenalty)
-        public 
+        external 
         onlyOwner
     {
         caseStakedThreshold = _caseStakedThreshold;
@@ -95,7 +98,8 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function addJuror(uint256 _stake) 
-        public 
+        external 
+        nonReentrant
     {
         require(jurors[_msgSender()].staked == 0, "Moderation: MsgSender is already a Juror");
 
@@ -106,13 +110,14 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function removeJuror() 
-        public 
+        external 
     {
         _removeJuror(_msgSender());
     }
 
     function reportContent(string calldata _contentId, uint256 _stake)
-        public
+        external
+        nonReentrant
     {
         IERC20Upgradeable(stakingToken).safeTransferFrom(_msgSender(), address(this), _stake);
         reported[_contentId] += _stake;
@@ -126,7 +131,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function vote(string calldata _contentId, uint8 _vote)
-        public
+        external
     {
         address _juror = _msgSender();
         require(_vote >= JUROR_DECISION_OK && _vote <= JUROR_DECISION_KO, "Moderation: Invalid vote value");
@@ -141,7 +146,8 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function reassignInactiveJurors(string calldata _contentId)
-        public
+        external
+        nonReentrant
     {
         require(cases[_contentId].status == CASE_STATUS_JURY_ASSIGNED, "Moderation: Case status must be ASSIGNED");
 
@@ -177,7 +183,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function closeCase(string calldata _contentId)
-        public
+        external
     {
         require(cases[_contentId].status == CASE_STATUS_JURY_ASSIGNED, "Moderation: Case status must be ASSIGNED");
         require(cases[_contentId].pendingVotes == 0, "Moderation: All jury must vote");
@@ -201,8 +207,9 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function withdraw()
-        public
+        external
         onlyOwner
+        nonReentrant
     {
         IERC20Upgradeable(stakingToken).safeTransfer(owner(), balance);
         balance = 0;
