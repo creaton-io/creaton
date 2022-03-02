@@ -7,6 +7,7 @@ export function handleContentReported(event: ContentReported): void {
     if(reportedContent === null){   
         reportedContent = new ReportedContent(event.params.contentId);
         reportedContent.contentId = event.params.contentId;
+        reportedContent.content = event.params.contentId;
         reportedContent.reporters = [event.transaction.from];
         reportedContent.staked = event.params.staked;
     }else{
@@ -52,7 +53,7 @@ export function handleJuryAssigned(event: JuryAssigned): void {
     let jurorAddress: Bytes;
     let jury = event.params.jury;
     let jurorsConcat: string;
-    for(let i=0; i<=jury.length; i++){
+    for(let i=0; i<jury.length; i++){
         jurorAddress = jury.pop();
         jurorsConcat = jurorsConcat + "-" + jurorAddress.toHex();
         let jurorDecisionId = jurorAddress.toHex() + "-" + event.params.contentId;
@@ -134,6 +135,10 @@ export function handleCaseClosed(event: CaseClosed): void {
     let mCase = ModerationCase.load(event.params.contentId);
     mCase.status = "ruled";
     mCase.save();
+
+    if(event.params.votedKO > event.params.votedOK){
+        store.remove("Content", event.params.contentId);
+    }
 }
 
 export function handleJurorSlashed(event: JurorSlashed): void {

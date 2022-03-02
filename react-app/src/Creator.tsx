@@ -18,7 +18,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS} from './Config';
+import {REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -48,6 +48,10 @@ export function Creator() {
         tier
         hide
         link
+        reported {
+          id
+          reporters
+        }
       }
     }
   `;
@@ -114,6 +118,8 @@ export function Creator() {
   const [reactions, setReactions] = useState<Array<any>>();
   const [reactionErc20Available, setReactionErc20Available] = useState<string>();
   const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
+  const [reportErc20Available, setReportErc20Available] = useState<string>();
+  const [reportErc20Symbol, setReportErc20Symbol] = useState<string>();
 
   async function getUsdcx() {
     if (!superfluid) return;
@@ -185,6 +191,10 @@ export function Creator() {
       const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
       setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
       setReactionErc20Symbol(await erc20Contract.symbol());
+
+      const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+      setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
+      setReportErc20Symbol(await erc20Contract2.symbol());
     })();
   }, [contentsQuery, creatorContractAddress, context.library]);
 
@@ -388,9 +398,14 @@ export function Creator() {
           reactionErc20Available={reactionErc20Available}
           reactionErc20Symbol={reactionErc20Symbol}
           onReact={(amount, callback) => { react(content, amount, callback) }}
+          onReportForModeration={(amount, callback) => { reportForModeration(content, amount, callback) }}
+          reportErc20Available={reportErc20Available}
+          reportErc20Symbol={reportErc20Symbol}
           hasReacted={hasReacted(content)}
+          hasReported={hasReported(content)}
           initialReactCount={countReacted(content)}
           link={content.link}
+          
         />
       );
     } else return;
@@ -406,6 +421,42 @@ export function Creator() {
     await receipt.wait(1);
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
+  }
+
+  async function reportForModeration(content, amount, callback){
+    if(!MODERATION_ENABLED) return;
+    if (!web3utils.isSignedUp()) return;
+
+    try {
+      // Allowance
+      const signer = context.library!.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+
+      const preDecimals = await erc20Contract.decimals();
+      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+
+      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
+      if(stakingAmount.gt(allowance)){
+        let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
+        await tx.wait();
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+        if(receipt.length == 0){
+          throw Error('Error allowing token for moderation');
+        }
+      }
+      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(context.library!.getSigner());
+      await moderationTokenContract.reportContent(content.id, stakingAmount);
+      moderationTokenContract.once("ContentReported", async (reporter, contentId, staked) => {
+        notificationHandler.setNotification({description: 'THanks for reporting!', type: 'success'});
+        callback();
+      });
+    } catch (error: any) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
   }
 
   async function react(content, amount, callback) {
@@ -456,6 +507,11 @@ export function Creator() {
   function hasReacted(content) {
     if (!reactions) return false;
     return reactions.some((r) => r.tokenId === content.tokenId && r.reactingUser.address === context.account?.toLowerCase());
+  }
+
+  function hasReported(content){
+    if(content.reported.length == 0) return false;
+    return (content.reported[0].reporters.indexOf(context.account?.toLowerCase()) >= 0);
   }
 
   async function hide(tokenId, hide: boolean) {

@@ -39,6 +39,7 @@ type Content @entity {
   tier: Int!
   tokenId: BigInt!
   hide: Boolean!
+  reported: [ReportedContent!] @derivedFrom(field: "content")
 }
 
 type ReactionUser @entity {
@@ -155,6 +156,7 @@ type Token @entity {
 type ReportedContent @entity {
   id: ID!
   contentId: String!
+  content: Content!
   staked: BigInt!
   reporters: [Bytes!]
 }

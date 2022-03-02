@@ -7,7 +7,8 @@ let APOLLO_URI,
   BICONOMY_API,
   BICONOMY_AUTH,
   VOTING_GRAPHQL_URI,
-  CREATOR_VOTING_ADDRESS;
+  CREATOR_VOTING_ADDRESS,
+  MODERATION_ENABLED;
 const ARWEAVE_GATEWAY = 'https://arweave.net/';
 const REPORT_URI = 'https://report.creaton.io/report';
 const ARWEAVE_URI = 'https://arweave.creaton.io';
@@ -30,6 +31,7 @@ if (process.env.NODE_ENV === 'development') {
   };
   VOTING_GRAPHQL_URI = 'https://api.studio.thegraph.com/query/2670/creator-voting/v0.0.21'
   CREATOR_VOTING_ADDRESS = '0x9DAEb40970A95C817C1f37EBB765d660fDE0ff64';
+  MODERATION_ENABLED = true;
 } else if (process.env.NODE_ENV === 'production') {
   //staging
   REENCRYPTION_URI = 'https://reencryption.creaton.io';
@@ -37,6 +39,7 @@ if (process.env.NODE_ENV === 'development') {
 
   BICONOMY_API = process.env.BICONOMY_API;
   BICONOMY_AUTH = process.env.BICONOMY_AUTH;
+  MODERATION_ENABLED = false;
 }
 //@ts-ignore
 else if (process.env.NODE_ENV === 'staging') {
@@ -46,6 +49,7 @@ else if (process.env.NODE_ENV === 'staging') {
 
   BICONOMY_API = process.env.BICONOMY_API;
   BICONOMY_AUTH = process.env.BICONOMY_AUTH;
+  MODERATION_ENABLED = false;
 }
 //TODO:PRODUCTION CONFIG
 // {
@@ -68,4 +72,5 @@ export {
   BICONOMY_AUTH,
   VOTING_GRAPHQL_URI,
   CREATOR_VOTING_ADDRESS,
+  MODERATION_ENABLED
 };

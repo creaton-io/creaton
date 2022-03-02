@@ -8,6 +8,7 @@ import LitJsSdk from 'lit-js-sdk';
 import { LitContext } from '../LitProvider';
 import { ethers } from 'ethers';
 import { LinkPreview } from '@dhaiwat10/react-link-preview';
+import { MODERATION_ENABLED } from '../Config';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -23,11 +24,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   likeCount?: number;
   onReact?: any;
   hasReacted?: boolean;
+  onReportForModeration?: any;
+  hasReported?: boolean;
   initialReactCount?: string;
   date?: string;
   isEncrypted?: boolean;
   reactionErc20Available?: string;
   reactionErc20Symbol?: string;
+  reportErc20Available?: string;
+  reportErc20Symbol?: string;
   hide?: boolean;
   onHide?: any;
   isCreator?: boolean;
@@ -43,17 +48,21 @@ export const Card: FC<ButtonProps> = ({
   avatarUrl,
   fileType,
   description,
-  isLiked,
+  isLiked, 
   onLike,
   onReport,
   likeCount,
   onReact,
+  onReportForModeration,
+  hasReported,
   hasReacted,
   initialReactCount,
   date,
   isEncrypted,
   reactionErc20Available,
   reactionErc20Symbol,
+  reportErc20Available,
+  reportErc20Symbol,
   hide,
   onHide,
   isCreator,
@@ -67,6 +76,8 @@ export const Card: FC<ButtonProps> = ({
   const [reactCount, setReactCount] = useState<number>();
   const [descriptionReactElement, setDescriptionReactElement] = useState('');
   const [linkContent, setLinkContent] = useState('');
+  const [reporting, setReporting] = useState(false);
+  const [reportingAmount, setReportingAmount] = useState('');
 
   function showAmountModal(e) {
     hideAllAmountModal();
@@ -93,7 +104,32 @@ export const Card: FC<ButtonProps> = ({
       });
     }
   }
+  
+  function showAmountReportModal(e) {
+    hideAllReportModal();
+    e.target.parentElement.parentElement.getElementsByClassName('reportAmount')[0].classList.remove('hidden');
+  }
+  
+  function hideAllReportModal() {
+    const modals = document.getElementsByClassName('reportAmount');
+    for (let key in modals) {
+      let el = modals[key].classList;
+      if (el) {
+        el.add('hidden');
+      }
+    }
+  }
 
+  function reportClick() {
+    setReporting(true);
+    hideAllReportModal();
+    if (!isNaN(+reportingAmount)) {
+      onReportForModeration(reportingAmount, () => {
+        setReporting(false);
+      });
+    }
+  }
+  
   function base64ToBlob(base64Data: string) {
     const parts = base64Data.split(';base64,');
     const contentType = parts[0].split(':')[1];
@@ -259,48 +295,87 @@ export const Card: FC<ButtonProps> = ({
                 <span className="ml-2 text-white">{likeCount}</span>
               </div>
               <div className=" mr-5 ">
-                          {!reacting && !hasReacted && 
-                            <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
-                              <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
-                            </button> 
-                          }
+                {!reacting && !hasReacted && 
+                  <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
+                    <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16 cursor-pointer" />
+                  </button> 
+                }
 
-                          <div className="reactAmount hidden absolute p-3 mt-1 rounded right-2" style={{
-                            backgroundColor: "rgb(41 25 67 / 70%)",
-                            border: "1px solid #473a5f"
-                          }}>
-                            
-                            {!reacting && <>
-                              <div>
-                                <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} className="text-white rounded" style={{
-                                  background: "#452e6d",
-                                  padding: "5px 7px"
-                                }} />
-                                <button onClick={reactClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
-                                  React!
-                                </button>                              
-                              </div>
-                              <div className="block text-white text-sm mt-2 font-light">
-                                {reactionErc20Available && Math.round(+ethers.utils.formatEther(reactionErc20Available) * 1e2) / 1e2} {reactionErc20Symbol} available
-                              </div>
-                            </>
-                            }
-                          </div>
+                <div className="reactAmount hidden absolute p-3 mt-1 rounded right-2" style={{
+                  backgroundColor: "rgb(41 25 67 / 70%)",
+                  border: "1px solid #473a5f"
+                }}>
+                  
+                  {!reacting && <>
+                    <div>
+                      <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} className="text-white rounded" style={{
+                        background: "#452e6d",
+                        padding: "5px 7px"
+                      }} />
+                      <button onClick={reactClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
+                        React!
+                      </button>                              
+                    </div>
+                    <div className="block text-white text-sm mt-2 font-light">
+                      {reactionErc20Available && Math.round(+ethers.utils.formatEther(reactionErc20Available) * 1e2) / 1e2} {reactionErc20Symbol} available
+                    </div>
+                  </>
+                  }
+                </div>
 
-                          {!reacting && hasReacted && 
-                            <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
-                          }
-                          { reacting && 
-                            <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          }
-                          <span className="ml-2 text-white">
-                            {reactCount}
-                          </span>
-                        </div> 
-              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
+                {!reacting && hasReacted && 
+                  <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
+                }
+                { reacting && 
+                  <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                }
+                <span className="ml-2 text-white">
+                  {reactCount}
+                </span>
+              </div> 
+
+              { !MODERATION_ENABLED && <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} /> }
+
+              { MODERATION_ENABLED && <div className="mr-5">
+                {!reporting && !hasReported && 
+                  <Icon onClick={showAmountReportModal} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
+                }
+
+                <div className="reportAmount hidden absolute p-3 mt-1 rounded right-2" style={{
+                  backgroundColor: "rgb(41 25 67 / 70%)",
+                  border: "1px solid #473a5f"
+                }}>
+                  
+                  {!reporting && <>
+                    <div>
+                      <input name="reportAmount" onChange={(e) => setReportingAmount(e.target.value)} className="text-white rounded" style={{
+                        background: "#452e6d",
+                        padding: "5px 7px"
+                      }} />
+                      <button onClick={reportClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
+                        Report!
+                      </button>                              
+                    </div>
+                    <div className="block text-white text-sm mt-2 font-light">
+                      {reportErc20Available && Math.round(+ethers.utils.formatEther(reportErc20Available) * 1e2) / 1e2} {reportErc20Symbol} available
+                    </div>
+                  </>
+                  }
+                </div>
+
+                {/* {!reporting && hasReported && 
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1 mr-5')} />
+                } */}
+                { reporting && 
+                  <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                }
+              </div>}
               <Icon
                 onClick={onHide}
                 name={hide ? 'eye-slash' : 'eye'}
