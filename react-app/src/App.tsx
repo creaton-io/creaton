@@ -150,6 +150,9 @@ const StakingDetector = (props) => {
 // reloaded. So UsdcxBalance is a state which will hold balance amount
 // but default value is loading hence till balance data don't fetch
 // from wallet, we show default value (loading text)
+
+// Similarly a state is wrapping Usdc which has type boolean and
+// default false. And wrapAmount has default value ' ' (blank string)
 const ProfileMenu = (props) => {
   const {currentProfile} = useCurrentProfile();
   const {currentCreator} = useCurrentCreator();
