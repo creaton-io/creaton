@@ -144,6 +144,12 @@ const StakingDetector = (props) => {
 // useState hook. Two variables initialised using useContext
 // from context named SuperfluidContext and 2 user defined
 // hooks exporting currentProfile and currentCreator
+
+// Basically states are like variables in react which get reset
+// reset to allocated default value when the component is remounted or
+// reloaded. So UsdcxBalance is a state which will hold balance amount
+// but default value is loading hence till balance data don't fetch
+// from wallet, we show default value (loading text)
 const ProfileMenu = (props) => {
   const {currentProfile} = useCurrentProfile();
   const {currentCreator} = useCurrentCreator();
