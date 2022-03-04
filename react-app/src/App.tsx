@@ -139,6 +139,11 @@ const StakingDetector = (props) => {
   return null;
 };
 
+
+// This block includes declaration of some states using the
+// useState hook. Two variables initialised using useContext
+// from context named SuperfluidContext and 2 user defined
+// hooks exporting currentProfile and currentCreator
 const ProfileMenu = (props) => {
   const {currentProfile} = useCurrentProfile();
   const {currentCreator} = useCurrentCreator();
