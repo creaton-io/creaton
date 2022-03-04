@@ -569,7 +569,7 @@ const HeaderButtons = () => {
       <Link to="/">
         <Button label="Home" theme="focused"></Button>
       </Link>
-      <Link to="/metaverse" theme="focused"></Button></Link>
+      <Link to="/metaverse" theme="unfocused"></Button></Link>
       <Link to="/creators">
         <Button label="Creators" theme="unfocused"></Button>
       </Link>
