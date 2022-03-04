@@ -3,6 +3,7 @@ import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
 import {ApolloClient, ApolloProvider, InMemoryCache, HttpLink} from '@apollo/client';
 import Home from './Home';
+import Metaverse from './Metaverse';
 import WalletConnect from './WalletConnect';
 import {useWeb3React, Web3ReactProvider} from './web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
@@ -568,6 +569,7 @@ const HeaderButtons = () => {
       <Link to="/">
         <Button label="Home" theme="focused"></Button>
       </Link>
+      <Link to="/metaverse" theme="focused"></Button></Link>
       <Link to="/creators">
         <Button label="Creators" theme="unfocused"></Button>
       </Link>
@@ -839,6 +841,9 @@ const App = () => {
                               <Switch>
                                 <Route exact path="/">
                                   <Discovery />
+                                </Route>
+                                <Route exact path="/metaverse">
+                                  <Metaverse />
                                 </Route>
                                 <Route exact path="/creators">
                                   <Creators />
