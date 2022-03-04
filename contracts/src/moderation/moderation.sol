@@ -64,7 +64,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     event JurorRemoved(address juror, uint256 staked);
     event JurorSlashed(address juror, uint256 penalty);
     event JurorVoted(address juror, string contentId, uint256 vote);
-    event ContentReported(address reporter, string contentId, uint256 staked);
+    event ContentReported(address reporter, string contentId, uint256 staked, string fileProof);
     event CaseBuilt(string contentId);
     event CaseClosed(string contentId, uint8 votedOK, uint8 votedKO);
     event JuryAssigned(string contentId, address[] jury, uint256 timestamp);
@@ -115,7 +115,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         _removeJuror(_msgSender());
     }
 
-    function reportContent(string calldata _contentId, uint256 _stake)
+    function reportContent(string calldata _contentId, uint256 _stake, string calldata _fileProof)
         external
         nonReentrant
     {
@@ -123,7 +123,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         reported[_contentId] += _stake;
         reporters[_msgSender()] += _stake;
 
-        emit ContentReported(_msgSender(), _contentId, _stake);
+        emit ContentReported(_msgSender(), _contentId, _stake, _fileProof);
 
         if(reported[_contentId] >= caseStakedThreshold){
             _buildCase(_contentId);

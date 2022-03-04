@@ -1,4 +1,4 @@
-import {ButtonHTMLAttributes, FC, useContext, useEffect, useState} from 'react';
+import React, {ButtonHTMLAttributes, FC, useContext, useEffect, useState} from 'react';
 import {Icon} from '../icons';
 import clsx from 'clsx';
 import {VideoPlayer} from '../VideoPlayer';
@@ -9,6 +9,7 @@ import { LitContext } from '../LitProvider';
 import { ethers } from 'ethers';
 import { LinkPreview } from '@dhaiwat10/react-link-preview';
 import { MODERATION_ENABLED } from '../Config';
+import { Button } from '../elements/button';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -78,6 +79,9 @@ export const Card: FC<ButtonProps> = ({
   const [linkContent, setLinkContent] = useState('');
   const [reporting, setReporting] = useState(false);
   const [reportingAmount, setReportingAmount] = useState('');
+  const fileInput = React.createRef<any>();
+  const [fileName, setFileName] = useState('');
+  const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
 
   function showAmountModal(e) {
     hideAllAmountModal();
@@ -124,7 +128,7 @@ export const Card: FC<ButtonProps> = ({
     setReporting(true);
     hideAllReportModal();
     if (!isNaN(+reportingAmount)) {
-      onReportForModeration(reportingAmount, () => {
+      onReportForModeration(reportingAmount, currentFile, () => {
         setReporting(false);
       });
     }
@@ -141,6 +145,13 @@ export const Card: FC<ButtonProps> = ({
     }
 
     return new Blob([uInt8Array], { type: contentType });
+  }
+
+  async function handleFileSelection(event){
+    const file = event.currentTarget.files[0];
+    console.log(file);
+    setFileName(file.name);
+    setCurrentFile(file);
   }
 
   useEffect(() => {
@@ -179,7 +190,6 @@ export const Card: FC<ButtonProps> = ({
               });
               
               const decBlob = new Blob([decryptedFile], {type: 'application/json'});
-              console.log('SHIT LINK', decBlob);
               const decDecryptedText = JSON.parse(await decBlob.text());
     
               const reversed = Array.from(desc.matchAll(regexSubscribersText)).reverse();
@@ -224,7 +234,7 @@ export const Card: FC<ButtonProps> = ({
   if (isEncrypted)
     return (
       <div className="mb-5">
-        <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+        <div className="flex flex-col rounded-2xl border border-opacity-10 overflow-hidden bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
           <div className="border-gray-200 text-center text-white bg-gray-700 text-xl w-full h-50 m-auto p-10">
             <Icon size="5x" name="lock" />
             <p className="w-1/2 m-auto text-center text-white mt-4">
@@ -272,7 +282,7 @@ export const Card: FC<ButtonProps> = ({
     );
   return (
     <div className="mb-5">
-      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+      <div className="flex flex-col rounded-2xl border pr-8 pl-8 pb-8 border-opacity-10 bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
         {fileUrl && (
           <div className="flex justify-center flex-shrink-0 my-6">
             {fileType === 'image' && <img className="w-auto max-w-2xl rounded-xl" src={fileUrl} alt="" />}
@@ -339,28 +349,49 @@ export const Card: FC<ButtonProps> = ({
 
               { !MODERATION_ENABLED && <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} /> }
 
-              { MODERATION_ENABLED && <div className="mr-5">
+              { MODERATION_ENABLED && <div className="mr-5 relative">
                 {!reporting && !hasReported && 
                   <Icon onClick={showAmountReportModal} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
                 }
 
-                <div className="reportAmount hidden absolute p-3 mt-1 rounded right-2" style={{
+                <div className="reportAmount hidden absolute p-3 mt-1 rounded" style={{
                   backgroundColor: "rgb(41 25 67 / 70%)",
-                  border: "1px solid #473a5f"
+                  border: "1px solid #473a5f",
+                  width:"450px",
+                  right:"0px",
                 }}>
                   
                   {!reporting && <>
                     <div>
-                      <input name="reportAmount" onChange={(e) => setReportingAmount(e.target.value)} className="text-white rounded" style={{
-                        background: "#452e6d",
-                        padding: "5px 7px"
-                      }} />
+                      <div>
+                        <label htmlFor="reportAmount" className="text-white rounded font-bold">Stake Amount To Report: </label>
+                        <input name="reportAmount" onChange={(e) => setReportingAmount(e.target.value)} className="text-white rounded ml-2" style={{
+                          background: "#452e6d",
+                          padding: "5px 7px"
+                        }} />
+                      </div>
+                      
+                      <div className="block text-white text-sm mt-2 font-light mb-3">
+                        {reportErc20Available && Math.round(+ethers.utils.formatEther(reportErc20Available) * 1e2) / 1e2} {reportErc20Symbol} available
+                      </div>
+
+                      <div className="mb-3">
+                        <input
+                          id="file"
+                          style={{display: 'none'}}
+                          onChange={(event) => handleFileSelection(event)}
+                          name="file"
+                          type="file"
+                          ref={fileInput}
+                        />
+                        <label htmlFor="reportAmount" className="text-white rounded font-bold">Proof Screenshot: </label>
+                        <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
+                        <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen'}</small>
+                      </div>
+
                       <button onClick={reportClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
                         Report!
                       </button>                              
-                    </div>
-                    <div className="block text-white text-sm mt-2 font-light">
-                      {reportErc20Available && Math.round(+ethers.utils.formatEther(reportErc20Available) * 1e2) / 1e2} {reportErc20Symbol} available
                     </div>
                   </>
                   }

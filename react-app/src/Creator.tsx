@@ -18,7 +18,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS} from './Config';
+import {REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -398,7 +398,7 @@ export function Creator() {
           reactionErc20Available={reactionErc20Available}
           reactionErc20Symbol={reactionErc20Symbol}
           onReact={(amount, callback) => { react(content, amount, callback) }}
-          onReportForModeration={(amount, callback) => { reportForModeration(content, amount, callback) }}
+          onReportForModeration={(amount, file, callback) => { reportForModeration(content, amount, file, callback) }}
           reportErc20Available={reportErc20Available}
           reportErc20Symbol={reportErc20Symbol}
           hasReacted={hasReacted(content)}
@@ -423,9 +423,32 @@ export function Creator() {
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
   }
 
-  async function reportForModeration(content, amount, callback){
+  async function reportForModeration(content, amount, file, callback){
     if(!MODERATION_ENABLED) return;
     if (!web3utils.isSignedUp()) return;
+
+    let arweave_id = '';
+    let screenshot = '';
+    if(file != undefined){
+      web3utils.setIsWaiting('Uploading screenshot to Arweave...');
+      const formData = new FormData();
+      const buf = await file.arrayBuffer();
+      let bytes = new Uint8Array(buf);
+      formData.append(
+        'file',
+        new Blob([bytes], {
+          type: file.type,
+        })
+      );
+        
+      const response = await fetch(ARWEAVE_URI + '/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      arweave_id = await response.text();
+      screenshot = ARWEAVE_GATEWAY + arweave_id;
+      web3utils.setIsWaiting(false);
+    }
 
     try {
       // Allowance
@@ -449,9 +472,9 @@ export function Creator() {
         }
       }
       const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(context.library!.getSigner());
-      await moderationTokenContract.reportContent(content.id, stakingAmount);
+      await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
       moderationTokenContract.once("ContentReported", async (reporter, contentId, staked) => {
-        notificationHandler.setNotification({description: 'THanks for reporting!', type: 'success'});
+        notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
         callback();
       });
     } catch (error: any) {

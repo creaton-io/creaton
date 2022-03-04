@@ -109,7 +109,7 @@ export const Moderation: FC = () => {
     }
 
     return (
-        <div className="max-w-5xl my-0 mx-auto text-center text-center">
+        <div className="max-w-5xl my-0 mx-auto text-center text-center text-white">
             {moderationData && moderationData.length == 0 && <>
                 <h1 className="text-5xl pt-12 pb-6 pl-6">Become a Juror</h1>
                 <p className="text-xl opacity-50 pl-6">

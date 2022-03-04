@@ -10,9 +10,11 @@ export function handleContentReported(event: ContentReported): void {
         reportedContent.content = event.params.contentId;
         reportedContent.reporters = [event.transaction.from];
         reportedContent.staked = event.params.staked;
+        reportedContent.fileProofs = [event.transaction.fileProof];
     }else{
         reportedContent.reporters.push(event.transaction.from);
         reportedContent.staked = reportedContent.staked.plus(event.params.staked);
+        reportedContent.fileProofs.push(event.transaction.fileProof);
     }
 
     reportedContent.save();

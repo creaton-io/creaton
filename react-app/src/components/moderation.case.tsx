@@ -18,6 +18,7 @@ export const Case: FC<CaseProps> = ({ moderationCase }) => {
     const notificationHandler = useContext(NotificationHandlerContext);
     const [userAddress, setUserAddress] = useState('');
     const [checkedOK, setCheckedOK] = useState(true);
+    const [descriptionReactElement, setDescriptionReactElement] = useState('');
 
     useEffect(() => {
         (async function iife() {
@@ -75,6 +76,8 @@ export const Case: FC<CaseProps> = ({ moderationCase }) => {
                         </div>
                     </div>
                     
+                    { descriptionReactElement }
+
                     <p className="text-left text-white">
                         { moderationCase.decision === "undefined" && <>
                             <form onSubmit={handleVote} className="mt-5 m-auto text-white">

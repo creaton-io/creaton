@@ -130,11 +130,11 @@ describe("Moderation system", () => {
             const contentId: string = sampleContentId;
 
             await erc20Contract.approve(moderationContract.address, stake.mul(2));
-            await expect(moderationContract.reportContent(contentId, stake))
+            await expect(moderationContract.reportContent(contentId, stake, 'https://arweave.net/hX29IJLEl6PFY-CxHqEJjrQ8FYALJ54wGc1f7LOQ6lA'))
                 .to.emit(moderationContract, "ContentReported")
-                .withArgs(owner.address, contentId, stake);
+                .withArgs(owner.address, contentId, stake, 'https://arweave.net/hX29IJLEl6PFY-CxHqEJjrQ8FYALJ54wGc1f7LOQ6lA');
 
-            await expect(moderationContract.reportContent(contentId, stake))
+            await expect(moderationContract.reportContent(contentId, stake, ''))
                 .to.emit(moderationContract, "ContentReported")
             expect(await moderationContract.reported(contentId)).to.be.equal(stake.mul(2));
         });
@@ -145,7 +145,7 @@ describe("Moderation system", () => {
             const contentId: string = sampleContentId;
 
             await erc20Contract.approve(moderationContract.address, stake);
-            await expect(moderationContract.reportContent(contentId, stake))
+            await expect(moderationContract.reportContent(contentId, stake, ''))
                 .to.emit(moderationContract, "CaseBuilt")
                 .withArgs(contentId);
 
@@ -160,7 +160,7 @@ describe("Moderation system", () => {
 
             // Report again an check there's a jury assigned
             await erc20Contract.connect(alice).approve(moderationContract.address, stake);
-            let tx = await moderationContract.connect(alice).reportContent(contentId, stake);
+            let tx = await moderationContract.connect(alice).reportContent(contentId, stake, '');
             let receipt = await tx.wait();
             receipt = receipt.events?.filter((x: any) => {return x.event == "JuryAssigned"})[0];
             expect(receipt.args.contentId).to.be.equal(contentId);
@@ -175,7 +175,7 @@ describe("Moderation system", () => {
             const contentId: string = sampleContentId;
 
             // Not enough allowance
-            await expect(moderationContract.reportContent(contentId, stake)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+            await expect(moderationContract.reportContent(contentId, stake, '')).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
 
             // Reassigning a jury when not assigned
             await expect(moderationContract.reassignInactiveJurors(contentId)).to.be.revertedWith("Moderation: Case status must be ASSIGNED");
@@ -201,7 +201,7 @@ describe("Moderation system", () => {
             const stake: BigNumber = ethers.utils.parseEther("5000");
             const contentId: string = sampleContentId;
             await erc20Contract.approve(moderationContract.address, stake);
-            let tx = await moderationContract.reportContent(contentId, stake);
+            let tx = await moderationContract.reportContent(contentId, stake, '');
             let receipt = await tx.wait();
             receipt = receipt.events?.filter((x: any) => {return x.event == "JuryAssigned"})[0];
             expect(receipt.args.contentId).to.be.equal(contentId);
@@ -245,7 +245,7 @@ describe("Moderation system", () => {
             const stake: BigNumber = ethers.utils.parseEther("5000");
             const contentId: string = sampleContentId;
             await erc20Contract.approve(moderationContract.address, stake);
-            await expect(moderationContract.reportContent(contentId, stake)).to.emit(moderationContract, "JuryAssigned");
+            await expect(moderationContract.reportContent(contentId, stake, '')).to.emit(moderationContract, "JuryAssigned");
         });
 
         it("Jurors should be able to vote and case should conclude once the jury ruled", async () => {

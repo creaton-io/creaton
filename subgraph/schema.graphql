@@ -159,6 +159,7 @@ type ReportedContent @entity {
   content: Content!
   staked: BigInt!
   reporters: [Bytes!]
+  fileProofs: [String!]
 }
 
 type Juror @entity {

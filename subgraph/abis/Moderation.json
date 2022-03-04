@@ -89,6 +89,12 @@
         "internalType": "uint256",
         "name": "staked",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "fileProof",
+        "type": "string"
       }
     ],
     "name": "ContentReported",
@@ -616,6 +622,11 @@
         "internalType": "uint256",
         "name": "_stake",
         "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_fileProof",
+        "type": "string"
       }
     ],
     "name": "reportContent",

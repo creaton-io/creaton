@@ -71,9 +71,9 @@ dataSources:
     name: Moderation
     network: mumbai
     source:
-      address: "0x4833b5927Db8E2A1C217D3a1ED1bf7fD32d1B308"
+      address: ""
       abi: Moderation
-      startBlock: 25331642
+      startBlock: 
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -87,7 +87,7 @@ dataSources:
         - name: Moderation
           file: ./abis/Moderation.json
       eventHandlers:
-        - event: ContentReported(address,string,uint256)
+        - event: ContentReported(address,string,uint256,string)
           handler: handleContentReported
         - event: JurorAdded(address,uint256)
           handler: handleJurorAdded
