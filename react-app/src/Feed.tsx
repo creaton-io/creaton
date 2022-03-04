@@ -90,14 +90,23 @@ export function Creator() {
     pollInterval: 10000
   });
 
+
+  // Here we are taking the value of the superfluid variable
+  // stored in context named SuperfluidContext...
   const superfluid = useContext(SuperfluidContext);
   const [usdcx, setUsdcx] = useState(0)
   const {currentCreator} = useCurrentCreator()
 
+  // These are declarations of some states
   const [reactions, setReactions] = useState<Array<any>>();
   const [reactionErc20Available, setReactionErc20Available] = useState<string>();
   const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
 
+  // The function getUsdcx() => which is called later inside useEffect
+  // which justifies it will be called on component remount. Or when
+  // the value of context of superfluid variables changes.
+  // In this function we set the state usdx with balance of usdcx stored inside 
+  // the earlier superfluid variable.
   async function getUsdcx() {
     if (!superfluid)
       return;
