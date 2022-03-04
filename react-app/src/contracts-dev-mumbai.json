@@ -6018,6 +6018,12 @@
             "internalType": "uint256",
             "name": "staked",
             "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "fileProof",
+            "type": "string"
           }
         ],
         "name": "ContentReported",
@@ -6545,6 +6551,11 @@
             "internalType": "uint256",
             "name": "_stake",
             "type": "uint256"
+          },
+          {
+            "internalType": "string",
+            "name": "_fileProof",
+            "type": "string"
           }
         ],
         "name": "reportContent",
@@ -6701,6 +6712,6 @@
         "type": "function"
       }
     ],
-    "address": "0x4833b5927Db8E2A1C217D3a1ED1bf7fD32d1B308"
+    "address": "0x27ADf6C54F23e14c1923bF99E24b097BC6e36c60"
   }
 }
