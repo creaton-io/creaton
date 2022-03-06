@@ -68,11 +68,11 @@ export const resolveIconAlias = (name: string): IconProp => (
 
 // @ts-ignore
 export const initFontAwesome = () => {
-// @ts-ignore
+  // @ts-ignore
     library.add(fas, ...fasIcons)
-// @ts-ignore
+    // @ts-ignore
     library.add(far, ...farIcons)
-// @ts-ignore
+    // @ts-ignore
     library.add(fab, ...fabIcons)
 }
 
