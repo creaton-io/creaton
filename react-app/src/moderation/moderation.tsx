@@ -45,12 +45,19 @@ export const Moderation: FC = () => {
                 cases {
                     id
                     decision
+                    timestamp
                     moderationCase {
                         id
                         pendingVotes
                         content {
                             id
                             name
+                            reported {
+                                id
+                                staked
+                                reporters
+                                fileProofs
+                            }
                         }
                     }
                 }
@@ -62,7 +69,7 @@ export const Moderation: FC = () => {
     useEffect(() => {
         if (contentsQuery.data && contentsQuery.data) {
             if(contentsQuery.data.jurors.length > 0){
-                setModerationData(contentsQuery.data.jurors);
+                setModerationData(contentsQuery.data.jurors[0]);
             }
         }
     }, [contentsQuery]);
@@ -110,10 +117,10 @@ export const Moderation: FC = () => {
 
     return (
         <div className="max-w-5xl my-0 mx-auto text-center text-center text-white">
-            {moderationData && moderationData.length == 0 && <>
+            {!moderationData && <>
                 <h1 className="text-5xl pt-12 pb-6 pl-6">Become a Juror</h1>
                 <p className="text-xl opacity-50 pl-6">
-                    Become a Juror by staking some $CREATE and get rewarded for your opinion!
+                    Become a Juror by staking some $CREATE and get rewarded for contributing!
                 </p>
                 {!becomeAJurorVisible && <Button className="mt-5" onClick={() => setBecomeAJurorVisible(true)} label="Become a Juror"/>  }
 
@@ -127,15 +134,15 @@ export const Moderation: FC = () => {
                 }
             </>}
 
-            {moderationData && moderationData.length > 0 && <div className="text-white">
+            {moderationData && <div className="text-white">
                 <p className="text-5xl pt-12 pb-6 pl-6 m-auto">Moderation Panel</p>
 
-                { moderationData[0].cases.length == 0 && <p className="text-xl opacity-50 pl-6">No cases reported yet</p> }
+                { moderationData.cases && moderationData.cases.length == 0 && <p className="text-xl opacity-50 pl-6">No cases reported yet</p> }
 
-                { moderationData[0].cases.length > 0 && <>
+                { moderationData.cases && moderationData.cases.length > 0 && <>
                     <p className="text-xl opacity-50 pl-6">Cases reported</p>
-                    { moderationData[0].cases.map((c,index) => {
-                        return <Case moderationCase={c} key={index} />
+                    { moderationData.cases.map((c,index) => {
+                        return <Case jurorDecision={c} key={index} />
                     })}
                 </> }
             </div>}

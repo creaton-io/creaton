@@ -10,11 +10,17 @@ export function handleContentReported(event: ContentReported): void {
         reportedContent.content = event.params.contentId;
         reportedContent.reporters = [event.transaction.from];
         reportedContent.staked = event.params.staked;
-        reportedContent.fileProofs = [event.transaction.fileProof];
+        reportedContent.fileProofs = [event.params.fileProof];
     }else{
-        reportedContent.reporters.push(event.transaction.from);
         reportedContent.staked = reportedContent.staked.plus(event.params.staked);
-        reportedContent.fileProofs.push(event.transaction.fileProof);
+
+        let reporters = reportedContent.reporters;
+        reporters.push(event.transaction.from);
+        reportedContent.reporters = reporters;
+
+        let fileProofs = reportedContent.fileProofs;
+        fileProofs.push(event.params.fileProof);
+        reportedContent.fileProofs = fileProofs;
     }
 
     reportedContent.save();
@@ -54,10 +60,10 @@ export function handleCaseBuilt(event: CaseBuilt): void {
 export function handleJuryAssigned(event: JuryAssigned): void {
     let jurorAddress: Bytes;
     let jury = event.params.jury;
-    let jurorsConcat: string;
-    for(let i=0; i<jury.length; i++){
+    let juryHex: Array<string> = [];
+    for(let i=0; i<event.params.jury.length; i++){
         jurorAddress = jury.pop();
-        jurorsConcat = jurorsConcat + "-" + jurorAddress.toHex();
+        juryHex.push(jurorAddress.toHex());
         let jurorDecisionId = jurorAddress.toHex() + "-" + event.params.contentId;
         let entity = JurorDecision.load(jurorDecisionId);
         if(entity === null){
@@ -76,7 +82,7 @@ export function handleJuryAssigned(event: JuryAssigned): void {
 
     let mCase = ModerationCase.load("case-" + event.params.contentId);
     mCase.status = "jury assigned";
-    mCase.jurors = jurorsConcat;
+    mCase.jurors = juryHex.join('-');
     mCase.jurySize = BigInt.fromI32(event.params.jury.length);
     mCase.pendingVotes = BigInt.fromI32(event.params.jury.length);
     mCase.save();
@@ -118,7 +124,7 @@ export function handleJurorVoted(event: JurorVoted): void {
     let jurorDecisionId = event.params.juror.toHex() + "-" + event.params.contentId;
     let jDecision = JurorDecision.load(jurorDecisionId);
     let decision = "OK";
-    if(event.params.vote == BigInt.fromI32(2)){
+    if(event.params.vote == BigInt.fromI32(3)){
         decision = "KO";
     }
     jDecision.decision = decision;

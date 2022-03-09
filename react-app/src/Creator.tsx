@@ -463,7 +463,7 @@ export function Creator() {
 
       const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
       if(stakingAmount.gt(allowance)){
-        web3utils.setIsWaiting('Allowance...');
+        web3utils.setIsWaiting(true);
         let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
         await tx.wait();
         let receipt = await tx.wait();
@@ -473,7 +473,7 @@ export function Creator() {
         }
       }
 
-      web3utils.setIsWaiting('Reporting...');
+      web3utils.setIsWaiting(true);
       const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(context.library!.getSigner());
       await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
       moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {

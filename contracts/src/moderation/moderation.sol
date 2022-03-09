@@ -137,11 +137,16 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         require(_vote >= JUROR_DECISION_OK && _vote <= JUROR_DECISION_KO, "Moderation: Invalid vote value");
         require(jurors[_juror].staked > 0, "Moderation: Address is not a Juror");
         require(cases[_contentId].status == CASE_STATUS_JURY_ASSIGNED, "Moderation: Case status must be ASSIGNED");
+        require(cases[_contentId].pendingVotes >= 0, "Moderation: No pending votes");
 
         cases[_contentId].jurorDecision[_juror] = _vote;
         cases[_contentId].pendingVotes--;
         jurors[_juror].status = JUROR_STATUS_IDLE;
         
+        if(cases[_contentId].pendingVotes == 0){
+            closeCase(_contentId);
+        }
+
         emit JurorVoted(_juror, _contentId, _vote);
     }
 
@@ -183,7 +188,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     }
 
     function closeCase(string calldata _contentId)
-        external
+        public
     {
         require(cases[_contentId].status == CASE_STATUS_JURY_ASSIGNED, "Moderation: Case status must be ASSIGNED");
         require(cases[_contentId].pendingVotes == 0, "Moderation: All jury must vote");
@@ -260,7 +265,6 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         }while(cases[_contentId].jurySize < minJurySize);
 
         cases[_contentId].status = CASE_STATUS_JURY_ASSIGNED;
-
         emit JuryAssigned(_contentId, _selectedJury, block.timestamp);
     }
 

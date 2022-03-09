@@ -261,11 +261,16 @@ describe("Moderation system", () => {
                 .withArgs(alice.address, contentId, voteKO);
 
             await expect(moderationContract.connect(bob).vote(contentId, voteOK))
-                .to.emit(moderationContract, "JurorVoted");
+                // .to.emit(moderationContract, "JurorVoted");
+                .to.emit(moderationContract, "CaseClosed");
 
-            await expect(moderationContract.closeCase(contentId))
-                .to.emit(moderationContract, "CaseClosed")
-                .withArgs(contentId, 2, 1)
+            let error: any;
+            try {
+                await moderationContract.closeCase(contentId);
+            } catch(e){
+                error = e;
+            }
+            expect(error.message).to.be.equal("VM Exception while processing transaction: reverted with reason string 'Moderation: Case status must be ASSIGNED'");
         });
 
         it("Should fail voting a non-juror or a wrong vote", async () => {
