@@ -4,7 +4,6 @@ import { Web3Provider } from "@ethersproject/providers";
 import { gql, useQuery } from "@apollo/client";
 import { Token } from "../components/nftlance.token";
 
-
 export const MytokensRequests: FC = () => {
     const web3Context = useWeb3React<Web3Provider>();
     const [userAddress, setUserAddress] = useState("");
