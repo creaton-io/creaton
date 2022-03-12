@@ -18,9 +18,14 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     uint256 public caseStakedThreshold;
     uint8 public minJurySize;
     uint8 public jurorMaxDaysDeciding;
-    uint8 public jurorSlashingPenalty;
+    uint8 public jurorPenaltyPercentage;
+    uint8 public jurorProfitPercentage;
+    uint8 public reporterPenaltyPercentage;
+    uint8 public reporterProfitPercentage;
 
-    uint256 public balance;
+    uint256 public treasuryBalance;
+    uint256 public jurorsBalance;
+    uint256 public reportersBalance;
 
     uint8 public constant JUROR_STATUS_IDLE = 1;
     uint8 public constant JUROR_STATUS_ACTIVE = 2;
@@ -28,6 +33,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     uint8 public constant CASE_STATUS_NEW = 1;
     uint8 public constant CASE_STATUS_JURY_ASSIGNED = 2;
     uint8 public constant CASE_STATUS_RULED = 3;
+    uint8 public constant CASE_STATUS_REWARDED = 4;
 
     uint8 public constant JUROR_DECISION_UNDEFINED = 1;
     uint8 public constant JUROR_DECISION_OK = 2;
@@ -36,6 +42,13 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     struct Juror {
         uint256 staked;
         uint8 status;
+    }
+
+    struct Reported {
+        uint256 staked;
+        uint256 reportersSize;
+        mapping(uint256 => address) reporters;
+        mapping(address => uint256) stakedByReporter;
     }
 
     struct Case {
@@ -54,9 +67,8 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
 
     EnumerableSetUpgradeable.AddressSet private jurorsAddress;
 
+    mapping (string => Reported) public reported; // contentId -> Reported
     mapping (address => Juror) public jurors; // All jurors in the system
-    mapping (string => uint256) public reported; // (contentId -> staked) Staked amount in every reported content
-    mapping (address => uint256) public reporters; // (address -> staked) Addresses that staked a certain amount in order that report content
     mapping (string => Case) public cases; // contentId -> Case
 
     event Initialized(address stakingToken);
@@ -67,10 +79,21 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     event ContentReported(address reporter, string contentId, uint256 staked, string fileProof);
     event CaseBuilt(string contentId);
     event CaseClosed(string contentId, uint8 votedOK, uint8 votedKO);
+    event CaseRewardsDistributed(string contentId, uint256 juryRewards, uint256 reportersRewards, uint256 reportersPenalty, uint256 treasuryBalance);
+
     event JuryAssigned(string contentId, address[] jury, uint256 timestamp);
     event JuryReassigned(string contentId, address[] jury, uint256 timestamp);
 
-    function initialize(address _stakingToken, uint256 _caseStakedThreshold, uint8 _minJurySize, uint8 _jurorMaxDaysDeciding, uint8 _jurorSlashingPenalty) 
+    function initialize(
+        address _stakingToken, 
+        uint256 _caseStakedThreshold, 
+        uint8 _minJurySize, 
+        uint8 _jurorMaxDaysDeciding, 
+        uint8 _jurorPenaltyPercentage, 
+        uint8 _jurorProfitPercentage, 
+        uint8 _reporterPenaltyPercentage, 
+        uint8 _reporterProfitPercentage
+    ) 
         external 
         initializer 
     {
@@ -82,19 +105,33 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         caseStakedThreshold = _caseStakedThreshold;
         minJurySize = _minJurySize;
         jurorMaxDaysDeciding = _jurorMaxDaysDeciding;
-        jurorSlashingPenalty = _jurorSlashingPenalty;
+        jurorPenaltyPercentage = _jurorPenaltyPercentage;
+        jurorProfitPercentage = _jurorProfitPercentage;
+        reporterPenaltyPercentage = _reporterPenaltyPercentage;
+        reporterProfitPercentage = _reporterProfitPercentage;
 
         emit Initialized(stakingToken);
     }
 
-    function setConfig(uint256 _caseStakedThreshold, uint8 _minJurySize, uint8 _jurorMaxDaysDeciding, uint8 _jurorSlashingPenalty)
+    function setConfig(
+        uint256 _caseStakedThreshold, 
+        uint8 _minJurySize, 
+        uint8 _jurorMaxDaysDeciding, 
+        uint8 _jurorPenaltyPercentage, 
+        uint8 _jurorProfitPercentage, 
+        uint8 _reporterPenaltyPercentage, 
+        uint8 _reporterProfitPercentage
+    )
         external 
         onlyOwner
     {
         caseStakedThreshold = _caseStakedThreshold;
         minJurySize = _minJurySize;
         jurorMaxDaysDeciding = _jurorMaxDaysDeciding;
-        jurorSlashingPenalty = _jurorSlashingPenalty;
+        jurorPenaltyPercentage = _jurorPenaltyPercentage;
+        jurorProfitPercentage = _jurorProfitPercentage;
+        reporterPenaltyPercentage = _reporterPenaltyPercentage;
+        reporterProfitPercentage = _reporterProfitPercentage;
     }
 
     function addJuror(uint256 _stake) 
@@ -120,12 +157,19 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         nonReentrant
     {
         IERC20Upgradeable(stakingToken).safeTransferFrom(_msgSender(), address(this), _stake);
-        reported[_contentId] += _stake;
-        reporters[_msgSender()] += _stake;
+
+        Reported storage r = reported[_contentId];
+        r.staked += _stake;
+
+        if(r.stakedByReporter[_msgSender()] == 0){
+            r.reporters[r.reportersSize] = _msgSender();
+            r.reportersSize += 1;
+        }
+        r.stakedByReporter[_msgSender()] += _stake;
 
         emit ContentReported(_msgSender(), _contentId, _stake, _fileProof);
 
-        if(reported[_contentId] >= caseStakedThreshold){
+        if(r.staked >= caseStakedThreshold){
             _buildCase(_contentId);
         }
     }
@@ -208,7 +252,17 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
             }
         }
 
+        _distributeRewards(_contentId, _votedOK > _votedKO);
+
         emit CaseClosed(_contentId, _votedOK, _votedKO);
+    }
+
+    function fundTreasury(uint256 _amount)
+        external
+        onlyOwner
+    {
+        IERC20Upgradeable(stakingToken).safeTransferFrom(owner(), address(this), _amount);
+        treasuryBalance += _amount;
     }
 
     function withdraw()
@@ -216,14 +270,22 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         onlyOwner
         nonReentrant
     {
-        IERC20Upgradeable(stakingToken).safeTransfer(owner(), balance);
-        balance = 0;
+        IERC20Upgradeable(stakingToken).safeTransfer(owner(), treasuryBalance);
+        treasuryBalance = 0;
+    }
+
+    function getUserReportStakedByContent(string calldata _contentId, address _user)
+        external
+        view
+        returns(uint256)
+    {
+        return reported[_contentId].stakedByReporter[_user];
     }
 
     function _buildCase(string calldata _contentId)
         internal
     {
-        require(reported[_contentId] >= caseStakedThreshold, "Moderation: Reported content didn't reach the threshold");
+        require(reported[_contentId].staked >= caseStakedThreshold, "Moderation: Reported content didn't reach the threshold");
 
         if(cases[_contentId].status == 0){
             Case storage c = cases[_contentId];
@@ -271,8 +333,8 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     function _slashAndRemoveJuror(address _juror)
         internal
     {
-        uint256 _penalty = (jurors[_juror].staked*jurorSlashingPenalty)/100;
-        balance += _penalty;
+        uint256 _penalty = (jurors[_juror].staked*jurorPenaltyPercentage)/100;
+        treasuryBalance += _penalty;
         jurors[_juror].staked -= _penalty;
 
         emit JurorSlashed(_juror, _penalty);
@@ -301,6 +363,57 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
     {
         uint256 _random = uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp, block.number, jurorsAddress.values(), _attempts)));
         return _random % jurorsAddress.length();
+    }
+
+    function _distributeRewards(string calldata _contentId, bool _isContentOK)
+        internal
+    {
+        require(cases[_contentId].status == CASE_STATUS_RULED, "Moderation: Case status must be CLOSED");
+
+        cases[_contentId].status = CASE_STATUS_REWARDED;
+
+        // Reward Jury with the treasury because ruled
+        uint256 _totalJuryRewards = 0;
+        for(uint256 _i=0; _i<cases[_contentId].jurySize; _i++){
+            address _juror = cases[_contentId].jury[_i];
+            uint256 _jurorReward = (jurors[_juror].staked*jurorProfitPercentage)/100;
+            jurors[_juror].staked += _jurorReward;
+            _totalJuryRewards += _jurorReward;
+        }
+
+        // Reward/Penalize the reporters
+        uint256 _reporterReward = 0;
+        uint256 _totalReportersRewards = 0;
+        uint256 _totalReportersPenalty = 0;
+        address _reporter = address(0);
+        for(uint256 _i=0; _i<reported[_contentId].reportersSize; _i++){
+            _reporter = reported[_contentId].reporters[_i];
+            if(_isContentOK){ // Apply penalty to the reporter because content is OK
+                _reporterReward = (reported[_contentId].stakedByReporter[_reporter]*reporterPenaltyPercentage)/100;
+                _totalReportersPenalty += _reporterReward;
+                reported[_contentId].stakedByReporter[_reporter] -= _reporterReward;
+            }else{ // Reward the reporter because content will be removed
+                _reporterReward = (reported[_contentId].stakedByReporter[_reporter]*reporterProfitPercentage)/100;
+                _totalReportersRewards += _reporterReward;
+                reported[_contentId].stakedByReporter[_reporter] += _reporterReward;
+            }
+        }
+
+        treasuryBalance += _totalReportersPenalty;
+
+        uint256 _totalRewards = _totalJuryRewards+_totalReportersRewards;
+        if(_totalRewards >= treasuryBalance){
+            revert("Not enough balance in the treasury");
+        }
+        treasuryBalance -= _totalRewards;
+
+        // Unstake reporter
+        for(uint256 _i=0; _i<reported[_contentId].reportersSize; _i++){
+            _reporter = reported[_contentId].reporters[_i];
+            IERC20Upgradeable(stakingToken).safeTransfer(_reporter, reported[_contentId].stakedByReporter[_reporter]);
+        }
+
+        emit CaseRewardsDistributed(_contentId, _totalJuryRewards, _totalReportersRewards, _totalReportersPenalty, treasuryBalance);
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */

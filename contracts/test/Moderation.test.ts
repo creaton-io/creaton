@@ -6,7 +6,10 @@ import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 const MIN_JURY_SIZE: number = 3;
 const JUROR_MAX_DAYS_DECIDING: number = 2;
-const JUROR_SLASHING_PENALTY: number = 5;
+const JUROR_PENALTY_PERCENTAGE: number = 5;
+const JUROR_PROFIT_PERCENTAGE: number = 5;
+const REPORTER_PENALTY_PERCENTAGE: number = 5;
+const REPORTER_PROFIT_PERCENTAGE: number = 5;
 const CASE_STAKED_THRESHOLD: BigNumber = ethers.utils.parseEther("5000");
 
 const sampleContentId: string = "0x17f6989baf123ec9571adaafccf0b69ae6b1ef3a-0";
@@ -37,7 +40,7 @@ describe("Moderation system", () => {
         // Deploy a dummy ERC20 token to be used later
         const dummyErc20Name = "DummyErc20";
         const contractFactory = await ethers.getContractFactory(dummyErc20Name);
-        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("100000"));
+        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000000"));
 
         expect(erc20Contract.address).to.be.properAddress;
         expect(await erc20Contract.name()).to.be.equal(dummyErc20Name);
@@ -63,8 +66,17 @@ describe("Moderation system", () => {
         moderationContract = await contractModerationFactory.deploy();
         expect(moderationContract.address).to.be.properAddress;
 
-        await expect(moderationContract.initialize(erc20Contract.address, CASE_STAKED_THRESHOLD, MIN_JURY_SIZE, JUROR_MAX_DAYS_DECIDING, JUROR_SLASHING_PENALTY))
-            .to.emit(moderationContract, "Initialized");
+        await expect(moderationContract.initialize(
+            erc20Contract.address, 
+            CASE_STAKED_THRESHOLD, 
+            MIN_JURY_SIZE, 
+            JUROR_MAX_DAYS_DECIDING, 
+            JUROR_PENALTY_PERCENTAGE,
+            JUROR_PROFIT_PERCENTAGE,
+            REPORTER_PENALTY_PERCENTAGE,
+            REPORTER_PROFIT_PERCENTAGE
+        ))
+        .to.emit(moderationContract, "Initialized");
     });
 
     describe("Court formation", async () => {
@@ -136,7 +148,20 @@ describe("Moderation system", () => {
 
             await expect(moderationContract.reportContent(contentId, stake, ''))
                 .to.emit(moderationContract, "ContentReported")
-            expect(await moderationContract.reported(contentId)).to.be.equal(stake.mul(2));
+
+            let reported = await moderationContract.reported(contentId);
+            expect(reported.staked).to.be.equal(stake.mul(2));
+            expect(reported.reportersSize).to.be.equal(1);
+            expect(await moderationContract.getUserReportStakedByContent(contentId, owner.address)).to.be.equal(stake.mul(2));
+
+            await erc20Contract.connect(alice).approve(moderationContract.address, stake);
+            await expect(moderationContract.connect(alice).reportContent(contentId, stake, ''))
+            .to.emit(moderationContract, "ContentReported");
+            
+            reported = await moderationContract.reported(contentId);
+            expect(reported.staked).to.be.equal(stake.mul(3));
+            expect(reported.reportersSize).to.be.equal(2);
+            expect(await moderationContract.getUserReportStakedByContent(contentId, alice.address)).to.be.equal(stake); 
         });
 
         it("Should set to dispute the content and assign jurors once threshold is hit and there's enough jurors", async () => {
@@ -244,8 +269,8 @@ describe("Moderation system", () => {
             // Report
             const stake: BigNumber = ethers.utils.parseEther("5000");
             const contentId: string = sampleContentId;
-            await erc20Contract.approve(moderationContract.address, stake);
-            await expect(moderationContract.reportContent(contentId, stake, '')).to.emit(moderationContract, "JuryAssigned");
+            await erc20Contract.connect(addrs[0]).approve(moderationContract.address, stake);
+            await expect(moderationContract.connect(addrs[0]).reportContent(contentId, stake, '')).to.emit(moderationContract, "JuryAssigned");
         });
 
         it("Jurors should be able to vote and case should conclude once the jury ruled", async () => {
@@ -259,9 +284,12 @@ describe("Moderation system", () => {
             await expect(moderationContract.connect(alice).vote(contentId, voteKO))
                 .to.emit(moderationContract, "JurorVoted")
                 .withArgs(alice.address, contentId, voteKO);
+            
+            const fundingAmount = ethers.utils.parseEther("100000");
+            await expect(erc20Contract.approve(moderationContract.address, fundingAmount)).to.emit(erc20Contract, "Approval");
+            await moderationContract.fundTreasury(fundingAmount);
 
-            await expect(moderationContract.connect(bob).vote(contentId, voteOK))
-                // .to.emit(moderationContract, "JurorVoted");
+            await expect(moderationContract.connect(bob).vote(contentId, voteKO))
                 .to.emit(moderationContract, "CaseClosed");
 
             let error: any;
@@ -289,10 +317,92 @@ describe("Moderation system", () => {
                     .to.be.revertedWith("Moderation: Case status must be ASSIGNED");
         });
 
-        // TODO:
-        // it("Should auto-compound rewards to juror when ruled and staked to reporters", async () => {
-        //     expect(false).to.be.true;
-        // });
+        it("Should fail rewarding if there is no balance in the treasury", async () => {
+            const contentId: string = sampleContentId;
+            const voteOK: number = 2;
+            const voteKO: number = 3;
+            await expect(moderationContract.vote(contentId, voteOK))
+                .to.emit(moderationContract, "JurorVoted");
+            await expect(moderationContract.connect(alice).vote(contentId, voteKO))
+                .to.emit(moderationContract, "JurorVoted");
+            
+            let error: any;
+            try {
+                await expect(moderationContract.connect(bob).vote(contentId, voteKO))
+                    .to.emit(moderationContract, "CaseClosed");
+            } catch(e){
+                error = e;
+            }
+            expect(error.message).to.be.equal("VM Exception while processing transaction: reverted with reason string 'Not enough balance in the treasury'");
+        });
+
+        it("Jurors should get rewarded and reporters penalized if OK", async () => {
+            const contentId: string = sampleContentId;
+            const voteOK: number = 2;
+
+            const ownerInitialBalance = (await moderationContract.jurors(owner.address)).staked;
+            const aliceInitialBalance = (await moderationContract.jurors(alice.address)).staked;
+            const bobInitialBalance = (await moderationContract.jurors(bob.address)).staked;
+            const reporterInitialBalance = await moderationContract.getUserReportStakedByContent(contentId, addrs[0].address);
+
+            await expect(moderationContract.vote(contentId, voteOK))
+                .to.emit(moderationContract, "JurorVoted");
+            await expect(moderationContract.connect(alice).vote(contentId, voteOK))
+                .to.emit(moderationContract, "JurorVoted");
+            
+            const fundingAmount = ethers.utils.parseEther("100000");
+            await expect(erc20Contract.approve(moderationContract.address, fundingAmount))
+                .to.emit(erc20Contract, "Approval");
+            await moderationContract.fundTreasury(fundingAmount);
+
+            await expect(moderationContract.connect(bob).vote(contentId, voteOK))
+                .to.emit(moderationContract, "CaseClosed");
+
+            const ownerFinalBalance = (await moderationContract.jurors(owner.address)).staked;
+            const aliceFinalBalance = (await moderationContract.jurors(alice.address)).staked;
+            const bobFinalBalance = (await moderationContract.jurors(bob.address)).staked;
+            const reporterFinalBalance = await moderationContract.getUserReportStakedByContent(contentId, addrs[0].address);
+
+            expect(ownerInitialBalance.add(ownerInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(ownerFinalBalance);
+            expect(aliceInitialBalance.add(aliceInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(aliceFinalBalance);
+            expect(bobInitialBalance.add(bobInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(bobFinalBalance);
+
+            expect(reporterInitialBalance.sub(reporterInitialBalance.mul(REPORTER_PENALTY_PERCENTAGE).div(100))).to.be.equal(reporterFinalBalance);
+        });
+
+        it("Jurors ands Reporters should get rewarded if KO", async () => {
+            const contentId: string = sampleContentId;
+            const voteKO: number = 3;
+
+            const ownerInitialBalance = (await moderationContract.jurors(owner.address)).staked;
+            const aliceInitialBalance = (await moderationContract.jurors(alice.address)).staked;
+            const bobInitialBalance = (await moderationContract.jurors(bob.address)).staked;
+            const reporterInitialBalance = await moderationContract.getUserReportStakedByContent(contentId, addrs[0].address);
+
+            await expect(moderationContract.vote(contentId, voteKO))
+                .to.emit(moderationContract, "JurorVoted");
+            await expect(moderationContract.connect(alice).vote(contentId, voteKO))
+                .to.emit(moderationContract, "JurorVoted");
+            
+            const fundingAmount = ethers.utils.parseEther("100000");
+            await expect(erc20Contract.approve(moderationContract.address, fundingAmount))
+                .to.emit(erc20Contract, "Approval");
+            await moderationContract.fundTreasury(fundingAmount);
+
+            await expect(moderationContract.connect(bob).vote(contentId, voteKO))
+                .to.emit(moderationContract, "CaseClosed");
+
+            const ownerFinalBalance = (await moderationContract.jurors(owner.address)).staked;
+            const aliceFinalBalance = (await moderationContract.jurors(alice.address)).staked;
+            const bobFinalBalance = (await moderationContract.jurors(bob.address)).staked;
+            const reporterFinalBalance = await moderationContract.getUserReportStakedByContent(contentId, addrs[0].address);
+
+            expect(ownerInitialBalance.add(ownerInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(ownerFinalBalance);
+            expect(aliceInitialBalance.add(aliceInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(aliceFinalBalance);
+            expect(bobInitialBalance.add(bobInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(bobFinalBalance);
+
+            expect(reporterInitialBalance.add(reporterInitialBalance.mul(REPORTER_PROFIT_PERCENTAGE).div(100))).to.be.equal(reporterFinalBalance);
+        });
     });
     
 });
