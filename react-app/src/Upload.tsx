@@ -142,12 +142,14 @@ const Upload = () => {
           type: file_type,
           description: description,
           link: link,
+          altText: altText,
           date: new Date().getTime().toString(),
           ipfs: arweave_id,
         };
         const NFTMetadata = {
           description: description,
           link: link,
+          altText: altText,
           subscribersDescription,
           name: fileName,
           image: ARWEAVE_GATEWAY + arweave_id,
@@ -516,3 +518,4 @@ const Upload = () => {
 };
 
 export default Upload;
+
