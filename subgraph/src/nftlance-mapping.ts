@@ -97,9 +97,10 @@ export function handleRequestDataSet(event: RequestDataSet): void {
 
 export function handleFanCollectibleDataSet(event: FanCollectibleDataSet): void {
     let creatorCollection = CreatorCollection.load(event.transaction.to.toHex());
-    let token = createCardToken(event.params.fanId.toString(), event.params.cardId.toString(), creatorCollection.collectible.toString());
+    let token: Token = createCardToken(event.params.fanId.toString(), event.params.cardId.toString(), creatorCollection.collectible.toString());
     token.state = "PURCHASED_AND_FINALIZED";
     token.data = event.params.data;
+    token.uri = event.params.uri;
     token.save();
 }
 

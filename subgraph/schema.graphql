@@ -151,4 +151,5 @@ type Token @entity {
   requestData: String
   owner: Bytes
   data: Bytes
+  uri: String
 }
