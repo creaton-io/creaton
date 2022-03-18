@@ -11,6 +11,7 @@ const JUROR_PROFIT_PERCENTAGE: number = 5;
 const REPORTER_PENALTY_PERCENTAGE: number = 5;
 const REPORTER_PROFIT_PERCENTAGE: number = 5;
 const CASE_STAKED_THRESHOLD: BigNumber = ethers.utils.parseEther("5000");
+const MIN_JUROR_STAKE: BigNumber = ethers.utils.parseEther("50");
 
 const sampleContentId: string = "0x17f6989baf123ec9571adaafccf0b69ae6b1ef3a-0";
 
@@ -69,7 +70,8 @@ describe("Moderation system", () => {
         await expect(moderationContract.initialize(
             erc20Contract.address, 
             CASE_STAKED_THRESHOLD, 
-            MIN_JURY_SIZE, 
+            MIN_JURY_SIZE,
+            MIN_JUROR_STAKE,
             JUROR_MAX_DAYS_DECIDING, 
             JUROR_PENALTY_PERCENTAGE,
             JUROR_PROFIT_PERCENTAGE,
@@ -86,6 +88,9 @@ describe("Moderation system", () => {
             // Not enough allowance
             await expect(moderationContract.addJuror(stake)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
             
+            //Not enough stake
+            await expect(moderationContract.addJuror(MIN_JUROR_STAKE.sub(1))).to.be.revertedWith("Moderation: Min. stake not sent");
+
             // Already a Juror
             await expect(erc20Contract.approve(moderationContract.address, stake.mul(2))).to.emit(erc20Contract, "Approval");
             await expect(moderationContract.addJuror(stake))
@@ -171,8 +176,7 @@ describe("Moderation system", () => {
 
             await erc20Contract.approve(moderationContract.address, stake);
             await expect(moderationContract.reportContent(contentId, stake, ''))
-                .to.emit(moderationContract, "CaseBuilt")
-                .withArgs(contentId);
+                .to.emit(moderationContract, "CaseBuilt");
 
             // Add some jurors
             const jurorStake: BigNumber = ethers.utils.parseEther("1000");
@@ -355,8 +359,20 @@ describe("Moderation system", () => {
                 .to.emit(erc20Contract, "Approval");
             await moderationContract.fundTreasury(fundingAmount);
 
-            await expect(moderationContract.connect(bob).vote(contentId, voteOK))
-                .to.emit(moderationContract, "CaseClosed");
+
+            let expectedTotalJuryRewards = ownerInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100);
+            expectedTotalJuryRewards = expectedTotalJuryRewards.add(aliceInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100));
+            expectedTotalJuryRewards = expectedTotalJuryRewards.add(bobInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100));
+            const expectedReporterPenalty = reporterInitialBalance.mul(REPORTER_PENALTY_PERCENTAGE).div(100);
+
+            let tx = await moderationContract.connect(bob).vote(contentId, voteOK);
+            let receipt = await tx.wait();
+            receipt = receipt.events?.filter((x: any) => {return x.event == "CaseRewardsDistributed"})[0];
+            expect(receipt.args.contentId).to.be.equal(contentId);
+            expect(receipt.args.totalJuryRewards).to.be.equal(expectedTotalJuryRewards);
+            expect(receipt.args.reportersRewards.length).to.be.equal(1);
+            expect(receipt.args.reportersPenalty.length).to.be.equal(1);
+            expect(receipt.args.reportersPenalty[0]).to.be.equal(expectedReporterPenalty);
 
             const ownerFinalBalance = (await moderationContract.jurors(owner.address)).staked;
             const aliceFinalBalance = (await moderationContract.jurors(alice.address)).staked;
@@ -367,7 +383,7 @@ describe("Moderation system", () => {
             expect(aliceInitialBalance.add(aliceInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(aliceFinalBalance);
             expect(bobInitialBalance.add(bobInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(bobFinalBalance);
 
-            expect(reporterInitialBalance.sub(reporterInitialBalance.mul(REPORTER_PENALTY_PERCENTAGE).div(100))).to.be.equal(reporterFinalBalance);
+            expect(reporterInitialBalance.sub(expectedReporterPenalty)).to.be.equal(reporterFinalBalance);
         });
 
         it("Jurors ands Reporters should get rewarded if KO", async () => {
@@ -389,9 +405,20 @@ describe("Moderation system", () => {
                 .to.emit(erc20Contract, "Approval");
             await moderationContract.fundTreasury(fundingAmount);
 
-            await expect(moderationContract.connect(bob).vote(contentId, voteKO))
-                .to.emit(moderationContract, "CaseClosed");
+            let expectedTotalJuryRewards = ownerInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100);
+            expectedTotalJuryRewards = expectedTotalJuryRewards.add(aliceInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100));
+            expectedTotalJuryRewards = expectedTotalJuryRewards.add(bobInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100));
+            const expectedReporterReward = reporterInitialBalance.mul(REPORTER_PROFIT_PERCENTAGE).div(100);
 
+            let tx = await moderationContract.connect(bob).vote(contentId, voteKO);
+            let receipt = await tx.wait();
+            receipt = receipt.events?.filter((x: any) => {return x.event == "CaseRewardsDistributed"})[0];
+            expect(receipt.args.contentId).to.be.equal(contentId);
+            expect(receipt.args.totalJuryRewards).to.be.equal(expectedTotalJuryRewards);
+            expect(receipt.args.reportersRewards.length).to.be.equal(1);
+            expect(receipt.args.reportersRewards[0]).to.be.equal(expectedReporterReward);
+            expect(receipt.args.reportersPenalty.length).to.be.equal(1);
+            
             const ownerFinalBalance = (await moderationContract.jurors(owner.address)).staked;
             const aliceFinalBalance = (await moderationContract.jurors(alice.address)).staked;
             const bobFinalBalance = (await moderationContract.jurors(bob.address)).staked;
@@ -401,7 +428,7 @@ describe("Moderation system", () => {
             expect(aliceInitialBalance.add(aliceInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(aliceFinalBalance);
             expect(bobInitialBalance.add(bobInitialBalance.mul(JUROR_PROFIT_PERCENTAGE).div(100))).to.be.equal(bobFinalBalance);
 
-            expect(reporterInitialBalance.add(reporterInitialBalance.mul(REPORTER_PROFIT_PERCENTAGE).div(100))).to.be.equal(reporterFinalBalance);
+            expect(reporterInitialBalance.add(expectedReporterReward)).to.be.equal(reporterFinalBalance);
         });
     });
     

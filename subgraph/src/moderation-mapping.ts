@@ -1,5 +1,5 @@
 import { BigInt, Bytes, store } from '@graphprotocol/graph-ts';
-import { CaseBuilt, CaseClosed, ContentReported, JurorAdded, JurorRemoved, JurorSlashed, JurorVoted, JuryAssigned, JuryReassigned } from '../generated/Moderation/Moderation';
+import { CaseBuilt, CaseClosed, CaseRewardsDistributed, ContentReported, JurorAdded, JurorRemoved, JurorSlashed, JurorVoted, JuryAssigned, JuryReassigned } from '../generated/Moderation/Moderation';
 import { Juror, JurorDecision, ModerationCase, ReportedContent } from '../generated/schema';
 
 export function handleContentReported(event: ContentReported): void {
@@ -10,7 +10,11 @@ export function handleContentReported(event: ContentReported): void {
         reportedContent.content = event.params.contentId;
         reportedContent.reporters = [event.transaction.from];
         reportedContent.staked = event.params.staked;
+        reportedContent.reportersStaked = [event.params.staked];
+        reportedContent.reportersRewarded = [BigInt.fromI32(0)];
+        reportedContent.reportersPenalized = [BigInt.fromI32(0)];
         reportedContent.fileProofs = [event.params.fileProof];
+        reportedContent.creators = [event.transaction.from.toHex()];
     }else{
         reportedContent.staked = reportedContent.staked.plus(event.params.staked);
 
@@ -21,6 +25,14 @@ export function handleContentReported(event: ContentReported): void {
         let fileProofs = reportedContent.fileProofs;
         fileProofs.push(event.params.fileProof);
         reportedContent.fileProofs = fileProofs;
+
+        let creators = reportedContent.creators;
+        creators.push(event.transaction.from.toHex());
+        reportedContent.creators = creators;
+
+        let reportersStaked = reportedContent.reportersStaked;
+        reportersStaked.push(event.params.staked);
+        reportedContent.reportersStaked = reportersStaked;
     }
 
     reportedContent.save();
@@ -32,6 +44,7 @@ export function handleJurorAdded(event: JurorAdded): void {
         juror = new Juror(event.params.juror.toHex());
     }
     
+    juror.initialStaked = event.params.staked;
     juror.staked = event.params.staked;
     juror.address = event.params.juror;
     juror.status = "idle";
@@ -54,6 +67,10 @@ export function handleCaseBuilt(event: CaseBuilt): void {
     entity.status = "new";
     entity.jurySize = BigInt.fromI32(0);
     entity.pendingVotes = BigInt.fromI32(0);
+    entity.timestamp = event.params.timestamp;
+    entity.totalReward = BigInt.fromI32(0);
+    entity.totalPenalty = BigInt.fromI32(0);
+    
     entity.save();
 }
 
@@ -140,7 +157,7 @@ export function handleJurorVoted(event: JurorVoted): void {
 }
 
 export function handleCaseClosed(event: CaseClosed): void {
-    let mCase = ModerationCase.load(event.params.contentId);
+    let mCase = ModerationCase.load("case-" + event.params.contentId);
     mCase.status = "ruled";
     mCase.save();
 
@@ -153,4 +170,35 @@ export function handleJurorSlashed(event: JurorSlashed): void {
     let juror = Juror.load(event.params.juror.toHex());
     juror.staked = juror.staked.minus(event.params.penalty);
     juror.save();
+}
+
+export function handleCaseRewardsDistributed(event: CaseRewardsDistributed): void {
+    let mCase = ModerationCase.load("case-" + event.params.contentId);
+    mCase.status = "rewards distributed";
+    mCase.totalReward = event.params.totalReportersRewards;
+    mCase.totalPenalty = event.params.totalReportersPenalty;
+    mCase.save();
+
+    let jury = event.params.jury;
+    let juryRewards = event.params.juryRewards;
+    for(let i=0; i<jury.length; i++){
+        let juror = Juror.load(jury[i].toHex());
+        juror.staked = juror.staked.plus(juryRewards[i]);
+        juror.save();
+    }
+
+    let reportedContent = ReportedContent.load(event.params.contentId);
+    let rep = event.params.reporters;
+    let repRewards = event.params.reportersRewards;
+    let repPenalty = event.params.reportersPenalty;
+    let reportersRewarded = reportedContent.reportersRewarded;
+    let reportersPenalized = reportedContent.reportersPenalized;
+    for(let i=0; i<rep.length; i++){
+        reportersRewarded.push(repRewards[i]);
+        reportersPenalized.push(repPenalty[i]);
+    }
+
+    reportedContent.reportersRewarded = reportersRewarded;
+    reportedContent.reportersPenalized = reportersPenalized;
+    reportedContent.save();
 }

@@ -9,12 +9,11 @@ import { Radio } from "../elements/radio";
 import { Button } from "../elements/button";
 import { CREATE_TOKEN_ADDRESS } from "../Config";
 
-interface CaseProps {
-    jurorDecision: any
+interface ReportedCaseProps {
+    reportedCase: any
 }
 
-export const Case: FC<CaseProps> = ({ jurorDecision }) => {
-    console.log(jurorDecision);
+export const ReportedCase: FC<ReportedCaseProps> = ({ reportedCase }) => {
     const web3Context = useWeb3React<Web3Provider>();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);

@@ -71,9 +71,9 @@ dataSources:
     name: Moderation
     network: mumbai
     source:
-      address: "0x27ADf6C54F23e14c1923bF99E24b097BC6e36c60"
+      address: "0x690E8AED0Fe4fA2424F67D65E08f12cda5400D66"
       abi: Moderation
-      startBlock: 25374939
+      startBlock: 25551015
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -93,7 +93,7 @@ dataSources:
           handler: handleJurorAdded
         - event: JurorRemoved(address,uint256)
           handler: handleJurorRemoved
-        - event: CaseBuilt(string)
+        - event: CaseBuilt(string,uint256)
           handler: handleCaseBuilt
         - event: JuryAssigned(string,address[],uint256)
           handler: handleJuryAssigned
@@ -105,6 +105,8 @@ dataSources:
           handler: handleCaseClosed
         - event: JurorSlashed(address,uint256)
           handler: handleJurorSlashed
+        - event: CaseRewardsDistributed(string,address[],address[],uint256[],uint256[],uint256[],uint256,uint256,uint256)
+          handler: handleCaseRewardsDistributed
       file: ./src/moderation-mapping.ts
 templates:
   - kind: ethereum/contract
