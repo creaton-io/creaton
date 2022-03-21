@@ -42,6 +42,7 @@ export function Discovery() {
         creatorContract
         type
         description
+        altText
         date
         ipfs
         tokenId
