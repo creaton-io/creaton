@@ -39,7 +39,7 @@ type Content @entity {
   tier: Int!
   tokenId: BigInt!
   hide: Boolean!
-  altText: String!
+  altText: String
 }
 
 type ReactionUser @entity {
