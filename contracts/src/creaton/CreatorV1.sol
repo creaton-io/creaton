@@ -167,7 +167,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     }
 
     /// @dev Take entrance fee from the user and issue a ticket
-    function upfrontFee(bytes calldata ctx) external onlyHost returns (bytes memory newCtx) {
+    function upfrontFee(bytes calldata ctx) external onlyHost returns (bytes memory) {
         // msg sender is encoded in the Context
         //i think this patch changes all the streaming to be a different contract
         return streamingContract.upfrontFee(ctx);
