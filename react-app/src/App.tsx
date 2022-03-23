@@ -1,121 +1,46 @@
-import React, {useContext, useEffect, useRef, useState, useMemo} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
-import {ApolloClient, ApolloProvider, InMemoryCache} from '@apollo/client';
-import Home from './Home';
+import {ApolloClient, ApolloProvider, InMemoryCache, HttpLink} from '@apollo/client';
 import WalletConnect from './WalletConnect';
 import {useWeb3React, Web3ReactProvider} from './web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import Upload from './Upload';
-import {formatEther, parseEther} from '@ethersproject/units';
-import {SuperfluidContext, SuperfluidProvider} from './Superfluid';
 import Subscribers from './Subscribers';
-//import {Staking} from "./Staking";
 import {Creator} from './Creator';
 import {NotificationHandlerContext, NotificationHandlerProvider} from './ErrorHandler';
 import {LitProvider} from './LitProvider';
 import Creators from './Creators';
-import {Button} from './elements/button';
-import creaton_contracts from './Contracts';
 import {ProfileEdit} from './ProfileEdit';
-import {useCurrentCreator, useCurrentProfile} from './Utils';
 import {InjectedConnector} from './web3-react/injected-connector';
-import {APOLLO_URI, REACTION_ERC20} from './Config';
+import {APOLLO_URI} from './Config';
 import {Notification} from './components/notification';
 import {initFontAwesome} from './icons/font-awesome';
-import {Avatar} from './components/avatar';
-import {Toggle} from './elements/toggle';
-import {Web3UtilsContext, Web3UtilsProvider, Web3UtilsProviderContext} from './Web3Utils';
+import {Web3UtilsContext, Web3UtilsProvider} from './Web3Utils';
 import Loader from './elements/loader';
-import {useCanBecomeCreator, useIsAdmin} from './Whitelist';
-import WalletModal from './components/walletModal';
 import {Flows} from './Flows';
 import {Governance} from './Governance';
-import {Icon} from './icons';
-import Tooltip from './elements/tooltip';
-import {Biconomy} from './assets/mexa';
-import {CopyToClipboard} from 'react-copy-to-clipboard';
-import { CreatorVoting } from './CreatorVoting';
-import { Mytokens, MytokensRequests, Nftlance } from './Nftlance';
+import {Biconomy} from '@biconomy/mexa';
+import {CreatorVoting} from './CreatorVoting';
+import {RetryLink} from '@apollo/client/link/retry';
+import {Mytokens, MytokensRequests, Nftlance} from './Nftlance';
+import {Feed} from './Feed';
+import {Discovery} from './Discovery';
+import {SuperfluidProvider} from './Superfluid';
+import {ConnectOrSignup, HeaderButtons, ProfileMenu, ChainIdChecker, CreatorHome} from './components';
 
 initFontAwesome();
 
-const styles = {
-  fontFamily: 'sans-serif',
-  textAlign: 'center',
-};
+const directionalLink = new RetryLink().split(
+  (operation) => operation.getContext().clientName === 'cyberConnect',
+  new HttpLink({uri: 'https://api.cybertino.io/connect/'}),
+  new HttpLink({uri: APOLLO_URI})
+);
 
 const client = new ApolloClient({
-  uri: APOLLO_URI,
+  link: directionalLink,
   cache: new InMemoryCache(),
 });
-
-const paymaster = creaton_contracts.Paymaster;
-
-const getLibrary = (provider) => {
-  console.log('evaluating getLibrary', provider);
-  const library = new Web3Provider(provider);
-  library.pollingInterval = 12000;
-  return library;
-};
-
-// const getGSNLibrary = (provider) => {
-//   let paymasterAddress = paymaster.address
-//   const config = {
-//     paymasterAddress,
-//     requiredVersionRange: "2.2.3-matic",
-//   }
-//   console.log('evaluating getGSNLibrary', provider)
-//   const gsnProvider = RelayProvider.newProvider({provider: provider, config});
-//   gsnProvider.init()
-//   // @ts-ignore
-//   const gsnLibrary = new Web3Provider(gsnProvider)
-//   gsnLibrary.pollingInterval = 12000
-//   return gsnLibrary
-// }
-
-function ConnectOrSignup(props) {
-  const {active} = useWeb3React();
-  const {currentProfile} = useCurrentProfile();
-  const web3utils = useContext(Web3UtilsContext);
-  const {account, library} = useWeb3React();
-
-  if (currentProfile)
-    return (
-      <a
-        href=""
-        onClick={(e) => {
-          e.preventDefault();
-          props.onAvatarClick();
-        }}
-      >
-        <Avatar size="menu" src={currentProfile.image} />
-      </a>
-    );
-  if (active)
-    return (
-      <div className="hidden md:flex md:space-x-10 ml-auto">
-        <Link to="/signup">
-          <Button label="Profile"></Button>
-        </Link>
-        <a
-          href=""
-          onClick={(e) => {
-            e.preventDefault();
-            props.onAvatarClick();
-          }}
-        >
-          <Avatar size="menu" src={''} />
-        </a>
-      </div>
-    );
-  else
-    return (
-      <div>
-        <WalletModal></WalletModal>
-      </div>
-    );
-}
 
 const Autoconnect = () => {
   const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]});
@@ -138,7 +63,6 @@ const StakingDetector = (props) => {
   //check something with library and call props.setIsGSN(true) if needed
   return null;
 };
-
 
 // This block includes declaration of some states using the
 // useState hook. Two variables initialised using useContext
@@ -703,8 +627,6 @@ function CreatorWallet() {
 }
 
 const App = () => {
-  // const [isGSN, setIsGSN] = useState<boolean>(false);
-  const [showMenu, setShowMenu] = useState<boolean>(false);
   const [loadingBiconomy, setLoadingBiconomy] = useState<boolean>(false);
   const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   const submenuRef = useRef<any>(null);
@@ -815,7 +737,7 @@ const App = () => {
                             <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
                               <Switch>
                                 <Route exact path="/">
-                                  <Home />
+                                  <Discovery />
                                 </Route>
                                 <Route exact path="/creators">
                                   <Creators />
@@ -854,6 +776,12 @@ const App = () => {
                                 </Route>
                                 <Route path="/nftlance-mycardsrequests">
                                   <MytokensRequests />
+                                </Route>
+                                <Route path="/feed">
+                                  <Feed />
+                                </Route>
+                                <Route path="/discovery">
+                                  <Discovery />
                                 </Route>
                               </Switch>
                             </div>

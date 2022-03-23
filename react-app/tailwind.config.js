@@ -1,7 +1,16 @@
 const colors = require('tailwindcss/colors')
 
 module.exports = {
-  darkMode: false,
+  content: [
+    './public/index.html',
+    './src/components/*.tsx',
+    './src/common/*.ts',
+    './src/common/*.tsx',
+    './src/icons/*.ts',
+    './src/icons/*.tsx',
+    './src/elements/*.tsx',
+    './src/*.tsx',
+  ],
   theme: {
     extend: {
       colors: {
@@ -49,13 +58,6 @@ module.exports = {
           light: 'var(--color-pink-light)'
         },
       }
-    },
-  },
-  variants: {
-    extend: {
-      backgroundColor: ['disabled'],
-      textColor: ['disabled'],
-      cursor: ['disabled'],
     },
   },
   plugins: [
