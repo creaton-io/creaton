@@ -92,6 +92,7 @@ export const Moderation: FC = () => {
                     id
                     status
                     pendingVotes
+                    timestamp
                   }
                 }
               }
@@ -107,10 +108,8 @@ export const Moderation: FC = () => {
             }
         }
 
-        if (reporterContentsQuery.data && reporterContentsQuery.data) {
-            if(reporterContentsQuery.data.jurors.length > 0){
-                setReporterData(reporterContentsQuery.data.jurors[0]);
-            }
+        if (reporterContentsQuery.data && reporterContentsQuery.data.creators && reporterContentsQuery.data.creators.length > 0 && reporterContentsQuery.data.creators[0].reportedContent.length > 0) {
+            setReporterData(reporterContentsQuery.data.creators[0].reportedContent);
         }
     }, [jurorContentsQuery, reporterContentsQuery]);
 
@@ -130,6 +129,12 @@ export const Moderation: FC = () => {
             const preDecimals = await erc20Contract.decimals();
             const decimals = ethers.BigNumber.from(10).pow(preDecimals);
             const stakingAmount = ethers.BigNumber.from(e.target.amount.value).mul(decimals);
+
+            if(stakingAmount.gt(await erc20Contract.balanceOf(userAddress))){
+                web3utils.setIsWaiting(false);
+                notificationHandler.setNotification({description: "You don't have this amount to stake", type: 'error'})
+                return;
+            }
 
             const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
             if(stakingAmount.gt(allowance)){
@@ -196,7 +201,7 @@ export const Moderation: FC = () => {
                 }
             </>}
 
-            {moderationData && <div className="text-white mb-10">
+            {moderationData && <div className="text-white">
                 <p className="text-5xl pt-12 pb-6 pl-6 m-auto">Moderation Panel</p>
 
                 { moderationData.cases && juror && <div className="flex flex-col text-left rounded-2xl border border-opacity-10 bg-white bg-opacity-5 p-5 my-10">
@@ -220,10 +225,10 @@ export const Moderation: FC = () => {
             </div>}
 
             {reporterData && <div className="text-white">
-                <h2 className="text-3xl opacity-50 pl-6">Reported Cases</h2>
+                <h2 className="text-3xl opacity-50 pl-6 mt-10">Your Reported Cases</h2>
 
-                { reporterData.cases.map((r,index) => {
-                    // return <ReportedCase reportedCase={r} key={index} />
+                { reporterData.map((r,index) => {
+                    return <ReportedCase reportedContent={r} key={index} />
                 })}
             </div>}
         </div>
