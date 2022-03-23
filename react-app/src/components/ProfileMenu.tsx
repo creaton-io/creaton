@@ -374,10 +374,11 @@ const ProfileMenu = (props) => {
           </div>
         </div>
         <div className="grid grid-cols-1 divide-y divide-gray-200">
-          {currentCreator && <NavigationLink to="/subscribers" label="Subscribers" />}
-          {canBecomeCreator && <NavigationLink to="/upload" label="Upload" />}
+          {currentCreator && <NavigationLink to={"/creator/" + currentCreator?.creatorContract} label="My Creator Page" />}
           {<NavigationLink to="/signup" label={currentProfile ? 'My Profile' : 'Make Profile'} />}
           {currentProfile && <NavigationLink to="/flows" label="My Flows" />}
+          {currentCreator && <NavigationLink to="/subscribers" label="Subscribers" />}
+          {canBecomeCreator && <NavigationLink to="/upload" label="Upload" />}
         </div>
       </div>
     </div>
