@@ -548,12 +548,12 @@ query($nftAddress: Bytes!) {
             // initialReactCount={countReacted(content)}
             hasReported={hasReported(content)}
           />
-          <iframe
+          {/* <iframe
             src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
             style={{border: 'none', width: '100%'}}
           >
             Comments
-          </iframe>
+          </iframe> */}
         </React.Fragment>
       );
     } else return;
@@ -770,7 +770,7 @@ query($nftAddress: Bytes!) {
   return (
     <div>
       {/* <StickyHeader name={contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).username : contractQuery.data.creators[0].id} src={ contractQuery.data.creators[0].profile !== null ? JSON.parse(contractQuery.data.creators[0].profile.data).image : ""} button={generateButton()}/> */}
-      <div className="relative w-full h-20 sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-500 to-purple-700 filter drop-shadow-xl">
+      <div className="relative w-full h-20 sm:h-40 bg-cover bg-center bg-gradient-to-b from-purple-700 to-transparent filter drop-shadow-xl">
         <div className="object-cover w-20 h-20 rounded-full my-5 mx-auto block absolute left-1/2 -translate-x-1/2 transform -bottom-20 blur-none">
           <div className="absolute p-0.5 -top-1">
             <Avatar

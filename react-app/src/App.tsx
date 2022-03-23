@@ -119,22 +119,22 @@ const App = () => {
                       }
                     </NotificationHandlerContext.Consumer>
 
-                    <div className="flex-initial border-b border-opacity-25">
+                    <div className="flex-initial">
                       <div className="relative bg-primary-gradient">
                         <div
-                          className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full bg-gradient-to-r from-purple-500 to-purple-700"
+                          className="hidden sm:block sm:absolute sm:inset-y-0 sm:h-full sm:w-full bg-gradient-to-b from-transparent to-purple-700"
                           aria-hidden="true"
                         >
                           <div className="relative h-full max-w-7xl mx-auto"></div>
                         </div>
-                        <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4 bg-gradient-to-r from-purple-500 to-purple-700">
+                        <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4">
                           <div className="max-w-7xl mx-auto px-4 sm:px-6">
                             <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
                               <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
                                 <div className="flex items-center justify-between w-full md:w-auto">
                                   <a href="#">
                                     <span className="sr-only">Workflow</span>
-                                    <img src="./assets/svgs/logo.svg" />
+                                    <img className="stroke-cyan-500 stroke-1" src="./assets/svgs/logo.svg" />
                                   </a>
                                   <div className="flex items-center md:hidden">
                                     <ConnectOrSignup

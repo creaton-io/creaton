@@ -38,7 +38,6 @@ const Upload = () => {
   const handleFileSelection = (event) => {
     const file = event.currentTarget.files[0];
     console.log(file);
-    setFileName(file.name);
     setIsStreaming(true);
     setCurrentFile(file);
   };

@@ -10,6 +10,7 @@ import { ethers } from 'ethers';
 import { LinkPreview } from '@dhaiwat10/react-link-preview';
 import { MODERATION_ENABLED } from '../Config';
 import { Button } from '../elements/button';
+import Tooltip from '../elements/tooltip';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -246,20 +247,14 @@ export const Card: FC<ButtonProps> = ({
               <div className="flex items-center justify-between">
                 <h4 className="text-lg font-semibold truncate text-white">{name}</h4>
                 <div className="flex justify-between">
-                  <div className=" mr-5 ">
-                    <Icon
-                      onClick={onLike}
-                      name="heart"
-                      className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
-                    />
-                    <span className="ml-2 text-white">{likeCount}</span>
-                  </div>
                   <Icon name="flag" className={clsx('text-gray-500 mt-1 mr-5')} />
-                  <Icon
-                    onClick={onHide}
-                    name={hide ? 'eye-slash' : 'eye'}
-                    className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300' && isCreator ? ' visible' : ' invisible')}
-                  />
+                  <Tooltip content={<div>Hide content from public</div>} hover>
+                    <Icon
+                      onClick={onHide}
+                      name={hide ? 'eye-slash' : 'eye'}
+                      className={clsx('cursor-pointer text-red-500 mt-1 ' + hide ? 'text-red-500' : 'text-green-300' && isCreator ? ' visible' : ' invisible')}
+                    />
+                  </Tooltip>
                 </div>
               </div>
 
@@ -296,6 +291,14 @@ export const Card: FC<ButtonProps> = ({
           <div className="flex items-center justify-between">
             <h4 className="text-lg font-semibold truncate text-white">{name}</h4>
             <div className="flex justify-between">
+              <Tooltip
+                      content={
+                        <div>
+                          Soon TM
+                        </div>
+                      }
+                      hover
+                    >
               <div className=" mr-5 ">
                 <Icon
                   onClick={onLike}
@@ -346,7 +349,7 @@ export const Card: FC<ButtonProps> = ({
                   {reactCount}
                 </span>
               </div> 
-
+             </Tooltip>
               { !MODERATION_ENABLED && <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} /> }
 
               { MODERATION_ENABLED && <div className="mr-5 relative">
@@ -407,13 +410,16 @@ export const Card: FC<ButtonProps> = ({
                   </svg>
                 }
               </div>}
-
+        
               <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
-              <Icon
-                onClick={onHide}
-                name={hide ? 'eye-slash' : 'eye'}
-                className={clsx(isCreator ? (hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1') : ' invisible')}
-              />
+              
+              <Tooltip content={<div>Hide content from public</div>} hover>
+                <Icon
+                  onClick={onHide}
+                  name={hide ? 'eye-slash' : 'eye'}
+                  className={clsx(isCreator ? (hide ? 'text-red-500 cursor-pointer mt-1' : 'text-green-300 cursor-pointer mt-1') : ' invisible')}
+                />
+              </Tooltip>
             </div>
           </div>
 
