@@ -101,7 +101,65 @@ export function Feed() {
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     skip: !context.account,
     variables: {
-      user: context.account
+      user: context.account,
+      creator: creatorContractAddress
+    },
+    pollInterval: 10000
+  });
+
+
+  // Here we are taking the value of the superfluid variable
+  // stored in context named SuperfluidContext...
+  const superfluid = useContext(SuperfluidContext);
+  const [usdcx, setUsdcx] = useState(0)
+  const {currentCreator} = useCurrentCreator()
+
+  // These are declarations of some states
+  const [reactions, setReactions] = useState<Array<any>>();
+  const [reactionErc20Available, setReactionErc20Available] = useState<string>();
+  const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
+
+  // The function getUsdcx() => which is called later inside useEffect
+  // which justifies it will be called on component remount. Or when
+  // the value of context of superfluid variables changes.
+  // In this function we set the state usdx with balance of usdcx stored inside 
+  // the earlier superfluid variable.
+  async function getUsdcx() {
+    if (!superfluid)
+      return;
+    let {usdcx} = superfluid;
+    let subscriber = context.account;
+    if (!subscriber)
+      return;
+    setUsdcx(wad4human(await usdcx.balanceOf(subscriber)))
+  }
+
+  useEffect(() => {
+    getUsdcx()
+  }, [context, superfluid])
+  const [downloadStatus, setDownloadStatus] = useState({})
+  const [downloadCache, setDownloadCache] = useState({})
+  const [subscription, setSubscription] = useState('unsubscribed')
+  useEffect(() => {
+    if (subscriptionQuery.data) {
+      if (subscriptionQuery.data.subscribers.length > 0)
+        setSubscription(subscriptionQuery.data.subscribers[0].status)
+      else
+        setSubscription("unsubscribed")
+    }
+  }, [subscriptionQuery, context])
+  let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
+  const canDecrypt = (isSelf || subscription === 'subscribed')
+
+  useEffect(() => {
+    if (contentsQuery.loading || contentsQuery.error) return;
+    //if (!textile) return;
+    if (!canDecrypt) return;
+    const contents = contentsQuery.data.contents;
+    if (Object.keys(downloadStatus).length === 0 || !contents) return;
+    if (contents.some((x) => downloadStatus[x.ipfs] === 'downloading')) {
+      console.log('already downloading some stuff')
+      return;
     }
   });
   if (subscriptionQuery.data) {

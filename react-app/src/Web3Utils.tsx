@@ -17,6 +17,13 @@ const Web3UtilsProviderContext = createContext<any>({
   provider: null,
   setProvider: () => {},
 });
+
+// A provider component is made here. Basically a wrapper
+// component when wrapped to any page adds the web3
+// functionalities like function to check iswalletconnected,
+// getwalletbalance and so on.
+// These are basically declarations of states and initalisation
+// of variables from context.
 const Web3UtilsProvider = (props) => {
   const {activate, account, chainId, library} = useWeb3React();
   const {currentProfile} = useCurrentProfile();

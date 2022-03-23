@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 pragma abicoder v2;
+//this has the stream receiving the 2%!
 
 // import "hardhat-deploy/solc_0.7/proxy/Proxied.sol";
 import "./CreatorProxy.sol";
-import "./CreatorV1.sol";
+// import "./CreatorV1.sol"; // this import is never used???
 import "../dependency/gsn/BaseRelayRecipient.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
