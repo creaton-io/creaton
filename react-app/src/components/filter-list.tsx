@@ -5,7 +5,7 @@ import { Button } from '../elements/button';
 import {Link} from "react-router-dom";
 
 const FilterItem = ({ avatar, title, subtitle, description, count, source, url }) => (
-<div className="bg-white bg-opacity-5 mb-4 rounded-xl shadow-md border-2 border-opacity-10 transition transform hover:shadow-lg">
+<div className="bg-white bg-opacity-5 mb-4 rounded-xl shadow-md border border-opacity-10 border-gray-100/10 transition transform hover:shadow-lg">
   <Link to={url}>
     <li className="py-4 px-6 flex">
         <Avatar size="profile" src={avatar}></Avatar>

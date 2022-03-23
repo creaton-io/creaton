@@ -1,5 +1,6 @@
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
+import Web3Modal from 'web3modal';
 import {useWeb3React} from './web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
@@ -26,6 +27,37 @@ import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
 import {BICONOMY_API, BICONOMY_AUTH} from './Config';
 import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
+import ScriptTag from 'react-script-tag';
+import {captureRejectionSymbol} from 'stream';
+import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
+
+let web3Modal = new Web3Modal({
+  network: 'polygon',
+  cacheProvider: true,
+});
+
+let ethersProvider;
+let cyberConnect;
+
+function connect() {
+  return new Promise((resolve, reject) => {
+    web3Modal
+      .connect()
+      .then((modalProvider) => {
+        ethersProvider = new Web3Provider(modalProvider);
+        cyberConnect = new CyberConnect({
+          provider: ethersProvider.provider,
+          namespace: 'Creaton',
+          chain: Blockchain.ETH,
+          env: Env.PRODUCTION,
+        });
+        resolve(cyberConnect);
+      })
+      .catch(reject);
+  });
+}
+
+connect();
 
 interface params {
   id: string;
@@ -77,25 +109,59 @@ export function Creator() {
       }
     }
   `;
-  const REACTIONS_QUERY = gql`
-    query($nftAddress: Bytes!) {
-      reactions(where: {reactionRecipientAddress: $nftAddress}) {
-        id
-        amount,
-        reactionRecipientAddress,
-        tokenId
-        reactingUser {
-          address
+const REACTIONS_QUERY = gql`
+query($nftAddress: Bytes!) {
+  reactions(where: {reactionRecipientAddress: $nftAddress}) {
+    id
+    amount,
+    reactionRecipientAddress,
+    tokenId
+    reactingUser {
+      address
+    }
+  }
+}
+`;
+
+  const FOLLOWERS_INFO_QUERY = gql`
+    query GET_FOLLOWERS($walletAddress: String!) {
+      identity(address: $walletAddress) {
+        address
+        followerCount(namespace: "Creaton")
+        followingCount(namespace: "Creaton")
+        followers {
+          list {
+            address
+          }
+        }
+        followings {
+          list {
+            address
+          }
         }
       }
     }
   `;
+
+  const followersQuery = useQuery(FOLLOWERS_INFO_QUERY, {
+    variables: {walletAddress: id},
+    context: {clientName: 'cyberConnect'},
+  });
 
   //const textile = useContext(TextileContext)
   const litNode = useContext(LitContext);
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
   const context = useWeb3React<Web3Provider>();
+
+  let isFollowing = false;
+  followersQuery?.data?.identity?.followers?.list?.map((item) => {
+    if (item.address === context.account) {
+      isFollowing = true;
+    }
+    return;
+  });
+
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery() {
     //updateReactions(creatorContractAddress);
@@ -181,7 +247,7 @@ export function Creator() {
       }
     }
   }, [downloadStatus, canDecrypt]);
-
+  
   useEffect(() => {
     (async function iife() {
       if(!context.library) return;
@@ -197,7 +263,7 @@ export function Creator() {
       setReportErc20Symbol(await erc20Contract2.symbol());
     })();
   }, [contentsQuery, creatorContractAddress, context.library]);
-
+  
   const reactionsQuery = useQuery(REACTIONS_QUERY, {
     variables: {'nftAddress': creatorContractAddress},
     pollInterval: 10000,
@@ -210,6 +276,68 @@ export function Creator() {
   }, [reactionsQuery, context]);
 
   async function addGasless() {
+    // const addContractData = new URLSearchParams({
+    //   contractName: 'creator' + creatorContractAddress.slice(2, 6),
+    //   contractAddress: creatorContractAddress,
+    //   abi: JSON.stringify(creaton_contracts.Creator.abi),
+    //   contractType: 'SC',
+    //   metaTransactionType: 'TRUSTED_FORWARDER',
+    // });
+
+    // fetch('https://api.biconomy.io/api/v1/smart-contract/public-api/addContract', {
+    //   method: 'POST', // or 'PUT'
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //      authToken: BICONOMY_AUTH,
+    //      apiKey: BICONOMY_API,
+    //   },
+    //   body: addContractData,
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log('Success:', data);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error:', error);
+    //   });
+
+    //creatonadmin 0x9AF8d7C5F8A0b6b759DF2a44f379B611849593cb
+    // sf 0xEB796bdb90fFA0f28255275e16936D25d3418603
+    //const superfluidABI = [{"inputs":[{"internalType":"bool","name":"nonUpgradable","type":"bool"},{"internalType":"bool","name":"appWhiteListingEnabled","type":"bool"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"AppRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"uuid","type":"bytes32"},{"indexed":false,"internalType":"address","name":"codeAddress","type":"address"}],"name":"CodeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"oldGov","type":"address"},{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"GovernanceReplaced","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"},{"indexed":false,"internalType":"uint256","name":"reason","type":"uint256"}],"name":"Jail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"SuperTokenFactoryUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperToken","name":"token","type":"address"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"SuperTokenLogicUpdated","type":"event"},{"inputs":[],"name":"APP_WHITE_LISTING_ENABLED","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"CALLBACK_GAS_LIMIT","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_APP_LEVEL","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"NON_UPGRADABLE_DEPLOYMENT","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"addToAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"allowCompositeApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"appCallbackPop","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"name":"appCallbackPush","outputs":[{"internalType":"bytes","name":"appCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"batchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"}],"name":"callAgreement","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAgreementWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"},{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"}],"name":"callAppAction","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppActionWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppAfterCallback","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppBeforeCallback","outputs":[{"internalType":"bytes","name":"cbdata","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"uint256","name":"appAllowanceWantedMore","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"ctxUseAllowance","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"decodeCtx","outputs":[{"components":[{"internalType":"uint8","name":"appLevel","type":"uint8"},{"internalType":"uint8","name":"callType","type":"uint8"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"address","name":"msgSender","type":"address"},{"internalType":"bytes4","name":"agreementSelector","type":"bytes4"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"uint256","name":"appAllowanceWanted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"address","name":"appAddress","type":"address"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"internalType":"struct ISuperfluid.Context","name":"context","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"forwardBatchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"getAgreementClass","outputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"appAddr","type":"address"}],"name":"getAppLevel","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"getAppManifest","outputs":[{"internalType":"bool","name":"isSuperApp","type":"bool"},{"internalType":"bool","name":"isJailed","type":"bool"},{"internalType":"uint256","name":"noopMask","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCodeAddress","outputs":[{"internalType":"address","name":"codeAddress","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getGovernance","outputs":[{"internalType":"contract ISuperfluidGovernance","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactory","outputs":[{"internalType":"contract ISuperTokenFactory","name":"factory","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactoryLogic","outputs":[{"internalType":"address","name":"logic","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"gov","type":"address"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"name":"isAgreementClassListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"isAgreementTypeListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isApp","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isAppJailed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"isCompositeAppAllowed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"isCtxValid","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"forwarder","type":"address"}],"name":"isTrustedForwarder","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"reason","type":"uint256"}],"name":"jailApp","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"}],"name":"mapAgreementClasses","outputs":[{"internalType":"contract ISuperAgreement[]","name":"agreementClasses","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"proxiableUUID","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"registerAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerAppByFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"},{"internalType":"string","name":"registrationKey","type":"string"}],"name":"registerAppWithKey","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"removeFromAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"replaceGovernance","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"updateAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newAddress","type":"address"}],"name":"updateCode","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"updateSuperTokenFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperToken","name":"token","type":"address"}],"name":"updateSuperTokenLogic","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"versionRecipient","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"}]
+
+    // const addMethodSFData = {
+    //   apiType: 'native',
+    //   methodType: 'write',
+    //   name: 'stream',
+    //   contractAddress: '0xEB796bdb90fFA0f28255275e16936D25d3418603',
+    //   method: 'forwardBatchCall',
+    // };
+
+    const addMethodData = {
+      apiType: 'native',
+      methodType: 'write',
+      name: 'upload' + creatorContractAddress.slice(2, 6),
+      contractAddress: creatorContractAddress,
+      method: 'upload',
+    };
+
+    fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
+      method: 'POST', // or 'PUT'
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        authToken: BICONOMY_AUTH,
+        apiKey: BICONOMY_API,
+      },
+      body: new URLSearchParams(addMethodData),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log('Success:', data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
     if(!context.library) return;
     const signer = context.library.getSigner()
     const walletAddress = await signer.getAddress();
@@ -300,6 +428,24 @@ export function Creator() {
     console.log('subscribed');
   }
 
+  async function stopStreaming() {
+    let {sf, usdc, usdcx} = await superfluid;
+
+    const tx = await sf.host.callAgreement(
+      sf.agreements.cfa.address,
+      sf.agreements.cfa.contract.methods
+        .deleteFlow(usdcx.address, context.account, creatorContractAddress, "0x")
+        .encodeABI(),
+      "0x",
+      { from: context.account }
+    );
+    web3utils.setIsWaiting(true);
+    await tx.wait(1);
+    web3utils.setIsWaiting(false);
+
+    console.log('unsubscribed');
+  }
+
   async function decrypt(content) {
     //if (content.ipfs.startsWith('/ipfs'))
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
@@ -375,38 +521,40 @@ export function Creator() {
       fileType = 'image';
     }
     console.log(content);
-
     if (!content.hide || isSelf) {
       return (
-        <Card
-          key={content.ipfs}
-          fileUrl={src || null}
-          name={content.name}
-          description={content.description}
-          fileType={fileType}
-          date={content.date}
-          avatarUrl=""
-          onReport={() => {
-            report(content);
-          }}
-          isCreator={isSelf}
-          hide={content.hide}
-          onHide={() => {
-            hide(content.tokenId, !content.hide);
-          }}
-          canDecrypt={canDecrypt}
-          reactionErc20Available={reactionErc20Available}
-          reactionErc20Symbol={reactionErc20Symbol}
-          onReact={(amount, callback) => { react(content, amount, callback) }}
-          onReportForModeration={(amount, file, callback) => { reportForModeration(content, amount, file, callback) }}
-          reportErc20Available={reportErc20Available}
-          reportErc20Symbol={reportErc20Symbol}
-          hasReacted={hasReacted(content)}
-          hasReported={hasReported(content)}
-          initialReactCount={countReacted(content)}
-          link={content.link}
-          
-        />
+        <React.Fragment>
+          <Card
+            key={content.ipfs}
+            fileUrl={src || null}
+            name={content.name}
+            description={content.description}
+            fileType={fileType}
+            date={content.date}
+            avatarUrl=""
+            onReport={() => {
+              report(content);
+            }}
+            isCreator={isSelf}
+            hide={content.hide}
+            onHide={() => {
+              hide(content.tokenId, !content.hide);
+            }}
+            canDecrypt={canDecrypt}
+            // reactionErc20Available={reactionErc20Available}
+            // reactionErc20Symbol={reactionErc20Symbol}
+            //onReact={(amount, callback) => { react(content, amount, callback) }}
+            // hasReacted={hasReacted(content)}
+            // initialReactCount={countReacted(content)}
+            hasReported={hasReported(content)}
+          />
+          <iframe
+            src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
+            style={{border: 'none', width: '100%'}}
+          >
+            Comments
+          </iframe>
+        </React.Fragment>
       );
     } else return;
   }
@@ -486,6 +634,7 @@ export function Creator() {
     }
   }
 
+  /*
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
@@ -520,20 +669,18 @@ export function Creator() {
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-  }
+  }*/
 
   function countReacted(content): string {
     if (!reactions) return '0';
     const count = reactions
       .filter((r) => r.tokenId === content.tokenId)
       .reduce((sum, current) => sum + +current.amount, 0);
-
-    let res = ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
-    return (Math.round(+res*1e2) / 1e2).toString();
+    return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
   }
   function hasReacted(content) {
     if (!reactions) return false;
-    return reactions.some((r) => r.tokenId === content.tokenId && r.reactingUser.address === context.account?.toLowerCase());
+    return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
   }
 
   function hasReported(content){
@@ -604,7 +751,7 @@ export function Creator() {
         {subscription === 'subscribed' && !isSelf && (
           <Button
             onClick={() => {
-              alert('still need to implement, can cancel manually through Superfluid dashboard');
+              stopStreaming();
             }}
             label="Stop Subscription"
           />
@@ -661,11 +808,22 @@ export function Creator() {
             : contractQuery.data.creators[0].id.slice(0, 6)}
         </h3>
         <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
+        <h1 className="text-white">Followers {followersQuery?.data?.identity?.followerCount} | Following {followersQuery?.data?.identity?.followingCount}</h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
           {generateButton()}
-          {/* {context.chainId === 80000 && ( */}
-          {context.chainId === 80001 && (
+          { !isSelf &&
+          <Button
+            onClick={
+              !isFollowing
+                ? () => cyberConnect.connect(context.account)
+                : () => cyberConnect.disconnect(context.account)
+            }
+            label={isFollowing ? 'Unfollow' : 'Follow'}
+          />
+          }
+
+          {context.chainId === 80000 && (
             <span>
               <div className="flex space-x-5">
                 <Button
