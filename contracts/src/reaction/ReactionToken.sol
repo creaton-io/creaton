@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableMap.sol";
 
+import "../dependency/gsn/BaseRelayRecipient.sol";
+
 import {
     IConstantFlowAgreementV1
 } from "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol";
@@ -18,7 +20,7 @@ import {
 import "./ReactionFactory.sol";
 import "./StakedFlow.sol";
 
-contract ReactionToken is Context, ERC20 {
+contract ReactionToken is ERC20, BaseRelayRecipient {
     event Staked(address author, uint256 amount, address stakingTokenAddress);
     event Reacted(address author, address reactionRecipientAddress, uint256 tokenId, address reactionTokenAddress, uint256 amount, string reactionTokenName, string reactionTokenSymbol);
     event Flowed(address flow, uint256 amount, address stakingTokenAddress, address recipient, address stakingSuperTokenAddress);
@@ -41,7 +43,8 @@ contract ReactionToken is Context, ERC20 {
         string memory reactionTokenName, 
         string memory reactionTokenSymbol,
         string memory tokenMetadataURI,
-        uint8 monthDistributionPercentage
+        uint8 monthDistributionPercentage,
+        address _trustedForwarder
     ) ERC20(reactionTokenName, reactionTokenSymbol) {
         require(address(reactionFactory) != address(0), "ReactionToken: Reaction Factory can't be 0x");
         require(address(sfHost) != address(0), "ReactionToken: Host Address can't be 0x");
@@ -56,6 +59,8 @@ contract ReactionToken is Context, ERC20 {
         _stakingTokenAddress = stakingTokenAddress;
         _monthDistributionPercentage = monthDistributionPercentage;
         _tokenMetadataURI = tokenMetadataURI;
+
+        trustedForwarder = _trustedForwarder;
     }
 
     function stakeAndMint(uint256 amount, address stakingTokenAddress, address reactionRecipientAddress, uint256 tokenId) public {
@@ -90,4 +95,19 @@ contract ReactionToken is Context, ERC20 {
     function getStakingTokenAddress() public view returns (address) {
         return _stakingTokenAddress;
     }
+
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
+    }
+
+    function _msgSender() internal view override(Context, BaseRelayRecipient)
+        returns (address sender) {
+        sender = BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, BaseRelayRecipient)
+        returns (bytes memory) {
+        return BaseRelayRecipient._msgData();
+    }
+    
 }

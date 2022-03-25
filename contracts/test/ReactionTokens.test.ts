@@ -14,6 +14,8 @@ const timeTravel = async (time: number) => {
     console.log(`\tTime Travelled ${time} (sec) => FROM ${startBlock.timestamp} TO ${endBlock.timestamp}`);
 };  
 
+const BICONOMY_FORWARDED_MUMBAI = "0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b";
+
 describe("Reaction Tokens", function () {
     let owner: SignerWithAddress,
         alice: SignerWithAddress,
@@ -60,7 +62,7 @@ describe("Reaction Tokens", function () {
         expect(reactionFactoryContract.address).to.be.properAddress;
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         // Deploy new Reaction Token
@@ -86,7 +88,7 @@ describe("Reaction Tokens", function () {
         expect(reactionFactoryContract.address).to.be.properAddress;
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         expect(await reactionFactoryContract.isSuperToken(erc20Contract.address)).to.be.false;
@@ -110,7 +112,7 @@ describe("Reaction Tokens", function () {
         const reactionFactoryContract: Contract = await contractFactory.deploy();
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         // Deploy new Reaction Token
@@ -201,7 +203,7 @@ describe("Reaction Tokens", function () {
         const reactionFactoryContract: Contract = await contractFactory.deploy();
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         // Deploy new Reaction Token
@@ -256,7 +258,7 @@ describe("Reaction Tokens", function () {
         const reactionFactoryContract: Contract = await contractFactory.deploy();
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         // Deploy new Reaction Token
@@ -299,7 +301,7 @@ describe("Reaction Tokens", function () {
         const reactionFactoryContract: Contract = await contractFactory.deploy();
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
@@ -347,7 +349,7 @@ describe("Reaction Tokens", function () {
         const reactionFactoryContract: Contract = await contractFactory.deploy();
 
         // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
+        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI))
             .to.emit(reactionFactoryContract, "Initialized");
 
         // Deploy new Reaction Token
