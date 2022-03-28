@@ -18,6 +18,9 @@ let testingToken: ContractFactory;
 let testingTokenContract: Contract;
 const now = Math.floor(Date.now()/1000) -50;
 
+const BICONOMY_FORWARDED_MUMBAI = "0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b";
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+
 const timeTravel = async (time: number) => {
     const startBlock = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
     await network.provider.send("evm_increaseTime", [time]);
@@ -31,7 +34,7 @@ describe('FanCollectible tokens', function(){
     beforeEach(async function(){
         [OwnerAccount,TestingAccount1,TestingAccount2] = await ethers.getSigners();
         CollectibleFactory = await ethers.getContractFactory('FanCollectible');
-        CollectibleContract = await CollectibleFactory.deploy('Pyrocoin');
+        CollectibleContract = await CollectibleFactory.deploy('Pyrocoin', BICONOMY_FORWARDED_MUMBAI);
     });
 
     it('Check minter\'s and owner\'s address', async function(){
@@ -48,7 +51,7 @@ describe('FanCollectible tokens', function(){
 
     it('Check if create works', async function(){
         const initialId = (await CollectibleContract.getCurrentTokenID()).toString();
-        await CollectibleContract.create('Pyrocoin',"0x00");
+        await CollectibleContract.create('Pyrocoin',ZERO_ADDRESS);
         const finalId = (await CollectibleContract.getCurrentTokenID()).toString();
         expect(initialId).to.not.equal(finalId);
     });
@@ -63,7 +66,7 @@ describe('CreatorCollections', function(){
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
         NFTLanceContract = await NFTLanceFactory.deploy();
-        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address, BICONOMY_FORWARDED_MUMBAI);
 
         const fanCollectibleAddress = await NFTLanceContract.fanCollectibleAddress();
         const creatorCollectionsAddress = await NFTLanceContract.creatorsCollections(OwnerAccount.address);
@@ -154,7 +157,7 @@ describe('Purchasing single', function(){
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
         NFTLanceContract = await NFTLanceFactory.deploy();
-        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address, BICONOMY_FORWARDED_MUMBAI);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
@@ -229,7 +232,7 @@ describe('Purchasing multiples', function(){
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
         NFTLanceContract = await NFTLanceFactory.deploy();
-        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address, BICONOMY_FORWARDED_MUMBAI);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
@@ -365,7 +368,7 @@ describe('Checking Payment to artist works correctly', function(){
 
         NFTLanceFactory = await ethers.getContractFactory('NFTLance');
         NFTLanceContract = await NFTLanceFactory.deploy();
-        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address);
+        await NFTLanceContract.deployCreatorCollection("https://token-cdn-domain/{id}.json", testingTokenContract.address, BICONOMY_FORWARDED_MUMBAI);
 
         //give the accounts some money
         await testingTokenContract.connect(artistAccount).faucet();
