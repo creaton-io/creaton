@@ -52,8 +52,6 @@ const config: HardhatUserConfig = {
     showTimeSpent: true,
   },
   etherscan: {
-    // Your API key for Etherscan
-    // Obtain one at https://etherscan.io/
     apiKey: process.env.ETHERSCAN_SCAN,
   },
   solidity: {
@@ -153,8 +151,8 @@ const config: HardhatUserConfig = {
       accounts,
     },
     mumbai: {
-      url: 'https://matic-mumbai.p2pify.com',
-      accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : "remote",
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+      accounts,
     },
     matic: {
       url: 'https://matic-mainnet--jsonrpc.datahub.figment.io/apikey/' + process.env.FIGMENT_TOKEN,

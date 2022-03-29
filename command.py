@@ -169,7 +169,7 @@ def update_subgraph(creaton_admin, creator, network):
     print(f'Updated {yaml_path}')
 
     if yesno('Deploy on Mumbai Subgraph?'):
-        run_command('cd subgraph && npm run deploy')
+        run_command('cd subgraph && npm run deploy-dev')
 
 
 def deploy_contracts_mumbai():

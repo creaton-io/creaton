@@ -69,25 +69,25 @@ const App = () => {
   const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   const submenuRef = useRef<any>(null);
 
-  const getLibrary = (provider) => {
-    setLoadingBiconomy(true);
-    const biconomy = new Biconomy(provider, {
-      apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
-      strictMode: true,
-      debug: true,
-    });
-    // @ts-ignore
-    //biconomy.pollingInterval = 12000
-    biconomy
-      .onEvent(biconomy.READY, () => {
-        console.log('Mexa is Ready');
-      })
-      .onEvent(biconomy.ERROR, (error, message) => {
-        console.error(error);
-      });
-    console.log('evaluating getLibrary', provider);
-    const library = biconomy.getEthersProvider();
-    library.pollingInterval = 12000;
+   const getLibrary = (provider) => {
+  //   setLoadingBiconomy(true);
+  //   const biconomy = new Biconomy(provider, {
+  //     apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
+  //     strictMode: true,
+  //     debug: true,
+  //   });
+  //   // @ts-ignore
+  //   //biconomy.pollingInterval = 12000
+  //   biconomy
+  //     .onEvent(biconomy.READY, () => {
+  //       console.log('Mexa is Ready');
+  //     })
+  //     .onEvent(biconomy.ERROR, (error, message) => {
+  //       console.error(error);
+  //     });
+    // console.log('evaluating getLibrary', provider);
+    // const library = biconomy.getEthersProvider();
+    // library.pollingInterval = 12000;
     return new Web3Provider(provider); //library
   };
 
