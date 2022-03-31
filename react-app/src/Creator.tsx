@@ -19,7 +19,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from './Config';
+import {REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20, BICONOMY_ENABLED} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -30,6 +30,7 @@ import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
+import { useMetaTx } from './hooks/metatx';
 
 let web3Modal = new Web3Modal({
   network: 'polygon',
@@ -149,6 +150,7 @@ query($nftAddress: Bytes!) {
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
   const context = useWeb3React<Web3Provider>();
+  const { executeMetaTx } = useMetaTx();
 
   let isFollowing = false;
   followersQuery?.data?.identity?.followers?.list?.map((item) => {
@@ -533,7 +535,7 @@ query($nftAddress: Bytes!) {
             canDecrypt={canDecrypt}
             // reactionErc20Available={reactionErc20Available}
             // reactionErc20Symbol={reactionErc20Symbol}
-            //onReact={(amount, callback) => { react(content, amount, callback) }}
+            onReact={(amount, callback) => { react(content, amount, callback) }}
             // hasReacted={hasReacted(content)}
             // initialReactCount={countReacted(content)}
           />
@@ -559,7 +561,7 @@ query($nftAddress: Bytes!) {
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
   }
-  /*
+  
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
@@ -574,27 +576,35 @@ query($nftAddress: Bytes!) {
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
       const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
 
-      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
+      let tx: any;
+      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);    
       if(stakingAmount.gt(allowance)){
-        let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
-        await tx.wait();
-        let receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-        if(receipt.length == 0){
-          throw Error('Error allowing token for reaction');
+        if(BICONOMY_ENABLED){
+          tx = await executeMetaTx('erc20Contract', 'approve', [REACTION_CONTRACT_ADDRESS, stakingAmount], REACTION_ERC20);
+        }else{
+          tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
+          await tx.wait();
+          let receipt = await tx.wait();
+          receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+          if(receipt.length == 0){
+            throw Error('Error allowing token for reaction');
+          }
         }
       }
-      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+      
+      if(BICONOMY_ENABLED){
+        tx = await executeMetaTx('ReactionToken', 'stakeAndMint', [stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId]);
+      }else{
+        const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+        tx = await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
+      }
 
-      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
-      reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
-        updateContentsQuery();
-        callback();
-      });
+      updateContentsQuery();
+      callback();
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-  }*/
+  }
 
   function countReacted(content): string {
     if (!reactions) return '0';

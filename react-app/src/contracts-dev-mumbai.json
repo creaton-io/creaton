@@ -472,7 +472,7 @@
         "type": "function"
       }
     ],
-    "address": "0xF37f671E79fC56d8ddF6D7600Dc20bFc262eA52c"
+    "address": "0x40D8Ec7f6164646fC45DD5788d053Fdfa9ed6E21"
   },
   "Creator": {
     "abi": [
@@ -2642,6 +2642,11 @@
             "internalType": "uint8",
             "name": "monthDistributionPercentage",
             "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
           }
         ],
         "stateMutability": "nonpayable",
@@ -2963,6 +2968,25 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "forwarder",
+            "type": "address"
+          }
+        ],
+        "name": "isTrustedForwarder",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "name",
         "outputs": [
@@ -3080,6 +3104,32 @@
           }
         ],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "trustedForwarder",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "versionRecipient",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       }
     ],
