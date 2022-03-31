@@ -107,6 +107,19 @@
         "anonymous": false,
         "inputs": [
           {
+            "indexed": false,
+            "internalType": "address",
+            "name": "factoryContractAddress",
+            "type": "address"
+          }
+        ],
+        "name": "ReactionFactoryDeployed",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
             "indexed": true,
             "internalType": "address",
             "name": "implementation",
@@ -254,6 +267,11 @@
             "internalType": "address",
             "name": "_trustedForwarder",
             "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_reactionFactory",
+            "type": "address"
           }
         ],
         "name": "initialize",
@@ -294,6 +312,32 @@
         "type": "function"
       },
       {
+        "inputs": [],
+        "name": "proxiableUUID",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "reactionFactory",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [
           {
             "internalType": "address",
@@ -310,24 +354,6 @@
           }
         ],
         "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "twitter",
-            "type": "string"
-          }
-        ],
-        "name": "signUp",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
       },
       {
@@ -440,25 +466,6 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "user2twitter",
-        "outputs": [
-          {
-            "internalType": "string",
-            "name": "",
-            "type": "string"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [],
         "name": "versionRecipient",
         "outputs": [
@@ -472,7 +479,7 @@
         "type": "function"
       }
     ],
-    "address": "0x31686C9681bBB4A4204CA4AFC8734a913AC798f7"
+    "address": "0xC7079561d2dCdaf9c749e5674CD0994AE87f3f16"
   },
   "Creator": {
     "abi": [
@@ -965,6 +972,25 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "payedUpfront",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "int96",
             "name": "num",
             "type": "int96"
@@ -1073,6 +1099,25 @@
       {
         "inputs": [
           {
+            "internalType": "bytes",
+            "name": "ctx",
+            "type": "bytes"
+          }
+        ],
+        "name": "upfrontFee",
+        "outputs": [
+          {
+            "internalType": "bytes",
+            "name": "newCtx",
+            "type": "bytes"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "string",
             "name": "_metadataURI",
             "type": "string"
@@ -1118,7 +1163,7 @@
         "type": "receive"
       }
     ],
-    "address": "0x140d1F45CB293f72EC3191b9F1521fd30fFB7d3a"
+    "address": "0x410408C6a9061E214B034C2b360897dA505c143C"
   },
   "Paymaster": {
     "abi": [

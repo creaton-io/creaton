@@ -741,7 +741,6 @@ query($nftAddress: Bytes!) {
         <h1 className="text-white">Followers {followersQuery?.data?.identity?.followerCount} | Following {followersQuery?.data?.identity?.followingCount}</h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
-          {generateButton()}
           { !isSelf &&
           <Button
             onClick={
@@ -752,6 +751,7 @@ query($nftAddress: Bytes!) {
             label={isFollowing ? 'Unfollow' : 'Follow'}
           />
           }
+          {generateButton()}
 
           {context.chainId === 80000 && (
             <span>

@@ -36,7 +36,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     mapping(address => address[]) public creator2contract;
     mapping(address => address) public contract2creator;
     mapping(address => bool) public override registeredUsers;
-    mapping(address => string) public user2twitter;
 
     address private _host;
     address private _cfa;
@@ -130,11 +129,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
 
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
-    }
-
-    // TODO only be called from twitter contract
-    function signUp(address user, string memory twitter) public {
-        user2twitter[user] = twitter;
     }
 
     function updateProfile(string memory dataJSON) external {

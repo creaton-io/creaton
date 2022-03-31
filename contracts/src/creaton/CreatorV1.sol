@@ -343,6 +343,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function _unsubscribe(bytes calldata ctx) private returns (bytes memory newCtx) {
         address sender = _host.decodeCtx(ctx).msgSender;
+
+        _delSubscriber(sender);
+        
         if (subscriberCount == 1) {
             newCtx = _deleteFlows(ctx);
         } else if (subscriberCount > 0) {
@@ -360,8 +363,6 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
                 contract2treasuryCurrent + contract2treasuryDelta
             );
         }
-
-        _delSubscriber(sender);
     }
 
     // -----------------------------------------

@@ -3,44 +3,44 @@ const func = async function (hre) {
   const {deployments} = hre;
   const {deploy} = deployments;
 
-  function sleep(ms) {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  }
+  // function sleep(ms) {
+  //   return new Promise((resolve) => {
+  //     setTimeout(resolve, ms);
+  //   });
+  // }
 
-  console.log('NFTFactory Deploy');
-  const nftFactory = await deploy('NFTFactory', {
-    from: admin,
-    log: true,
-  });
+  // console.log('NFTFactory Deploy');
+  // const nftFactory = await deploy('NFTFactory', {
+  //   from: admin,
+  //   log: true,
+  // });
 
-  await hre.tenderly.verify({
-    name: 'NFTFactory',
-    address: nftFactory.address,
-  });
+  // await hre.tenderly.verify({
+  //   name: 'NFTFactory',
+  //   address: nftFactory.address,
+  // });
 
-  console.log('ReactionFactory Deploy');
-  const reactionFactory = await deploy('ReactionFactory', {
-    from: admin,
-    log: true,
-  });
+  // console.log('ReactionFactory Deploy');
+  // const reactionFactory = await deploy('ReactionFactory', {
+  //   from: admin,
+  //   log: true,
+  // });
 
-  await hre.tenderly.verify({
-    name: 'ReactionFactory',
-    address: reactionFactory.address,
-  });
+  // await hre.tenderly.verify({
+  //   name: 'ReactionFactory',
+  //   address: reactionFactory.address,
+  // });
 
-  console.log('NFTLance Deploy');
-  const nftLanceFactory = await deploy('NFTLance', {
-    from: admin,
-    log: true,
-  });
+  // console.log('NFTLance Deploy');
+  // const nftLanceFactory = await deploy('NFTLance', {
+  //   from: admin,
+  //   log: true,
+  // });
 
-  await hre.tenderly.verify({
-    name: 'NFTLance',
-    address: nftLanceFactory.address,
-  });
+  // await hre.tenderly.verify({
+  //   name: 'NFTLance',
+  //   address: nftLanceFactory.address,
+  // });
 
   console.log('CreatorV1');
   let implementationContract = await deploy('CreatorV1', {
@@ -64,15 +64,15 @@ const func = async function (hre) {
 
   console.log('CreatorAdmin deployed');
 
-  await hre.tenderly.verify({
-    name: 'CreatonAdmin',
-    address: creatonAdmin.address,
-  });
+  // await hre.tenderly.verify({
+  //   name: 'CreatonAdmin',
+  //   address: creatonAdmin.address,
+  // });
 
-  await hre.tenderly.push({
-    name: 'CreatonAdmin',
-    address: creatonAdmin.address,
-  });
+  // await hre.tenderly.push({
+  //   name: 'CreatonAdmin',
+  //   address: creatonAdmin.address,
+  // });
 };
 
 module.exports = func;
