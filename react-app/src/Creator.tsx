@@ -580,7 +580,7 @@ query($nftAddress: Bytes!) {
       const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);    
       if(stakingAmount.gt(allowance)){
         if(BICONOMY_ENABLED){
-          tx = await executeMetaTx('erc20Contract', 'approve', [REACTION_CONTRACT_ADDRESS, stakingAmount], REACTION_ERC20);
+          tx = await executeMetaTx('erc20Contract', 'approve', [REACTION_CONTRACT_ADDRESS, stakingAmount], {contractAddress: REACTION_ERC20} );
         }else{
           tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
           await tx.wait();

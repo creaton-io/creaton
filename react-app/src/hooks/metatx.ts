@@ -1,7 +1,7 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from '../web3-react/core';
 import { ethers } from "ethers";
-import { useContext, useEffect } from "react";
+import { useContext } from "react";
 import { REACTION_CONTRACT_ADDRESS } from "../Config";
 import creaton_contracts from "../Contracts";
 import { BiconomyContext, IBiconomyContext } from "../contexts/Biconomy";
@@ -9,6 +9,10 @@ import { BiconomyContext, IBiconomyContext } from "../contexts/Biconomy";
 type ContractName =
   | 'erc20Contract'
 	| 'ReactionToken'
+
+type MetaTxOptions = {
+  contractAddress?: string
+};
 
 export const useMetaTx = () => {
   const { library, chainId } = useWeb3React<Web3Provider>();
@@ -18,7 +22,7 @@ export const useMetaTx = () => {
     contractName: ContractName,
     fnName: string,
     fnParams: (string | number | boolean)[],
-    providedContractAddress?: string
+    options?: MetaTxOptions
   ): Promise<any> => {
     if(!isBiconomyReady){
       console.error("Trying to execute a MetaTX but Biconomy is not ready");
@@ -40,8 +44,8 @@ export const useMetaTx = () => {
 
     switch (contractName) {
       case 'erc20Contract':
-        if(!providedContractAddress) return false;
-        contractAddress = providedContractAddress;
+        if(!options?.contractAddress) return false;
+        contractAddress = options.contractAddress;
         contractABI = creaton_contracts.erc20Contract.abi;
         break
       case 'ReactionToken':
