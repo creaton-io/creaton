@@ -15,6 +15,7 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   price?: number;
   name?: string;
   description?: string;
+  altText?: string;
   fileUrl?: string;
   fileType?: string;
   avatarUrl?: string;
@@ -42,6 +43,7 @@ export const Card: FC<ButtonProps> = ({
   name,
   fileUrl,
   avatarUrl,
+  altText,
   fileType,
   description,
   isLiked,
@@ -234,7 +236,7 @@ export const Card: FC<ButtonProps> = ({
       <div className="flex flex-col rounded-2xl border border-gray-100/10 pr-8 pl-8 pb-8 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
         {fileUrl && (
           <div className="flex justify-center flex-shrink-0 my-6">
-            {fileType === 'image' && <img className="w-auto md:max-w-2xl max-w-full rounded-xl" src={fileUrl} alt="" />}
+            {fileType === 'image' && <img className="w-auto md:max-w-2xl max-w-full rounded-xl" src={fileUrl} alt={name} />}
             {fileType === 'video' && <VideoPlayer url={fileUrl} />}
           </div>
         )}
