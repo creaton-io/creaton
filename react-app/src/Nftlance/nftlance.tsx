@@ -17,7 +17,7 @@ import { Splash } from "../components/splash";
 import { useParams } from "react-router-dom";
 
 interface params {
-    id: string;
+  id: string;
 }
 
 export const Nftlance: FC = () => {
@@ -146,50 +146,100 @@ export const Nftlance: FC = () => {
             return;
         }
     }
+  }
 
-    return (
-        <div className="max-w-5xl my-0 mx-auto text-center text-center">
-            {!creatorCollectionsAddress &&  
-                <div className="grid grid-cols-1 place-items-center m-auto text-white">
-                    <p className="text-5xl pt-12 pb-6 pl-6">Create your own Nft Collections</p>
-                    <p className="text-xl opacity-50 pl-6">
-                        Setup your NFT Collections so you can create your catalog and earn creating NFT's!
-                    </p>
-                    {!createCreatorsCollectionsVisible && <Button className="mt-5" onClick={() => setCreateCreatorsCollectionsVisible(true)} label="Setup Creator Collections"/>  }
+  async function newCatalog(e) {
+    web3utils.setIsWaiting(true);
+    e.preventDefault();
+    const { library } = web3Context;
+    if (!library || !creatorCollectionsAddress) return;
 
-                    {createCreatorsCollectionsVisible &&
-                        <form onSubmit={newCreatorCollections} className="grid grid-cols-1 place-items-center m-auto text-white">
-                            <div className="p-5 text-white">
-                                <Input className="bg-gray-900 text-white" type="text" name="uri" placeholder="https://token-cdn-domain/{id}.json" label="Fan Collectible URI" />
-                                <Input className="bg-gray-900 text-white" type="text" name="token" placeholder="Token Address" label="Token address" />
-                                <Button type="submit" label="Setup" />
-                            </div>
-                        </form>
-                    }
-                </div>
-            }
+    const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+    const address = await signer.getAddress();
 
-            {creatorCollectionsAddress &&  
-                <div className="grid grid-cols-1 place-items-center m-auto text-white">
-                    <p className="text-5xl pt-12 pb-6 pl-6">Nft Collections</p>
+    const collectionsContract: Contract = new ethers.Contract(creatorCollectionsAddress as string, creaton_contracts.creatorCollections.abi, signer);
+    try {
+      await collectionsContract.createCatalog(e.target.title.value, e.target.description.value);
+      collectionsContract.once("CatalogAdded", async (catalogId, title, description, artist, periodStart) => {
+        setCreateNftCatalogVisible(false);
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({ description: 'New NFT Collection created successfully!', type: 'success' });
+      });
+    } catch (error: any) {
+      web3utils.setIsWaiting(false);
+      notificationHandler.setNotification({ description: error.toString(), type: 'error' })
+      return;
+    }
+  }
 
-                    {!createNftCatalogVisible && <Button className="mt-5" onClick={() => setCreateNftCatalogVisible(true)} label="Create a new NFT Collection"/> }
+  return (
+    <div className="max-w-5xl my-0 mx-auto text-center text-center">
+      {!creatorCollectionsAddress &&
+        <div className="grid grid-cols-1 place-items-center m-auto text-white">
+          <p className="text-5xl pt-12 pb-6 pl-6">Create your own NFT Collections</p>
+          <p className="text-xl opacity-50 pl-6">
+            Setup your NFT Collections so you can create your catalog and earn creating NFT's!
+          </p>
+          
+          {!createCreatorsCollectionsVisible && <><div className="container-fluid">
+            <br /><br />
+            <br /><br />
+            <ul className="list-unstyled multi-steps">
+              <li >Step 1
+                <br />
+                lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </li>
+              <li>Step 2
+                <br />
+                lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </li>
+              <li >Step 3
+                <br />
+                lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
+              <li>Step 4
+                <br />
+                lorem ipsum dolor sit amet, consectetur adipiscing elit.
+              </li>
+            </ul>
+            <br /><br />
+            <br /><br />
 
-                    {createNftCatalogVisible &&
-                        <form onSubmit={newCatalog} className="grid grid-cols-1 place-items-center w-max m-auto text-white">
-                            <div className="p-5 text-white">
-                                <Input className="bg-gray-900 text-white" type="text" name="title" placeholder="Title" label="Title" />
-                                <Textarea className="bg-gray-900 text-white" name="description" placeholder="Description" label="Description" />
-                                <Button type="submit" label="Create" />
-                            </div>
-                        </form>
-                    }
-                </div>
-            }
+          </div>
+          <Button className="mt-5"  onClick={() => setCreateCreatorsCollectionsVisible(true)} label="Setup Creator Collections" /></>}
 
-            { collectionsData.length > 0 && <div className="mt-10">
-                {collectionsData.map((c,i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} key={`collection-${i}`} />)}
-            </div>}
+          {createCreatorsCollectionsVisible &&
+            <form onSubmit={newCreatorCollections} className="grid grid-cols-1 place-items-center m-auto text-white">
+              <div className="p-5 text-white">
+                <Input className="bg-gray-900 text-white" type="text" name="uri" placeholder="https://token-cdn-domain/{id}.json" label="Fan Collectible URI" />
+                <Input className="bg-gray-900 text-white" type="text" name="token" placeholder="token address" label="Token address" />
+                <Button type="submit" label="Setup" />
+              </div>
+            </form>
+          }
         </div>
-    )
+      }
+
+      {creatorCollectionsAddress &&
+        <div className="grid grid-cols-1 place-items-center m-auto text-white">
+          <p className="text-5xl pt-12 pb-6 pl-6">Nft Collections</p>
+
+          {!createNftCatalogVisible && <Button className="mt-5" onClick={() => setCreateNftCatalogVisible(true)} label="Create a new NFT Collection" />}
+
+          {createNftCatalogVisible &&
+            <form onSubmit={newCatalog} className="grid grid-cols-1 place-items-center w-max m-auto text-white">
+              <div className="p-5 text-white">
+                <Input className="bg-gray-900 text-white" type="text" name="title" placeholder="Title" label="Title" />
+                <Textarea className="bg-gray-900 text-white" name="description" placeholder="Description" label="Description" />
+                <Button type="submit" label="Create" />
+              </div>
+            </form>
+          }
+        </div>
+      }
+
+      {collectionsData.length > 0 && <div className="mt-10">
+        {collectionsData.map((c, i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} key={`collection-${i}`} />)}
+      </div>}
+    </div>
+  )
 };

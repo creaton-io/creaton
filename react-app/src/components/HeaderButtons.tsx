@@ -26,6 +26,9 @@ const HeaderButtons = () => {
       <Link to="/">
         <Button label="Home" theme="focused"></Button>
       </Link>
+      <Link to="/nftlance">
+        <Button label="NFTLance" theme="unfocused"></Button>
+      </Link>
       <Link to="/creators">
         <Button label="Creators" theme="unfocused"></Button>
       </Link>
