@@ -1,6 +1,6 @@
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
 import {SuperfluidContext} from './Superfluid';
@@ -100,7 +100,8 @@ export function Discovery() {
   const litNode = useContext(LitContext);
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
+  const provider = context.provider as Web3Provider;
   const getSubscriptionsQuery = useQuery(GET_SUBSCRIPTIONS_QUERY, {variables: {user: context.account}, pollInterval: 10000});
   console.log(getSubscriptionsQuery.data)
   const contentsQuery = useQuery(CONTENTS_QUERY, { pollInterval: 10000});
@@ -197,17 +198,17 @@ export function Discovery() {
     }
   }, [downloadStatus, canDecrypt]);
 
-  useEffect(() => {
-    (async function iife() {
-      if(!context.library) return;
-      const signer = context.library.getSigner()
-      const userAddress = await signer.getAddress();
+  // useEffect(() => {
+  //   (async function iife() {
+  //     if(!context.isActive) return;
+  //     const signer = context.library.getSigner()
+  //     const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
-      setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
-      setReactionErc20Symbol(await erc20Contract.symbol());
-    })();
-  }, [contentsQuery, creatorContractAddress, context.library]);
+  //     const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+  //     setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
+  //     setReactionErc20Symbol(await erc20Contract.symbol());
+  //   })();
+  // }, [contentsQuery, creatorContractAddress, context.library]);
 
   const reactionsQuery = useQuery(REACTIONS_QUERY, {
     variables: {'nftAddress': creatorContractAddress},
@@ -221,8 +222,8 @@ export function Discovery() {
   }, [reactionsQuery, context]);
 
   async function addGasless() {
-    if(!context.library) return;
-    const signer = context.library.getSigner()
+    if(!context.isActive) return;
+    const signer = provider.getSigner();
     const walletAddress = await signer.getAddress();
 
     const signedMessage = await signer.signMessage(`Creaton: Enabling gasless transactions for ${walletAddress}`);
@@ -276,7 +277,7 @@ export function Discovery() {
     let {sf, usdc, usdcx} = await superfluid;
     let subscriber = context.account;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
+      provider.getSigner()
     );
     call = [
       [
@@ -429,7 +430,7 @@ export function Discovery() {
   async function subscribe() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
+      provider.getSigner()
     );
     const receipt = await creatorContract.subscribe();
     web3utils.setIsWaiting(true);
@@ -443,7 +444,7 @@ export function Discovery() {
 
     try {
       // Allowance
-      const signer = context.library!.getSigner()
+      const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
 
       const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
@@ -462,7 +463,7 @@ export function Discovery() {
           throw Error('Error allowing token for reaction');
         }
       }
-      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider.getSigner());
 
       await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
@@ -490,8 +491,10 @@ export function Discovery() {
 
   async function hide(tokenId, hide: boolean) {
     if (!web3utils.isSignedUp()) return;
+    
+    const provider = context.provider as Web3Provider;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
+      provider.getSigner()
     );
     const receipt = await creatorContract.hidePost(tokenId, hide);
     web3utils.setIsWaiting(true);
@@ -512,7 +515,7 @@ export function Discovery() {
         ' in contract ' +
         creatorContractAddress +
         ' on the Creaton platform.';
-      const signature = await context.library!.getSigner().signMessage(message);
+      const signature = await provider.getSigner().signMessage(message);
       const response = await fetch(REPORT_URI, {
         method: 'POST',
         headers: {

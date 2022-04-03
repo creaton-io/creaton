@@ -3,8 +3,8 @@ import React, {useContext, useEffect, useState} from "react";
 import {Input} from "./elements/input";
 import {Contract} from "ethers";
 import creaton_contracts from "./Contracts";
-import {useWeb3React} from "./web3-react/core";
-import {Web3Provider} from "@ethersproject/providers";
+import {useWeb3React} from "@web3-react/core";
+import {BaseProvider, JsonRpcProvider, Provider, Web3Provider} from "@ethersproject/providers";
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
 import {CeramicStore} from "./stores/ceramicStore";
 import {AvatarUpload} from "./components/avatarUpload";
@@ -14,7 +14,7 @@ import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
 import { CeramicProvider } from "./CeramicProvider";
 
 const ProfileEdit = (props) => {
-  const web3Context = useWeb3React<Web3Provider>()
+  const web3Context = useWeb3React()
   const fileInput = React.createRef<any>();
   const coverInput = React.createRef<any>();
   const [previewSrc, setPreviewSrc] = useState<any>('')
@@ -108,9 +108,9 @@ const ProfileEdit = (props) => {
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }
-    const {library} = web3Context;
     console.log(payload)
-    const connectedContract = creatorFactoryContract.connect(library!.getSigner())
+    const provider = web3Context.provider as Web3Provider;
+    const connectedContract = creatorFactoryContract.connect(provider.getSigner());
     console.log("connectedcontract", connectedContract.address)
     let result
     try {
@@ -129,7 +129,7 @@ const ProfileEdit = (props) => {
     refetch()
   }
 
-  if (!web3Context.library)
+  if (!web3Context.isActive)
     return (<div>Connect your wallet</div>)
 
   return (
