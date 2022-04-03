@@ -115,14 +115,14 @@ p.encryptedText{
   font-weight: bold;
   border-width: 2px;
   border-style: solid;
-  border-color: tomato;
+  border-color: rgb(67, 226, 150);
   border-radius: 50%;
 }
 .multi-steps > li:after {
   content: "";
   height: 2px;
   width: 100%;
-  background-color: tomato;
+  background: linear-gradient(to right, rgb(67, 226, 150), rgb(129, 140, 248));
   position: absolute;
   top: 16px;
   left: 50%;

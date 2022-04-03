@@ -15,6 +15,7 @@ import SignUp from "../Signup";
 import { useCanBecomeCreator } from "../Whitelist";
 import { Splash } from "../components/splash";
 import { useParams } from "react-router-dom";
+import {Link} from "react-router-dom";
 
 interface params {
   id: string;
@@ -149,6 +150,8 @@ export const Nftlance: FC = () => {
   }
 
   async function newCatalog(e) {
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
     web3utils.setIsWaiting(true);
     e.preventDefault();
     const { library } = web3Context;
@@ -164,6 +167,8 @@ export const Nftlance: FC = () => {
         setCreateNftCatalogVisible(false);
         web3utils.setIsWaiting(false);
         notificationHandler.setNotification({ description: 'New NFT Collection created successfully!', type: 'success' });
+        delay(5000);
+        window.location.reload();
       });
     } catch (error: any) {
       web3utils.setIsWaiting(false);
@@ -180,37 +185,36 @@ export const Nftlance: FC = () => {
           <p className="text-xl opacity-50 pl-6">
             Setup your NFT Collections so you can create your catalog and earn creating NFT's!
           </p>
-          
-          {!createCreatorsCollectionsVisible && <><div className="container-fluid">
+
+          {!createCreatorsCollectionsVisible && 
+          <>
+          <div className="container-fluid">
             <br /><br />
             <br /><br />
             <ul className="list-unstyled multi-steps">
-              <li >Step 1
+              <li >Step 0
                 <br />
-                lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              </li>
-              <li>Step 2
+                Setup Your NFTLance by providing the token address</li>
+              <li>Step 1
                 <br />
-                lorem ipsum dolor sit amet, consectetur adipiscing elit.
-              </li>
-              <li >Step 3
+                Create NFT collection by providing title and description              </li>
+              <li >Step 2
                 <br />
-                lorem ipsum dolor sit amet, consectetur adipiscing elit.</li>
-              <li>Step 4
+                Create Cards inside NFT Collection</li>
+              <li>Step 3
                 <br />
-                lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                Check for requests for your NFT Collection
               </li>
             </ul>
             <br /><br />
             <br /><br />
-
           </div>
-          <Button className="mt-5"  onClick={() => setCreateCreatorsCollectionsVisible(true)} label="Setup Creator Collections" /></>}
+            <Button className="mt-5" onClick={() => setCreateCreatorsCollectionsVisible(true)} label="Setup Creator Collections" />
+          </>}
 
           {createCreatorsCollectionsVisible &&
             <form onSubmit={newCreatorCollections} className="grid grid-cols-1 place-items-center m-auto text-white">
               <div className="p-5 text-white">
-                <Input className="bg-gray-900 text-white" type="text" name="uri" placeholder="https://token-cdn-domain/{id}.json" label="Fan Collectible URI" />
                 <Input className="bg-gray-900 text-white" type="text" name="token" placeholder="token address" label="Token address" />
                 <Button type="submit" label="Setup" />
               </div>
@@ -223,8 +227,25 @@ export const Nftlance: FC = () => {
         <div className="grid grid-cols-1 place-items-center m-auto text-white">
           <p className="text-5xl pt-12 pb-6 pl-6">Nft Collections</p>
 
-          {!createNftCatalogVisible && <Button className="mt-5" onClick={() => setCreateNftCatalogVisible(true)} label="Create a new NFT Collection" />}
-
+          {!createNftCatalogVisible && 
+          <>
+           <ul className="list-unstyled multi-steps">
+              <li>Step 1
+                <br />
+                Create NFT collection</li>
+              <li >Step 2
+                <br />
+                Create Cards inside NFT Collection</li>
+              <li>Step 3
+                <br />
+                Check for requests for your NFT Collection
+              </li>
+            </ul>
+            <br/>
+            <br/>
+            <br/>
+          <Button className="mt-5 mb-3" onClick={() => setCreateNftCatalogVisible(true)} label="Create a new NFT Collection" />
+          </>}
           {createNftCatalogVisible &&
             <form onSubmit={newCatalog} className="grid grid-cols-1 place-items-center w-max m-auto text-white">
               <div className="p-5 text-white">
@@ -238,6 +259,9 @@ export const Nftlance: FC = () => {
       }
 
       {collectionsData.length > 0 && <div className="mt-10">
+        <Link to="/nftlance-mycardsrequests">
+        <Button className="mt-3 mb-3" label="Check For Requests" />
+        </Link>
         {collectionsData.map((c, i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} key={`collection-${i}`} />)}
       </div>}
     </div>

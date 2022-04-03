@@ -55,6 +55,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'Cards created successfully!', type: 'success'});
                 setCreateCardsVisible(!createCardsVisible);
+                window.location.reload();
             });
         } catch (error: any) {
             web3utils.setIsWaiting(false);
