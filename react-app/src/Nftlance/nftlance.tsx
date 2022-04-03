@@ -192,16 +192,16 @@ export const Nftlance: FC = () => {
             <br /><br />
             <br /><br />
             <ul className="list-unstyled multi-steps">
-              <li >Step 0
+              <li >
                 <br />
                 Setup Your NFTLance by providing the token address</li>
-              <li>Step 1
+              <li>
                 <br />
                 Create NFT collection by providing title and description              </li>
-              <li >Step 2
+              <li >
                 <br />
                 Create Cards inside NFT Collection</li>
-              <li>Step 3
+              <li>
                 <br />
                 Check for requests for your NFT Collection
               </li>
