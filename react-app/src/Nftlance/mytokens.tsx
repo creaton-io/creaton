@@ -1,20 +1,20 @@
 import { FC, useEffect, useState, useContext } from "react";
-import {useWeb3React} from '../web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 import { gql, useQuery } from "@apollo/client";
 import { Token } from "../components/nftlance.token";
 
 
 export const Mytokens: FC = () => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const [userAddress, setUserAddress] = useState("");
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider.getSigner();
             const userAddress = await signer.getAddress();
             setUserAddress(userAddress);
         })();
