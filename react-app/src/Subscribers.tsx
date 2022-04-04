@@ -1,6 +1,6 @@
 import 'react-app-polyfill/ie11';
 import * as React from 'react';
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {Fragment, useContext, useState} from 'react';
 import {Creator, useCurrentCreator} from './Utils';
@@ -88,7 +88,7 @@ function Tabs({tabs, activeTab, setActiveTab}) {
 }
 
 const Subscribers = () => {
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
   const web3utils = useContext(Web3UtilsContext);
   const notificationHandler = useContext(NotificationHandlerContext);
   const creator = useCurrentCreator().currentCreator;
@@ -100,7 +100,7 @@ const Subscribers = () => {
   const [activeTab, setActiveTab] = useState('Requested');
   const [open, setOpen] = useState(true);
   console.log('rest');
-  if (!context.library) return <div><Transition.Root show={open} as={Fragment}>
+  if (!context.isActive) return <div><Transition.Root show={open} as={Fragment}>
         <Dialog as="div" className="absolute z-50 inset-0 overflow-y-auto" onClose={setOpen}>
           <div className="flex items-end justify-center min-h-screen px-4 pb-20 text-center sm:block sm:p-0">
             <Transition.Child

@@ -9,17 +9,18 @@ interface UserStakedProps {
 }
 
 export const UserStaked: FC<UserStakedProps> = ({ stake }) => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
 
     const [stakedToken, setStakedToken] = useState<any>();
     const [stakedTokenBalance, setStakedTokenBalance] = useState('0');
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider.getSigner();
+
             const stakeContract = new ethers.Contract(stake.token, creaton_contracts.erc20.abi, signer);
 
             setStakedToken({

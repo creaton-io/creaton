@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { Contract, ethers } from "ethers";
 import { FC, useContext, useState } from "react";
 import creaton_contracts from "../Contracts";
@@ -14,7 +14,7 @@ interface VotingProcessProps {
 }
 
 export const VotingProcess: FC<VotingProcessProps> = ({ process, voting }) => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [votingModalVisible, setVotingModalVisible] = useState(false);
@@ -22,14 +22,14 @@ export const VotingProcess: FC<VotingProcessProps> = ({ process, voting }) => {
     async function handleVote(e){
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
        
         const answerId = e.target.answer.value.split(".")[1];
         const votingTokenAddress = e.target.token.value;
         const amount = e.target.amount.value;
         try {
-            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
             const userAddress = await signer.getAddress();
             // Allowance
             const erc20Contract: Contract = new Contract(votingTokenAddress, creaton_contracts.erc20.abi, signer);

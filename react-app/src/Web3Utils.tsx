@@ -1,7 +1,7 @@
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import React, {createContext, useContext, useEffect, useRef, useState} from 'react';
-import {InjectedConnector} from './web3-react/injected-connector';
-import {MagicConnector} from './web3-react/magic-connector';
+import {Magic} from '@web3-react/magic';
+import {MetaMask} from '@web3-react/metamask'
 import {useHistory} from 'react-router-dom';
 import {useCurrentProfile} from './Utils';
 import {NotificationHandlerContext} from './ErrorHandler';
@@ -11,6 +11,9 @@ import {
   UserRejectedRequestError as UserRejectedRequestErrorWalletConnect,
   WalletConnectConnector,
 } from './web3-react/walletconnect-connector';
+import { hooks, metaMask } from './connectors/metaMask'
+
+const { useChainId, useAccounts, useError, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
 const Web3UtilsContext = createContext<any>(null);
 const Web3UtilsProviderContext = createContext<any>({
@@ -18,14 +21,23 @@ const Web3UtilsProviderContext = createContext<any>({
   setProvider: () => {},
 });
 const Web3UtilsProvider = (props) => {
-  const {activate, account, chainId, library} = useWeb3React();
+  const {connector, account, chainId} = useWeb3React();
   const {currentProfile} = useCurrentProfile();
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext);
-  const [isWaiting, setIsWaiting] = useState<any>(false);
+
+  const isActivating = useIsActivating();
+
   const [magicEmail, setMagicEmail] = useState<string>('');
   const superfluid = useContext(SuperfluidContext);
   const faucetUsed = useRef(false);
+
+  const [isWaiting, setIsWaiting] = useState<any>(false);
+
+  // attempt to connect eagerly on mount
+  useEffect(() => {
+    void metaMask.connectEagerly()
+  }, [])
   // useEffect(() => {
   //   if (!account || !superfluid || chainId !== 80001 || faucetUsed.current)
   //     return;
@@ -50,20 +62,22 @@ const Web3UtilsProvider = (props) => {
     // notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
     // return;
     //TODO: test walletConnect and open up a modal
-    const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]});
-    if (await injected.getProvider())
-      activate(injected, (error) => {
-        notificationHandler.setNotification({
-          description: 'Unable to connect to wallet. ' + error.message,
-          type: 'error',
-        });
-      });
-    else {
-      notificationHandler.setNotification({
-        description: 'Only injected providers (e.g. metamask) are supported at the moment',
-        type: 'error',
-      });
-    }
+    
+    await metaMask.activate(80001)
+    // const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]});
+    // if (await injected.getProvider())
+    //   activate(injected, (error) => {
+    //     notificationHandler.setNotification({
+    //       description: 'Unable to connect to wallet. ' + error.message,
+    //       type: 'error',
+    //     });
+    //   });
+    // else {
+    //   notificationHandler.setNotification({
+    //     description: 'Only injected providers (e.g. metamask) are supported at the moment',
+    //     type: 'error',
+    //   });
+    // }
   }
 
   async function tryWalletConnect() {
@@ -71,24 +85,24 @@ const Web3UtilsProvider = (props) => {
     // return;
     //TODO: test walletConnect and open up a modal
 
-    const RPC_URLS: {[chainId: number]: string} = {
-      1: process.env.RPC_URL_1 as string,
-      4: process.env.RPC_URL_4 as string,
-    };
+    // const RPC_URLS: {[chainId: number]: string} = {
+    //   1: process.env.RPC_URL_1 as string,
+    //   4: process.env.RPC_URL_4 as string,
+    // };
 
-    const walletconnect = new WalletConnectConnector({
-      rpc: {1: RPC_URLS[1]},
-      bridge: 'https://bridge.walletconnect.org',
-      qrcode: true,
-      supportedChainIds: [1, 3, 4, 5, 42, 137, 80001],
-    });
+    // const walletconnect = new WalletConnectConnector({
+    //   rpc: {1: RPC_URLS[1]},
+    //   bridge: 'https://bridge.walletconnect.org',
+    //   qrcode: true,
+    //   supportedChainIds: [1, 3, 4, 5, 42, 137, 80001],
+    // });
 
-    activate(walletconnect, (error) => {
-      notificationHandler.setNotification({
-        description: 'Unable to open WalletConnect. ' + error.message,
-        type: 'error',
-      });
-    });
+    // connector.activate(walletconnect, (error) => {
+    //   notificationHandler.setNotification({
+    //     description: 'Unable to open WalletConnect. ' + error.message,
+    //     type: 'error',
+    //   });
+    // });
   }
 
   async function tryMagicLink(emailValue: string) {
@@ -96,18 +110,6 @@ const Web3UtilsProvider = (props) => {
     // return;
     //TODO: test walletConnect and open up a modal
 
-    const walletconnect = new MagicConnector({
-      apiKey: 'pk_live_55D93A0BD91B3D6E',
-      chainId: 80001,
-      email: magicEmail,
-    });
-
-    activate(walletconnect, (error) => {
-      notificationHandler.setNotification({
-        description: 'Unable to open WalletConnect. ' + error.message,
-        type: 'error',
-      });
-    });
   }
 
   function isSignedUp() {
@@ -123,7 +125,7 @@ const Web3UtilsProvider = (props) => {
     return true;
   }
 
-  const wrongChainId = Boolean(library && chainId !== 80001);
+  const wrongChainId = Boolean(chainId !== 80001);
 
   return (
     <Web3UtilsContext.Provider
@@ -132,11 +134,11 @@ const Web3UtilsProvider = (props) => {
         walletConnect: tryWalletConnect,
         magicConnect: tryMagicLink,
         isSignedUp: isSignedUp,
-        setIsWaiting: setIsWaiting,
         setMagicEmail: setMagicEmail,
-        isWaiting: isWaiting,
-        waitingMessage: isWaiting === true ? 'Waiting for transaction confirmation' : isWaiting,
-        disableInteraction: Boolean(isWaiting) || (wrongChainId && chainId !== 137),
+        setIsWaiting: setIsWaiting,
+        isWaiting: isActivating,
+        waitingMessage: isActivating === true ? 'Waiting for transaction confirmation' : isActivating,
+        disableInteraction: Boolean(isActivating) || (wrongChainId && chainId !== 137),
       }}
     >
       {props.children}

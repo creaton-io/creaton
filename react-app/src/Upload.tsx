@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {useCurrentCreator} from './Utils';
 import {Contract} from 'ethers';
@@ -26,7 +26,7 @@ import {Splash} from './components/splash';
 const CreatorContract = creaton_contracts.Creator;
 
 const Upload = () => {
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
   const web3utils = useContext(Web3UtilsContext);
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
   const [uploadEncrypted, setUploadEncrypted] = useState<boolean>(false);
@@ -60,7 +60,7 @@ const Upload = () => {
 
   const notificationHandler = useContext(NotificationHandlerContext);
   const litNode = useContext(LitContext);
-  if (!context.library) return <div>Not connected</div>;
+  if (!context.isActive) return <div>Not connected</div>;
   if (!canBecomeCreator) return <div>Not allowed, you are not whitelisted</div>;
   if (loading) return <Splash src="https://assets5.lottiefiles.com/packages/lf20_bkmfzg9t.json"></Splash>;
   if (currentCreator === undefined) return <SignUp />;
@@ -68,8 +68,12 @@ const Upload = () => {
 
   async function upload(file: File, file_type: string) {
     let response;
+
+    
+    const provider = context.provider as Web3Provider;
+
     const creatorContract = new Contract(currentCreator!.creatorContract, CreatorContract.abi).connect(
-      context.library!.getSigner()
+      provider.getSigner()
     );
 
     let link = rawLink;

@@ -2,7 +2,6 @@
 import ThreeIdProvider from '3id-did-provider'
 import type { DIDProvider } from 'dids'
 import { EthereumAuthProvider, ThreeIdConnect } from '@3id/connect'
-import {useWeb3React} from "../../web3-react/core";
 
 import { randomBytes } from '@stablelib/random'
 

@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { ethers } from "ethers";
 import { FC, useEffect, useRef, useState } from "react";
 import creaton_contracts from "../Contracts";
@@ -9,7 +9,7 @@ interface UserFlowProps {
 }
 
 export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
 
     const [reactionToken, setReactionToken] = useState<any>();
     const [superToken, setSuperToken] = useState<any>();
@@ -17,10 +17,10 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider.getSigner();
             // const reactionContract = new ethers.Contract(flow.owner.id, creaton_contracts.ReactionToken.abi, signer);
             // setReactionToken({
             //     name: await reactionContract.name(),
@@ -47,10 +47,10 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
     }, [web3Context]);
 
     async function withdraw(){
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
 
-        const signer = library!.getSigner();
+        const signer = provider.getSigner();
         const superTokenContract = new ethers.Contract(flow.stakingSuperToken, creaton_contracts.ISuperToken.abi, signer);
         let tx = await superTokenContract.downgrade(await superTokenContract.balanceOf(signer.getAddress()));
         let receipt = await tx.wait();

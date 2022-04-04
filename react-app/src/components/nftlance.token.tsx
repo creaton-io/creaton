@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { Contract, ethers } from "ethers";
 import { FC, useContext, useEffect, useState } from "react";
 import creaton_contracts from "../Contracts";
@@ -15,7 +15,7 @@ interface NftlanceTokenProps {
 }
 
 export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [collectionsTokenDecimals, setCollectionsTokenDecimals] = useState(0);
@@ -23,10 +23,10 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider.getSigner();
 
             const erc20Contract: Contract = new Contract(token.card.catalog.creatorCollection.token, creaton_contracts.erc20.abi, signer);
             setCollectionsTokenDecimals(await erc20Contract.decimals());
@@ -37,11 +37,11 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
     async function handleRequest(e){
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
 
         try {
-            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
             const collectibleContract: Contract = new Contract(token.card.catalog.creatorCollection.collectible.id, creaton_contracts.fanCollectible.abi, signer);
             await collectibleContract.setRequestData(token.card.id, token.tokenId, e.target.request.value);
 
@@ -58,11 +58,11 @@ export const Token: FC<NftlanceTokenProps> = ({ token, creator }) => {
     async function handleFinalize(e){
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
 
         try {
-            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
             const creatorCollectionContract: Contract = new Contract(token.card.catalog.creatorCollection.id, creaton_contracts.creatorCollections.abi, signer);
 
             let data = ethers.utils.formatBytes32String(e.target.data.value);

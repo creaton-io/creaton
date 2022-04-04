@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext} from 'react';
 import {useCurrentCreator, useCurrentProfile} from '../Utils';
 import {useCanBecomeCreator} from '../Whitelist';
 import {SuperfluidContext} from '../Superfluid';
-import {useWeb3React} from '../web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {formatEther, parseEther} from '@ethersproject/units';
 import {CopyToClipboard} from 'react-copy-to-clipboard';
 import Tooltip from '../elements/tooltip';
@@ -10,6 +10,7 @@ import {Icon} from '../icons';
 import WertModal from './wertModal';
 import LiFiModal from './lifiModal';
 import NavigationLink from './NavigationLink';
+import { Web3Provider } from '@ethersproject/providers';
 
 const ProfileMenu = (props) => {
   const {currentProfile} = useCurrentProfile();
@@ -23,10 +24,12 @@ const ProfileMenu = (props) => {
   const [unwrapAmount, setUnwrapAmount] = useState('');
   const [wrapAmount, setWrapAmount] = useState('');
   const [unwrappingUsdcx, setUnwrappingUsdcx] = useState<boolean>(false);
-  const {account, library} = useWeb3React();
+  const {provider, account} = useWeb3React();
 
   const [clipValue, setClipValue] = useState('');
   const [copyClip, setCopyClip] = useState<boolean>(false);
+
+  const web3Provider = provider as Web3Provider;
 
   useEffect(() => {
     if (!account && !usdc && !usdcx) return;
@@ -41,12 +44,12 @@ const ProfileMenu = (props) => {
   }, [usdc, usdcx, account]);
 
   useEffect(() => {
-    if (!library && !account) return;
+    if (!provider && !account) return;
 
-    library.getBalance(account).then((balance) => {
+    provider!.getBalance(account!).then((balance) => {
       setMaticBalance(balance);
     });
-  }, [library, account]);
+  }, [provider, account]);
   const canBecomeCreator = useCanBecomeCreator();
 
   // useEffect(() => {
@@ -70,9 +73,10 @@ const ProfileMenu = (props) => {
   }
 
   async function addUsdcx() {
-    const wasAdded = await library.provider.request({
+    const wasAdded = await web3Provider.provider.request!({
       method: 'wallet_watchAsset',
       params: {
+        //@ts-ignore
         type: 'ERC20', // Initially only supports ERC20, but eventually more!
         options: {
           address: usdcx.address, // The address that the token is at.
@@ -84,9 +88,10 @@ const ProfileMenu = (props) => {
     });
   }
   async function addUsdc() {
-    const wasAdded = await library.provider.request({
+    const wasAdded = await web3Provider.provider.request!({
       method: 'wallet_watchAsset',
       params: {
+        //@ts-ignore
         type: 'ERC20', // Initially only supports ERC20, but eventually more!
         options: {
           address: usdc.address, // The address that the token is at.
@@ -132,7 +137,7 @@ const ProfileMenu = (props) => {
         <div className="text-lg font-bold text-black bold">{currentProfile?.username}</div>
         <div className="-mt-2 text-sm text-purple-500">
           <CopyToClipboard text={account} onCopy={() => setCopyClip(true)}>
-            <span className="select-all">{clipAddress(account)}📋</span>
+            <span className="select-all">{clipAddress(account ? account : "")}📋</span>
           </CopyToClipboard>
         </div>
       </div>
