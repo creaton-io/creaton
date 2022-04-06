@@ -536,7 +536,7 @@ query($nftAddress: Bytes!) {
             canDecrypt={canDecrypt}
             // reactionErc20Available={reactionErc20Available}
             // reactionErc20Symbol={reactionErc20Symbol}
-            onReact={(amount, callback) => { react(content, amount, callback) }}
+            // onReact={(amount, callback) => { react(content, amount, callback) }}
             // hasReacted={hasReacted(content)}
             // initialReactCount={countReacted(content)}
           />
@@ -563,61 +563,61 @@ query($nftAddress: Bytes!) {
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
   }
   
-  async function react(content, amount, callback) {
-    if (!web3utils.isSignedUp()) return;
+  // async function react(content, amount, callback) {
+  //   if (!web3utils.isSignedUp()) return;
 
-    try {
-      // Allowance
-      const signer = provider!.getSigner()
-      const userAddress = await signer.getAddress();
+  //   try {
+  //     // Allowance
+  //     const signer = provider!.getSigner()
+  //     const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+  //     const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
 
-      const preDecimals = await erc20Contract.decimals();
-      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
-      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+  //     const preDecimals = await erc20Contract.decimals();
+  //     const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+  //     const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
 
-      let tx: any;
-      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);    
-      if(stakingAmount.gt(allowance)){
-        if(BICONOMY_ENABLED){
-          tx = await executeMetaTx('erc20Contract', 'approve', [REACTION_CONTRACT_ADDRESS, stakingAmount], {contractAddress: REACTION_ERC20} );
-        }else{
-          tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
-          await tx.wait();
-          let receipt = await tx.wait();
-          receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-          if(receipt.length == 0){
-            throw Error('Error allowing token for reaction');
-          }
-        }
-      }
+  //     let tx: any;
+  //     const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
+  //     if(stakingAmount.gt(allowance)){
+  //       if(false){
+  //         tx = await executeMetaTx('erc20Contract', 'approve', [REACTION_CONTRACT_ADDRESS, stakingAmount], {contractAddress: REACTION_ERC20} );
+  //       }else{
+  //         tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
+  //         await tx.wait();
+  //         let receipt = await tx.wait();
+  //         receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+  //         if(receipt.length == 0){
+  //           throw Error('Error allowing token for reaction');
+  //         }
+  //       }
+  //     }
       
-      if(BICONOMY_ENABLED){
-        tx = await executeMetaTx('ReactionToken', 'stakeAndMint', [stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId]);
-      }else{
-        const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
-        tx = await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
-      }
+  //     if(BICONOMY_ENABLED){
+  //       tx = await executeMetaTx('ReactionToken', 'stakeAndMint', [stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId]);
+  //     }else{
+  //       const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
+  //       tx = await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
+  //     }
 
-      updateContentsQuery();
-      callback();
-    } catch (error: any) {
-      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
-    }
-  }
+  //     updateContentsQuery();
+  //     callback();
+  //   } catch (error: any) {
+  //     notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+  //   }
+  // }
 
-  function countReacted(content): string {
-    if (!reactions) return '0';
-    const count = reactions
-      .filter((r) => r.tokenId === content.tokenId)
-      .reduce((sum, current) => sum + +current.amount, 0);
-    return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
-  }
-  function hasReacted(content) {
-    if (!reactions) return false;
-    return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
-  }
+  // function countReacted(content): string {
+  //   if (!reactions) return '0';
+  //   const count = reactions
+  //     .filter((r) => r.tokenId === content.tokenId)
+  //     .reduce((sum, current) => sum + +current.amount, 0);
+  //   return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
+  // }
+  // function hasReacted(content) {
+  //   if (!reactions) return false;
+  //   return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+  // }
 
   async function hide(tokenId, hide: boolean) {
     if (!web3utils.isSignedUp()) return;

@@ -16,14 +16,14 @@ const FAUCET_URI = 'https://faucet.creaton.io/give-me-some';
 if (process.env.NODE_ENV === 'development') {
   REENCRYPTION_URI = 'https://staging.creaton.io';
   // APOLLO_URI = 'http://api.graph.io:8000/subgraphs/name/creaton-io/creaton'
-  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/creaton-dev';
+  APOLLO_URI = 'https://api.thegraph.com/subgraphs/name/creaton-io/aleix';
 
   // BICONOMY_API = process.env.BICONOMY_API;
   BICONOMY_ENABLED = true;
   BICONOMY_API = "0OUEd5kB2.d719b3cf-b9f1-4f5a-a083-c46b0eb27b80";
   BICONOMY_AUTH = process.env.BICONOMY_AUTH;
 
-  REACTION_CONTRACT_ADDRESS = '0xac29787863E446e79a98e17589e52cC779331e3c';
+  REACTION_CONTRACT_ADDRESS = '0x67815311d03c42e319812bbb71dcb8ed0ea15248';
   REACTION_ERC20 = '0xe2ee5f719a12a85dc7cdeb04fad3ebc0ffe185de';
   CREATE_TOKEN_ADDRESS = '0xe2ee5f719a12a85dc7cdeb04fad3ebc0ffe185de';
   GOVERNANCE_SQUAD_TOKENS = {

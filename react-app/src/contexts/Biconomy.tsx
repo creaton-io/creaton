@@ -1,4 +1,4 @@
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { createContext, useEffect, useMemo, useState } from "react";
 import { Web3Provider } from "@ethersproject/providers";
 import { Biconomy } from "../assets/mexa/common-js";
@@ -12,14 +12,13 @@ const BiconomyContext = createContext<IBiconomyContext | null>(null);
 
 const BiconomyProvider = (props: any) => {
     const [isBiconomyReady, setIsBiconomyReady] = useState(false);
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
 
     const biconomy: any = useMemo(() => {
-        if(!web3Context.library) return
+        if(!web3Context.provider) return
 
-        return new Biconomy(web3Context.library, {
+        return new Biconomy(web3Context.provider as Web3Provider, {
             apiKey: BICONOMY_API,
-            walletProvider: web3Context.library.provider,
             debug: true,
             strictMode: true,
         });

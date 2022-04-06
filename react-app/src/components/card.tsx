@@ -144,7 +144,6 @@ export const Card: FC<ButtonProps> = ({
               });
               
               const decBlob = new Blob([decryptedFile], {type: 'application/json'});
-              console.log('SHIT LINK', decBlob);
               const decDecryptedText = JSON.parse(await decBlob.text());
     
               const reversed = Array.from(desc.matchAll(regexSubscribersText)).reverse();
@@ -253,7 +252,7 @@ export const Card: FC<ButtonProps> = ({
                       }
                       hover
                     >
-              <div className=" mr-5 ">
+              {/* <div className=" mr-5 ">
 
                           {!reacting && !hasReacted && 
                             <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
@@ -295,7 +294,7 @@ export const Card: FC<ButtonProps> = ({
                           <span className="ml-2 text-white">
                             {reactCount}
                           </span>
-                        </div> 
+                        </div>  */}
               </Tooltip>
               <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
               

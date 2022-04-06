@@ -1,10 +1,11 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from '../web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import { ethers } from "ethers";
 import { useContext } from "react";
 import { REACTION_CONTRACT_ADDRESS } from "../Config";
 import creaton_contracts from "../Contracts";
 import { BiconomyContext, IBiconomyContext } from "../contexts/Biconomy";
+import { NotificationHandlerContext } from "../ErrorHandler";
 
 type ContractName =
   | 'erc20Contract'
@@ -15,8 +16,12 @@ type MetaTxOptions = {
 };
 
 export const useMetaTx = () => {
-  const { library, chainId } = useWeb3React<Web3Provider>();
+  const web3Context = useWeb3React();
+  const web3Provider = web3Context.provider as Web3Provider;
+  const chainId = web3Context.chainId;
   const { isBiconomyReady, biconomy } = useContext(BiconomyContext) as IBiconomyContext;
+  const notificationHandler = useContext(NotificationHandlerContext);
+
 
   const executeMetaTx = async (
     contractName: ContractName,
@@ -25,11 +30,11 @@ export const useMetaTx = () => {
     options?: MetaTxOptions
   ): Promise<any> => {
     if(!isBiconomyReady){
-      console.error("Trying to execute a MetaTX but Biconomy is not ready");
+      notificationHandler.setNotification({description: 'Trying to execute a MetaTX but Biconomy is not ready', type: 'error'});
       return false
     };
 
-    if(!library) throw "No Library set!"
+    if(!web3Provider) throw "No Provider set!"
     if(!chainId) throw "No ChainId set!"
 
     let contract: ethers.Contract;
@@ -37,7 +42,7 @@ export const useMetaTx = () => {
     let contractAddress: string;
     let contractABI: [];
 
-    const web3ProviderSigner = library.getSigner()
+    const web3ProviderSigner = web3Provider.getSigner()
     const userAddress = await web3ProviderSigner.getAddress()
 
     const signer = biconomy.getSignerByAddress(userAddress);
@@ -46,7 +51,7 @@ export const useMetaTx = () => {
       case 'erc20Contract':
         if(!options?.contractAddress) return false;
         contractAddress = options.contractAddress;
-        contractABI = creaton_contracts.erc20Contract.abi;
+        contractABI = creaton_contracts.erc20.abi;
         break
       case 'ReactionToken':
         contractAddress = REACTION_CONTRACT_ADDRESS;
@@ -73,7 +78,7 @@ export const useMetaTx = () => {
       data: data,
       to: contractAddress,
       from: userAddress,
-      gasLimit: gasLimit,
+      gasLimit: gasLimit*2,
       signatureType: "EIP712_SIGN"
     };
 
