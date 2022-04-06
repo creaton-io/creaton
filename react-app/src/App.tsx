@@ -2,10 +2,10 @@ import {useEffect, useRef, useState} from 'react';
 import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
 import {ApolloClient, ApolloProvider, InMemoryCache, HttpLink} from '@apollo/client';
-import WalletConnect from './WalletConnect';
 import { useWeb3React, Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
 import { Network } from '@web3-react/network'
 import {Web3Provider} from '@ethersproject/providers';
+import ConnectWallet from './WalletConnect';
 import Upload from './Upload';
 import Subscribers from './Subscribers';
 import {Creator} from './Creator';
@@ -29,14 +29,21 @@ import {Discovery} from './Discovery';
 import {SuperfluidProvider} from './Superfluid';
 import {ConnectOrSignup, HeaderButtons, ProfileMenu, ChainIdChecker, CreatorHome} from './components';
 import { MetaMask } from '@web3-react/metamask';
-import { hooks as metaMaskHooks, metaMask } from './connectors/metaMask'
-import { hooks as networkHooks, network } from './connectors/network'
+import { Magic } from '@web3-react/magic';
+import { WalletConnect } from '@web3-react/walletconnect'
+import { metaMask, hooks as metaMaskHooks } from './connectors/metaMask';
+import { hooks as networkHooks, network } from './connectors/network';
+import { hooks as magicHooks, magic } from './connectors/magic';
+import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
+import { hooks as walletConnectHooks, walletConnect, } from './connectors/walletConnect'
+import { coinbaseWallet, hooks as coinbaseWalletHooks } from './connectors/coinbaseWallet'
 
 initFontAwesome();
 
-const connectors: [MetaMask | Network, Web3ReactHooks][] = [
+const connectors: [MetaMask | Magic | Network, Web3ReactHooks][] = [
   [metaMask, metaMaskHooks],
   [network, networkHooks],
+  [magic, magicHooks],
 ]
 
 const directionalLink = new RetryLink().split(
@@ -180,7 +187,7 @@ const App = () => {
                               </div>
                             )}
                             <ChainIdChecker />
-                            <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
+                            <div className='h-full'>
                               <Switch>
                                 <Route exact path="/">
                                   <Discovery />
@@ -189,7 +196,7 @@ const App = () => {
                                   <Creators />
                                 </Route>
                                 <Route path="/connect-wallet">
-                                  <WalletConnect />
+                                  <ConnectWallet />
                                 </Route>
                                 <Route path="/signup">
                                   <ProfileEdit />

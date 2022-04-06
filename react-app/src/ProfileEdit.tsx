@@ -117,7 +117,7 @@ const ProfileEdit = (props) => {
       result = await connectedContract.updateProfile(JSON.stringify(payload))
     } catch (error: any) {
       notificationHandler.setNotification({
-        description: 'Could not create your profile' + error.message,
+        description: 'Could not create your profile ' + (error.message.code === -32032 ? "test" : "xd"),
         type: 'error'
       });
       return;
