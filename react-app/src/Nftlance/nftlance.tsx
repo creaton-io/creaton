@@ -22,33 +22,33 @@ interface params {
 }
 
 export const Nftlance: FC = () => {
-    let {id} = useParams<params>();
-    if(id) id = id.toLowerCase();
+  let { id } = useParams<params>();
+  if (id) id = id.toLowerCase();
 
-    const web3Context = useWeb3React();
-    const web3utils = useContext(Web3UtilsContext);
-    const notificationHandler = useContext(NotificationHandlerContext);
-    const [createCreatorsCollectionsVisible, setCreateCreatorsCollectionsVisible] = useState<boolean>(false);
-    const [creatorCollectionsAddress, setCreatorCollectionsAddress] = useState<string|boolean>(false);
-    const [createNftCatalogVisible, setCreateNftCatalogVisible] = useState<boolean>(false);
-    const [collectionsData, setCollectionsData] = useState([]);
-    const [creatorAddress, setCreatorAddress] = useState(id);
-    const [collectionsToken, setCollectionsToken] = useState("");
+  const web3Context = useWeb3React();
+  const web3utils = useContext(Web3UtilsContext);
+  const notificationHandler = useContext(NotificationHandlerContext);
+  const [createCreatorsCollectionsVisible, setCreateCreatorsCollectionsVisible] = useState<boolean>(false);
+  const [creatorCollectionsAddress, setCreatorCollectionsAddress] = useState<string | boolean>(false);
+  const [createNftCatalogVisible, setCreateNftCatalogVisible] = useState<boolean>(false);
+  const [collectionsData, setCollectionsData] = useState([]);
+  const [creatorAddress, setCreatorAddress] = useState(id);
+  const [collectionsToken, setCollectionsToken] = useState("");
 
-    useEffect(() => {
-        (async function iife() {
-            const provider = web3Context.provider as Web3Provider;
-            if(!provider) return;
+  useEffect(() => {
+    (async function iife() {
+      const provider = web3Context.provider as Web3Provider;
+      if(!provider) return;
 
-            if(!creatorAddress){
-                const signer = provider.getSigner();
-                const libCreatorAddress = await signer.getAddress();
-                setCreatorAddress(libCreatorAddress.toLowerCase());
-            }
-        })();
-    }, [web3Context]);
+      if (!creatorAddress) {
+        const signer = provider.getSigner();
+        const libCreatorAddress = await signer.getAddress();
+        setCreatorAddress(libCreatorAddress.toLowerCase());
+      }
+    })();
+  }, [web3Context]);
 
-    const CONTENTS_QUERY = gql`
+  const CONTENTS_QUERY = gql`
         query GET_COLLECTIONS($creatorAddress: Bytes!) {
             creatorCollections (where: {creator: $creatorAddress}) {
                 id
@@ -81,71 +81,46 @@ export const Nftlance: FC = () => {
             }
         }
     `;
-    const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {creatorAddress: creatorAddress}});
+  const contentsQuery = useQuery(CONTENTS_QUERY, { variables: { creatorAddress: creatorAddress } });
 
-    useEffect(() => {
-        if (contentsQuery.data && contentsQuery.data) {
-            if(contentsQuery.data.creatorCollections.length > 0){
-                setCollectionsData(contentsQuery.data.creatorCollections[0].catalogs);
-                setCreatorCollectionsAddress(contentsQuery.data.creatorCollections[0].id);
-                setCollectionsToken(contentsQuery.data.creatorCollections[0].token);
-            }
-        }
-    }, [contentsQuery]);
-
-    const {loading, error, currentCreator} = useCurrentCreator();
-    const canBecomeCreator = useCanBecomeCreator();
-    if (!canBecomeCreator) return <div>Not allowed, you are not whitelisted</div>;
-    if (loading) return <Splash src="https://assets5.lottiefiles.com/packages/lf20_bkmfzg9t.json"></Splash>;
-    if (!id && currentCreator === undefined) return <SignUp />;
-
-    async function newCreatorCollections(e) { 
-        web3utils.setIsWaiting(true);
-        e.preventDefault();
-        const provider = web3Context.provider as Web3Provider;
-        if(!provider) return;
-
-        const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
-        const address = await signer.getAddress();
-
-        const nftlanceContract: Contract = new ethers.Contract(creaton_contracts.nftlance.address, creaton_contracts.nftlance.abi, signer);
-        try{
-            nftlanceContract.deployCreatorCollection(e.target.uri.value, e.target.token.value);
-            nftlanceContract.once("DeployedCreatorCollection", async (creatorCollectionsAddress, fanCollectibleAddress, fanCollectibleURI, token) => {
-                setCreatorCollectionsAddress(creatorCollectionsAddress);
-                setCreateCreatorsCollectionsVisible(false);
-                web3utils.setIsWaiting(false);
-                notificationHandler.setNotification({description: 'New Creator Collections deployed successfully!', type: 'success'});
-            });
-        } catch(error: any) {
-            web3utils.setIsWaiting(false);
-            notificationHandler.setNotification({description: error.toString(), type: 'error'})
-            return;
-        }
+  useEffect(() => {
+    if (contentsQuery.data && contentsQuery.data) {
+      if (contentsQuery.data.creatorCollections.length > 0) {
+        setCollectionsData(contentsQuery.data.creatorCollections[0].catalogs);
+        setCreatorCollectionsAddress(contentsQuery.data.creatorCollections[0].id);
+        setCollectionsToken(contentsQuery.data.creatorCollections[0].token);
+      }
     }
-    
-    async function newCatalog(e) { 
-        web3utils.setIsWaiting(true);
-        e.preventDefault();
-        const provider = web3Context.provider as Web3Provider;
-        if(!provider || !creatorCollectionsAddress) return;
+  }, [contentsQuery]);
 
-        const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
-        const address = await signer.getAddress();
+  const { loading, error, currentCreator } = useCurrentCreator();
+  const canBecomeCreator = useCanBecomeCreator();
+  if (!canBecomeCreator) return <div>Not allowed, you are not whitelisted</div>;
+  if (loading) return <Splash src="https://assets5.lottiefiles.com/packages/lf20_bkmfzg9t.json"></Splash>;
+  if (!id && currentCreator === undefined) return <SignUp />;
 
-        const collectionsContract: Contract = new ethers.Contract(creatorCollectionsAddress as string, creaton_contracts.creatorCollections.abi, signer);
-        try {
-            await collectionsContract.createCatalog(e.target.title.value, e.target.description.value);
-            collectionsContract.once("CatalogAdded", async (catalogId, title, description, artist, periodStart) => {
-                setCreateNftCatalogVisible(false);
-                web3utils.setIsWaiting(false);
-                notificationHandler.setNotification({description: 'New NFT Collection created successfully!', type: 'success'});
-            });
-        } catch(error: any) {
-            web3utils.setIsWaiting(false);
-            notificationHandler.setNotification({description: error.toString(), type: 'error'})
-            return;
-        }
+  async function newCreatorCollections(e) {
+    web3utils.setIsWaiting(true);
+    e.preventDefault();
+    const provider = web3Context.provider as Web3Provider;
+    if(!provider) return;
+
+    const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
+    const address = await signer.getAddress();
+
+    const nftlanceContract: Contract = new ethers.Contract(creaton_contracts.nftlance.address, creaton_contracts.nftlance.abi, signer);
+    try {
+      nftlanceContract.deployCreatorCollection("", e.target.token.value);
+      nftlanceContract.once("DeployedCreatorCollection", async (creatorCollectionsAddress, fanCollectibleAddress, fanCollectibleURI, token) => {
+        setCreatorCollectionsAddress(creatorCollectionsAddress);
+        setCreateCreatorsCollectionsVisible(false);
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({ description: 'New Creator Collections deployed successfully!', type: 'success' });
+      });
+    } catch (error: any) {
+      web3utils.setIsWaiting(false);
+      notificationHandler.setNotification({ description: error.toString(), type: 'error' })
+      return;
     }
   }
 
@@ -154,10 +129,10 @@ export const Nftlance: FC = () => {
 
     web3utils.setIsWaiting(true);
     e.preventDefault();
-    const { library } = web3Context;
-    if (!library || !creatorCollectionsAddress) return;
+    const provider = web3Context.provider as Web3Provider;
+    if(!provider || !creatorCollectionsAddress) return;
 
-    const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+    const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
     const address = await signer.getAddress();
 
     const collectionsContract: Contract = new ethers.Contract(creatorCollectionsAddress as string, creaton_contracts.creatorCollections.abi, signer);
