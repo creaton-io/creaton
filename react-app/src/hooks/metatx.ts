@@ -10,6 +10,11 @@ import { NotificationHandlerContext } from "../ErrorHandler";
 type ContractName =
   | 'erc20Contract'
 	| 'ReactionToken'
+  | 'Moderation'
+  | 'Creator'
+  | 'NFTLance'
+  | 'CreatorCollection'
+  | 'FanCollectible'
 
 type MetaTxOptions = {
   contractAddress?: string
@@ -56,6 +61,29 @@ export const useMetaTx = () => {
       case 'ReactionToken':
         contractAddress = REACTION_CONTRACT_ADDRESS;
         contractABI = creaton_contracts.ReactionToken.abi;
+        break
+      case 'Moderation':
+        contractAddress = creaton_contracts.Moderation.address;
+        contractABI = creaton_contracts.Moderation.abi;
+        break
+      case 'Creator':
+        if(!options?.contractAddress) return false;
+        contractAddress = options.contractAddress;
+        contractABI = creaton_contracts.Creator.abi;
+        break
+      case 'NFTLance':
+        contractAddress = creaton_contracts.nftlance.address;
+        contractABI = creaton_contracts.nftlance.abi;
+        break
+      case 'CreatorCollection':
+        if(!options?.contractAddress) return false;
+        contractAddress = options.contractAddress;
+        contractABI = creaton_contracts.creatorCollections.abi;
+        break
+      case 'FanCollectible':
+        if(!options?.contractAddress) return false;
+        contractAddress = options.contractAddress;
+        contractABI = creaton_contracts.fanCollectible.abi;
         break
       default:
         throw "Contract not supported!"

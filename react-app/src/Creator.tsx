@@ -25,7 +25,7 @@ import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
-import {BICONOMY_API, BICONOMY_AUTH} from './Config';
+import {BICONOMY_API} from './Config';
 import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
@@ -306,30 +306,30 @@ query($nftAddress: Bytes!) {
     //   method: 'forwardBatchCall',
     // };
 
-    const addMethodData = {
-      apiType: 'native',
-      methodType: 'write',
-      name: 'upload' + creatorContractAddress.slice(2, 6),
-      contractAddress: creatorContractAddress,
-      method: 'upload',
-    };
+    // const addMethodData = {
+    //   apiType: 'native',
+    //   methodType: 'write',
+    //   name: 'upload' + creatorContractAddress.slice(2, 6),
+    //   contractAddress: creatorContractAddress,
+    //   method: 'upload',
+    // };
 
-    fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
-      method: 'POST', // or 'PUT'
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        authToken: BICONOMY_AUTH,
-        apiKey: BICONOMY_API,
-      },
-      body: new URLSearchParams(addMethodData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Success:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+    // fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
+    //   method: 'POST', // or 'PUT'
+    //   headers: {
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //     authToken: BICONOMY_AUTH,
+    //     apiKey: BICONOMY_API,
+    //   },
+    //   body: new URLSearchParams(addMethodData),
+    // })
+    //   .then((response) => response.json())
+    //   .then((data) => {
+    //     console.log('Success:', data);
+    //   })
+    //   .catch((error) => {
+    //     console.error('Error:', error);
+    //   });
 
     if(!context.isActive) return;
     const signer = provider.getSigner()

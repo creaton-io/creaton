@@ -24,7 +24,7 @@ import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
-import {BICONOMY_API, BICONOMY_AUTH} from './Config';
+import {BICONOMY_API} from './Config';
 import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 
 interface params {
