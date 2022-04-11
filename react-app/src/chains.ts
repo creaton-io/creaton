@@ -1,20 +1,14 @@
-
-
-
 interface BasicChainInformation {
-  urls: string[]
-  name: string
+  urls: string[];
+  name: string;
 }
-
-
-
 
 export function getAddChainParameters(chainId: number): number {
-  const chainInformation = CHAINS[chainId]
-  return chainId
+  const chainInformation = CHAINS[chainId];
+  return chainId;
 }
 
-export const CHAINS: { [chainId: number]: BasicChainInformation } = {
+export const CHAINS: {[chainId: number]: BasicChainInformation} = {
   1: {
     //@ts-ignore
     urls: [
@@ -138,17 +132,22 @@ export const CHAINS: { [chainId: number]: BasicChainInformation } = {
     },
     blockExplorerUrls: ['https://mumbai.polygonscan.com'],
   },
-}
+};
 
-export const URLS: { [chainId: number]: string[] } = Object.keys(CHAINS).reduce<{ [chainId: number]: string[] }>(
+export const URLS: {[chainId: number]: string[]} = Object.keys(CHAINS).reduce<{[chainId: number]: string[]}>(
   (accumulator, chainId) => {
-    const validURLs: string[] = CHAINS[Number(chainId)].urls
+    const validURLs: string[] = CHAINS[Number(chainId)].urls;
 
     if (validURLs.length) {
-      accumulator[Number(chainId)] = validURLs
+      accumulator[Number(chainId)] = validURLs;
     }
 
-    return accumulator
+    return accumulator;
   },
   {}
-)
+);
+
+export const WCURLS: {[chainId: number]: string} = {
+  1: `https://polygon-mumbai.infura.io/v3/${process.env.infuraKey}`,
+  2: `https://arbitrum-rinkeby.infura.io/v3/${process.env.infuraKey}`,
+};
