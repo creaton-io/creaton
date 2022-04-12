@@ -7,7 +7,9 @@ let APOLLO_URI,
   BICONOMY_API,
   BICONOMY_AUTH,
   VOTING_GRAPHQL_URI,
-  CREATOR_VOTING_ADDRESS;
+  CREATOR_VOTING_ADDRESS,
+  USDC_TOKEN_ADDRESS,
+  DAI_TOKEN_ADDRESS;
 const ARWEAVE_GATEWAY = 'https://arweave.net/';
 const REPORT_URI = 'https://report.creaton.io/report';
 const ARWEAVE_URI = 'https://arweave.creaton.io';
@@ -30,6 +32,10 @@ if (process.env.NODE_ENV === 'development') {
   };
   VOTING_GRAPHQL_URI = 'https://api.studio.thegraph.com/query/2670/creator-voting/v0.0.21'
   CREATOR_VOTING_ADDRESS = '0x9DAEb40970A95C817C1f37EBB765d660fDE0ff64';
+
+  USDC_TOKEN_ADDRESS = '0xe6b8a5cf854791412c1f6efc7caf629f5df1c747';
+  DAI_TOKEN_ADDRESS = '0xd393b1E02dA9831Ff419e22eA105aAe4c47E1253';
+
 } else if (process.env.NODE_ENV === 'production') {
   //staging
   REENCRYPTION_URI = 'https://reencryption.creaton.io';
@@ -37,6 +43,10 @@ if (process.env.NODE_ENV === 'development') {
 
   BICONOMY_API = process.env.BICONOMY_API;
   BICONOMY_AUTH = process.env.BICONOMY_AUTH;
+
+  USDC_TOKEN_ADDRESS = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174';
+  DAI_TOKEN_ADDRESS = '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063';
+  CREATE_TOKEN_ADDRESS = '';
 }
 //@ts-ignore
 else if (process.env.NODE_ENV === 'staging') {
@@ -68,4 +78,6 @@ export {
   BICONOMY_AUTH,
   VOTING_GRAPHQL_URI,
   CREATOR_VOTING_ADDRESS,
+  USDC_TOKEN_ADDRESS,
+  DAI_TOKEN_ADDRESS,
 };
