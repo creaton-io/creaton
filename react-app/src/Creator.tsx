@@ -794,3 +794,4 @@ query($nftAddress: Bytes!) {
     </div>
   );
 }
+
