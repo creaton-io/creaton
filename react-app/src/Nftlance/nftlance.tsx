@@ -34,16 +34,22 @@ export const Nftlance: FC = () => {
   const [collectionsData, setCollectionsData] = useState([]);
   const [creatorAddress, setCreatorAddress] = useState(id);
   const [collectionsToken, setCollectionsToken] = useState("");
+  const [ownNFTlance, setOwnNFTLance] = useState(false);
 
   useEffect(() => {
     (async function iife() {
       const provider = web3Context.provider as Web3Provider;
       if(!provider) return;
 
+      const signer = provider.getSigner();
+      const libCreatorAddress = await signer.getAddress();
       if (!creatorAddress) {
-        const signer = provider.getSigner();
-        const libCreatorAddress = await signer.getAddress();
         setCreatorAddress(libCreatorAddress.toLowerCase());
+        setOwnNFTLance(true);
+      }
+
+      if(creatorAddress == libCreatorAddress.toLowerCase()){
+        setOwnNFTLance(true);
       }
     })();
   }, [web3Context]);
