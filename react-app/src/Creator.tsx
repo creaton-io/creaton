@@ -31,6 +31,23 @@ import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
 
+// How to proceed to isolate the NFTs:
+//
+// We have the Wallet Address and the Creator Contract Address.
+// In the Creator Contract Address we can find the Post Collection Contract Address.
+// In there we can Token ID etc.
+// The Post Collection Contract and the TokenID are important to show, 
+// with them we can also find the collections on polygon scan, opensea.
+// At minimum we should the data and add info on where to find the NFTs,
+// but the optimal experience for the user would be a direct link to
+// and NFT marketplace with the NFT.
+//
+// Important: before we can proceed, there needs to be an addition
+// to TheGraph so that we can also fetch the Post Collection Contract Address,
+// right now it's only possible to fetch the TokenID
+//
+// (This comment should be removed before merging into the production branch)
+
 let web3Modal = new Web3Modal({
   network: 'polygon',
   cacheProvider: true,
