@@ -35,12 +35,12 @@ import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
 //
 // We have the Wallet Address and the Creator Contract Address.
 // In the Creator Contract Address we can find the Post Collection Contract Address.
-// In there we can Token ID etc.
+// In there we can find the Token ID etc.
 // The Post Collection Contract and the TokenID are important to show, 
 // with them we can also find the collections on polygon scan, opensea.
-// At minimum we should the data and add info on where to find the NFTs,
+// At minimum we should the show data and add info on where to find the NFTs on the profile page,
 // but the optimal experience for the user would be a direct link to
-// and NFT marketplace with the NFT.
+// a NFT marketplace with the NFT.
 //
 // Important: before we can proceed, there needs to be an addition
 // to TheGraph so that we can also fetch the Post Collection Contract Address,
