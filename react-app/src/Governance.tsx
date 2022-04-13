@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { useWeb3React } from "./web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { Button } from "./elements/button";
 import { Input } from "./elements/input";
@@ -8,7 +8,7 @@ import creaton_contracts from "./Contracts";
 import { CREATE_TOKEN_ADDRESS, GOVERNANCE_SQUAD_TOKENS } from "./Config";
 
 export const Governance: FC = () => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
 
     const [createAmount, setCreateAmount] = useState<number>(0)
     const [sgtAmount, setSgtAmount] = useState<number>(0)
@@ -18,10 +18,11 @@ export const Governance: FC = () => {
     async function handleSubmit(e) {
         setSubmitting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
 
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
+
+        const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
         const userAddress: string = await signer.getAddress();
 
         const reactionContractAddr: string = GOVERNANCE_SQUAD_TOKENS[sgtSymbol];

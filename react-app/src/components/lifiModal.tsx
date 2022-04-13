@@ -7,12 +7,12 @@ import {Icon} from '../icons';
 import {Button} from '../elements/button';
 import {ExclamationIcon, XIcon} from '@heroicons/react/outline';
 import {Web3Provider} from '@ethersproject/providers';
-import { useWeb3React } from '../web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 
 export default function LiFiModal() {
   const [open, setOpen] = useState(false);
   const web3utils = useContext(Web3UtilsContext);
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
 
  // iframe.setAttribute('allow', 'camera *; microphone *');
 

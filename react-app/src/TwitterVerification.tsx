@@ -1,5 +1,5 @@
 
-import {useWeb3React} from "./web3-react/core";
+import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import * as React from "react";
 import {BigNumber, ethers} from "ethers";
@@ -134,7 +134,7 @@ const TwitterVerification = () => {
 
 //disabled Twitterverification for now
 const TwitterVerification = () => {
-  const context = useWeb3React<Web3Provider>()
+  const context = useWeb3React()
   const notificationHandler = useContext(NotificationHandlerContext)
 
   return (

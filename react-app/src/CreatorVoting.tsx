@@ -2,7 +2,7 @@ import { FC, useContext, useEffect, useState } from "react";
 import { ApolloClient, gql, InMemoryCache } from "@apollo/client";
 import { CREATOR_VOTING_ADDRESS, VOTING_GRAPHQL_URI } from "./Config";
 import { VotingProcess } from "./components/voting.process";
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 import { Button } from "./elements/button";
 import { Input } from "./elements/input";
@@ -13,7 +13,7 @@ import { NotificationHandlerContext } from "./ErrorHandler";
 import { Web3UtilsContext } from "./Web3Utils";
 
 export const CreatorVoting: FC = () => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [votingProcesses, setVotingProcesses] = useState([]);
@@ -21,8 +21,10 @@ export const CreatorVoting: FC = () => {
 
     useEffect(() => {
         (async function iife() {
-            if(!web3Context.library) return;
-            const signer = web3Context.library.getSigner()
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
+            
+            const signer = provider.getSigner();
             const address = await signer.getAddress();
 
             getVotingProcesses(address);
@@ -71,10 +73,11 @@ export const CreatorVoting: FC = () => {
     async function handleSubmit(e) { 
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
-
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
+        const signer = provider.getSigner();
+        
         const address = await signer.getAddress();
 
         let answers = e.target.answers.value.split(",").map(str => str.trim());
