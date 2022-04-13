@@ -26,9 +26,6 @@ const ConnectOrSignup = ({
 
   const {connector, account, chainId, isActive} = useWeb3React();
 
-  console.log(currentProfile);
-  console.log(accounts);
-  console.log(isActive);
   return (
     <>
       {currentProfile === undefined && account !== undefined && isActive ? (
