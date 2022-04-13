@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useContext } from "react";
-import {useWeb3React} from '../web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3UtilsContext } from "../Web3Utils";
 import { Contract, ethers } from "ethers";
@@ -24,7 +24,7 @@ export const Nftlance: FC = () => {
     let {id} = useParams<params>();
     if(id) id = id.toLowerCase();
 
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [createCreatorsCollectionsVisible, setCreateCreatorsCollectionsVisible] = useState<boolean>(false);
@@ -36,11 +36,11 @@ export const Nftlance: FC = () => {
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
             if(!creatorAddress){
-                const signer = library!.getSigner();
+                const signer = provider.getSigner();
                 const libCreatorAddress = await signer.getAddress();
                 setCreatorAddress(libCreatorAddress.toLowerCase());
             }
@@ -101,10 +101,10 @@ export const Nftlance: FC = () => {
     async function newCreatorCollections(e) { 
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
 
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
         const address = await signer.getAddress();
 
         const nftlanceContract: Contract = new ethers.Contract(creaton_contracts.nftlance.address, creaton_contracts.nftlance.abi, signer);
@@ -126,10 +126,10 @@ export const Nftlance: FC = () => {
     async function newCatalog(e) { 
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library || !creatorCollectionsAddress) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider || !creatorCollectionsAddress) return;
 
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
         const address = await signer.getAddress();
 
         const collectionsContract: Contract = new ethers.Contract(creatorCollectionsAddress as string, creaton_contracts.creatorCollections.abi, signer);

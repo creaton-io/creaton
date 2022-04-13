@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { Contract, ethers } from "ethers";
 import { FC, useContext, useEffect, useState } from "react";
 import creaton_contracts from "../Contracts";
@@ -15,7 +15,7 @@ interface NftlanceCollectionProps {
 }
 
 export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, creatorCollectionsAddress, collectionsToken }) => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [createCardsVisible, setCreateCardsVisible] = useState(false);
@@ -24,10 +24,10 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider.getSigner();
 
             const erc20Contract: Contract = new Contract(collectionsToken, creaton_contracts.erc20.abi, signer);
             setCollectionsTokenDecimals(await erc20Contract.decimals());
@@ -38,8 +38,8 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
     async function handleCreateCards(e){
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
        
         const amount = e.target.amount.value;
         const price = ethers.utils.parseEther(e.target.price.value);
@@ -47,7 +47,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
         const releaseTime = Math.floor(Date.now()/1000); // Hardcoding this feature for now
 
         try {
-            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
             const creatorCollectionContract: Contract = new Contract(creatorCollectionsAddress, creaton_contracts.creatorCollections.abi, signer);
             await creatorCollectionContract.createCard(collection.catalogId, amount, price, releaseTime);
 
@@ -65,11 +65,11 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
 
     async function handleBuy(card) { 
         web3utils.setIsWaiting(true);
-        const { library } = web3Context;
-        if(!library) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider) return;
 
         try {
-            const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+            const signer: ethers.providers.JsonRpcSigner = provider.getSigner();
             const userAddress = await signer.getAddress();
 
             const creatorCollectionContract: Contract = new Contract(creatorCollectionsAddress, creaton_contracts.creatorCollections.abi, signer);

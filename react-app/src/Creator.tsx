@@ -1,7 +1,7 @@
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
 import Web3Modal from 'web3modal';
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
 import {SuperfluidContext} from './Superfluid';
@@ -152,7 +152,8 @@ query($nftAddress: Bytes!) {
   const litNode = useContext(LitContext);
   const notificationHandler = useContext(NotificationHandlerContext);
   const web3utils = useContext(Web3UtilsContext);
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
+  const provider = context.provider as Web3Provider;
 
   let isFollowing = false;
   followersQuery?.data?.identity?.followers?.list?.map((item) => {
@@ -250,8 +251,8 @@ query($nftAddress: Bytes!) {
   
   useEffect(() => {
     (async function iife() {
-      if(!context.library) return;
-      const signer = context.library.getSigner()
+      if(!context.isActive) return;
+      const signer = provider.getSigner()
       const userAddress = await signer.getAddress();
 
       const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
@@ -262,7 +263,7 @@ query($nftAddress: Bytes!) {
       setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
       setReportErc20Symbol(await erc20Contract2.symbol());
     })();
-  }, [contentsQuery, creatorContractAddress, context.library]);
+  }, [contentsQuery, creatorContractAddress, context.provider]);
   
   const reactionsQuery = useQuery(REACTIONS_QUERY, {
     variables: {'nftAddress': creatorContractAddress},
@@ -338,8 +339,8 @@ query($nftAddress: Bytes!) {
         console.error('Error:', error);
       });
 
-    if(!context.library) return;
-    const signer = context.library.getSigner()
+    if(!context.isActive) return;
+    const signer = provider.getSigner()
     const walletAddress = await signer.getAddress();
 
     const signedMessage = await signer.signMessage(`Creaton: Enabling gasless transactions for ${walletAddress}`);
@@ -389,7 +390,7 @@ query($nftAddress: Bytes!) {
     let {sf, usdc, usdcx} = await superfluid;
     let subscriber = context.account;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
+      provider!.getSigner()
     );
     call = [
       [
@@ -562,7 +563,7 @@ query($nftAddress: Bytes!) {
   async function subscribe() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
+      provider!.getSigner()
     );
     const receipt = await creatorContract.subscribe();
     web3utils.setIsWaiting(true);
@@ -640,7 +641,7 @@ query($nftAddress: Bytes!) {
 
     try {
       // Allowance
-      const signer = context.library!.getSigner()
+      const signer = provider!.getSigner()
       const userAddress = await signer.getAddress();
 
       const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
@@ -659,7 +660,7 @@ query($nftAddress: Bytes!) {
           throw Error('Error allowing token for reaction');
         }
       }
-      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(context.library!.getSigner());
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
 
       await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
@@ -691,7 +692,7 @@ query($nftAddress: Bytes!) {
   async function hide(tokenId, hide: boolean) {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
-      context.library!.getSigner()
+      provider!.getSigner()
     );
     const receipt = await creatorContract.hidePost(tokenId, hide);
     web3utils.setIsWaiting(true);
@@ -712,7 +713,7 @@ query($nftAddress: Bytes!) {
         ' in contract ' +
         creatorContractAddress +
         ' on the Creaton platform.';
-      const signature = await context.library!.getSigner().signMessage(message);
+      const signature = await provider!.getSigner().signMessage(message);
       const response = await fetch(REPORT_URI, {
         method: 'POST',
         headers: {
@@ -811,7 +812,6 @@ query($nftAddress: Bytes!) {
         <h1 className="text-white">Followers {followersQuery?.data?.identity?.followerCount} | Following {followersQuery?.data?.identity?.followingCount}</h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
-          {generateButton()}
           { !isSelf &&
           <Button
             onClick={
@@ -822,6 +822,7 @@ query($nftAddress: Bytes!) {
             label={isFollowing ? 'Unfollow' : 'Follow'}
           />
           }
+          {generateButton()}
 
           {context.chainId === 80000 && (
             <span>

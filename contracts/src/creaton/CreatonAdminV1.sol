@@ -18,7 +18,7 @@ import {
     ISuperApp
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
-contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRelayRecipient {
+contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Events
     // -----------------------------------------
@@ -36,7 +36,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     mapping(address => address[]) public creator2contract;
     mapping(address => address) public contract2creator;
     mapping(address => bool) public override registeredUsers;
-    mapping(address => string) public user2twitter;
 
     address private _host;
     address private _cfa;
@@ -55,7 +54,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
     // Constructor
     // -----------------------------------------
 
-    function initialize(
+    constructor(
         address host,
         address cfa,
         address acceptedToken, // get these from superfluid contracts
@@ -65,7 +64,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         address _nftFactory,
         address _trustedForwarder,
         address _reactionFactory
-    ) public payable initializer {
+    ) {
         owner = msg.sender;
 
         assert(host != address(0));
@@ -85,7 +84,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         nftFactory = _nftFactory;
 
         trustedForwarder = _trustedForwarder;
-
+        
         reactionFactory = _reactionFactory;
     }
 
@@ -132,11 +131,6 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
     }
 
-    // TODO only be called from twitter contract
-    function signUp(address user, string memory twitter) public {
-        user2twitter[user] = twitter;
-    }
-
     function updateProfile(string memory dataJSON) external {
         registeredUsers[_msgSender()] = true;
         emit ProfileUpdate(_msgSender(), dataJSON);
@@ -154,7 +148,7 @@ contract CreatonAdmin is ICreatonAdmin, UUPSUpgradeable, Initializable, BaseRela
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
+    //function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
 
     function updateTrustedForwarder(address _trustedForwarder) public onlyOwner {
         trustedForwarder = _trustedForwarder;

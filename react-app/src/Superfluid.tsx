@@ -1,5 +1,5 @@
 import SuperfluidSDK from '@superfluid-finance/js-sdk';
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import React, {createContext, useContext, useEffect, useState} from 'react';
 import {NotificationHandlerContext} from './ErrorHandler';
@@ -9,13 +9,14 @@ const SuperfluidContext = createContext<any>(null);
 const SuperfluidProvider = (props) => {
   const [superfluid, setSuperfluid] = useState<any>(null);
   const notificationHandler = useContext(NotificationHandlerContext);
-  const web3Context = useWeb3React<Web3Provider>();
+  const web3Context = useWeb3React();
   const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   async function init() {
-    if (!web3Context.library!) return;
-    if (web3Context.chainId === 137) {
+    if (!web3Context.isActive) return;
+    const provider = web3Context.provider as Web3Provider;
+    if (web3Context.chainId === 137) {    
       const sf = new SuperfluidSDK.Framework({
-        ethers: web3Context.library!,
+        ethers: provider!,
         tokens: ['USDC'],
       });
       console.log('web3 provider test');
@@ -27,7 +28,7 @@ const SuperfluidProvider = (props) => {
       // app = await ethers.getContractAt('Creator', contractAddr, subscriber);
     } else if (web3Context.chainId === 80001) {
       const sf = new SuperfluidSDK.Framework({
-        ethers: web3Context.library!,
+        ethers: provider!,
         tokens: ['fUSDC'],
       });
       console.log('web3 provider test');

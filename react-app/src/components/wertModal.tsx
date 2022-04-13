@@ -13,7 +13,7 @@ import { useWeb3React } from '@web3-react/core';
 export default function WertModal() {
   const [open, setOpen] = useState(false);
   const web3utils = useContext(Web3UtilsContext);
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
 
   let wertWidget;
   if (context.account) {

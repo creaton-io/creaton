@@ -1,9 +1,9 @@
 import 'react-app-polyfill/ie11';
-import {useWeb3React} from './web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import {TransactionRequest, Web3Provider} from '@ethersproject/providers';
 import {Contract} from 'ethers';
 import creaton_contracts from './Contracts';
-import {useCurrentCreator} from './Utils';
+import {useCurrentCreator, useCurrentProfile} from './Utils';
 import {useContext, useEffect, useState} from 'react';
 import {NotificationHandlerContext} from './ErrorHandler';
 import {Button} from './elements/button';
@@ -12,6 +12,7 @@ import {Web3UtilsContext, Web3UtilsProviderContext} from './Web3Utils';
 import {Transaction} from '@ethereumjs/tx';
 import Common from '@ethereumjs/common';
 import {Deferrable} from '@ethersproject/properties';
+import { ProfileEdit } from './ProfileEdit';
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin;
 
@@ -24,9 +25,10 @@ const creatorFactoryContract = new Contract(CreatonAdminContract.address, Creato
 const SignUp = () => {
   const web3utils = useContext(Web3UtilsContext);
   const notificationHandler = useContext(NotificationHandlerContext);
-  const context = useWeb3React<Web3Provider>();
+  const context = useWeb3React();
   const [signedup, setSignedup] = useState<any>(false);
   const {currentCreator} = useCurrentCreator();
+  const {currentProfile} = useCurrentProfile();
 
   const [creatorName, setCreatorName] = useState('');
   const [subscriptionPrice, setSubscriptionPrice] = useState('5');
@@ -39,7 +41,7 @@ const SignUp = () => {
 
   useEffect(() => {
     let error: any = undefined;
-    if (!context.library) error = <div>Please connect your wallet</div>;
+    if (!context.isActive) error = <div>Please connect your wallet</div>;
     if (currentCreator !== undefined) error = <div>Congratulation you just signed up on creaton!</div>;
     if (signedup) error = <div>{signedup}</div>;
 
@@ -47,10 +49,8 @@ const SignUp = () => {
   }, [context, currentCreator, signedup]);
 
   function submitForm(event) {
-    const {library} = context;
-    console.log(creatorFactoryContract);
-    // @ts-ignore
-    const connectedContract = creatorFactoryContract.connect(context.library!.getSigner());
+    const provider = context.provider as Web3Provider;
+    const connectedContract = creatorFactoryContract.connect(provider.getSigner());
     connectedContract
       .deployCreator(creatorName, subscriptionPrice, collectionName, collectionSymbol)
       .then(async function (response) {
@@ -73,7 +73,7 @@ const SignUp = () => {
     <>
       {errorMsg}
 
-      {!errorMsg && (
+      {!errorMsg && currentProfile === undefined ? <ProfileEdit /> : (
         <div className="grid grid-cols-1 place-items-center m-auto text-white">
           <p className="text-5xl pt-12 pb-6 pl-6">Sign Up As Creator!</p>
           <p className="text-xl opacity-50 pl-6">

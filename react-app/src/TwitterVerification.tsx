@@ -29,7 +29,7 @@ const TwitterVerification = () => {
   const [username, setUsername] = useState<any>('')
   const [hash, setHash] = useState<any>(null)
   const [tweet, setTweet] = useState(false)
-  if (!context.library)
+  if (!context.isActive)
     return (<div>Please connect your wallet</div>)
 
   // const library = context.library

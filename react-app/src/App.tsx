@@ -3,7 +3,8 @@ import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
 import {ApolloClient, ApolloProvider, InMemoryCache, HttpLink} from '@apollo/client';
 import WalletConnect from './WalletConnect';
-import {useWeb3React, Web3ReactProvider} from './web3-react/core';
+import { useWeb3React, Web3ReactHooks, Web3ReactProvider } from '@web3-react/core'
+import { Network } from '@web3-react/network'
 import {Web3Provider} from '@ethersproject/providers';
 import Upload from './Upload';
 import Subscribers from './Subscribers';
@@ -12,7 +13,6 @@ import {NotificationHandlerContext, NotificationHandlerProvider} from './ErrorHa
 import {LitProvider} from './LitProvider';
 import Creators from './Creators';
 import {ProfileEdit} from './ProfileEdit';
-import {InjectedConnector} from './web3-react/injected-connector';
 import {APOLLO_URI} from './Config';
 import {Notification} from './components/notification';
 import {initFontAwesome} from './icons/font-awesome';
@@ -29,8 +29,16 @@ import {Discovery} from './Discovery';
 import {SuperfluidProvider} from './Superfluid';
 import {ConnectOrSignup, HeaderButtons, ProfileMenu, ChainIdChecker, CreatorHome} from './components';
 import { Moderation } from './moderation';
+import { MetaMask } from '@web3-react/metamask';
+import { hooks as metaMaskHooks, metaMask } from './connectors/metaMask'
+import { hooks as networkHooks, network } from './connectors/network'
 
 initFontAwesome();
+
+const connectors: [MetaMask | Network, Web3ReactHooks][] = [
+  [metaMask, metaMaskHooks],
+  [network, networkHooks],
+]
 
 const directionalLink = new RetryLink().split(
   (operation) => operation.getContext().clientName === 'cyberConnect',
@@ -43,60 +51,60 @@ const client = new ApolloClient({
   cache: new InMemoryCache(),
 });
 
-const Autoconnect = () => {
-  const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]});
-  const {activate, active} = useWeb3React<Web3Provider>();
-  useEffect(() => {
-    async function connectWalletIfAvailable() {
-      if (!active && (await injected.getProvider()).selectedAddress) activate(injected);
-    }
+// const Autoconnect = () => {
+//   const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]});
+//   const {activate, active} = useWeb3React<Web3Provider>();
+//   useEffect(() => {
+//     async function connectWalletIfAvailable() {
+//       if (!active && (await injected.getProvider()).selectedAddress) activate(injected);
+//     }
 
-    connectWalletIfAvailable();
-  }, [active, injected, activate]);
-  return null;
-};
+//     connectWalletIfAvailable();
+//   }, [active, injected, activate]);
+//   return null;
+// };
 
-const StakingDetector = (props) => {
-  const {library} = useWeb3React<Web3Provider>();
-  if (props.isGSN)
-    // already switched to GSN
-    return null;
-  //check something with library and call props.setIsGSN(true) if needed
-  return null;
-};
+// const StakingDetector = (props) => {
+//   const {library} = useWeb3React();
+//   if (props.isGSN)
+//     // already switched to GSN
+//     return null;
+//   //check something with library and call props.setIsGSN(true) if needed
+//   return null;
+// };
 
 const App = () => {
   const [loadingBiconomy, setLoadingBiconomy] = useState<boolean>(false);
   const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   const submenuRef = useRef<any>(null);
 
-  const getLibrary = (provider) => {
-    setLoadingBiconomy(true);
-    const biconomy = new Biconomy(provider, {
-      apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
-      strictMode: true,
-      debug: true,
-    });
-    // @ts-ignore
-    //biconomy.pollingInterval = 12000
-    biconomy
-      .onEvent(biconomy.READY, () => {
-        console.log('Mexa is Ready');
-      })
-      .onEvent(biconomy.ERROR, (error, message) => {
-        console.error(error);
-      });
-    console.log('evaluating getLibrary', provider);
-    const library = biconomy.getEthersProvider();
-    library.pollingInterval = 12000;
+   const getLibrary = (provider) => {
+  //   setLoadingBiconomy(true);
+  //   const biconomy = new Biconomy(provider, {
+  //     apiKey: 'U-ciLBx4A.481e0ccd-360c-45a4-b89b-75f8feb0457d',
+  //     strictMode: true,
+  //     debug: true,
+  //   });
+  //   // @ts-ignore
+  //   //biconomy.pollingInterval = 12000
+  //   biconomy
+  //     .onEvent(biconomy.READY, () => {
+  //       console.log('Mexa is Ready');
+  //     })
+  //     .onEvent(biconomy.ERROR, (error, message) => {
+  //       console.error(error);
+  //     });
+    // console.log('evaluating getLibrary', provider);
+    // const library = biconomy.getEthersProvider();
+    // library.pollingInterval = 12000;
     return new Web3Provider(provider); //library
   };
 
   return (
     <NotificationHandlerProvider>
-      <Web3ReactProvider getLibrary={getLibrary}>
+      <Web3ReactProvider connectors={connectors}>
         {/* <StakingDetector isGSN={isGSN} setIsGSN={setIsGSN}/> */}
-        <Autoconnect />
+        {/* <Autoconnect /> */}
         <SuperfluidProvider>
           <LitProvider>
             <ApolloProvider client={client}>

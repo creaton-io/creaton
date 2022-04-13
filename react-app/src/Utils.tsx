@@ -1,4 +1,4 @@
-import {useWeb3React} from "./web3-react/core";
+import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {gql, useQuery} from "@apollo/client";
 import {useEffect, useState} from "react";
@@ -20,7 +20,7 @@ export interface Profile {
 }
 
 export function useCurrentProfile() {
-  const context = useWeb3React<Web3Provider>()
+  const context = useWeb3React()
   const PROFILE_QUERY = gql`
   query GET_PROFILE($user: Bytes!) {
   profiles(where: { address: $user }) {
@@ -37,7 +37,7 @@ export function useCurrentProfile() {
   else
     user = ''
   const {loading, error, data, refetch} = useQuery(PROFILE_QUERY, {
-    variables: {user: user}, pollInterval: 20000
+    variables: {user: user}
   });
   const [currentProfile, setCurrentProfile] = useState<Profile | undefined>(undefined);
   useEffect(() => {
@@ -56,7 +56,7 @@ export function useCurrentProfile() {
 }
 
 export function useCurrentCreator() {
-  const context = useWeb3React<Web3Provider>()
+  const context = useWeb3React()
   const CREATOR_USER = gql`
   query GET_CREATOR_WITH_USER($user: Bytes!) {
   creators(where: { user: $user }) {
