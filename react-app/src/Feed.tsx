@@ -1,6 +1,6 @@
 import {useParams} from "react-router-dom";
 import React, {CSSProperties, useContext, useEffect, useState} from "react";
-import {useWeb3React} from "./web3-react/core";
+import {useWeb3React} from "@web3-react/core";
 import {Web3Provider} from "@ethersproject/providers";
 import {ApolloClient, gql, InMemoryCache, useQuery} from "@apollo/client";
 import {SuperfluidContext} from "./Superfluid";
@@ -97,7 +97,7 @@ export function Feed() {
   const litNode = useContext(LitContext)
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
-  const context = useWeb3React<Web3Provider>()
+  const context = useWeb3React()
   const subscriptionQuery = useQuery(SUBSCRIPTION_QUERY, {
     skip: !context.account,
     variables: {

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Web3ReactProvider, useWeb3React, UnsupportedChainIdError} from './web3-react/core';
+import {Web3ReactProvider, useWeb3React /*, UnsupportedChainIdError*/} from '@web3-react/core';
 import {
   InjectedConnector,
   NoEthereumProviderError,
@@ -56,8 +56,8 @@ const connectorsByName: {[connectorName in ConnectorNames]: any} = {
 function getErrorMessage(error: Error) {
   if (error instanceof NoEthereumProviderError) {
     return 'No Ethereum browser extension detected, install MetaMask on desktop or visit from a dApp browser on mobile.';
-  } else if (error instanceof UnsupportedChainIdError) {
-    return "You're connected to an unsupported network.";
+  // } else if (error instanceof UnsupportedChainIdError) {
+  //   return "You're connected to an unsupported network.";
   } else if (
     error instanceof UserRejectedRequestErrorInjected ||
     error instanceof UserRejectedRequestErrorWalletConnect ||
@@ -125,8 +125,9 @@ function Header() {
 }
 
 function WalletConnect() {
-  const context = useWeb3React<Web3Provider>();
-  const {connector, library, chainId, account, activate, deactivate, active, error} = context;
+  const context = useWeb3React();
+  const {connector, chainId, account, /*activate, deactivate, active,*/ isActive, error} = context;
+  const library = context.provider as Web3Provider;
 
   // handle logic to recognize the connector currently being activated
   const [activatingConnector, setActivatingConnector] = React.useState<any>();
@@ -174,7 +175,7 @@ function WalletConnect() {
               key={name}
               onClick={() => {
                 setActivatingConnector(currentConnector);
-                activate(connectorsByName[name]);
+                connector.activate(connectorsByName[name]);
               }}
             >
               <div
@@ -202,7 +203,7 @@ function WalletConnect() {
         })}
       </div>
       <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center'}}>
-        {(active || error) && (
+        {(isActive || error) && (
           <button
             style={{
               height: '3rem',
@@ -212,7 +213,7 @@ function WalletConnect() {
               cursor: 'pointer',
             }}
             onClick={() => {
-              deactivate();
+              connector.deactivate();
             }}
           >
             Deactivate

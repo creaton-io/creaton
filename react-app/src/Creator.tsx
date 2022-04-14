@@ -1,6 +1,5 @@
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
-import Web3Modal from 'web3modal';
 import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
@@ -30,34 +29,6 @@ import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
-
-let web3Modal = new Web3Modal({
-  network: 'polygon',
-  cacheProvider: true,
-});
-
-let ethersProvider;
-let cyberConnect;
-
-function connect() {
-  return new Promise((resolve, reject) => {
-    web3Modal
-      .connect()
-      .then((modalProvider) => {
-        ethersProvider = new Web3Provider(modalProvider);
-        cyberConnect = new CyberConnect({
-          provider: ethersProvider.provider,
-          namespace: 'Creaton',
-          chain: Blockchain.ETH,
-          env: Env.PRODUCTION,
-        });
-        resolve(cyberConnect);
-      })
-      .catch(reject);
-  });
-}
-
-connect();
 
 interface params {
   id: string;
@@ -187,6 +158,7 @@ query($nftAddress: Bytes!) {
   const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
   const [reportErc20Available, setReportErc20Available] = useState<string>();
   const [reportErc20Symbol, setReportErc20Symbol] = useState<string>();
+  const [cyberConnect, setCyberConnect] = useState<CyberConnect>();
 
   async function getUsdcx() {
     if (!superfluid) return;
@@ -262,6 +234,14 @@ query($nftAddress: Bytes!) {
       const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
       setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
       setReportErc20Symbol(await erc20Contract2.symbol());
+      let cyberConnectInstance = new CyberConnect({
+        provider: provider,
+        namespace: 'Creaton',
+        chain: Blockchain.ETH,
+        env: Env.PRODUCTION,
+      });
+      setCyberConnect(cyberConnectInstance);
+
     })();
   }, [contentsQuery, creatorContractAddress, context.provider]);
   
@@ -508,10 +488,10 @@ query($nftAddress: Bytes!) {
     }
   }
 
-  function showItem(content) {
+  function showItem(content, index) {
     let src = getSrc(content);
     let fileType;
-    console.log('showItem', isSelf);
+
     if (content.type.startsWith('image')) {
       fileType = 'image';
     } else if (content.type == 'text') {
@@ -521,10 +501,10 @@ query($nftAddress: Bytes!) {
     } else {
       fileType = 'image';
     }
-    console.log(content);
+
     if (!content.hide || isSelf) {
       return (
-        <React.Fragment>
+        <React.Fragment key={index}>
           <Card
             key={content.ipfs}
             fileUrl={src || null}
@@ -601,7 +581,7 @@ query($nftAddress: Bytes!) {
 
     try {
       // Allowance
-      const signer = context.library!.getSigner()
+      const signer = provider.getSigner()
       const userAddress = await signer.getAddress();
 
       const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
@@ -623,7 +603,7 @@ query($nftAddress: Bytes!) {
       }
 
       web3utils.setIsWaiting(true);
-      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(context.library!.getSigner());
+      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
       await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
       moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
         web3utils.setIsWaiting(false);
@@ -812,12 +792,12 @@ query($nftAddress: Bytes!) {
         <h1 className="text-white">Followers {followersQuery?.data?.identity?.followerCount} | Following {followersQuery?.data?.identity?.followingCount}</h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
-          { !isSelf &&
+          { !isSelf && cyberConnect &&
           <Button
             onClick={
               !isFollowing
-                ? () => cyberConnect.connect(context.account)
-                : () => cyberConnect.disconnect(context.account)
+                ? () => cyberConnect.connect(context.account as string)
+                : () => cyberConnect.disconnect(context.account as string)
             }
             label={isFollowing ? 'Unfollow' : 'Follow'}
           />
@@ -867,7 +847,7 @@ query($nftAddress: Bytes!) {
         <div className="py-5">
           {
             //reactions &&
-            contents.map((x) => showItem(x))
+            contents.map((x, i) => showItem(x, i))
           }
         </div>
       </div>

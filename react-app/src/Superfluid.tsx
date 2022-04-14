@@ -19,7 +19,7 @@ const SuperfluidProvider = (props) => {
         ethers: provider!,
         tokens: ['USDC'],
       });
-      console.log('web3 provider test');
+
       await sf.initialize();
       // @ts-ignore
       const usdc = sf.tokens.USDC;
@@ -31,7 +31,7 @@ const SuperfluidProvider = (props) => {
         ethers: provider!,
         tokens: ['fUSDC'],
       });
-      console.log('web3 provider test');
+
       await sf.initialize();
       // @ts-ignore
       const usdc = await sf.contracts.TestToken.at(sf.tokens.fUSDC.address);

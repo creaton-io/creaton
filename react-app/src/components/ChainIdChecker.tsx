@@ -1,8 +1,12 @@
 import {Button} from '../elements/button';
-import {useWeb3React} from '../web3-react/core';
+import {useWeb3React} from '@web3-react/core';
+import { Web3Provider } from '@ethersproject/providers';
 
 const ChainIdChecker = (props) => {
-  const {library, chainId} = useWeb3React();
+  const web3React = useWeb3React();
+  const library = web3React.provider as Web3Provider;
+  const chainId = web3React.chainId;
+
   if (!library || chainId === 80001 || chainId === 137) return null;
   return (
     <div className="w-full fixed h-full z-30 flex items-center">
@@ -15,9 +19,8 @@ const ChainIdChecker = (props) => {
         <Button
           label="Switch to the Polygon Matic network"
           onClick={() => {
-            library.provider.request({
-              method: 'wallet_addEthereumChain',
-              params: [
+            library.send('wallet_addEthereumChain',
+              [
                 {
                   chainId: '0x89',
                   chainName: 'Polygon Matic',
@@ -30,7 +33,7 @@ const ChainIdChecker = (props) => {
                   blockExplorerUrls: ['https://explorer-mainnet.maticvigil.com/'],
                 },
               ],
-            });
+            );
           }}
         />
       </div>
