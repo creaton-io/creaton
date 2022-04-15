@@ -110,9 +110,10 @@ export function Creator() {
     }
   `;
 
-  const followersQuery = useQuery(FOLLOWERS_INFO_QUERY, {
+  const {data: followersData, refetch: refetchFollowers} = useQuery(FOLLOWERS_INFO_QUERY, {
     variables: {walletAddress: id},
     context: {clientName: 'cyberConnect'},
+    pollInterval: 500,
   });
 
   //const textile = useContext(TextileContext)
@@ -123,7 +124,7 @@ export function Creator() {
   const provider = context.provider as Web3Provider;
 
   let isFollowing = false;
-  followersQuery?.data?.identity?.followers?.list?.map((item) => {
+  followersData?.identity?.followers?.list?.map((item) => {
     if (item.address === context.account) {
       isFollowing = true;
     }
@@ -710,8 +711,7 @@ export function Creator() {
         </h3>
         <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
         <h1 className="text-white">
-          Followers {followersQuery?.data?.identity?.followerCount} | Following{' '}
-          {followersQuery?.data?.identity?.followingCount}
+          Followers {followersData?.identity?.followerCount} | Following {followersData?.identity?.followingCount}
         </h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
@@ -719,8 +719,14 @@ export function Creator() {
             <Button
               onClick={
                 !isFollowing
-                  ? () => cyberConnect.connect(creatorContractAddress as string)
-                  : () => cyberConnect.disconnect(creatorContractAddress as string)
+                  ? () => {
+                      cyberConnect.connect(creatorContractAddress as string);
+                      refetchFollowers();
+                    }
+                  : () => {
+                      cyberConnect.disconnect(creatorContractAddress as string);
+                      refetchFollowers();
+                    }
               }
               label={isFollowing ? 'Unfollow' : 'Follow'}
             />
