@@ -16,6 +16,7 @@ import { useCanBecomeCreator } from "../Whitelist";
 import { Splash } from "../components/splash";
 import { useParams } from "react-router-dom";
 import {Link} from "react-router-dom";
+import{ USDC_TOKEN_ADDRESS, DAI_TOKEN_ADDRESS, CREATE_TOKEN_ADDRESS} from "../Config";
 
 interface params {
   id: string;
@@ -195,8 +196,12 @@ export const Nftlance: FC = () => {
 
           {createCreatorsCollectionsVisible &&
             <form onSubmit={newCreatorCollections} className="grid grid-cols-1 place-items-center m-auto text-white">
-              <div className="p-5 text-white">
-                <Input className="bg-gray-900 text-white" type="text" name="token" placeholder="token address" label="Token address" />
+              <div className="m-5 p-5 text-white">
+                <label htmlFor="token">Token Address:</label>
+                <select className="bg-gray-900 m-5 text-white" name="token" id="token">
+                <option value={USDC_TOKEN_ADDRESS}>USDC</option>
+                <option value={DAI_TOKEN_ADDRESS}>DAI</option>
+                </select>
                 <Button type="submit" label="Setup" />
               </div>
             </form>
@@ -204,11 +209,14 @@ export const Nftlance: FC = () => {
         </div>
       }
 
-      {creatorCollectionsAddress &&
+      {creatorCollectionsAddress && 
         <div className="grid grid-cols-1 place-items-center m-auto text-white">
-          <p className="text-5xl pt-12 pb-6 pl-6">Nft Collections</p>
-
-          {!createNftCatalogVisible && 
+          <p className="text-5xl pt-12 pb-6 pl-6">Nft Collections
+          <Link to="/nftlance-mycards">
+          { ownNFTlance && <Button label="Check My NFT Cards" />}
+          </Link>
+          </p>
+          {!createNftCatalogVisible && ownNFTlance &&
           <>
            <ul className="list-unstyled multi-steps">
               <li>Step 1

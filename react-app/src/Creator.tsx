@@ -716,6 +716,7 @@ export function Creator() {
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
           {!isSelf && cyberConnect && (
+            <>
             <Button
               onClick={
                 !isFollowing
@@ -730,7 +731,12 @@ export function Creator() {
               }
               label={isFollowing ? 'Unfollow' : 'Follow'}
             />
+
+          </>
           )}
+          <Link  to={'/nftlance/'+contractQuery.data.creators[0].id}>
+          <Button className="mt-5" label={'Check NFTLance Profile'} />
+          </Link>
           {generateButton()}
 
           {context.chainId === 80000 && (
