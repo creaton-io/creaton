@@ -241,9 +241,9 @@ export const Nftlance: FC = () => {
 
       {collectionsData.length > 0 && <div className="mt-10">
         <Link to="/nftlance-mycardsrequests">
-        <Button className="mt-3 mb-3" label="Check For Requests" />
+        {ownNFTlance && <Button className="mt-3 mb-3" label="Check For Requests" />}
         </Link>
-        {collectionsData.map((c, i) => <NftlanceCollection collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} key={`collection-${i}`} />)}
+        {collectionsData.map((c, i) => <NftlanceCollection ownNFTlance={ownNFTlance} collection={c} creatorCollectionsAddress={creatorCollectionsAddress} collectionsToken={collectionsToken} key={`collection-${i}`} />)}
       </div>}
     </div>
   )

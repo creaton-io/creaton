@@ -466,7 +466,7 @@ const Upload = () => {
           <div className="flex items-center mb-1">
             <label className="block font-semibold flex float-right">
             <span className="mr-1" onClick={()=>{setAltTextVisible((prev)=>!prev)}}>Alt</span>
-            <Tooltip content={<div>Click on "Alt" to add a description (also called 'alt text') to your pictures. Keep it short, but clear. </div>} hover>
+            <Tooltip content={<div>Click on "Alt" to add a description (also called 'alt text') to your pictures. Keep it short, but clear. (Optional) </div>} hover>
               <Icon name="question-circle" className="text-gray-500 " />
             </Tooltip>
             </label>
