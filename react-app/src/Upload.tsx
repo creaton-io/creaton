@@ -33,6 +33,7 @@ const Upload = () => {
   const [description, setDescription] = useState('');
   const [rawLink, setRawLink] = useState('');
   const [altText, setAltText] = useState('');
+  const [altTextVisible, setAltTextVisible] = useState<boolean>(false);
   const [subscribersDescription, setSubscribersDescription] = useState('');
   const [fileName, setFileName] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
@@ -464,21 +465,21 @@ const Upload = () => {
         <div className="w-full m-5">
           <div className="flex items-center mb-1">
             <label className="block font-semibold flex float-right">
-            <span className="mr-1">Add Alt Text (optional)</span>
-            <Tooltip content={<div>You can add a description (also called 'alt text') to your pictures. Keep it short, but clear. </div>} hover>
+            <span className="mr-1" onClick={()=>{setAltTextVisible((prev)=>!prev)}}>Alt</span>
+            <Tooltip content={<div>Click on "Alt" to add a description (also called 'alt text') to your pictures. Keep it short, but clear. </div>} hover>
               <Icon name="question-circle" className="text-gray-500 " />
             </Tooltip>
             </label>
           </div>
 
-          <div className="w-full">
+          {altTextVisible && <div className="w-full" id="altText">
             <Input
               className="text-black w-full"
               type="text"
               placeholder="Type or paste Alt Text" 
               onChange={(e) => setAltText(e.target.value)}
             />
-          </div>
+          </div>}
         </div>
 
         <div className="w-full m-5">
