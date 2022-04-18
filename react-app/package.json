@@ -78,6 +78,7 @@
     "key-did-resolver": "^1.4.4",
     "lit-js-sdk": "^1.1.130",
     "magic-sdk": "^5.1.0",
+    "mini-svg-data-uri": "^1.4.4",
     "multiformats": "^3.0.3",
     "os-browserify": "^0.3.0",
     "patch-package": "^6.4.7",
