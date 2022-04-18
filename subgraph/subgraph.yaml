@@ -153,7 +153,7 @@ templates:
           handler: handleCardAdded
         - event: CatalogAdded(uint256,string,string,address,uint256)
           handler: handleCatalogAdded
-        - event: FanCollectibleDataSet(uint256,string,uint256,bytes)
+        - event: FanCollectibleDataSet(uint256,string,uint256,string)
           handler: handleFanCollectibleDataSet
         - event: Purchased(indexed address,uint256,uint256,uint256)
           handler: handlePurchased

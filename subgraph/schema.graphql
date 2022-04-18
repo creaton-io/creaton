@@ -150,5 +150,5 @@ type Token @entity {
   state: String!
   requestData: String
   owner: Bytes
-  data: Bytes
+  data: String
 }
