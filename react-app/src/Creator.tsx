@@ -18,7 +18,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20} from './Config';
+import {REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20, NFTLANCE_ENABLED} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -734,9 +734,11 @@ export function Creator() {
 
           </>
           )}
-          <Link  to={'/nftlance/'+contractQuery.data.creators[0].id}>
-          <Button className="mt-5" label={'Check NFTLance Profile'} />
-          </Link>
+
+          { NFTLANCE_ENABLED && <Link to={'/nftlance/'+contractQuery.data.creators[0].id}>
+            <Button className="mt-5" label={'Check NFTLance Profile'} />
+          </Link>}
+ 
           {generateButton()}
 
           {context.chainId === 80000 && (

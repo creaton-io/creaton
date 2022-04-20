@@ -4,6 +4,7 @@ import {Link} from 'react-router-dom';
 import {Button} from '../elements/button';
 import ConnectOrSignup from './ConnectOrSignup';
 import ProfileMenu from './ProfileMenu';
+import { NFTLANCE_ENABLED } from '../Config';
 
 const HeaderButtons = () => {
   const {currentCreator} = useCurrentCreator();
@@ -26,9 +27,9 @@ const HeaderButtons = () => {
       <Link to="/">
         <Button label="Home" theme="focused"></Button>
       </Link>
-      <Link to="/nftlance">
+      {NFTLANCE_ENABLED && <Link to="/nftlance">
         <Button label="NFTLance" theme="unfocused"></Button>
-      </Link>
+      </Link>}
       <Link to="/creators">
         <Button label="Creators" theme="unfocused"></Button>
       </Link>
