@@ -12,9 +12,10 @@ interface NftlanceCollectionProps {
     collection: any
     creatorCollectionsAddress: any
     collectionsToken: any
+    ownNFTlance:boolean
 }
 
-export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, creatorCollectionsAddress, collectionsToken }) => {
+export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, creatorCollectionsAddress, ownNFTlance, collectionsToken }) => {
     const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
@@ -34,6 +35,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
             setCollectionsTokenSymbol((await erc20Contract.symbol()).toUpperCase());
         })();
     }, [web3Context]);
+    
 
     async function handleCreateCards(e){
         web3utils.setIsWaiting(true);
@@ -55,6 +57,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
                 web3utils.setIsWaiting(false);
                 notificationHandler.setNotification({description: 'Cards created successfully!', type: 'success'});
                 setCreateCardsVisible(!createCardsVisible);
+                window.location.reload();
             });
         } catch (error: any) {
             web3utils.setIsWaiting(false);
@@ -135,7 +138,7 @@ export const NftlanceCollection: FC<NftlanceCollectionProps> = ({ collection, cr
                         </div>
 
                         <div className="text-left text-white mt-3">
-                            <Button disabled={createCardsVisible} className="mt-5" theme={`${createCardsVisible ? 'unfocused':'primary'}`} onClick={() => setCreateCardsVisible(true)} label="Create Cards"/>
+                           {ownNFTlance && <Button disabled={createCardsVisible} className="mt-5" theme={`${createCardsVisible ? 'unfocused':'primary'}`} onClick={() => setCreateCardsVisible(true)} label="Create Cards"/>}
                         </div>
                         <div className={`${createCardsVisible ? '':'hidden'} p-5 mt-5 rounded text-left`} style={{
                             backgroundColor: "rgb(41 25 67 / 70%)",

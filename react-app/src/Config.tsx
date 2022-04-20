@@ -23,6 +23,9 @@ export const GOVERNANCE_SQUAD_TOKENS = {
 export const VOTING_GRAPHQL_URI = process.env.REACT_APP_VOTING_GRAPHQL_URI;
 export const CREATOR_VOTING_ADDRESS = process.env.REACT_APP_CREATOR_VOTING_ADDRESS;
 
+export const USDC_TOKEN_ADDRESS = process.env.REACT_APP_USDC_TOKEN_ADDRESS;
+export const DAI_TOKEN_ADDRESS = process.env.REACT_APP_DAI_TOKEN_ADDRESS;
+
 /**
  * FEATURE FLAGS
  * We might need more logic

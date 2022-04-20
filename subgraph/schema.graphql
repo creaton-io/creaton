@@ -39,6 +39,7 @@ type Content @entity {
   tier: Int!
   tokenId: BigInt!
   hide: Boolean!
+  altText: String
 }
 
 type ReactionUser @entity {
@@ -149,5 +150,5 @@ type Token @entity {
   state: String!
   requestData: String
   owner: Bytes
-  data: Bytes
+  data: String
 }

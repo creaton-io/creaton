@@ -42,6 +42,7 @@ export function Discovery() {
         creatorContract
         type
         description
+        
         date
         ipfs
         tokenId
@@ -404,6 +405,7 @@ export function Discovery() {
           key={content.ipfs}
           fileUrl={src || null}
           name={content.name}
+          altText={content.altText}
           description={content.description}
           fileType={fileType}
           date={content.date}

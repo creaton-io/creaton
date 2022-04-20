@@ -112,9 +112,9 @@
       },
       {
         "indexed": false,
-        "internalType": "bytes",
+        "internalType": "string",
         "name": "data",
-        "type": "bytes"
+        "type": "string"
       }
     ],
     "name": "FanCollectibleDataSet",
@@ -518,9 +518,9 @@
         "type": "uint256"
       },
       {
-        "internalType": "bytes",
+        "internalType": "string",
         "name": "_data",
-        "type": "bytes"
+        "type": "string"
       }
     ],
     "name": "setFanCollectibleData",
