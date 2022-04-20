@@ -2,6 +2,7 @@ node_modules/
 .newsh.json
 .env*
 !.env*.default
+!react-app/.env*
 creaton.code-workspace
 .vscode/*
 !.vscode/settings.json.default

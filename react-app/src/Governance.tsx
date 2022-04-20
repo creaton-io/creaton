@@ -26,7 +26,7 @@ export const Governance: FC = () => {
         const userAddress: string = await signer.getAddress();
 
         const reactionContractAddr: string = GOVERNANCE_SQUAD_TOKENS[sgtSymbol];
-        const stakingTokenContract: Contract = new ethers.Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+        const stakingTokenContract: Contract = new ethers.Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
 
         const preDecimals: ethers.BigNumber = await stakingTokenContract.decimals();
         const decimals: ethers.BigNumber = ethers.BigNumber.from(10).pow(preDecimals);

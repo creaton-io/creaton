@@ -83,7 +83,7 @@ export const CreatorVoting: FC = () => {
         let answers = e.target.answers.value.split(",").map(str => str.trim());
         let acceptedTokens = e.target.acceptedTokens.value.split(",").map(str => str.trim());
 
-        const creatorVotingFactoryContract: Contract = new ethers.Contract(CREATOR_VOTING_ADDRESS, creaton_contracts.creator_voting_factory.abi, signer);
+        const creatorVotingFactoryContract: Contract = new ethers.Contract(CREATOR_VOTING_ADDRESS as string, creaton_contracts.creator_voting_factory.abi, signer);
         try {
             await creatorVotingFactoryContract.createVotingProcess(e.target.question.value, e.target.description.value, "", answers, acceptedTokens);
             creatorVotingFactoryContract.once("VotingProcessDeployed", async (creator, votingProcessAddress, question, description, uri, answers, acceptedTokens) => {

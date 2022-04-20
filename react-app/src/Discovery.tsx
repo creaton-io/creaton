@@ -449,7 +449,7 @@ export function Discovery() {
       const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
 
       const preDecimals = await erc20Contract.decimals();
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
@@ -465,7 +465,7 @@ export function Discovery() {
           throw Error('Error allowing token for reaction');
         }
       }
-      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider.getSigner());
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS as string, creaton_contracts.ReactionToken.abi).connect(provider.getSigner());
 
       await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
@@ -518,7 +518,7 @@ export function Discovery() {
         creatorContractAddress +
         ' on the Creaton platform.';
       const signature = await provider.getSigner().signMessage(message);
-      const response = await fetch(REPORT_URI, {
+      const response = await fetch(REPORT_URI as string, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -222,7 +222,7 @@ export function Creator() {
       const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
       setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
       setReactionErc20Symbol(await erc20Contract.symbol());
 
@@ -297,8 +297,8 @@ export function Creator() {
       method: 'POST', // or 'PUT'
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        authToken: BICONOMY_AUTH,
-        apiKey: BICONOMY_API,
+        authToken: BICONOMY_AUTH as string,
+        apiKey: BICONOMY_API as string,
       },
       body: new URLSearchParams(addMethodData),
     })
@@ -615,7 +615,7 @@ export function Creator() {
         creatorContractAddress +
         ' on the Creaton platform.';
       const signature = await provider!.getSigner().signMessage(message);
-      const response = await fetch(REPORT_URI, {
+      const response = await fetch(REPORT_URI as string, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
