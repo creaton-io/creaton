@@ -1,4 +1,4 @@
-import {ButtonHTMLAttributes, FC, useContext, useEffect, useState} from 'react';
+import React, {ButtonHTMLAttributes, FC, useContext, useEffect, useState} from 'react';
 import {Icon} from '../icons';
 import clsx from 'clsx';
 import {VideoPlayer} from '../VideoPlayer';
@@ -8,6 +8,8 @@ import LitJsSdk from 'lit-js-sdk';
 import { LitContext } from '../LitProvider';
 import { ethers } from 'ethers';
 import { LinkPreview } from '@dhaiwat10/react-link-preview';
+import { MODERATION_ENABLED } from '../Config';
+import { Button } from '../elements/button';
 import Tooltip from '../elements/tooltip';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -25,11 +27,15 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   likeCount?: number;
   onReact?: any;
   hasReacted?: boolean;
+  onReportForModeration?: any;
+  hasReported?: boolean;
   initialReactCount?: string;
   date?: string;
   isEncrypted?: boolean;
   reactionErc20Available?: string;
   reactionErc20Symbol?: string;
+  reportErc20Available?: string;
+  reportErc20Symbol?: string;
   hide?: boolean;
   onHide?: any;
   isCreator?: boolean;
@@ -46,17 +52,21 @@ export const Card: FC<ButtonProps> = ({
   altText,
   fileType,
   description,
-  isLiked,
+  isLiked, 
   onLike,
   onReport,
   likeCount,
   onReact,
+  onReportForModeration,
+  hasReported,
   hasReacted,
   initialReactCount,
   date,
   isEncrypted,
   reactionErc20Available,
   reactionErc20Symbol,
+  reportErc20Available,
+  reportErc20Symbol,
   hide,
   onHide,
   isCreator,
@@ -70,6 +80,11 @@ export const Card: FC<ButtonProps> = ({
   const [reactCount, setReactCount] = useState<number>();
   const [descriptionReactElement, setDescriptionReactElement] = useState('');
   const [linkContent, setLinkContent] = useState('');
+  const [reporting, setReporting] = useState(false);
+  const [reportingAmount, setReportingAmount] = useState('');
+  const fileInput = React.createRef<any>();
+  const [fileName, setFileName] = useState('');
+  const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
 
   function showAmountModal(e) {
     hideAllAmountModal();
@@ -96,7 +111,32 @@ export const Card: FC<ButtonProps> = ({
       });
     }
   }
+  
+  function showAmountReportModal(e) {
+    hideAllReportModal();
+    e.target.parentElement.parentElement.getElementsByClassName('reportAmount')[0].classList.remove('hidden');
+  }
+  
+  function hideAllReportModal() {
+    const modals = document.getElementsByClassName('reportAmount');
+    for (let key in modals) {
+      let el = modals[key].classList;
+      if (el) {
+        el.add('hidden');
+      }
+    }
+  }
 
+  function reportClick() {
+    setReporting(true);
+    hideAllReportModal();
+    if (!isNaN(+reportingAmount)) {
+      onReportForModeration(reportingAmount, currentFile, () => {
+        setReporting(false);
+      });
+    }
+  }
+  
   function base64ToBlob(base64Data: string) {
     const parts = base64Data.split(';base64,');
     const contentType = parts[0].split(':')[1];
@@ -108,6 +148,13 @@ export const Card: FC<ButtonProps> = ({
     }
 
     return new Blob([uInt8Array], { type: contentType });
+  }
+
+  async function handleFileSelection(event){
+    const file = event.currentTarget.files[0];
+    console.log(file);
+    setFileName(file.name);
+    setCurrentFile(file);
   }
 
   useEffect(() => {
@@ -146,7 +193,6 @@ export const Card: FC<ButtonProps> = ({
               });
               
               const decBlob = new Blob([decryptedFile], {type: 'application/json'});
-              console.log('SHIT LINK', decBlob);
               const decDecryptedText = JSON.parse(await decBlob.text());
     
               const reversed = Array.from(desc.matchAll(regexSubscribersText)).reverse();
@@ -191,7 +237,7 @@ export const Card: FC<ButtonProps> = ({
   if (isEncrypted)
     return (
       <div className="mb-5">
-        <div className="flex flex-col rounded-2xl border border-gray-100/10 overflow-hidden bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+        <div className="flex flex-col rounded-2xl border border-gray-100/10 overflow-hidden bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
           <div className="border-gray-200 text-center text-white bg-gray-700 text-xl w-full h-50 m-auto p-10">
             <Icon size="5x" name="lock" />
             <p className="w-1/2 m-auto text-center text-white mt-4">
@@ -233,7 +279,7 @@ export const Card: FC<ButtonProps> = ({
     );
   return (
     <div className="mb-5">
-      <div className="flex flex-col rounded-2xl border border-gray-100/10 pr-8 pl-8 pb-8 bg-white bg-opacity-5 filter drop-shadow-md shadow-md hover:shadow-lg">
+      <div className="flex flex-col rounded-2xl border border-gray-100/10 pr-8 pl-8 pb-8 bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
         {fileUrl && (
           <div className="flex justify-center flex-shrink-0 my-6">
             {fileType === 'image' && <img className="w-auto md:max-w-2xl max-w-full rounded-xl" src={fileUrl} alt={altText?altText:""} />}
@@ -256,49 +302,117 @@ export const Card: FC<ButtonProps> = ({
                       hover
                     >
               <div className=" mr-5 ">
+                <Icon
+                  onClick={onLike}
+                  name="heart"
+                  className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
+                />
+                <span className="ml-2 text-white">{likeCount}</span>
+              </div>
+              <div className=" mr-5 ">
+                {!reacting && !hasReacted && 
+                  <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
+                    <img src="/assets/images/logo.png" className="svg-inline--fa cursor-pointer" />
+                  </button> 
+                }
 
-                          {!reacting && !hasReacted && 
-                            <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
-                              <img src="/assets/images/logo.png" className="svg-inline--fa cursor-pointer" />
-                            </button> 
-                          }
+                <div className="reactAmount hidden absolute p-3 mt-1 rounded right-2" style={{
+                  backgroundColor: "rgb(41 25 67 / 70%)",
+                  border: "1px solid #473a5f"
+                }}>
+                  
+                  {!reacting && <>
+                    <div>
+                      <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} className="text-white rounded" style={{
+                        background: "#452e6d",
+                        padding: "5px 7px"
+                      }} />
+                      <button onClick={reactClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
+                        React!
+                      </button>                              
+                    </div>
+                    <div className="block text-white text-sm mt-2 font-light">
+                      {reactionErc20Available && Math.round(+ethers.utils.formatEther(reactionErc20Available) * 1e2) / 1e2} {reactionErc20Symbol} available
+                    </div>
+                  </>
+                  }
+                </div>
 
-                          <div className="reactAmount hidden absolute p-3 mt-1 rounded right-2" style={{
-                            backgroundColor: "rgb(41 25 67 / 70%)",
-                            border: "1px solid #473a5f"
-                          }}>
-                            
-                            {!reacting && <>
-                              <div>
-                                <input name="reactAmount" onChange={(e) => setStakingAmount(e.target.value)} className="text-white rounded" style={{
-                                  background: "#452e6d",
-                                  padding: "5px 7px"
-                                }} />
-                                <button onClick={reactClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
-                                  React!
-                                </button>                              
-                              </div>
-                              <div className="block text-white text-sm mt-2 font-light">
-                                {reactionErc20Available && Math.round(+ethers.utils.formatEther(reactionErc20Available) * 1e2) / 1e2} {reactionErc20Symbol} available
-                              </div>
-                            </>
-                            }
-                          </div>
+                {!reacting && hasReacted && 
+                  <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
+                }
+                { reacting && 
+                  <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                }
+                <span className="ml-2 text-white">
+                  {reactCount}
+                </span>
+              </div> 
+             </Tooltip>
+              { !MODERATION_ENABLED && <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} /> }
 
-                          {!reacting && hasReacted && 
-                            <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
-                          }
-                          { reacting && 
-                            <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                          }
-                          <span className="ml-2 text-white">
-                            {reactCount}
-                          </span>
-                        </div> 
-              </Tooltip>
+              { MODERATION_ENABLED && <div className="mr-5 relative">
+                {!reporting && !hasReported && 
+                  <Icon onClick={showAmountReportModal} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
+                }
+
+                <div className="reportAmount hidden absolute p-3 mt-1 rounded" style={{
+                  backgroundColor: "rgb(41 25 67 / 70%)",
+                  border: "1px solid #473a5f",
+                  width:"450px",
+                  right:"0px",
+                }}>
+                  
+                  {!reporting && <>
+                    <div>
+                      <div>
+                        <label htmlFor="reportAmount" className="text-white rounded font-bold">Stake Amount To Report: </label>
+                        <input name="reportAmount" onChange={(e) => setReportingAmount(e.target.value)} className="text-white rounded ml-2" style={{
+                          background: "#452e6d",
+                          padding: "5px 7px"
+                        }} />
+                      </div>
+                      
+                      <div className="block text-white text-sm mt-2 font-light mb-3">
+                        {reportErc20Available && Math.round(+ethers.utils.formatEther(reportErc20Available) * 1e2) / 1e2} {reportErc20Symbol} available
+                      </div>
+
+                      <div className="mb-3">
+                        <input
+                          id="file"
+                          style={{display: 'none'}}
+                          onChange={(event) => handleFileSelection(event)}
+                          name="file"
+                          type="file"
+                          ref={fileInput}
+                        />
+                        <label htmlFor="reportAmount" className="text-white rounded font-bold">Proof Screenshot: </label>
+                        <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
+                        <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen'}</small>
+                      </div>
+
+                      <button onClick={reportClick} className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
+                        Report!
+                      </button>                              
+                    </div>
+                  </>
+                  }
+                </div>
+
+                {/* {!reporting && hasReported && 
+                  <Icon name="flag" className={clsx('text-gray-500 mt-1 mr-5')} />
+                } */}
+                { reporting && 
+                  <svg className="inline-block animate-spin -ml-1 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                }
+              </div>}
+        
               <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
               
               <Tooltip content={<div>Hide content from public</div>} hover>

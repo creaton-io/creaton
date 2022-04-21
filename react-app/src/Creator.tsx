@@ -18,7 +18,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20, NFTLANCE_ENABLED} from './Config';
+import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -51,6 +51,10 @@ export function Creator() {
         tier
         hide
         link
+        reported {
+          id
+          reporters
+        }
       }
     }
   `;
@@ -153,6 +157,8 @@ export function Creator() {
   const [reactions, setReactions] = useState<Array<any>>();
   const [reactionErc20Available, setReactionErc20Available] = useState<string>();
   const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
+  const [reportErc20Available, setReportErc20Available] = useState<string>();
+  const [reportErc20Symbol, setReportErc20Symbol] = useState<string>();
   const [cyberConnect, setCyberConnect] = useState<CyberConnect>();
 
   async function getUsdcx() {
@@ -226,6 +232,9 @@ export function Creator() {
       setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
       setReactionErc20Symbol(await erc20Contract.symbol());
 
+      const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
+      setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
+      setReportErc20Symbol(await erc20Contract2.symbol());
       let cyberConnectInstance = new CyberConnect({
         provider: provider,
         namespace: 'Creaton',
@@ -518,6 +527,7 @@ export function Creator() {
             //onReact={(amount, callback) => { react(content, amount, callback) }}
             // hasReacted={hasReacted(content)}
             // initialReactCount={countReacted(content)}
+            hasReported={hasReported(content)}
           />
           {/* <iframe
             src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
@@ -541,6 +551,70 @@ export function Creator() {
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
   }
+
+  async function reportForModeration(content, amount, file, callback){
+    if(!MODERATION_ENABLED) return;
+    if (!web3utils.isSignedUp()) return;
+
+    let arweave_id = '';
+    let screenshot = '';
+    if(file != undefined){
+      web3utils.setIsWaiting('Uploading screenshot to Arweave...');
+      const formData = new FormData();
+      const buf = await file.arrayBuffer();
+      let bytes = new Uint8Array(buf);
+      formData.append(
+        'file',
+        new Blob([bytes], {
+          type: file.type,
+        })
+      );
+        
+      const response = await fetch(ARWEAVE_URI + '/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      arweave_id = await response.text();
+      screenshot = ARWEAVE_GATEWAY + arweave_id;
+      web3utils.setIsWaiting(false);
+    }
+
+    try {
+      // Allowance
+      const signer = provider.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
+
+      const preDecimals = await erc20Contract.decimals();
+      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+
+      const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
+      if(stakingAmount.gt(allowance)){
+        web3utils.setIsWaiting(true);
+        let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
+        await tx.wait();
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+        if(receipt.length == 0){
+          throw Error('Error allowing token for moderation');
+        }
+      }
+
+      web3utils.setIsWaiting(true);
+      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
+      await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
+      moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+        callback();
+      });
+    } catch (error: any) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+  }
+
   /*
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
@@ -588,6 +662,11 @@ export function Creator() {
   function hasReacted(content) {
     if (!reactions) return false;
     return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+  }
+
+  function hasReported(content){
+    if(content.reported.length == 0) return false;
+    return (content.reported[0].reporters.indexOf(context.account?.toLowerCase()) >= 0);
   }
 
   async function hide(tokenId, hide: boolean) {

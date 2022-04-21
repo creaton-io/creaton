@@ -28,6 +28,7 @@ import {Feed} from './Feed';
 import {Discovery} from './Discovery';
 import {SuperfluidProvider} from './Superfluid';
 import {ConnectOrSignup, HeaderButtons, ProfileMenu, ChainIdChecker, CreatorHome} from './components';
+import { Moderation } from './moderation';
 import { MetaMask } from '@web3-react/metamask';
 import { hooks as metaMaskHooks, metaMask } from './connectors/metaMask'
 import { hooks as networkHooks, network } from './connectors/network'
@@ -228,6 +229,9 @@ const App = () => {
                                 </Route>
                                 <Route path="/discovery">
                                   <Discovery />
+                                </Route>
+                                <Route path="/moderation">
+                                  <Moderation />
                                 </Route>
                               </Switch>
                             </div>
