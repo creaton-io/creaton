@@ -42,6 +42,7 @@ type Content @entity {
   hide: Boolean!
   reported: [ReportedContent!] @derivedFrom(field: "content")
   moderationCase: [ModerationCase!] @derivedFrom(field: "content")
+  altText: String
 }
 
 type ReactionUser @entity {
@@ -152,7 +153,7 @@ type Token @entity {
   state: String!
   requestData: String
   owner: Bytes
-  data: Bytes
+  data: String
 }
 
 type ReportedContent @entity {

@@ -18,14 +18,14 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY} from './Config';
+import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
 import {BICONOMY_API, BICONOMY_AUTH} from './Config';
-import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
+import {ConstantFlowAgreementV1Helper} from '@superfluid-finance/js-sdk';
 import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
@@ -80,19 +80,19 @@ export function Creator() {
       }
     }
   `;
-const REACTIONS_QUERY = gql`
-query($nftAddress: Bytes!) {
-  reactions(where: {reactionRecipientAddress: $nftAddress}) {
-    id
-    amount,
-    reactionRecipientAddress,
-    tokenId
-    reactingUser {
-      address
+  const REACTIONS_QUERY = gql`
+    query ($nftAddress: Bytes!) {
+      reactions(where: {reactionRecipientAddress: $nftAddress}) {
+        id
+        amount
+        reactionRecipientAddress
+        tokenId
+        reactingUser {
+          address
+        }
+      }
     }
-  }
-}
-`;
+  `;
 
   const FOLLOWERS_INFO_QUERY = gql`
     query GET_FOLLOWERS($walletAddress: String!) {
@@ -114,9 +114,10 @@ query($nftAddress: Bytes!) {
     }
   `;
 
-  const followersQuery = useQuery(FOLLOWERS_INFO_QUERY, {
+  const {data: followersData, refetch: refetchFollowers} = useQuery(FOLLOWERS_INFO_QUERY, {
     variables: {walletAddress: id},
     context: {clientName: 'cyberConnect'},
+    pollInterval: 500,
   });
 
   //const textile = useContext(TextileContext)
@@ -127,7 +128,7 @@ query($nftAddress: Bytes!) {
   const provider = context.provider as Web3Provider;
 
   let isFollowing = false;
-  followersQuery?.data?.identity?.followers?.list?.map((item) => {
+  followersData?.identity?.followers?.list?.map((item) => {
     if (item.address === context.account) {
       isFollowing = true;
     }
@@ -220,18 +221,18 @@ query($nftAddress: Bytes!) {
       }
     }
   }, [downloadStatus, canDecrypt]);
-  
+
   useEffect(() => {
     (async function iife() {
-      if(!context.isActive) return;
-      const signer = provider.getSigner()
+      if (!context.isActive) return;
+      const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
       setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
       setReactionErc20Symbol(await erc20Contract.symbol());
 
-      const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+      const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
       setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
       setReportErc20Symbol(await erc20Contract2.symbol());
       let cyberConnectInstance = new CyberConnect({
@@ -241,18 +242,17 @@ query($nftAddress: Bytes!) {
         env: Env.PRODUCTION,
       });
       setCyberConnect(cyberConnectInstance);
-
     })();
   }, [contentsQuery, creatorContractAddress, context.provider]);
-  
+
   const reactionsQuery = useQuery(REACTIONS_QUERY, {
-    variables: {'nftAddress': creatorContractAddress},
+    variables: {nftAddress: creatorContractAddress},
     pollInterval: 10000,
   });
 
   useEffect(() => {
     if (reactionsQuery.data) {
-      setReactions(reactionsQuery.data.reactions);    
+      setReactions(reactionsQuery.data.reactions);
     }
   }, [reactionsQuery, context]);
 
@@ -306,8 +306,8 @@ query($nftAddress: Bytes!) {
       method: 'POST', // or 'PUT'
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        authToken: BICONOMY_AUTH,
-        apiKey: BICONOMY_API,
+        authToken: BICONOMY_AUTH as string,
+        apiKey: BICONOMY_API as string,
       },
       body: new URLSearchParams(addMethodData),
     })
@@ -319,17 +319,17 @@ query($nftAddress: Bytes!) {
         console.error('Error:', error);
       });
 
-    if(!context.isActive) return;
-    const signer = provider.getSigner()
+    if (!context.isActive) return;
+    const signer = provider.getSigner();
     const walletAddress = await signer.getAddress();
 
     const signedMessage = await signer.signMessage(`Creaton: Enabling gasless transactions for ${walletAddress}`);
     const response = await fetch(`http://localhost:3333/gasless`, {
-      method: "post",
-      headers:{
-        'Content-Type': 'application/json'
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({signedMessage, walletAddress, creatorContractAddress})
+      body: JSON.stringify({signedMessage, walletAddress, creatorContractAddress}),
     });
   }
 
@@ -415,10 +415,10 @@ query($nftAddress: Bytes!) {
     const tx = await sf.host.callAgreement(
       sf.agreements.cfa.address,
       sf.agreements.cfa.contract.methods
-        .deleteFlow(usdcx.address, context.account, creatorContractAddress, "0x")
+        .deleteFlow(usdcx.address, context.account, creatorContractAddress, '0x')
         .encodeABI(),
-      "0x",
-      { from: context.account }
+      '0x',
+      {from: context.account}
     );
     web3utils.setIsWaiting(true);
     await tx.wait(1);
@@ -584,7 +584,7 @@ query($nftAddress: Bytes!) {
       const signer = provider.getSigner()
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
 
       const preDecimals = await erc20Contract.decimals();
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
@@ -694,7 +694,7 @@ query($nftAddress: Bytes!) {
         creatorContractAddress +
         ' on the Creaton platform.';
       const signature = await provider!.getSigner().signMessage(message);
-      const response = await fetch(REPORT_URI, {
+      const response = await fetch(REPORT_URI as string, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -789,19 +789,35 @@ query($nftAddress: Bytes!) {
             : contractQuery.data.creators[0].id.slice(0, 6)}
         </h3>
         <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
-        <h1 className="text-white">Followers {followersQuery?.data?.identity?.followerCount} | Following {followersQuery?.data?.identity?.followingCount}</h1>
+        <h1 className="text-white">
+          Followers {followersData?.identity?.followerCount} | Following {followersData?.identity?.followingCount}
+        </h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
-          { !isSelf && cyberConnect &&
-          <Button
-            onClick={
-              !isFollowing
-                ? () => cyberConnect.connect(context.account as string)
-                : () => cyberConnect.disconnect(context.account as string)
-            }
-            label={isFollowing ? 'Unfollow' : 'Follow'}
-          />
-          }
+          {!isSelf && cyberConnect && (
+            <>
+            <Button
+              onClick={
+                !isFollowing
+                  ? () => {
+                      cyberConnect.connect(creatorContractAddress as string);
+                      refetchFollowers();
+                    }
+                  : () => {
+                      cyberConnect.disconnect(creatorContractAddress as string);
+                      refetchFollowers();
+                    }
+              }
+              label={isFollowing ? 'Unfollow' : 'Follow'}
+            />
+
+          </>
+          )}
+
+          { NFTLANCE_ENABLED && <Link to={'/nftlance/'+contractQuery.data.creators[0].id}>
+            <Button className="mt-5" label={'Check NFTLance Profile'} />
+          </Link>}
+ 
           {generateButton()}
 
           {context.chainId === 80000 && (

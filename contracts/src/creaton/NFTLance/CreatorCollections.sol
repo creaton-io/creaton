@@ -52,7 +52,7 @@ contract CreatorCollections is Ownable, Pausable {
     event CatalogAdded(uint256 catalogId, string title, string description, address artist, uint256 periodStart);
     event CardAdded(uint256 cardId, uint256 catalogId, uint256[] tokenIds, uint256 price, uint256 releaseTime);
     event Purchased(address indexed user, uint256 catalogId, uint256 cardId, uint256 amount);
-    event FanCollectibleDataSet(uint256 catalogId, string cardId, uint256 fanId, bytes data);
+    event FanCollectibleDataSet(uint256 catalogId, string cardId, uint256 fanId, string data);
 
     modifier catalogExists(uint256 id) {
         require(catalogs[id].artist != address(0), "Catalog does not exists");
@@ -171,7 +171,7 @@ contract CreatorCollections is Ownable, Pausable {
         uint256 _catalog,
         string memory _cardId,
         uint256 _fanID,
-        bytes memory _data
+        string calldata _data
     ) public {
         require(_msgSender() == catalogs[_catalog].artist, "not the artist");
 

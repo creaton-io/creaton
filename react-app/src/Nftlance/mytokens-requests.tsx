@@ -3,6 +3,8 @@ import {useWeb3React} from "@web3-react/core";
 import { Web3Provider } from "@ethersproject/providers";
 import { gql, useQuery } from "@apollo/client";
 import { Token } from "../components/nftlance.token";
+import {Link} from "react-router-dom";
+import { Button } from "../elements/button";
 
 
 export const MytokensRequests: FC = () => {
@@ -98,6 +100,9 @@ export const MytokensRequests: FC = () => {
                 ))}
             </>}
             {tokens.length <= 0 && <h2 className="text-white font-bold">No requests for your tokens</h2>}
+        <Link to="/nftlance">
+        <Button className="mt-3 mb-3" label="Go back" />
+        </Link>
         </div>
     )
 };
