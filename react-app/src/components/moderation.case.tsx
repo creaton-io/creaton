@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { Contract, ethers } from "ethers";
 import { FC, useContext, useEffect, useState } from "react";
 import creaton_contracts from "../Contracts";
@@ -14,8 +14,7 @@ interface CaseProps {
 }
 
 export const Case: FC<CaseProps> = ({ jurorDecision }) => {
-    console.log(jurorDecision);
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [userAddress, setUserAddress] = useState('');
@@ -24,13 +23,13 @@ export const Case: FC<CaseProps> = ({ jurorDecision }) => {
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider!.getSigner();
             const address = await signer.getAddress();
 
-            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
             setStakingSymbol(await erc20Contract.symbol());
 
             setUserAddress(address.toLowerCase());
@@ -45,10 +44,10 @@ export const Case: FC<CaseProps> = ({ jurorDecision }) => {
     async function handleVote(e) {
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library || !userAddress) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider || !userAddress) return;
 
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
         const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
 
         const contentId = jurorDecision.moderationCase.content.id;

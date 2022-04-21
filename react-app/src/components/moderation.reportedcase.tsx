@@ -1,5 +1,5 @@
 import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "../web3-react/core";
+import { useWeb3React } from "@web3-react/core";
 import { Contract, ethers } from "ethers";
 import { FC, useContext, useEffect, useState } from "react";
 import creaton_contracts from "../Contracts";
@@ -14,20 +14,19 @@ interface ReportedContentProps {
 }
 
 export const ReportedCase: FC<ReportedContentProps> = ({ reportedContent }) => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const [userAddress, setUserAddress] = useState('');
     const [stakingSymbol, setStakingSymbol] = useState('');
     const [reporterIndex, setReporterIndex] = useState(0);
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
 
-            const signer = library!.getSigner();
+            const signer = provider!.getSigner();
             const address = (await signer.getAddress()).toLowerCase();
 
-            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
             setStakingSymbol(await erc20Contract.symbol());
             
             setUserAddress(address);

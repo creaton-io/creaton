@@ -1,5 +1,5 @@
 import { FC, useEffect, useState, useContext } from "react";
-import {useWeb3React} from '../web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 import { Web3UtilsContext } from "../Web3Utils";
 import { Contract, ethers } from "ethers";
@@ -17,7 +17,7 @@ interface params {
 }
 
 export const Moderation: FC = () => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
     const web3utils = useContext(Web3UtilsContext);
     const notificationHandler = useContext(NotificationHandlerContext);
     const [moderationData, setModerationData] = useState<any>(false);
@@ -29,15 +29,15 @@ export const Moderation: FC = () => {
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider!.getSigner();
             const address = await signer.getAddress();
 
             setUserAddress(address.toLowerCase());
             
-            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
             setStakingTokenSymbol((await erc20Contract.symbol()).toUpperCase());
 
             const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
@@ -116,15 +116,15 @@ export const Moderation: FC = () => {
     async function newJuror(e) {
         web3utils.setIsWaiting(true);
         e.preventDefault();
-        const { library } = web3Context;
-        if(!library || !userAddress) return;
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider || !userAddress) return;
 
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
  
         const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
         try {
             // Allowance
-            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS, creaton_contracts.erc20.abi, signer);
+            const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
 
             const preDecimals = await erc20Contract.decimals();
             const decimals = ethers.BigNumber.from(10).pow(preDecimals);
@@ -162,11 +162,10 @@ export const Moderation: FC = () => {
 
     async function removeJuror() {
         web3utils.setIsWaiting(true);
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider || !userAddress) return;
 
-        const { library } = web3Context;
-        if(!library || !userAddress) return;
-
-        const signer: ethers.providers.JsonRpcSigner = library!.getSigner();
+        const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
  
         const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
         try {
