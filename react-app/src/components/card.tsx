@@ -8,7 +8,7 @@ import LitJsSdk from 'lit-js-sdk';
 import { LitContext } from '../LitProvider';
 import { ethers } from 'ethers';
 import { LinkPreview } from '@dhaiwat10/react-link-preview';
-import { MODERATION_ENABLED } from '../Config';
+import { MODERATION_ENABLED, REACTION_TOKENS_ENABLED } from '../Config';
 import { Button } from '../elements/button';
 import Tooltip from '../elements/tooltip';
 
@@ -309,7 +309,8 @@ export const Card: FC<ButtonProps> = ({
                 />
                 <span className="ml-2 text-white">{likeCount}</span>
               </div>
-              <div className=" mr-5 ">
+
+              { REACTION_TOKENS_ENABLED && <div className=" mr-5 ">
                 {!reacting && !hasReacted && 
                   <button onClick={(e) => showAmountModal(e)} className={clsx('cursor-pointer', 'text-white', 'reactButton')}> 
                     <img src="/assets/images/logo.png" className="svg-inline--fa cursor-pointer" />
@@ -338,7 +339,7 @@ export const Card: FC<ButtonProps> = ({
                   }
                 </div>
 
-                {!reacting && hasReacted && 
+                { !reacting && hasReacted && 
                   <img src="/assets/images/logo.png" className="svg-inline--fa fa-w-16" />
                 }
                 { reacting && 
@@ -350,7 +351,7 @@ export const Card: FC<ButtonProps> = ({
                 <span className="ml-2 text-white">
                   {reactCount}
                 </span>
-              </div> 
+              </div>}
              </Tooltip>
               { !MODERATION_ENABLED && <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} /> }
 
@@ -412,8 +413,6 @@ export const Card: FC<ButtonProps> = ({
                   </svg>
                 }
               </div>}
-        
-              <Icon onClick={onReport} name="flag" className={clsx('cursor-pointer text-gray-500 mt-1 mr-5')} />
               
               <Tooltip content={<div>Hide content from public</div>} hover>
                 <Icon
