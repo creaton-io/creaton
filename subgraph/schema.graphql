@@ -15,6 +15,7 @@ type Creator @entity {
   subscribers: [Subscriber!]! @derivedFrom(field: "creator")
   reactionUser: [ReactionUser]! @derivedFrom(field: "creator")
   reactionsReceived: BigInt!
+  reportedContent: [ReportedContent!] @derivedFrom(field: "creators")
 }
 
 type Subscriber @entity {
@@ -39,6 +40,9 @@ type Content @entity {
   tier: Int!
   tokenId: BigInt!
   hide: Boolean!
+  reported: [ReportedContent!] @derivedFrom(field: "content")
+  moderationCase: [ModerationCase!] @derivedFrom(field: "content")
+  altText: String
 }
 
 type ReactionUser @entity {
@@ -149,5 +153,48 @@ type Token @entity {
   state: String!
   requestData: String
   owner: Bytes
-  data: Bytes
+  data: String
+}
+
+type ReportedContent @entity {
+  id: ID!
+  contentId: String!
+  content: Content!
+  staked: BigInt!
+  reporters: [Bytes!]
+  reportersStaked: [BigInt!]
+  reportersRewarded: [BigInt!]
+  reportersPenalized: [BigInt!]
+  fileProofs: [String!]
+  creators: [Creator!]!
+}
+
+type Juror @entity {
+  id: ID!
+  address: Bytes!
+  initialStaked: BigInt!
+  staked: BigInt!
+  status: String!
+  cases: [JurorDecision!] @derivedFrom(field: "juror")
+}
+
+type ModerationCase @entity { #"Case" causes problems on compilation
+  id: ID!
+  content: Content!
+  status: String!
+  jurySize: BigInt!
+  pendingVotes: BigInt!
+  jurors: String
+  timestamp: BigInt!
+  totalReward: BigInt!
+  totalPenalty: BigInt!
+  jurorDecisions: [JurorDecision!] @derivedFrom(field: "moderationCase")
+}
+
+type JurorDecision @entity {
+  id: ID!
+  moderationCase: ModerationCase!
+  juror: Juror!
+  decision: String!
+  timestamp: BigInt!
 }

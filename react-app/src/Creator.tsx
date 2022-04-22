@@ -1,6 +1,5 @@
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
-import Web3Modal from 'web3modal';
 import {useWeb3React} from '@web3-react/core';
 import {Web3Provider} from '@ethersproject/providers';
 import {ApolloClient, gql, InMemoryCache, useQuery} from '@apollo/client';
@@ -19,7 +18,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {REPORT_URI, REACTION_CONTRACT_ADDRESS, REACTION_ERC20, BICONOMY_ENABLED} from './Config';
+import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY, BICONOMY_ENABLED} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -31,34 +30,6 @@ import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
 import { useMetaTx } from './hooks/metatx';
-
-let web3Modal = new Web3Modal({
-  network: 'polygon',
-  cacheProvider: true,
-});
-
-let ethersProvider;
-let cyberConnect;
-
-function connect() {
-  return new Promise((resolve, reject) => {
-    web3Modal
-      .connect()
-      .then((modalProvider) => {
-        ethersProvider = new Web3Provider(modalProvider);
-        cyberConnect = new CyberConnect({
-          provider: ethersProvider.provider,
-          namespace: 'Creaton',
-          chain: Blockchain.ETH,
-          env: Env.PRODUCTION,
-        });
-        resolve(cyberConnect);
-      })
-      .catch(reject);
-  });
-}
-
-connect();
 
 interface params {
   id: string;
@@ -81,6 +52,10 @@ export function Creator() {
         tier
         hide
         link
+        reported {
+          id
+          reporters
+        }
       }
     }
   `;
@@ -106,19 +81,19 @@ export function Creator() {
       }
     }
   `;
-const REACTIONS_QUERY = gql`
-query($nftAddress: Bytes!) {
-  reactions(where: {reactionRecipientAddress: $nftAddress}) {
-    id
-    amount,
-    reactionRecipientAddress,
-    tokenId
-    reactingUser {
-      address
+  const REACTIONS_QUERY = gql`
+    query ($nftAddress: Bytes!) {
+      reactions(where: {reactionRecipientAddress: $nftAddress}) {
+        id
+        amount
+        reactionRecipientAddress
+        tokenId
+        reactingUser {
+          address
+        }
+      }
     }
-  }
-}
-`;
+  `;
 
   const FOLLOWERS_INFO_QUERY = gql`
     query GET_FOLLOWERS($walletAddress: String!) {
@@ -140,9 +115,10 @@ query($nftAddress: Bytes!) {
     }
   `;
 
-  const followersQuery = useQuery(FOLLOWERS_INFO_QUERY, {
+  const {data: followersData, refetch: refetchFollowers} = useQuery(FOLLOWERS_INFO_QUERY, {
     variables: {walletAddress: id},
     context: {clientName: 'cyberConnect'},
+    pollInterval: 500,
   });
 
   //const textile = useContext(TextileContext)
@@ -154,7 +130,7 @@ query($nftAddress: Bytes!) {
   const provider = context.provider as Web3Provider;
 
   let isFollowing = false;
-  followersQuery?.data?.identity?.followers?.list?.map((item) => {
+  followersData?.identity?.followers?.list?.map((item) => {
     if (item.address === context.account) {
       isFollowing = true;
     }
@@ -183,6 +159,9 @@ query($nftAddress: Bytes!) {
   const [reactions, setReactions] = useState<Array<any>>();
   const [reactionErc20Available, setReactionErc20Available] = useState<string>();
   const [reactionErc20Symbol, setReactionErc20Symbol] = useState<string>();
+  const [reportErc20Available, setReportErc20Available] = useState<string>();
+  const [reportErc20Symbol, setReportErc20Symbol] = useState<string>();
+  const [cyberConnect, setCyberConnect] = useState<CyberConnect>();
 
   async function getUsdcx() {
     if (!superfluid) return;
@@ -244,27 +223,38 @@ query($nftAddress: Bytes!) {
       }
     }
   }, [downloadStatus, canDecrypt]);
-  
+
   useEffect(() => {
     (async function iife() {
-      if(!context.isActive) return;
-      const signer = provider.getSigner()
+      if (!context.isActive) return;
+      const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
       setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
       setReactionErc20Symbol(await erc20Contract.symbol());
+
+      const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
+      setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
+      setReportErc20Symbol(await erc20Contract2.symbol());
+      let cyberConnectInstance = new CyberConnect({
+        provider: provider,
+        namespace: 'Creaton',
+        chain: Blockchain.ETH,
+        env: Env.PRODUCTION,
+      });
+      setCyberConnect(cyberConnectInstance);
     })();
   }, [contentsQuery, creatorContractAddress, context.provider]);
-  
+
   const reactionsQuery = useQuery(REACTIONS_QUERY, {
-    variables: {'nftAddress': creatorContractAddress},
+    variables: {nftAddress: creatorContractAddress},
     pollInterval: 10000,
   });
 
   useEffect(() => {
     if (reactionsQuery.data) {
-      setReactions(reactionsQuery.data.reactions);    
+      setReactions(reactionsQuery.data.reactions);
     }
   }, [reactionsQuery, context]);
 
@@ -331,17 +321,17 @@ query($nftAddress: Bytes!) {
     //     console.error('Error:', error);
     //   });
 
-    if(!context.isActive) return;
-    const signer = provider.getSigner()
+    if (!context.isActive) return;
+    const signer = provider.getSigner();
     const walletAddress = await signer.getAddress();
 
     const signedMessage = await signer.signMessage(`Creaton: Enabling gasless transactions for ${walletAddress}`);
     const response = await fetch(`http://localhost:3333/gasless`, {
-      method: "post",
-      headers:{
-        'Content-Type': 'application/json'
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/json',
       },
-      body: JSON.stringify({signedMessage, walletAddress, creatorContractAddress})
+      body: JSON.stringify({signedMessage, walletAddress, creatorContractAddress}),
     });
   }
 
@@ -427,10 +417,10 @@ query($nftAddress: Bytes!) {
     const tx = await sf.host.callAgreement(
       sf.agreements.cfa.address,
       sf.agreements.cfa.contract.methods
-        .deleteFlow(usdcx.address, context.account, creatorContractAddress, "0x")
+        .deleteFlow(usdcx.address, context.account, creatorContractAddress, '0x')
         .encodeABI(),
-      "0x",
-      { from: context.account }
+      '0x',
+      {from: context.account}
     );
     web3utils.setIsWaiting(true);
     await tx.wait(1);
@@ -500,10 +490,10 @@ query($nftAddress: Bytes!) {
     }
   }
 
-  function showItem(content) {
+  function showItem(content, index) {
     let src = getSrc(content);
     let fileType;
-    console.log('showItem', isSelf);
+
     if (content.type.startsWith('image')) {
       fileType = 'image';
     } else if (content.type == 'text') {
@@ -513,10 +503,10 @@ query($nftAddress: Bytes!) {
     } else {
       fileType = 'image';
     }
-    console.log(content);
+
     if (!content.hide || isSelf) {
       return (
-        <React.Fragment>
+        <React.Fragment key={index}>
           <Card
             key={content.ipfs}
             fileUrl={src || null}
@@ -539,6 +529,7 @@ query($nftAddress: Bytes!) {
             // onReact={(amount, callback) => { react(content, amount, callback) }}
             // hasReacted={hasReacted(content)}
             // initialReactCount={countReacted(content)}
+            hasReported={hasReported(content)}
           />
           {/* <iframe
             src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
@@ -562,62 +553,123 @@ query($nftAddress: Bytes!) {
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
   }
-  
-  // async function react(content, amount, callback) {
-  //   if (!web3utils.isSignedUp()) return;
 
-  //   try {
-  //     // Allowance
-  //     const signer = provider!.getSigner()
-  //     const userAddress = await signer.getAddress();
+  async function reportForModeration(content, amount, file, callback){
+    if(!MODERATION_ENABLED) return;
+    if (!web3utils.isSignedUp()) return;
 
-  //     const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+    let arweave_id = '';
+    let screenshot = '';
+    if(file != undefined){
+      web3utils.setIsWaiting('Uploading screenshot to Arweave...');
+      const formData = new FormData();
+      const buf = await file.arrayBuffer();
+      let bytes = new Uint8Array(buf);
+      formData.append(
+        'file',
+        new Blob([bytes], {
+          type: file.type,
+        })
+      );
+        
+      const response = await fetch(ARWEAVE_URI + '/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      arweave_id = await response.text();
+      screenshot = ARWEAVE_GATEWAY + arweave_id;
+      web3utils.setIsWaiting(false);
+    }
 
-  //     const preDecimals = await erc20Contract.decimals();
-  //     const decimals = ethers.BigNumber.from(10).pow(preDecimals);
-  //     const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+    try {
+      // Allowance
+      const signer = provider.getSigner()
+      const userAddress = await signer.getAddress();
 
-  //     let tx: any;
-  //     const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
-  //     if(stakingAmount.gt(allowance)){
-  //       if(false){
-  //         tx = await executeMetaTx('erc20Contract', 'approve', [REACTION_CONTRACT_ADDRESS, stakingAmount], {contractAddress: REACTION_ERC20} );
-  //       }else{
-  //         tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
-  //         await tx.wait();
-  //         let receipt = await tx.wait();
-  //         receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-  //         if(receipt.length == 0){
-  //           throw Error('Error allowing token for reaction');
-  //         }
-  //       }
-  //     }
-      
-  //     if(BICONOMY_ENABLED){
-  //       tx = await executeMetaTx('ReactionToken', 'stakeAndMint', [stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId]);
-  //     }else{
-  //       const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
-  //       tx = await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
-  //     }
+      const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
 
-  //     updateContentsQuery();
-  //     callback();
-  //   } catch (error: any) {
-  //     notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
-  //   }
-  // }
+      const preDecimals = await erc20Contract.decimals();
+      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
 
-  // function countReacted(content): string {
-  //   if (!reactions) return '0';
-  //   const count = reactions
-  //     .filter((r) => r.tokenId === content.tokenId)
-  //     .reduce((sum, current) => sum + +current.amount, 0);
-  //   return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
-  // }
-  // function hasReacted(content) {
-  //   if (!reactions) return false;
-  //   return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
-  // }
+      const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
+      if(stakingAmount.gt(allowance)){
+        web3utils.setIsWaiting(true);
+        let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
+        await tx.wait();
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+        if(receipt.length == 0){
+          throw Error('Error allowing token for moderation');
+        }
+      }
+
+      web3utils.setIsWaiting(true);
+      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
+      await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
+      moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+        callback();
+      });
+    } catch (error: any) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+  }
+
+  /*
+  async function react(content, amount, callback) {
+    if (!web3utils.isSignedUp()) return;
+
+    try {
+      // Allowance
+      const signer = provider!.getSigner()
+      const userAddress = await signer.getAddress();
+
+      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+
+      const preDecimals = await erc20Contract.decimals();
+      const decimals = ethers.BigNumber.from(10).pow(preDecimals);
+      const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
+
+      const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
+      if(stakingAmount.gt(allowance)){
+        let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
+        await tx.wait();
+        let receipt = await tx.wait();
+        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+        if(receipt.length == 0){
+          throw Error('Error allowing token for reaction');
+        }
+      }
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
+
+      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
+      reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
+        updateContentsQuery();
+        callback();
+      });
+    } catch (error: any) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+  }*/
+
+  function countReacted(content): string {
+    if (!reactions) return '0';
+    const count = reactions
+      .filter((r) => r.tokenId === content.tokenId)
+      .reduce((sum, current) => sum + +current.amount, 0);
+    return ethers.utils.formatEther(count.toLocaleString('fullwide', {useGrouping: false}));
+  }
+  function hasReacted(content) {
+    if (!reactions) return false;
+    return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+  }
+
+  function hasReported(content){
+    if(content.reported.length == 0) return false;
+    return (content.reported[0].reporters.indexOf(context.account?.toLowerCase()) >= 0);
+  }
 
   async function hide(tokenId, hide: boolean) {
     if (!web3utils.isSignedUp()) return;
@@ -644,7 +696,7 @@ query($nftAddress: Bytes!) {
         creatorContractAddress +
         ' on the Creaton platform.';
       const signature = await provider!.getSigner().signMessage(message);
-      const response = await fetch(REPORT_URI, {
+      const response = await fetch(REPORT_URI as string, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -739,19 +791,35 @@ query($nftAddress: Bytes!) {
             : contractQuery.data.creators[0].id.slice(0, 6)}
         </h3>
         <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
-        <h1 className="text-white">Followers {followersQuery?.data?.identity?.followerCount} | Following {followersQuery?.data?.identity?.followingCount}</h1>
+        <h1 className="text-white">
+          Followers {followersData?.identity?.followerCount} | Following {followersData?.identity?.followingCount}
+        </h1>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
-          { !isSelf &&
-          <Button
-            onClick={
-              !isFollowing
-                ? () => cyberConnect.connect(context.account)
-                : () => cyberConnect.disconnect(context.account)
-            }
-            label={isFollowing ? 'Unfollow' : 'Follow'}
-          />
-          }
+          {!isSelf && cyberConnect && (
+            <>
+            <Button
+              onClick={
+                !isFollowing
+                  ? () => {
+                      cyberConnect.connect(creatorContractAddress as string);
+                      refetchFollowers();
+                    }
+                  : () => {
+                      cyberConnect.disconnect(creatorContractAddress as string);
+                      refetchFollowers();
+                    }
+              }
+              label={isFollowing ? 'Unfollow' : 'Follow'}
+            />
+
+          </>
+          )}
+
+          { NFTLANCE_ENABLED && <Link to={'/nftlance/'+contractQuery.data.creators[0].id}>
+            <Button className="mt-5" label={'Check NFTLance Profile'} />
+          </Link>}
+ 
           {generateButton()}
 
           {context.chainId === 80000 && (
@@ -797,7 +865,7 @@ query($nftAddress: Bytes!) {
         <div className="py-5">
           {
             //reactions &&
-            contents.map((x) => showItem(x))
+            contents.map((x, i) => showItem(x, i))
           }
         </div>
       </div>

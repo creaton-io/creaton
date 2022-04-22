@@ -41,7 +41,7 @@ export function useCurrentProfile() {
   });
   const [currentProfile, setCurrentProfile] = useState<Profile | undefined>(undefined);
   useEffect(() => {
-    console.log('loading', loading, 'error', error)
+    // console.log('loading', loading, 'error', error)
     if (!error && !loading) {
       const matchingProfiles = data.profiles
       if (matchingProfiles.length !== 0) {

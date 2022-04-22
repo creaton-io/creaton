@@ -1,11 +1,11 @@
 import { FC, useEffect, useState } from "react";
 import { gql, useQuery } from "@apollo/client";
 import { UserFlow } from "./components/user.flow";
-import { useWeb3React } from './web3-react/core';
+import { useWeb3React } from '@web3-react/core';
 import { Web3Provider } from "@ethersproject/providers";
 
 export const Flows: FC = () => {
-    const web3Context = useWeb3React<Web3Provider>();
+    const web3Context = useWeb3React();
 
     const [flows, setFlows] = useState([]);
     const [userAddress, setUserAddress] = useState('');
@@ -28,10 +28,10 @@ export const Flows: FC = () => {
 
     useEffect(() => {
         (async function iife() {
-            const { library } = web3Context;
-            if(!library) return;
+            const provider = web3Context.provider as Web3Provider;
+            if(!provider) return;
 
-            const signer = library!.getSigner();
+            const signer = provider.getSigner();
             const address = await signer.getAddress();
             setUserAddress(address);
             if(reactionsQuery.data){

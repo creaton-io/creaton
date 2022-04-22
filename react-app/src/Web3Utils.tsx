@@ -7,10 +7,6 @@ import {useCurrentProfile} from './Utils';
 import {NotificationHandlerContext} from './ErrorHandler';
 import {SuperfluidContext} from './Superfluid';
 import {FAUCET_URI} from './Config';
-import {
-  UserRejectedRequestError as UserRejectedRequestErrorWalletConnect,
-  WalletConnectConnector,
-} from './web3-react/walletconnect-connector';
 import { hooks, metaMask } from './connectors/metaMask'
 
 const { useChainId, useAccounts, useError, useIsActivating, useIsActive, useProvider, useENSNames } = hooks

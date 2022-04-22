@@ -18,6 +18,7 @@ contract FanCollectible is ERC1155, Ownable, BaseRelayRecipient  {
 
     mapping(uint256 => states) private stateOfCollectibles; //tokenID to state of collectible.
     mapping(uint256 => string) private collectibleRequestData; //tokenID to data about collectible request.
+    mapping(uint256 => string) private collectibleURI; //tokenID URI
 
     event MinterTransferred(address indexed previousMinter, address indexed newMinter);
     event Minted(address to, uint256 id, bytes data);
@@ -129,11 +130,14 @@ contract FanCollectible is ERC1155, Ownable, BaseRelayRecipient  {
     @param _id Token ID to set data for
     @param _data the data link.
     */
-    function finalizedByArtist(uint256 _id, bytes memory _data) onlyMinter() public {
+    function finalizedByArtist(uint256 _id, string memory _data) onlyMinter() public {
         require(stateOfCollectibles[_id] == states.PURCHASED, "Token not purchased");
         stateOfCollectibles[_id] = states.PURCHASED_AND_FINALIZED;
-        //assume the data has modified the NFT, even thought it hasn't *really*
+        collectibleURI[_id] = _data;
+    }
 
+    function uri(uint256 _tokenId) public view virtual override returns (string memory) {
+        return collectibleURI[_tokenId];
     }
 
     function versionRecipient() external view virtual override returns (string memory) {
