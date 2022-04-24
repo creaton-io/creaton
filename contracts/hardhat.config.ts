@@ -51,11 +51,29 @@ const config: HardhatUserConfig = {
     coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6',
     showTimeSpent: true,
   },
-  etherscan: {
-    apiKey: process.env.ETHERSCAN_SCAN,
-  },
+  // etherscan: {
+  //   apiKey: process.env.ETHERSCAN_SCAN,
+  // },
   solidity: {
     compilers: [
+      {
+        version: '0.8.13',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
+      {
+        version: '0.8.12',
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 2000,
+          },
+        },
+      },
       {
         version: '0.8.2',
         settings: {
