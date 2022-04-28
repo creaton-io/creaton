@@ -789,9 +789,32 @@ export function Creator() {
             : contractQuery.data.creators[0].id.slice(0, 6)}
         </h3>
         <h3 className="text-l text-white">{contractQuery.data.creators[0].description}</h3>
-        <h1 className="text-white">
-          Followers {followersData?.identity?.followerCount} | Following {followersData?.identity?.followingCount}
-        </h1>
+        <div className="flex gap-4 justify-center pt-4">
+          
+          
+
+
+          <h1 className="text-white text-2xl">
+            {followersData?.identity?.followerCount} <br/>
+            <h1 className="text-gray-400 text-sm">
+              Followers
+            </h1>
+          </h1>
+
+          <h1 className="text-white text-2xl">
+            {subscriptionQuery?.data?.subscribers.length === undefined ? 0 : subscriptionQuery?.data?.subscribers.length } <br/>
+            <h1 className="text-gray-400 text-sm">
+              Subscribers
+            </h1>
+          </h1>
+
+          <h1 className="text-white text-2xl">
+            {followersData?.identity?.followingCount} <br/>
+            <h1 className="text-gray-400 text-sm">
+              Following
+            </h1>
+          </h1>
+        </div>
 
         <div className="my-5 mx-auto max-w-lg w-2/5 sm:w-1/5 space-y-5">
           {!isSelf && cyberConnect && (

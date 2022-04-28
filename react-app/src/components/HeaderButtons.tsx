@@ -25,7 +25,7 @@ const HeaderButtons = () => {
   return (
     <div className="hidden md:flex md:space-x-10 ml-auto">
       <Link to="/">
-        <Button label="Home" theme="focused"></Button>
+        <Button label="Discover" theme="unfocused"></Button>
       </Link>
       {NFTLANCE_ENABLED && <Link to="/nftlance">
         <Button label="NFTLance" theme="unfocused"></Button>

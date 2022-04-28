@@ -3,36 +3,55 @@
   "CreatonAdmin": {
     "abi": [
       {
-        "anonymous": false,
         "inputs": [
           {
-            "indexed": false,
             "internalType": "address",
-            "name": "previousAdmin",
+            "name": "host",
             "type": "address"
           },
           {
-            "indexed": false,
             "internalType": "address",
-            "name": "newAdmin",
+            "name": "cfa",
             "type": "address"
-          }
-        ],
-        "name": "AdminChanged",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
+          },
           {
-            "indexed": true,
             "internalType": "address",
-            "name": "beacon",
+            "name": "acceptedToken",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_treasury",
+            "type": "address"
+          },
+          {
+            "internalType": "int96",
+            "name": "_treasuryFee",
+            "type": "int96"
+          },
+          {
+            "internalType": "address",
+            "name": "_creatorBeacon",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_nftFactory",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "_reactionFactory",
             "type": "address"
           }
         ],
-        "name": "BeaconUpgraded",
-        "type": "event"
+        "stateMutability": "nonpayable",
+        "type": "constructor"
       },
       {
         "anonymous": false,
@@ -107,13 +126,13 @@
         "anonymous": false,
         "inputs": [
           {
-            "indexed": true,
+            "indexed": false,
             "internalType": "address",
-            "name": "implementation",
+            "name": "factoryContractAddress",
             "type": "address"
           }
         ],
-        "name": "Upgraded",
+        "name": "ReactionFactoryDeployed",
         "type": "event"
       },
       {
@@ -217,54 +236,6 @@
         "inputs": [
           {
             "internalType": "address",
-            "name": "host",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "cfa",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "acceptedToken",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "_treasury",
-            "type": "address"
-          },
-          {
-            "internalType": "int96",
-            "name": "_treasuryFee",
-            "type": "int96"
-          },
-          {
-            "internalType": "address",
-            "name": "_creatorBeacon",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "_nftFactory",
-            "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "_trustedForwarder",
-            "type": "address"
-          }
-        ],
-        "name": "initialize",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
             "name": "forwarder",
             "type": "address"
           }
@@ -294,6 +265,19 @@
         "type": "function"
       },
       {
+        "inputs": [],
+        "name": "reactionFactory",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [
           {
             "internalType": "address",
@@ -310,24 +294,6 @@
           }
         ],
         "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "user",
-            "type": "address"
-          },
-          {
-            "internalType": "string",
-            "name": "twitter",
-            "type": "string"
-          }
-        ],
-        "name": "signUp",
-        "outputs": [],
-        "stateMutability": "nonpayable",
         "type": "function"
       },
       {
@@ -409,56 +375,6 @@
         "type": "function"
       },
       {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "newImplementation",
-            "type": "address"
-          }
-        ],
-        "name": "upgradeTo",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "newImplementation",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes",
-            "name": "data",
-            "type": "bytes"
-          }
-        ],
-        "name": "upgradeToAndCall",
-        "outputs": [],
-        "stateMutability": "payable",
-        "type": "function"
-      },
-      {
-        "inputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "name": "user2twitter",
-        "outputs": [
-          {
-            "internalType": "string",
-            "name": "",
-            "type": "string"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [],
         "name": "versionRecipient",
         "outputs": [
@@ -472,7 +388,7 @@
         "type": "function"
       }
     ],
-    "address": "0xca57c5D70E6A6018e6BC93C784e3cbee0D8842a9"
+    "address": "0x1C35671C0ff32e51714611e39B82Cb57c4085034"
   },
   "Creator": {
     "abi": [

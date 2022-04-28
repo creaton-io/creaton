@@ -35,11 +35,11 @@ const func = async function (hre) {
   //   address: nftFactory.address,
   // });
 
-  // console.log('ReactionFactory Deploy');
-  // const reactionFactory = await deploy('ReactionFactory', {
-  //   from: admin,
-  //   log: true,
-  // });
+  console.log('ReactionFactory Deploy');
+  const reactionFactory = await deploy('ReactionFactory', {
+    from: admin,
+    log: true,
+  });
 
   // await hre.tenderly.verify({
   //   name: 'ReactionFactory',
@@ -83,8 +83,8 @@ const func = async function (hre) {
       : '0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b'; //testnet USDCx
   const beaconContract = await hre.deployments.get('CreatorBeacon');
   const nftFactory = await hre.deployments.get('NFTFactory');
-  const reactionFactory = await hre.deployments.get('ReactionFactory');
-  const treasuryFee = 98;
+  const reactionFactoryDeploy = await hre.deployments.get('ReactionFactory');
+  const treasuryFee = 96;
 
   console.log('CreatorAdmin');
   const creatonAdmin = await deploy('CreatonAdmin', {
@@ -100,7 +100,7 @@ const func = async function (hre) {
       beaconContract.address,
       nftFactory.address,
       trustedforwarder,
-      reactionFactory.address
+      reactionFactoryDeploy.address
     ],
     log: true,
   });

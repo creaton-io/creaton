@@ -37,7 +37,7 @@ const focusedStyle = [
 ]
 
 const unfocusedStyle = [
-  "bg-gray-900 text-white",
+  "bg-gray-100 text-purple-900 shadow-lg shadow-purple-500 hover:shadow-purple-400",
 ]
 
 export const Button: FC<ButtonProps> = ({ theme= 'primary', size= 'full',  className, label, ...props }) => {
