@@ -59,7 +59,7 @@ export const useMetaTx = () => {
         contractABI = creaton_contracts.erc20.abi;
         break
       case 'ReactionToken':
-        contractAddress = REACTION_CONTRACT_ADDRESS;
+        contractAddress = REACTION_CONTRACT_ADDRESS as string;
         contractABI = creaton_contracts.ReactionToken.abi;
         break
       case 'Moderation':
