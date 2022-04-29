@@ -1,6 +1,6 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from '@web3-react/core';
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { useContext } from "react";
 import { REACTION_CONTRACT_ADDRESS } from "../Config";
 import creaton_contracts from "../Contracts";
@@ -31,7 +31,7 @@ export const useMetaTx = () => {
   const executeMetaTx = async (
     contractName: ContractName,
     fnName: string,
-    fnParams: (string | number | boolean)[],
+    fnParams: (string | number | boolean | BigNumber)[],
     options?: MetaTxOptions
   ): Promise<any> => {
     if(!isBiconomyReady){
@@ -63,8 +63,8 @@ export const useMetaTx = () => {
         contractABI = creaton_contracts.ReactionToken.abi;
         break
       case 'Moderation':
-        contractAddress = creaton_contracts.Moderation.address;
-        contractABI = creaton_contracts.Moderation.abi;
+        contractAddress = creaton_contracts.moderation.address;
+        contractABI = creaton_contracts.moderation.abi;
         break
       case 'Creator':
         if(!options?.contractAddress) return false;

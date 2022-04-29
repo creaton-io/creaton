@@ -28,6 +28,7 @@ import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
+import { useMetaTx } from './hooks/metatx';
 
 interface params {
   id: string;
@@ -125,6 +126,7 @@ export function Creator() {
   const web3utils = useContext(Web3UtilsContext);
   const context = useWeb3React();
   const provider = context.provider as Web3Provider;
+  const { executeMetaTx } = useMetaTx();
 
   let isFollowing = false;
   followersData?.identity?.followers?.list?.map((item) => {
@@ -279,7 +281,6 @@ export function Creator() {
       notificationHandler.setNotification({description: "Error! Couldn't set gasless transactions.", type: 'error'});
     }
   }
-
 
   async function startStreaming() {
     let call;
@@ -508,26 +509,38 @@ export function Creator() {
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
       const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
 
+      web3utils.setIsWaiting(true);
+
+      let tx: any;
       const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
       if(stakingAmount.gt(allowance)){
-        web3utils.setIsWaiting(true);
-        let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
-        await tx.wait();
-        let receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-        if(receipt.length == 0){
-          throw Error('Error allowing token for moderation');
+        if(BICONOMY_ENABLED){
+          tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string} );
+        }else{
+          tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
+          await tx.wait();
+          let receipt = await tx.wait();
+          receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+          if(receipt.length == 0){
+            throw Error('Error allowing token for moderation');
+          }
         }
       }
 
-      web3utils.setIsWaiting(true);
       const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
-      await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
-      moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
+      if(BICONOMY_ENABLED){
+        tx = await executeMetaTx("Moderation", "reportContent", [content.id, stakingAmount, screenshot]);
         web3utils.setIsWaiting(false);
         notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
         callback();
-      });
+      }else{
+        tx = await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
+        moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
+          web3utils.setIsWaiting(false);
+          notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+          callback();
+        });
+      }
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
