@@ -441,11 +441,11 @@ export function Creator() {
               hide(content.tokenId, !content.hide);
             }}
             canDecrypt={canDecrypt}
-            // reactionErc20Available={reactionErc20Available}
-            // reactionErc20Symbol={reactionErc20Symbol}
-            // onReact={(amount, callback) => { react(content, amount, callback) }}
-            // hasReacted={hasReacted(content)}
-            // initialReactCount={countReacted(content)}
+            reactionErc20Available={reactionErc20Available}
+            reactionErc20Symbol={reactionErc20Symbol}
+            onReact={(amount, callback) => { react(content, amount, callback) }}
+            hasReacted={hasReacted(content)}
+            initialReactCount={countReacted(content)}
             hasReported={hasReported(content)}
           />
           {/* <iframe
@@ -546,7 +546,6 @@ export function Creator() {
     }
   }
 
-  /*
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
@@ -555,7 +554,7 @@ export function Creator() {
       const signer = provider!.getSigner()
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
 
       const preDecimals = await erc20Contract.decimals();
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
@@ -563,25 +562,42 @@ export function Creator() {
 
       const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
       if(stakingAmount.gt(allowance)){
-        let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
-        await tx.wait();
-        let receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-        if(receipt.length == 0){
-          throw Error('Error allowing token for reaction');
+        if(BICONOMY_ENABLED){
+          await executeMetaTx("erc20Contract", "approve", [REACTION_CONTRACT_ADDRESS as string, stakingAmount], {contractAddress: REACTION_ERC20}, async (tx: any) => {
+            await stakeAndMint(stakingAmount, content, callback);
+          });
+        }else{
+          let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
+          await tx.wait();
+          let receipt = await tx.wait();
+          receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+          if(receipt.length == 0){
+            throw Error('Error allowing token for reaction');
+          }
+
+          await stakeAndMint(stakingAmount, content, callback);
         }
       }
-      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
+    } catch (error: any) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+  }
 
-      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
+  async function stakeAndMint(stakingAmount, content, callback){
+    if(BICONOMY_ENABLED){
+      await executeMetaTx("ReactionToken", "stakeAndMint", [stakingAmount.toString(), REACTION_ERC20 as string, creatorContractAddress, content.tokenId], {}, () => {
+        updateContentsQuery();
+        callback();
+      });
+    }else{
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS as string, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
+      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20 as string, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
         updateContentsQuery();
         callback();
       });
-    } catch (error: any) {
-      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-  }*/
+  }
 
   function countReacted(content): string {
     if (!reactions) return '0';
@@ -592,7 +608,7 @@ export function Creator() {
   }
   function hasReacted(content) {
     if (!reactions) return false;
-    return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+    return reactions.some((r) => r.tokenId === content.tokenId && r.reactingUser.address === context.account?.toLowerCase());
   }
 
   function hasReported(content){

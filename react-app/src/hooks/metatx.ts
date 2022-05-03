@@ -32,7 +32,8 @@ export const useMetaTx = () => {
     contractName: ContractName,
     fnName: string,
     fnParams: (string | number | boolean | BigNumber)[],
-    options?: MetaTxOptions
+    options?: MetaTxOptions,
+    callback?: any
   ): Promise<any> => {
     if(!isBiconomyReady){
       notificationHandler.setNotification({description: 'Trying to execute a MetaTX but Biconomy is not ready', type: 'error'});
@@ -95,7 +96,7 @@ export const useMetaTx = () => {
 
     let { data } = await contract.populateTransaction[fnName](...fnParams);
     let provider = biconomy.getEthersProvider();
-
+    
     let gasLimit = await provider.estimateGas({
       to: contractAddress,
       from: userAddress,
@@ -115,10 +116,9 @@ export const useMetaTx = () => {
 
     //event emitter methods
     provider.once(txHash, (transaction) => {
-      // Emitted when the transaction has been mined
-      //show success message
-      console.log(transaction);
-      //do something with transaction hash
+      if(callback instanceof Function){
+        callback(transaction);
+      }
     });
   };
 

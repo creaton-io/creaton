@@ -2,7 +2,6 @@
 pragma solidity >=0.7.6;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
@@ -16,7 +15,7 @@ import "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/ux/IResolv
 import "./ReactionToken.sol";
 import "./StakedFlow.sol";
 
-contract ReactionFactory is UUPSUpgradeable, Initializable, BaseRelayRecipient{
+contract ReactionFactory is BaseRelayRecipient{
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address private _sfHost; // host
@@ -38,7 +37,7 @@ contract ReactionFactory is UUPSUpgradeable, Initializable, BaseRelayRecipient{
     event Initialized(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string sfVersion);
     event ReactionDeployed(address creator, address reactionContractAddr, string reactionTokenName, string reactionTokenSymbol, string tokenMetadataURI, address stakingTokenAddress);
 
-    function initialize(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string memory sfVersion, address _trustedForwarder) public payable initializer {
+    constructor(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string memory sfVersion, address _trustedForwarder) {
         require(address(sfHost) != address(0), "ReactionFactory: Host Address can't be 0x");
         require(address(sfCfa) != address(0), "ReactionFactory: CFA Address can't be 0x");
         require(address(sfSuperTokenFactory) != address(0), "ReactionFactory: SuperTokenFactory Address can't be 0x");
@@ -126,9 +125,6 @@ contract ReactionFactory is UUPSUpgradeable, Initializable, BaseRelayRecipient{
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */
-
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
-    }
 
     function setTrustedForwarder(address _trustedForwarder) public onlyOwner {
         trustedForwarder = _trustedForwarder;

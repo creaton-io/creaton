@@ -28,10 +28,10 @@ export const DAI_TOKEN_ADDRESS = process.env.REACT_APP_DAI_TOKEN_ADDRESS;
  * We might need more logic
  */
 let NFTLANCE_ENABLED = false;
-let REACTION_TOKENS_ENABLED = false;
-let CREATON_VOTING_ENABLED = false;
+let REACTION_TOKENS_ENABLED = true;
 let MODERATION_ENABLED = false;
 let BICONOMY_ENABLED = true;
+let CREATON_VOTING_ENABLED = false;
 
 export {
   NFTLANCE_ENABLED,
