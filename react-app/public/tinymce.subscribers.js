@@ -3,7 +3,7 @@ tinymce.PluginManager.add('subscribers', function(editor, url) {
     editor.ui.registry.addButton('subscribersElementButton', {
         text: 'Subscribers Text', 
         onAction: function() {
-            editor.insertContent('<p class="subscribersText">INSERT TEXT ONLY FOR SUBSCRIBERS</p>');
+            editor.insertContent('<p class="subscribersText">SUBSCRIBER ONLY TEXT</p>');
         }
     });
 

@@ -367,7 +367,8 @@ const Upload = () => {
         upload(file, type);
         return;
       }
-      upload(currentFile, type);
+      upload(currentFile, 'gltf');
+      console.log(currentFile.name);
     } else {
       upload(new File([""], "text"), "text");
     }
@@ -406,7 +407,7 @@ const Upload = () => {
           </div>
 
           <Editor
-            apiKey="onu4668y0hkvss8rf10j9bfaz4ijluey87k92e4z0fqstj6w"
+            apiKey="u87gtj11jeo1dylys86u4h8bop2llwidq9mvikx1hjitov7l"
             initialValue="<p></p>"
             init={{
               height: 500,
@@ -418,11 +419,8 @@ const Upload = () => {
                 'searchreplace visualblocks code',
                 'insertdatetime media table paste wordcount',
               ],
-              toolbar:
-                'subscribersElementButton | undo redo | formatselect | bold italic | \
-                alignleft aligncenter alignright | \
-                bullist numlist outdent indent | help',
-              extended_valid_elements: "subscribers",
+              skin: "snow",
+              icons: "thin",
               custom_elements: "subscribers",
               content_css: "tinymce.css"
             }}
@@ -444,10 +442,10 @@ const Upload = () => {
             ref={fileInput}
           />
           <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
-          <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen'}</small>
+          <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen (video, picture, 3D model)'}</small>
           {currentFile?.type === 'video/mp4' && ffmpeg !== undefined && (
             <div className="w-full m-5 hidden">
-              <label className="float-left">Convert to streaming format (fragmented video for faster looading)</label>
+              <label className="float-left">Convert to streaming format (fragmented video for faster loading)</label>
 
               <div className="float-right">
                 <Toggle

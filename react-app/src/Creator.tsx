@@ -498,6 +498,10 @@ export function Creator() {
       fileType = 'text';
     } else if (content.type.startsWith('application/vnd.apple.mpegurl')) {
       fileType = 'video';
+    }  else if (content.type.startsWith('model/gltf+json')) {
+      fileType = 'gltf';
+    } else if (content.name.includes('.gltf')) {
+      fileType = 'gltf';
     } else {
       fileType = 'image';
     }

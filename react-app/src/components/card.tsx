@@ -11,6 +11,8 @@ import { LinkPreview } from '@dhaiwat10/react-link-preview';
 import { MODERATION_ENABLED, REACTION_TOKENS_ENABLED } from '../Config';
 import { Button } from '../elements/button';
 import Tooltip from '../elements/tooltip';
+import { useLoader } from '@react-three/fiber'
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader'
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -85,6 +87,8 @@ export const Card: FC<ButtonProps> = ({
   const fileInput = React.createRef<any>();
   const [fileName, setFileName] = useState('');
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
+  
+  let gltf;
 
   function showAmountModal(e) {
     hideAllAmountModal();
@@ -161,6 +165,8 @@ export const Card: FC<ButtonProps> = ({
     ;(async () => {
       setReactCount(initialReactCount ? +initialReactCount : 0);
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      useLoader(GLTFLoader, fileUrl || '');
       if(!description || !link) return;
       let desc: string = description;
 
@@ -277,6 +283,7 @@ export const Card: FC<ButtonProps> = ({
         </div>
       </div>
     );
+    console.log("test", fileType);
   return (
     <div className="mb-5">
       <div className="flex flex-col rounded-2xl border border-gray-100/10 pr-8 pl-8 pb-8 bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
@@ -284,6 +291,7 @@ export const Card: FC<ButtonProps> = ({
           <div className="flex justify-center flex-shrink-0 my-6">
             {fileType === 'image' && <img className="w-auto md:max-w-2xl max-w-full rounded-xl" src={fileUrl} alt={altText?altText:""} />}
             {fileType === 'video' && <VideoPlayer url={fileUrl} />}
+            {(fileType === 'gltf' || 'glb') && <ThreeJsModel src={fileUrl}></ThreeJsModel> }
           </div>
         )}
 
@@ -440,5 +448,15 @@ export const Card: FC<ButtonProps> = ({
         </div>
       </div>
     </div>
+  );
+};
+
+
+export const ThreeJsModel = ({src}) => {
+  const gltf = useLoader(GLTFLoader, src)
+  return (
+      <>
+          <primitive  position={[0, 0, 0]} object={gltf} scale={1} />
+      </>
   );
 };
