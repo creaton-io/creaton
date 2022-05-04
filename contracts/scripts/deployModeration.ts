@@ -1,5 +1,8 @@
+import { BigNumber } from "ethers";
 import { ethers, upgrades } from "hardhat";
 import { Address } from "hardhat-deploy/dist/types";
+
+const BICONOMY_FORWARDED_MUMBAI = "0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b";
 
 const deployContract = async (
     contractName: string,
@@ -42,17 +45,33 @@ const upgradeContract = async (
 };
 
 const deployModeration = async () => {
-    const stakingErc20Address = "0xf6f765F4B7128602A93CB3B059A784d00a6D3D4e";
-    const stakedThreshold = ethers.utils.parseEther("5000");
-    const minJurySize = 3;
-    const jurorMaxDaysDeciding = 2;
-    const jurorSlashingPenalty = 5;
+    const STAKING_ERC20_ADDRESS = "0x4154d85B05792b421ff1CAFFC76b764eBe7aA831";
+    const MIN_JURY_SIZE: number = 3;
+    const JUROR_MAX_DAYS_DECIDING: number = 2;
+    const JUROR_PENALTY_PERCENTAGE: number = 5;
+    const JUROR_PROFIT_PERCENTAGE: number = 5;
+    const REPORTER_PENALTY_PERCENTAGE: number = 5;
+    const REPORTER_PROFIT_PERCENTAGE: number = 5;
+    const CASE_STAKED_THRESHOLD: BigNumber = ethers.utils.parseEther("5000");
+    const MIN_JUROR_STAKE: BigNumber = ethers.utils.parseEther("50");
 
     await deployContract(
         "Moderation",
         "0xdF83f67321635C8c2Df962C0FB2ab9C8c92dBaB1",
-        [stakingErc20Address, stakedThreshold, minJurySize, jurorMaxDaysDeciding, jurorSlashingPenalty]
+        [   
+            STAKING_ERC20_ADDRESS, 
+            CASE_STAKED_THRESHOLD, 
+            MIN_JURY_SIZE, 
+            MIN_JUROR_STAKE, 
+            JUROR_MAX_DAYS_DECIDING, 
+            JUROR_PENALTY_PERCENTAGE,
+            JUROR_PROFIT_PERCENTAGE,
+            REPORTER_PENALTY_PERCENTAGE,
+            REPORTER_PROFIT_PERCENTAGE,
+            BICONOMY_FORWARDED_MUMBAI
+        ]
     );
+
 };
 
 const upgradeModeration = async (contractCurrentDeployedAddress: Address) => {

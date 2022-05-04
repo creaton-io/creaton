@@ -40,7 +40,7 @@ describe("Reaction Tokens", function () {
         // Deploy a dummy ERC20 token to be used later
         const dummyErc20Name = "DummyErc20";
         const contractFactory = await ethers.getContractFactory(dummyErc20Name);
-        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000"));
+        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000"), BICONOMY_FORWARDED_MUMBAI);
 
         expect(erc20Contract.address).to.be.properAddress;
         expect(await erc20Contract.name()).to.be.equal(dummyErc20Name);
@@ -161,7 +161,7 @@ describe("Reaction Tokens", function () {
 
         // Staking & Mint with a different erc20
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
-        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"));
+        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"),BICONOMY_FORWARDED_MUMBAI);
         await expect(diffErc20Contract.approve(reactionTokenContract.address, stakingAmount))
             .to.emit(diffErc20Contract, "Approval");
 
@@ -281,7 +281,7 @@ describe("Reaction Tokens", function () {
         const reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
 
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
-        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"));
+        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"), BICONOMY_FORWARDED_MUMBAI);
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';

@@ -447,6 +447,9 @@ export function Creator() {
             hasReacted={hasReacted(content)}
             initialReactCount={countReacted(content)}
             hasReported={hasReported(content)}
+            onReportForModeration={(content, amount, file, callback) => reportForModeration(content, amount, file, callback)}
+            reportErc20Available={reportErc20Available}
+            reportErc20Symbol={reportErc20Symbol}
           />
           {/* <iframe
             src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
@@ -515,7 +518,13 @@ export function Creator() {
       const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
       if(stakingAmount.gt(allowance)){
         if(BICONOMY_ENABLED){
-          tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string} );
+          tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string}, async () => {
+            tx = await executeMetaTx("Moderation", "reportContent", [content.id, stakingAmount, screenshot], undefined, () => {
+              web3utils.setIsWaiting(false);
+              notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+              callback();
+            });
+          });
         }else{
           tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
           await tx.wait();
@@ -524,22 +533,15 @@ export function Creator() {
           if(receipt.length == 0){
             throw Error('Error allowing token for moderation');
           }
-        }
-      }
 
-      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
-      if(BICONOMY_ENABLED){
-        tx = await executeMetaTx("Moderation", "reportContent", [content.id, stakingAmount, screenshot]);
-        web3utils.setIsWaiting(false);
-        notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
-        callback();
-      }else{
-        tx = await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
-        moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
-          web3utils.setIsWaiting(false);
-          notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
-          callback();
-        });
+          const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
+          tx = await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
+          moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
+            web3utils.setIsWaiting(false);
+            notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+            callback();
+          });
+        }
       }
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});

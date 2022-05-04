@@ -71,9 +71,9 @@ dataSources:
     name: Moderation
     network: mumbai
     source:
-      address: "0xFe06B1948FC7a4307138C7B0A6845802F15FCb45"
+      address: "0x39D74f28D231Fc100AEd48a89dbdE24F10626307"
       abi: Moderation
-      startBlock: 25632345
+      startBlock: 26200948
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

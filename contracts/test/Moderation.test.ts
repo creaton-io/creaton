@@ -15,6 +15,8 @@ const MIN_JUROR_STAKE: BigNumber = ethers.utils.parseEther("50");
 
 const sampleContentId: string = "0x17f6989baf123ec9571adaafccf0b69ae6b1ef3a-0";
 
+const BICONOMY_FORWARDED_MUMBAI = "0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b";
+
 const timeTravel = async (time: number) => {
     const startBlock = await ethers.provider.getBlock(await ethers.provider.getBlockNumber());
     await network.provider.send("evm_increaseTime", [time]);
@@ -41,7 +43,7 @@ describe("Moderation system", () => {
         // Deploy a dummy ERC20 token to be used later
         const dummyErc20Name = "DummyErc20";
         const contractFactory = await ethers.getContractFactory(dummyErc20Name);
-        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000000"));
+        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000000"), BICONOMY_FORWARDED_MUMBAI);
 
         expect(erc20Contract.address).to.be.properAddress;
         expect(await erc20Contract.name()).to.be.equal(dummyErc20Name);
@@ -76,7 +78,8 @@ describe("Moderation system", () => {
             JUROR_PENALTY_PERCENTAGE,
             JUROR_PROFIT_PERCENTAGE,
             REPORTER_PENALTY_PERCENTAGE,
-            REPORTER_PROFIT_PERCENTAGE
+            REPORTER_PROFIT_PERCENTAGE,
+            BICONOMY_FORWARDED_MUMBAI
         ))
         .to.emit(moderationContract, "Initialized");
     });
