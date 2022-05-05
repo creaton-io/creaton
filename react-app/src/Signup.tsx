@@ -13,6 +13,8 @@ import {Transaction} from '@ethereumjs/tx';
 import Common from '@ethereumjs/common';
 import {Deferrable} from '@ethersproject/properties';
 import { ProfileEdit } from './ProfileEdit';
+import { BICONOMY_SIGNUP_ENABLED } from './Config';
+import { useMetaTx } from './hooks/metatx';
 
 const CreatonAdminContract = creaton_contracts.CreatonAdmin;
 
@@ -29,6 +31,7 @@ const SignUp = () => {
   const [signedup, setSignedup] = useState<any>(false);
   const {currentCreator} = useCurrentCreator();
   const {currentProfile} = useCurrentProfile();
+  const {executeMetaTx} = useMetaTx();
 
   const [creatorName, setCreatorName] = useState('');
   const [subscriptionPrice, setSubscriptionPrice] = useState('5');
@@ -49,9 +52,22 @@ const SignUp = () => {
   }, [context, currentCreator, signedup]);
 
   function submitForm(event) {
-    const provider = context.provider as Web3Provider;
-    const connectedContract = creatorFactoryContract.connect(provider.getSigner());
-    connectedContract
+    event.preventDefault();
+
+    if(BICONOMY_SIGNUP_ENABLED){
+      executeMetaTx("CreatonAdmin", "deployCreator", [creatorName, subscriptionPrice, collectionName, collectionSymbol], undefined, async() => {
+        web3utils.setIsWaiting(true);
+        setSignedup('Waiting for your signup to be confirmed on the blockchain...');
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({
+          description: 'Signed up successfully, welcome to Creaton!',
+          type: 'success',
+        });
+      })
+    }else{
+      const provider = context.provider as Web3Provider;
+      const connectedContract = creatorFactoryContract.connect(provider.getSigner());
+      connectedContract
       .deployCreator(creatorName, subscriptionPrice, collectionName, collectionSymbol)
       .then(async function (response) {
         setSignedup('Waiting for your signup to be confirmed on the blockchain...');
@@ -66,7 +82,7 @@ const SignUp = () => {
       .catch(function (error) {
         notificationHandler.setNotification({description: 'Failed to signup. ' + error.message, type: 'error'});
       });
-    event.preventDefault();
+    }
   }
 
   return (

@@ -52,7 +52,7 @@ dataSources:
     source:
       address: "0x83C79703571d095c8A197beB5b6d9748E2740578"
       abi: NFTLance
-      startBlock: 25720569
+      startBlock: 26212271
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4

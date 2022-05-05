@@ -15,6 +15,7 @@ type ContractName =
   | 'NFTLance'
   | 'CreatorCollection'
   | 'FanCollectible'
+  | 'CreatonAdmin'
 
 type MetaTxOptions = {
   contractAddress?: string
@@ -85,6 +86,10 @@ export const useMetaTx = () => {
         if(!options?.contractAddress) return false;
         contractAddress = options.contractAddress;
         contractABI = creaton_contracts.fanCollectible.abi;
+        break
+      case 'CreatonAdmin':
+        contractAddress = creaton_contracts.CreatonAdmin.address;
+        contractABI = creaton_contracts.CreatonAdmin.abi;
         break
       default:
         throw "Contract not supported!"
