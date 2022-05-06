@@ -132,8 +132,8 @@ const Web3UtilsProvider = (props) => {
         isSignedUp: isSignedUp,
         setMagicEmail: setMagicEmail,
         setIsWaiting: setIsWaiting,
-        isWaiting: isActivating,
-        waitingMessage: isActivating === true ? 'Waiting for transaction confirmation' : isActivating,
+        isWaiting: (isWaiting||isActivating),
+        waitingMessage: (isWaiting||isActivating) ? 'Waiting for transaction confirmation' : isActivating,
         disableInteraction: Boolean(isActivating) || (wrongChainId && chainId !== 137),
       }}
     >

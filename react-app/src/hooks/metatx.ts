@@ -6,6 +6,7 @@ import { REACTION_CONTRACT_ADDRESS } from "../Config";
 import creaton_contracts from "../Contracts";
 import { BiconomyContext, IBiconomyContext } from "../contexts/Biconomy";
 import { NotificationHandlerContext } from "../ErrorHandler";
+import { Web3UtilsContext } from "../Web3Utils";
 
 type ContractName =
   | 'erc20Contract'
@@ -23,6 +24,7 @@ type MetaTxOptions = {
 
 export const useMetaTx = () => {
   const web3Context = useWeb3React();
+  const web3utils = useContext(Web3UtilsContext)
   const web3Provider = web3Context.provider as Web3Provider;
   const chainId = web3Context.chainId;
   const { isBiconomyReady, biconomy } = useContext(BiconomyContext) as IBiconomyContext;
@@ -43,6 +45,8 @@ export const useMetaTx = () => {
 
     if(!web3Provider) throw "No Provider set!"
     if(!chainId) throw "No ChainId set!"
+
+    web3utils.setIsWaiting(true);
 
     let contract: ethers.Contract;
     let contractInterface: ethers.utils.Interface;
@@ -116,8 +120,14 @@ export const useMetaTx = () => {
       signatureType: "EIP712_SIGN"
     };
 
-    // as ethers does not allow providing custom options while sending transaction                 
-    let txHash = await provider.send("eth_sendTransaction", [txParams]);
+    // as ethers does not allow providing custom options while sending transaction 
+    let txHash;
+    try{
+      txHash = await provider.send("eth_sendTransaction", [txParams]);
+    } catch (error: any) {
+      web3utils.setIsWaiting(false);
+      return;
+    }
 
     //event emitter methods
     provider.once(txHash, (transaction) => {

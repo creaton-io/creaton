@@ -109,29 +109,26 @@ const ProfileEdit = (props) => {
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }
-    console.log(payload)
+    
     const provider = web3Context.provider as Web3Provider;
     const connectedContract = creatorFactoryContract.connect(provider.getSigner());
-    console.log("connectedcontract", connectedContract.address)
     let result
     try {
       if(BICONOMY_SIGNUP_ENABLED){
-        web3utils.setIsWaiting(true);
         executeMetaTx("CreatonAdmin", "updateProfile", [JSON.stringify(payload)], undefined, async() => {
-          web3utils.setIsWaiting(false);
           notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
           refetch()  
         })
       }else{
-        result = await connectedContract.updateProfile(JSON.stringify(payload))
         web3utils.setIsWaiting(true);
+        result = await connectedContract.updateProfile(JSON.stringify(payload))
         await result.wait(1)
         web3utils.setIsWaiting(false);
         notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
         refetch()
       }
-
     } catch (error: any) {
+      web3utils.setIsWaiting(false);
       notificationHandler.setNotification({
         description: 'Could not create your profile' + error.message,
         type: 'error'
