@@ -7,7 +7,7 @@ import { Web3UtilsContext } from "../Web3Utils";
 import { NotificationHandlerContext } from "../ErrorHandler";
 import { Radio } from "../elements/radio";
 import { Button } from "../elements/button";
-import { BICONOMY_ENABLED, CREATE_TOKEN_ADDRESS } from "../Config";
+import { BICONOMY_MODERATION_ENABLED, CREATE_TOKEN_ADDRESS } from "../Config";
 import { useMetaTx } from "../hooks/metatx";
 
 interface CaseProps {
@@ -55,7 +55,7 @@ export const Case: FC<CaseProps> = ({ jurorDecision }) => {
         const contentId = jurorDecision.moderationCase.content.id;
         const vote = (checkedOK) ? 2:3;
         try {
-            if(BICONOMY_ENABLED){
+            if(BICONOMY_MODERATION_ENABLED){
                 await executeMetaTx("Moderation", "vote", [contentId, vote]);
             }else{
                 await moderationContract.vote(contentId, vote);

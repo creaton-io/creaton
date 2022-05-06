@@ -18,7 +18,7 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY, BICONOMY_ENABLED, GASLESS_BACKEND} from './Config';
+import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY, GASLESS_BACKEND, BICONOMY_MODERATION_ENABLED, BICONOMY_REACTION_ENABLED} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
@@ -517,7 +517,7 @@ export function Creator() {
       let tx: any;
       const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
       if(stakingAmount.gt(allowance)){
-        if(BICONOMY_ENABLED){
+        if(BICONOMY_MODERATION_ENABLED){
           tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string}, async () => {
             tx = await executeMetaTx("Moderation", "reportContent", [content.id, stakingAmount, screenshot], undefined, () => {
               web3utils.setIsWaiting(false);
@@ -564,7 +564,7 @@ export function Creator() {
 
       const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
       if(stakingAmount.gt(allowance)){
-        if(BICONOMY_ENABLED){
+        if(BICONOMY_REACTION_ENABLED){
           await executeMetaTx("erc20Contract", "approve", [REACTION_CONTRACT_ADDRESS as string, stakingAmount], {contractAddress: REACTION_ERC20}, async (tx: any) => {
             await stakeAndMint(stakingAmount, content, callback);
           });
@@ -586,7 +586,7 @@ export function Creator() {
   }
 
   async function stakeAndMint(stakingAmount, content, callback){
-    if(BICONOMY_ENABLED){
+    if(BICONOMY_REACTION_ENABLED){
       await executeMetaTx("ReactionToken", "stakeAndMint", [stakingAmount.toString(), REACTION_ERC20 as string, creatorContractAddress, content.tokenId], {}, () => {
         updateContentsQuery();
         callback();
@@ -768,18 +768,6 @@ export function Creator() {
           </Link>}
  
           {generateButton()}
-
-          { BICONOMY_ENABLED && isSelf && (
-            <span>
-              <Button
-                onClick={() => {
-                  addGasless();
-                }}
-                label="Enable no gas!"
-                theme="secondary-2"
-              />
-            </span>
-          )}
         </div>
 
         <h1 className="mb-5 text-2xl font-bold text-white">

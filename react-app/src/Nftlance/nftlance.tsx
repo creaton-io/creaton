@@ -16,7 +16,7 @@ import { useCanBecomeCreator } from "../Whitelist";
 import { Splash } from "../components/splash";
 import { useParams } from "react-router-dom";
 import {Link} from "react-router-dom";
-import{ USDC_TOKEN_ADDRESS, DAI_TOKEN_ADDRESS, CREATE_TOKEN_ADDRESS, BICONOMY_ENABLED} from "../Config";
+import{ USDC_TOKEN_ADDRESS, DAI_TOKEN_ADDRESS, CREATE_TOKEN_ADDRESS, BICONOMY_NFTLANCE_ENABLED} from "../Config";
 import { useMetaTx } from "../hooks/metatx";
 
 interface params {
@@ -119,7 +119,7 @@ export const Nftlance: FC = () => {
 
     const nftlanceContract: Contract = new ethers.Contract(creaton_contracts.nftlance.address, creaton_contracts.nftlance.abi, signer);
     try {
-      if(BICONOMY_ENABLED){
+      if(BICONOMY_NFTLANCE_ENABLED){
         executeMetaTx("NFTLance", "deployCreatorCollection", ["h", e.target.token.value], undefined, async() => {
           setCreatorCollectionsAddress(creatorCollectionsAddress);
           setCreateCreatorsCollectionsVisible(false);

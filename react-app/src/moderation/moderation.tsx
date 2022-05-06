@@ -8,7 +8,7 @@ import { Input } from "../elements/input";
 import { NotificationHandlerContext } from "../ErrorHandler";
 import creaton_contracts from "../Contracts";
 import { gql, useQuery } from "@apollo/client";
-import { BICONOMY_ENABLED, CREATE_TOKEN_ADDRESS } from "../Config";
+import { BICONOMY_MODERATION_ENABLED, CREATE_TOKEN_ADDRESS } from "../Config";
 import { Case } from "../components/moderation.case";
 import { ReportedCase } from "../components/moderation.reportedcase";
 import { useMetaTx } from "../hooks/metatx";
@@ -140,7 +140,7 @@ export const Moderation: FC = () => {
             const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
             let tx: any;
             if(stakingAmount.gt(allowance)){
-                if(BICONOMY_ENABLED){
+                if(BICONOMY_MODERATION_ENABLED){
                     tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string}, async (tx:any) => {
                         await addJuror(stakingAmount);
                     });
@@ -168,7 +168,7 @@ export const Moderation: FC = () => {
 
         const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
         const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
-        if(BICONOMY_ENABLED){
+        if(BICONOMY_MODERATION_ENABLED){
             await executeMetaTx("Moderation", "addJuror", [stakingAmount], undefined, async (receipt: any) => {
                 setBecomeAJurorVisible(false);
                 web3utils.setIsWaiting(false);
@@ -191,7 +191,7 @@ export const Moderation: FC = () => {
         const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
         const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
         try {
-            if(BICONOMY_ENABLED){
+            if(BICONOMY_MODERATION_ENABLED){
                 let tx = await executeMetaTx("Moderation", "removeJuror", [], undefined, () => {
                     web3utils.setIsWaiting(false);
                     notificationHandler.setNotification({description: " $" + stakingTokenSymbol + " unstaked. You are not a Juror anymore.", type: 'success'});

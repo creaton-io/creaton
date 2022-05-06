@@ -11,7 +11,7 @@ import {Base64} from 'js-base64';
 import {Button} from './elements/button';
 import {Input} from './elements/input';
 import {Textarea} from './elements/textArea';
-import {ARWEAVE_URI, ARWEAVE_GATEWAY, BICONOMY_ENABLED} from './Config';
+import {ARWEAVE_URI, ARWEAVE_GATEWAY, BICONOMY_UPLOAD_ENABLED} from './Config';
 import SignUp from './Signup';
 import {Toggle} from './elements/toggle';
 import {Web3UtilsContext, Web3UtilsProviderContext} from './Web3Utils';
@@ -178,7 +178,7 @@ const Upload = () => {
             let tier = 0;
             if (uploadEncrypted) tier = 1;
 
-            if(BICONOMY_ENABLED){
+            if(BICONOMY_UPLOAD_ENABLED){
               receipt = await executeMetaTx('Creator', 'upload', [ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier], {contractAddress: currentCreator!.creatorContract});
             }else{
               receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
