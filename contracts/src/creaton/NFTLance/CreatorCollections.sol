@@ -7,9 +7,9 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "./FanCollectible.sol";
 import "../MarketPoints.sol";
 
-import "hardhat/console.sol";
+import "../../dependency/gsn/BaseRelayRecipient.sol";
 
-contract CreatorCollections is Ownable, Pausable {
+contract CreatorCollections is Ownable, Pausable, BaseRelayRecipient {
     using SafeMath for uint256;
     uint256 private creatonBalance;
     uint256 constant CREATON_PERCENTAGE = 2;
@@ -74,11 +74,13 @@ contract CreatorCollections is Ownable, Pausable {
 
     constructor(
         FanCollectible _collectibleAddress,
-        IERC20 _tokenAddress
+        IERC20 _tokenAddress, 
+        address _trustedForwarder
     ) {
         collectible = _collectibleAddress;
         token = IERC20(_tokenAddress);
         catalogsCount = 0;
+        trustedForwarder = _trustedForwarder;
     }
 
     /**
@@ -239,5 +241,19 @@ contract CreatorCollections is Ownable, Pausable {
 
     function unpause() public onlyOwner whenPaused {
         _unpause();
+    }
+
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
+    }
+
+    function _msgSender() internal view override(Context, BaseRelayRecipient)
+        returns (address sender) {
+        sender = BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, BaseRelayRecipient)
+        returns (bytes memory) {
+        return BaseRelayRecipient._msgData();
     }
 }

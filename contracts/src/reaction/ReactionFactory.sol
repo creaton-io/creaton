@@ -2,9 +2,10 @@
 pragma solidity >=0.7.6;
 
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Context.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+
+import "../dependency/gsn/BaseRelayRecipient.sol";
 
 import {
     ISuperfluid
@@ -14,7 +15,7 @@ import "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/ux/IResolv
 import "./ReactionToken.sol";
 import "./StakedFlow.sol";
 
-contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
+contract ReactionFactory is BaseRelayRecipient{
     using EnumerableSet for EnumerableSet.AddressSet;
 
     address private _sfHost; // host
@@ -36,7 +37,7 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
     event Initialized(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string sfVersion);
     event ReactionDeployed(address creator, address reactionContractAddr, string reactionTokenName, string reactionTokenSymbol, string tokenMetadataURI, address stakingTokenAddress);
 
-    function initialize(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string memory sfVersion) public payable initializer {
+    constructor(address sfHost, address sfCfa, address sfSuperTokenFactory, address sfResolver, string memory sfVersion, address _trustedForwarder) {
         require(address(sfHost) != address(0), "ReactionFactory: Host Address can't be 0x");
         require(address(sfCfa) != address(0), "ReactionFactory: CFA Address can't be 0x");
         require(address(sfSuperTokenFactory) != address(0), "ReactionFactory: SuperTokenFactory Address can't be 0x");
@@ -52,6 +53,8 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
 
         owner = _msgSender();
 
+        trustedForwarder = _trustedForwarder;
+
         emit Initialized(_sfHost, _sfCfa, _sfSuperTokenFactory, _sfResolver, _sfVersion);
     }
 
@@ -64,7 +67,8 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
             reactionTokenName, 
             reactionTokenSymbol,
             tokenMetadataURI,
-            monthDistributionPercentage
+            monthDistributionPercentage,
+            trustedForwarder
         );
 
         address reactionContractAddr = address(reactionContract);
@@ -113,7 +117,7 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
     function getStakedFlow(address user, address token, uint8 monthDistributionPercentage) public returns (address){
         address stakedFlow = _stakedFlows[user][token];
         if(stakedFlow == address(0)){
-            stakedFlow = address(new StakedFlow(address(this), _sfHost, _sfCfa, monthDistributionPercentage));
+            stakedFlow = address(new StakedFlow(address(this), _sfHost, _sfCfa, monthDistributionPercentage, trustedForwarder));
             _stakedFlows[user][token] = stakedFlow;
         }
 
@@ -122,13 +126,18 @@ contract ReactionFactory is Context, UUPSUpgradeable, Initializable {
 
     /* ========== RESTRICTED FUNCTIONS ========== */
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {
+    function setTrustedForwarder(address _trustedForwarder) public onlyOwner {
+        trustedForwarder = _trustedForwarder;
+    }
+
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
     }
 
      /* ========== MODIFIERS ========== */
 
     modifier onlyOwner() {
-        require(msg.sender == owner, "ReactionFactory: Caller is not owner");
+        require(_msgSender() == owner, "ReactionFactory: Caller is not owner");
         _;
     }
 }

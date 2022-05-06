@@ -18,17 +18,17 @@ import {VideoPlayer} from './VideoPlayer';
 import {Button} from './elements/button';
 import {Card} from './components/card';
 import {Avatar} from './components/avatar';
-import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY} from './Config';
+import {NFTLANCE_ENABLED, REPORT_URI, REACTION_ERC20, REACTION_CONTRACT_ADDRESS, MODERATION_ENABLED, CREATE_TOKEN_ADDRESS, ARWEAVE_URI, ARWEAVE_GATEWAY, GASLESS_BACKEND, BICONOMY_MODERATION_ENABLED, BICONOMY_REACTION_ENABLED} from './Config';
 import {Web3UtilsContext} from './Web3Utils';
 import {Link} from 'react-router-dom';
 import LitJsSdk from 'lit-js-sdk';
 import {Player} from '@lottiefiles/react-lottie-player';
 import {Splash} from './components/splash';
-import {BICONOMY_API, BICONOMY_AUTH} from './Config';
-import {ConstantFlowAgreementV1Helper} from '@superfluid-finance/js-sdk';
+import { ConstantFlowAgreementV1Helper } from '@superfluid-finance/js-sdk';
 import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
+import { useMetaTx } from './hooks/metatx';
 
 interface params {
   id: string;
@@ -126,6 +126,7 @@ export function Creator() {
   const web3utils = useContext(Web3UtilsContext);
   const context = useWeb3React();
   const provider = context.provider as Web3Provider;
+  const { executeMetaTx } = useMetaTx();
 
   let isFollowing = false;
   followersData?.identity?.followers?.list?.map((item) => {
@@ -257,110 +258,28 @@ export function Creator() {
   }, [reactionsQuery, context]);
 
   async function addGasless() {
-    // const addContractData = new URLSearchParams({
-    //   contractName: 'creator' + creatorContractAddress.slice(2, 6),
-    //   contractAddress: creatorContractAddress,
-    //   abi: JSON.stringify(creaton_contracts.Creator.abi),
-    //   contractType: 'SC',
-    //   metaTransactionType: 'TRUSTED_FORWARDER',
-    // });
-
-    // fetch('https://api.biconomy.io/api/v1/smart-contract/public-api/addContract', {
-    //   method: 'POST', // or 'PUT'
-    //   headers: {
-    //     'Content-Type': 'application/x-www-form-urlencoded',
-    //      authToken: BICONOMY_AUTH,
-    //      apiKey: BICONOMY_API,
-    //   },
-    //   body: addContractData,
-    // })
-    //   .then((response) => response.json())
-    //   .then((data) => {
-    //     console.log('Success:', data);
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error:', error);
-    //   });
-
-    //creatonadmin 0x9AF8d7C5F8A0b6b759DF2a44f379B611849593cb
-    // sf 0xEB796bdb90fFA0f28255275e16936D25d3418603
-    //const superfluidABI = [{"inputs":[{"internalType":"bool","name":"nonUpgradable","type":"bool"},{"internalType":"bool","name":"appWhiteListingEnabled","type":"bool"}],"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"agreementType","type":"bytes32"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"AgreementClassUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"AppRegistered","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"bytes32","name":"uuid","type":"bytes32"},{"indexed":false,"internalType":"address","name":"codeAddress","type":"address"}],"name":"CodeUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"oldGov","type":"address"},{"indexed":false,"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"GovernanceReplaced","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperApp","name":"app","type":"address"},{"indexed":false,"internalType":"uint256","name":"reason","type":"uint256"}],"name":"Jail","type":"event"},{"anonymous":false,"inputs":[{"indexed":false,"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"SuperTokenFactoryUpdated","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"internalType":"contract ISuperToken","name":"token","type":"address"},{"indexed":false,"internalType":"address","name":"code","type":"address"}],"name":"SuperTokenLogicUpdated","type":"event"},{"inputs":[],"name":"APP_WHITE_LISTING_ENABLED","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"CALLBACK_GAS_LIMIT","outputs":[{"internalType":"uint64","name":"","type":"uint64"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"MAX_APP_LEVEL","outputs":[{"internalType":"uint256","name":"","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"NON_UPGRADABLE_DEPLOYMENT","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"addToAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"allowCompositeApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"appCallbackPop","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"name":"appCallbackPush","outputs":[{"internalType":"bytes","name":"appCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"batchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"}],"name":"callAgreement","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAgreementWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"},{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"}],"name":"callAppAction","outputs":[{"internalType":"bytes","name":"returnedData","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppActionWithContext","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppAfterCallback","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"bytes","name":"callData","type":"bytes"},{"internalType":"bool","name":"isTermination","type":"bool"},{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"callAppBeforeCallback","outputs":[{"internalType":"bytes","name":"cbdata","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"uint256","name":"appAllowanceWantedMore","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsedDelta","type":"int256"}],"name":"ctxUseAllowance","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"decodeCtx","outputs":[{"components":[{"internalType":"uint8","name":"appLevel","type":"uint8"},{"internalType":"uint8","name":"callType","type":"uint8"},{"internalType":"uint256","name":"timestamp","type":"uint256"},{"internalType":"address","name":"msgSender","type":"address"},{"internalType":"bytes4","name":"agreementSelector","type":"bytes4"},{"internalType":"bytes","name":"userData","type":"bytes"},{"internalType":"uint256","name":"appAllowanceGranted","type":"uint256"},{"internalType":"uint256","name":"appAllowanceWanted","type":"uint256"},{"internalType":"int256","name":"appAllowanceUsed","type":"int256"},{"internalType":"address","name":"appAddress","type":"address"},{"internalType":"contract ISuperfluidToken","name":"appAllowanceToken","type":"address"}],"internalType":"struct ISuperfluid.Context","name":"context","type":"tuple"}],"stateMutability":"pure","type":"function"},{"inputs":[{"components":[{"internalType":"uint32","name":"operationType","type":"uint32"},{"internalType":"address","name":"target","type":"address"},{"internalType":"bytes","name":"data","type":"bytes"}],"internalType":"struct ISuperfluid.Operation[]","name":"operations","type":"tuple[]"}],"name":"forwardBatchCall","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"getAgreementClass","outputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"appAddr","type":"address"}],"name":"getAppLevel","outputs":[{"internalType":"uint8","name":"","type":"uint8"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"getAppManifest","outputs":[{"internalType":"bool","name":"isSuperApp","type":"bool"},{"internalType":"bool","name":"isJailed","type":"bool"},{"internalType":"uint256","name":"noopMask","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getCodeAddress","outputs":[{"internalType":"address","name":"codeAddress","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getGovernance","outputs":[{"internalType":"contract ISuperfluidGovernance","name":"","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactory","outputs":[{"internalType":"contract ISuperTokenFactory","name":"factory","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"getSuperTokenFactoryLogic","outputs":[{"internalType":"address","name":"logic","type":"address"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"gov","type":"address"}],"name":"initialize","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClass","type":"address"}],"name":"isAgreementClassListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"isAgreementTypeListed","outputs":[{"internalType":"bool","name":"yes","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isApp","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"}],"name":"isAppJailed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"contract ISuperApp","name":"targetApp","type":"address"}],"name":"isCompositeAppAllowed","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"}],"name":"isCtxValid","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"address","name":"forwarder","type":"address"}],"name":"isTrustedForwarder","outputs":[{"internalType":"bool","name":"","type":"bool"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"bytes","name":"ctx","type":"bytes"},{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"reason","type":"uint256"}],"name":"jailApp","outputs":[{"internalType":"bytes","name":"newCtx","type":"bytes"}],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"}],"name":"mapAgreementClasses","outputs":[{"internalType":"contract ISuperAgreement[]","name":"agreementClasses","type":"address[]"}],"stateMutability":"view","type":"function"},{"inputs":[],"name":"proxiableUUID","outputs":[{"internalType":"bytes32","name":"","type":"bytes32"}],"stateMutability":"pure","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"registerAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerApp","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperApp","name":"app","type":"address"},{"internalType":"uint256","name":"configWord","type":"uint256"}],"name":"registerAppByFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"configWord","type":"uint256"},{"internalType":"string","name":"registrationKey","type":"string"}],"name":"registerAppWithKey","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"uint256","name":"bitmap","type":"uint256"},{"internalType":"bytes32","name":"agreementType","type":"bytes32"}],"name":"removeFromAgreementClassesBitmap","outputs":[{"internalType":"uint256","name":"newBitmap","type":"uint256"}],"stateMutability":"view","type":"function"},{"inputs":[{"internalType":"contract ISuperfluidGovernance","name":"newGov","type":"address"}],"name":"replaceGovernance","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperAgreement","name":"agreementClassLogic","type":"address"}],"name":"updateAgreementClass","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"address","name":"newAddress","type":"address"}],"name":"updateCode","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperTokenFactory","name":"newFactory","type":"address"}],"name":"updateSuperTokenFactory","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[{"internalType":"contract ISuperToken","name":"token","type":"address"}],"name":"updateSuperTokenLogic","outputs":[],"stateMutability":"nonpayable","type":"function"},{"inputs":[],"name":"versionRecipient","outputs":[{"internalType":"string","name":"","type":"string"}],"stateMutability":"pure","type":"function"}]
-
-    // const addMethodSFData = {
-    //   apiType: 'native',
-    //   methodType: 'write',
-    //   name: 'stream',
-    //   contractAddress: '0xEB796bdb90fFA0f28255275e16936D25d3418603',
-    //   method: 'forwardBatchCall',
-    // };
-
-    const addMethodData = {
-      apiType: 'native',
-      methodType: 'write',
-      name: 'upload' + creatorContractAddress.slice(2, 6),
-      contractAddress: creatorContractAddress,
-      method: 'upload',
-    };
-
-    fetch('https://api.biconomy.io/api/v1/meta-api/public-api/addMethod', {
-      method: 'POST', // or 'PUT'
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        authToken: BICONOMY_AUTH as string,
-        apiKey: BICONOMY_API as string,
-      },
-      body: new URLSearchParams(addMethodData),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Success:', data);
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
-
     if (!context.isActive) return;
+
     const signer = provider.getSigner();
     const walletAddress = await signer.getAddress();
-
-    const signedMessage = await signer.signMessage(`Creaton: Enabling gasless transactions for ${walletAddress}`);
-    const response = await fetch(`http://localhost:3333/gasless`, {
-      method: 'post',
+    const response = await fetch(GASLESS_BACKEND as string + '/gasless',{
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({signedMessage, walletAddress, creatorContractAddress}),
+      body: JSON.stringify({
+        contractName: "Creator",
+        contractAddress: creatorContractAddress,
+        walletAddress: walletAddress,
+        method: "upload",
+      }),
     });
-  }
 
-  async function mint() {
-    let {sf, usdc, usdcx} = superfluid;
-    let subscriber = context.account;
-    console.log('minted', wad4human(await usdc.balanceOf(subscriber)), 'usdc');
-    const tx = await usdc.mint(subscriber, parseUnits('1000', 18), {from: subscriber});
-    await tx.wait();
-    console.log('this is mint tx', tx);
-    console.log('minted', wad4human(await usdc.balanceOf(subscriber)), 'usdc');
-  }
-
-  async function approveUSDC() {
-    let {sf, usdc, usdcx} = superfluid;
-    let subscriber = context.account;
-    console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
-    const tx = await usdc.approve(usdcx.address, parseUnits('1800', 18), {from: subscriber});
-    await tx.wait();
-    console.log('approved', wad4human(await usdc.allowance(subscriber, usdcx.address)), 'usdc');
-  }
-
-  async function convertUSDCx() {
-    let {sf, usdc, usdcx} = superfluid;
-    let subscriber = context.account;
-    console.log('converted', wad4human(await usdcx.balanceOf(subscriber)), 'usdc to usdcx');
-    const tx = await usdcx.upgrade(parseUnits('900', 18), {from: subscriber});
-    await tx.wait();
-    let usdcxBalance = wad4human(await usdcx.balanceOf(subscriber));
-    setUsdcx(usdcxBalance);
-    console.log('converted', usdcxBalance, 'usdc to usdcx');
+    if(response.ok){
+      notificationHandler.setNotification({description: 'Gasless transactions set', type: 'success'});
+    } else {
+      notificationHandler.setNotification({description: "Error! Couldn't set gasless transactions.", type: 'error'});
+    }
   }
 
   async function startStreaming() {
@@ -522,12 +441,15 @@ export function Creator() {
               hide(content.tokenId, !content.hide);
             }}
             canDecrypt={canDecrypt}
-            // reactionErc20Available={reactionErc20Available}
-            // reactionErc20Symbol={reactionErc20Symbol}
-            //onReact={(amount, callback) => { react(content, amount, callback) }}
-            // hasReacted={hasReacted(content)}
-            // initialReactCount={countReacted(content)}
+            reactionErc20Available={reactionErc20Available}
+            reactionErc20Symbol={reactionErc20Symbol}
+            onReact={(amount, callback) => { react(content, amount, callback) }}
+            hasReacted={hasReacted(content)}
+            initialReactCount={countReacted(content)}
             hasReported={hasReported(content)}
+            onReportForModeration={(content, amount, file, callback) => reportForModeration(content, amount, file, callback)}
+            reportErc20Available={reportErc20Available}
+            reportErc20Symbol={reportErc20Symbol}
           />
           {/* <iframe
             src={`https://theconvo.space/embed/dt?url=${new URL('https://creaton.io')}&threadId=${content.tokenId}`}
@@ -590,32 +512,42 @@ export function Creator() {
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
       const stakingAmount = ethers.BigNumber.from(amount).mul(decimals);
 
+      web3utils.setIsWaiting(true);
+
+      let tx: any;
       const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
       if(stakingAmount.gt(allowance)){
-        web3utils.setIsWaiting(true);
-        let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
-        await tx.wait();
-        let receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-        if(receipt.length == 0){
-          throw Error('Error allowing token for moderation');
+        if(BICONOMY_MODERATION_ENABLED){
+          tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string}, async () => {
+            tx = await executeMetaTx("Moderation", "reportContent", [content.id, stakingAmount, screenshot], undefined, () => {
+              web3utils.setIsWaiting(false);
+              notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+              callback();
+            });
+          });
+        }else{
+          tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
+          await tx.wait();
+          let receipt = await tx.wait();
+          receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+          if(receipt.length == 0){
+            throw Error('Error allowing token for moderation');
+          }
+
+          const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
+          tx = await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
+          moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
+            web3utils.setIsWaiting(false);
+            notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
+            callback();
+          });
         }
       }
-
-      web3utils.setIsWaiting(true);
-      const moderationTokenContract: Contract = new Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi).connect(provider.getSigner());
-      await moderationTokenContract.reportContent(content.id, stakingAmount, screenshot);
-      moderationTokenContract.once("ContentReported", async (reporter, contentId, staked, fileProof) => {
-        web3utils.setIsWaiting(false);
-        notificationHandler.setNotification({description: 'Thanks for reporting!', type: 'success'});
-        callback();
-      });
     } catch (error: any) {
       notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
   }
 
-  /*
   async function react(content, amount, callback) {
     if (!web3utils.isSignedUp()) return;
 
@@ -624,7 +556,7 @@ export function Creator() {
       const signer = provider!.getSigner()
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20, creaton_contracts.erc20.abi, signer);
+      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
 
       const preDecimals = await erc20Contract.decimals();
       const decimals = ethers.BigNumber.from(10).pow(preDecimals);
@@ -632,25 +564,42 @@ export function Creator() {
 
       const allowance = await erc20Contract.allowance(userAddress, REACTION_CONTRACT_ADDRESS);
       if(stakingAmount.gt(allowance)){
-        let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
-        await tx.wait();
-        let receipt = await tx.wait();
-        receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-        if(receipt.length == 0){
-          throw Error('Error allowing token for reaction');
+        if(BICONOMY_REACTION_ENABLED){
+          await executeMetaTx("erc20Contract", "approve", [REACTION_CONTRACT_ADDRESS as string, stakingAmount], {contractAddress: REACTION_ERC20}, async (tx: any) => {
+            await stakeAndMint(stakingAmount, content, callback);
+          });
+        }else{
+          let tx = await erc20Contract.approve(REACTION_CONTRACT_ADDRESS, stakingAmount);
+          await tx.wait();
+          let receipt = await tx.wait();
+          receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+          if(receipt.length == 0){
+            throw Error('Error allowing token for reaction');
+          }
+
+          await stakeAndMint(stakingAmount, content, callback);
         }
       }
-      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
+    } catch (error: any) {
+      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
+    }
+  }
 
-      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20, creatorContractAddress, content.tokenId);
+  async function stakeAndMint(stakingAmount, content, callback){
+    if(BICONOMY_REACTION_ENABLED){
+      await executeMetaTx("ReactionToken", "stakeAndMint", [stakingAmount.toString(), REACTION_ERC20 as string, creatorContractAddress, content.tokenId], {}, () => {
+        updateContentsQuery();
+        callback();
+      });
+    }else{
+      const reactionTokenContract: Contract = new Contract(REACTION_CONTRACT_ADDRESS as string, creaton_contracts.ReactionToken.abi).connect(provider!.getSigner());
+      await reactionTokenContract.stakeAndMint(stakingAmount.toString(), REACTION_ERC20 as string, creatorContractAddress, content.tokenId);
       reactionTokenContract.once("Staked", async (author, amount, stakingTokenAddress, stakingSuperTokenAddress) => {
         updateContentsQuery();
         callback();
       });
-    } catch (error: any) {
-      notificationHandler.setNotification({description: 'Could not react to the content' + error.message, type: 'error'});
     }
-  }*/
+  }
 
   function countReacted(content): string {
     if (!reactions) return '0';
@@ -661,7 +610,7 @@ export function Creator() {
   }
   function hasReacted(content) {
     if (!reactions) return false;
-    return reactions.some((r) => r.tokenId === content.tokenId && r.user.address === context.account?.toLowerCase());
+    return reactions.some((r) => r.tokenId === content.tokenId && r.reactingUser.address === context.account?.toLowerCase());
   }
 
   function hasReported(content){
@@ -842,42 +791,6 @@ export function Creator() {
           </Link>}
  
           {generateButton()}
-
-          {context.chainId === 80000 && (
-            <span>
-              <div className="flex space-x-5">
-                <Button
-                  onClick={() => {
-                    mint();
-                  }}
-                  label="Mint"
-                  theme="secondary-2"
-                />
-                <Button
-                  onClick={() => {
-                    approveUSDC();
-                  }}
-                  label="Approve"
-                  theme="secondary-2"
-                />
-              </div>
-
-              <Button
-                onClick={() => {
-                  convertUSDCx();
-                }}
-                label="Upgrade"
-              />
-
-              <Button
-                onClick={() => {
-                  addGasless();
-                }}
-                label="Enable no gas!"
-                theme="secondary-2"
-              />
-            </span>
-          )}
         </div>
 
         <h1 className="mb-5 text-2xl font-bold text-white">

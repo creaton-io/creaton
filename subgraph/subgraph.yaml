@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x1C35671C0ff32e51714611e39B82Cb57c4085034" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
-      startBlock: 20398391
+      startBlock: 25732304
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -30,9 +30,9 @@ dataSources:
     name: ReactionFactory
     network: matic
     source:
-      address: "0x38351010B4ac6052Bf4Dcc5b60d2f69B0F1D5541"
+      address: "0x480Ff3710cd0D5131Df70A7558c40DFF93266314"
       abi: ReactionFactory
-      startBlock: 25720569
+      startBlock: 26185415
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -46,6 +46,68 @@ dataSources:
         - event: ReactionDeployed(address,address,string,string,string,address)
           handler: handleReactionDeployed
       file: ./src/reaction-mapping.ts
+  - kind: ethereum/contract
+    name: NFTLance
+    network: mumbai
+    source:
+      address: "0x83C79703571d095c8A197beB5b6d9748E2740578"
+      abi: NFTLance
+      startBlock: 26212271
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - CreatorCollections
+        - FanCollectible
+      abis:
+        - name: NFTLance
+          file: ./abis/NFTLance.json
+      eventHandlers:
+        - event: DeployedCreatorCollection(address,address,string,address)
+          handler: handleDeployedCreatorCollections
+      file: ./src/nftLance-mapping.ts
+  - kind: ethereum/contract
+    name: Moderation
+    network: mumbai
+    source:
+      address: "0x39D74f28D231Fc100AEd48a89dbdE24F10626307"
+      abi: Moderation
+      startBlock: 26200948
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.4
+      language: wasm/assemblyscript
+      entities:
+        - ReportedContent
+        - Juror
+        - ModerationCase
+        - JurorDecision
+      abis:
+        - name: Moderation
+          file: ./abis/Moderation.json
+      eventHandlers:
+        - event: ContentReported(address,string,uint256,string)
+          handler: handleContentReported
+        - event: JurorAdded(address,uint256)
+          handler: handleJurorAdded
+        - event: JurorRemoved(address,uint256)
+          handler: handleJurorRemoved
+        - event: CaseBuilt(string,uint256)
+          handler: handleCaseBuilt
+        - event: JuryAssigned(string,address[],uint256)
+          handler: handleJuryAssigned
+        - event: JuryReassigned(string,address[],uint256)
+          handler: handleJuryReassigned
+        - event: JurorVoted(address,string,uint256)
+          handler: handleJurorVoted
+        - event: CaseClosed(string,uint8,uint8)
+          handler: handleCaseClosed
+        - event: JurorSlashed(address,uint256)
+          handler: handleJurorSlashed
+        - event: CaseRewardsDistributed(string,address[],address[],uint256[],uint256[],uint256[],uint256,uint256,uint256)
+          handler: handleCaseRewardsDistributed
+      file: ./src/moderation-mapping.ts
 templates:
   - kind: ethereum/contract
     name: Creator

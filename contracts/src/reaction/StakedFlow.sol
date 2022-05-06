@@ -13,9 +13,11 @@ import {
 } from "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 import { ERC20WithTokenInfo } from "@superfluid-finance_1/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol";
 
+import "../dependency/gsn/BaseRelayRecipient.sol";
+
 import "./ReactionFactory.sol"; 
 
-contract StakedFlow is Context {
+contract StakedFlow is Context, BaseRelayRecipient {
     event Flowing(address stakingSuperToken, uint256 balance, address recipient, uint256 flowRate);
 
     ISuperfluid internal _host; // Superfluid host address
@@ -30,7 +32,8 @@ contract StakedFlow is Context {
         address reactionFactory,
         address host, 
         address cfa,
-        uint8 monthDistributionPercentage
+        uint8 monthDistributionPercentage,
+        address _trustedForwarder
     ) {
         require(address(reactionFactory) != address(0), "StakedFlow: Reaction Factory can't be 0x");
         require(address(host) != address(0), "StakedFlow: Host Address can't be 0x");
@@ -42,6 +45,8 @@ contract StakedFlow is Context {
         _host = ISuperfluid(host);
         _cfa =  IConstantFlowAgreementV1(cfa);
         _monthDistributionPercentage = monthDistributionPercentage;
+
+        trustedForwarder = _trustedForwarder;
     }
 
     function flow(uint256 amount, address stakingTokenAddress, address recipient) public returns (address){
@@ -102,5 +107,19 @@ contract StakedFlow is Context {
         emit Flowing(stakingSuperToken, balance, recipient, flowRate);
 
         return stakingSuperToken;
+    }
+
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
+    }
+
+    function _msgSender() internal view override(Context, BaseRelayRecipient)
+        returns (address sender) {
+        sender = BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, BaseRelayRecipient)
+        returns (bytes memory) {
+        return BaseRelayRecipient._msgData();
     }
 }

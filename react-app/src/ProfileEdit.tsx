@@ -8,10 +8,11 @@ import {BaseProvider, JsonRpcProvider, Provider, Web3Provider} from "@ethersproj
 import {useCurrentCreator, useCurrentProfile} from "./Utils";
 import {CeramicStore} from "./stores/ceramicStore";
 import {AvatarUpload} from "./components/avatarUpload";
-import {ARWEAVE_GATEWAY, ARWEAVE_URI} from "./Config";
+import {ARWEAVE_GATEWAY, ARWEAVE_URI, BICONOMY_SIGNUP_ENABLED} from "./Config";
 import {NotificationHandlerContext} from "./ErrorHandler";
 import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
 import { CeramicProvider } from "./CeramicProvider";
+import { useMetaTx } from "./hooks/metatx";
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React()
@@ -27,7 +28,7 @@ const ProfileEdit = (props) => {
   const notificationHandler = useContext(NotificationHandlerContext)
   const web3utils = useContext(Web3UtilsContext)
   const [ceramic, setCeramic] = useState<CeramicStore | null>(null);
-  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
+  const { executeMetaTx } = useMetaTx();
 
   useEffect(() => {
     console.log(currentProfile)
@@ -108,25 +109,32 @@ const ProfileEdit = (props) => {
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }
-    console.log(payload)
+    
     const provider = web3Context.provider as Web3Provider;
     const connectedContract = creatorFactoryContract.connect(provider.getSigner());
-    console.log("connectedcontract", connectedContract.address)
     let result
     try {
-      result = await connectedContract.updateProfile(JSON.stringify(payload))
+      if(BICONOMY_SIGNUP_ENABLED){
+        executeMetaTx("CreatonAdmin", "updateProfile", [JSON.stringify(payload)], undefined, async() => {
+          notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
+          refetch()  
+        })
+      }else{
+        web3utils.setIsWaiting(true);
+        result = await connectedContract.updateProfile(JSON.stringify(payload))
+        await result.wait(1)
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
+        refetch()
+      }
     } catch (error: any) {
+      web3utils.setIsWaiting(false);
       notificationHandler.setNotification({
         description: 'Could not create your profile' + error.message,
         type: 'error'
       });
       return;
     }
-    web3utils.setIsWaiting(true);
-    await result.wait(1)
-    web3utils.setIsWaiting(false);
-    notificationHandler.setNotification({description: 'Profile successfully updated', type: 'success'})
-    refetch()
   }
 
   if (!web3Context.isActive)

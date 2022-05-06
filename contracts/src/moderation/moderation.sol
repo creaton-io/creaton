@@ -10,7 +10,9 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/utils/SafeERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/security/ReentrancyGuardUpgradeable.sol";
 
-contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable {
+import "@opengsn/contracts/src/BaseRelayRecipient.sol";
+
+contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, OwnableUpgradeable, ReentrancyGuardUpgradeable, BaseRelayRecipient {
     using SafeERC20Upgradeable for IERC20Upgradeable;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
@@ -103,7 +105,8 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         uint8 _jurorPenaltyPercentage, 
         uint8 _jurorProfitPercentage, 
         uint8 _reporterPenaltyPercentage, 
-        uint8 _reporterProfitPercentage
+        uint8 _reporterProfitPercentage,
+        address _trustedForwarder
     ) 
         external 
         initializer 
@@ -121,6 +124,7 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         jurorProfitPercentage = _jurorProfitPercentage;
         reporterPenaltyPercentage = _reporterPenaltyPercentage;
         reporterProfitPercentage = _reporterProfitPercentage;
+        _setTrustedForwarder(_trustedForwarder);
 
         emit Initialized(stakingToken);
     }
@@ -445,6 +449,20 @@ contract Moderation is Initializable, UUPSUpgradeable, ContextUpgradeable, Ownab
         delete _reporter;
 
         emit CaseRewardsDistributed(_contentId, _rewards.jury, _rewards.reporters, _rewards.juryRewards, _rewards.reportersRewards, _rewards.reportersPenalty, _rewards.totalJuryRewards, _rewards.totalReportersRewards, _rewards.totalReportersPenalty);
+    }
+
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
+    }
+
+    function _msgSender() internal view override(ContextUpgradeable, BaseRelayRecipient)
+        returns (address sender) {
+        sender = BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(ContextUpgradeable, BaseRelayRecipient)
+        returns (bytes memory) {
+        return BaseRelayRecipient._msgData();
     }
 
     /* ========== RESTRICTED FUNCTIONS ========== */

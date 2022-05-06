@@ -1,4 +1,4 @@
-import {useWeb3React, initializeConnector} from '@web3-react/core';
+import {useWeb3React} from '@web3-react/core';
 import React, {createContext, useContext, useEffect, useRef, useState} from 'react';
 import {Magic} from '@web3-react/magic';
 import {MetaMask} from '@web3-react/metamask'
@@ -7,22 +7,9 @@ import {useCurrentProfile} from './Utils';
 import {NotificationHandlerContext} from './ErrorHandler';
 import {SuperfluidContext} from './Superfluid';
 import {FAUCET_URI} from './Config';
-import { hooks as hooksmetaMask, metaMask } from './connectors/metaMask';
-import { hooks as hooksMagic, magic } from './connectors/magic';
-import { createWeb3ReactStoreAndActions } from '@web3-react/store';
+import { hooks, metaMask } from './connectors/metaMask'
 
-import type { Actions, Web3ReactStore } from '@web3-react/types';
-import { WalletConnect } from '@web3-react/walletconnect'
-
-import type {
-  LoginWithMagicLinkConfiguration,
-  Magic as MagicInstance,
-  MagicSDKAdditionalConfiguration,
-} from 'magic-sdk'
-
-let store: Web3ReactStore
-let actions: Actions;
-[store, actions] = createWeb3ReactStoreAndActions()
+const { useChainId, useAccounts, useError, useIsActivating, useIsActive, useProvider, useENSNames } = hooks
 
 const Web3UtilsContext = createContext<any>(null);
 const Web3UtilsProviderContext = createContext<any>({
@@ -35,11 +22,18 @@ const Web3UtilsProvider = (props) => {
   const history = useHistory();
   const notificationHandler = useContext(NotificationHandlerContext);
 
+  const isActivating = useIsActivating();
+
   const [magicEmail, setMagicEmail] = useState<string>('');
   const superfluid = useContext(SuperfluidContext);
   const faucetUsed = useRef(false);
 
   const [isWaiting, setIsWaiting] = useState<any>(false);
+
+  // attempt to connect eagerly on mount
+  useEffect(() => {
+    void metaMask.connectEagerly()
+  }, [])
   // useEffect(() => {
   //   if (!account || !superfluid || chainId !== 80001 || faucetUsed.current)
   //     return;
@@ -65,10 +59,7 @@ const Web3UtilsProvider = (props) => {
     // return;
     //TODO: test walletConnect and open up a modal
     
-    await metaMask.activate();
-
-    let test = store.getState();
-    console.log('test ', test);
+    await metaMask.activate(80001)
     // const injected = new InjectedConnector({supportedChainIds: [1, 3, 4, 5, 42, 137, 80001]});
     // if (await injected.getProvider())
     //   activate(injected, (error) => {
@@ -90,23 +81,10 @@ const Web3UtilsProvider = (props) => {
     // return;
     //TODO: test walletConnect and open up a modal
 
-
-
-    const RPC_URLS: {[chainId: number]: string} = {
-      1: process.env.RPC_URL_1 as string,
-      4: process.env.RPC_URL_4 as string,
-    };
-
-    //@ts-ignore
-    const walletConnect = new WalletConnect(actions, {
-          rpc: {1: RPC_URLS[1]},
-        })
-
-
-    await walletConnect.activate()
-
-    let test = store.getState();
-    console.log('test ', test);
+    // const RPC_URLS: {[chainId: number]: string} = {
+    //   1: process.env.RPC_URL_1 as string,
+    //   4: process.env.RPC_URL_4 as string,
+    // };
 
     // const walletconnect = new WalletConnectConnector({
     //   rpc: {1: RPC_URLS[1]},
@@ -123,32 +101,11 @@ const Web3UtilsProvider = (props) => {
     // });
   }
 
-  async function tryMagicLink() {
+  async function tryMagicLink(emailValue: string) {
+    // notificationHandler.setNotification({description: 'Thanks for testing the platform. More features will be released in the next few days. Stay tuned!', type: 'info'})
+    // return;
+    //TODO: test walletConnect and open up a modal
 
-    console.log('test');
-
-    
-
-    const customNodeOptions = {
-      rpcUrl: chainId === 137 ? 'https://rpc-mainnet.maticvigil.com/' : 'https://rpc-mumbai.maticvigil.com/', // Polygon RPC URL
-      chainId: chainId, // Polygon chain id
-    }
-
-    // const customNodeOptions = {
-    //   rpcUrl: 'https://rpc-mainnet.maticvigil.com/', // Polygon RPC URL
-    //   chainId: 137, // Polygon chain id
-    // }
-    
-    // Setting network to Polygon
-    //const magic = new Magic('pk_live_55D93A0BD91B3D6E', { network: customNodeOptions });
-    //@ts-ignore
-
-    //const magic = new Magic(actions, {apiKey: 'pk_live_55D93A0BD91B3D6E', network: customNodeOptions});
-
-    await magic.activate({email: magicEmail, showUI: true})
-
-    let test = store.getState();
-    console.log('test ', test);
   }
 
   function isSignedUp() {
@@ -175,9 +132,9 @@ const Web3UtilsProvider = (props) => {
         isSignedUp: isSignedUp,
         setMagicEmail: setMagicEmail,
         setIsWaiting: setIsWaiting,
-        isWaiting: isWaiting,
-        waitingMessage: isWaiting === true ? 'Waiting for blockchain transaction confirmation' : isWaiting,
-        disableInteraction: Boolean(isWaiting) || (wrongChainId && chainId !== 137),
+        isWaiting: (isWaiting||isActivating),
+        waitingMessage: (isWaiting||isActivating) ? 'Waiting for transaction confirmation' : isActivating,
+        disableInteraction: Boolean(isActivating) || (wrongChainId && chainId !== 137),
       }}
     >
       {props.children}

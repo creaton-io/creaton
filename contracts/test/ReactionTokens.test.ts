@@ -14,6 +14,8 @@ const timeTravel = async (time: number) => {
     console.log(`\tTime Travelled ${time} (sec) => FROM ${startBlock.timestamp} TO ${endBlock.timestamp}`);
 };  
 
+const BICONOMY_FORWARDED_MUMBAI = "0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b";
+
 describe("Reaction Tokens", function () {
     let owner: SignerWithAddress,
         alice: SignerWithAddress,
@@ -38,7 +40,7 @@ describe("Reaction Tokens", function () {
         // Deploy a dummy ERC20 token to be used later
         const dummyErc20Name = "DummyErc20";
         const contractFactory = await ethers.getContractFactory(dummyErc20Name);
-        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000"));
+        erc20Contract = await contractFactory.deploy(ethers.utils.parseEther("10000"), BICONOMY_FORWARDED_MUMBAI);
 
         expect(erc20Contract.address).to.be.properAddress;
         expect(await erc20Contract.name()).to.be.equal(dummyErc20Name);
@@ -56,12 +58,8 @@ describe("Reaction Tokens", function () {
     it("Should deploy a new Reaction Factory Contract", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        let reactionFactoryContract: Contract = await contractFactory.deploy();
+        let reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
         expect(reactionFactoryContract.address).to.be.properAddress;
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
@@ -82,12 +80,8 @@ describe("Reaction Tokens", function () {
     it("Should create & get superTokens on the Reaction Factory", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        let reactionFactoryContract: Contract = await contractFactory.deploy();
+        let reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
         expect(reactionFactoryContract.address).to.be.properAddress;
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
 
         expect(await reactionFactoryContract.isSuperToken(erc20Contract.address)).to.be.false;
         expect(await reactionFactoryContract.getSuperToken(erc20Contract.address)).to.be.equal("0x0000000000000000000000000000000000000000");
@@ -107,11 +101,7 @@ describe("Reaction Tokens", function () {
     it("Should Stake & Mint some reaction tokens", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        const reactionFactoryContract: Contract = await contractFactory.deploy();
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
+        const reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
@@ -158,7 +148,7 @@ describe("Reaction Tokens", function () {
         expect(+(await superTokenContract.balanceOf(owner.address)).toString()).to.be.closeTo(+expectedInOneHour.toString(), +ethers.utils.parseEther("1").toString());
 
         // Staking with no approval
-        await expect(reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, 1)).to.be.revertedWith("ERC20: transfer amount exceeds allowance");
+        await expect(reactionTokenContract.stakeAndMint(stakingAmount, erc20Contract.address, erc721Contract.address, 1)).to.be.revertedWith('TransactionExecutionError: VM Exception while processing transaction: revert with reason "ERC20: insufficient allowance"');
 
         // Staking a bit more
         await expect(erc20Contract.approve(reactionTokenContract.address, stakingAmount))
@@ -171,7 +161,7 @@ describe("Reaction Tokens", function () {
 
         // Staking & Mint with a different erc20
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
-        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"));
+        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"),BICONOMY_FORWARDED_MUMBAI);
         await expect(diffErc20Contract.approve(reactionTokenContract.address, stakingAmount))
             .to.emit(diffErc20Contract, "Approval");
 
@@ -198,11 +188,7 @@ describe("Reaction Tokens", function () {
     it("Should Stake & Mint some reaction tokens using a SuperToken", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        const reactionFactoryContract: Contract = await contractFactory.deploy();
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
+        const reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
@@ -253,11 +239,7 @@ describe("Reaction Tokens", function () {
     it("Should emit Reacted when Stake & Mint", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        const reactionFactoryContract: Contract = await contractFactory.deploy();
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
+        const reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
@@ -296,14 +278,10 @@ describe("Reaction Tokens", function () {
     it("Should restrict staking and setup flowRate to specific token", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        const reactionFactoryContract: Contract = await contractFactory.deploy();
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
+        const reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
 
         const contractFactory2 = await ethers.getContractFactory("DummyErc20");
-        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"));
+        const diffErc20Contract = await contractFactory2.deploy(ethers.utils.parseEther("10000"), BICONOMY_FORWARDED_MUMBAI);
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';
@@ -344,11 +322,7 @@ describe("Reaction Tokens", function () {
     it("Reaction recipient could be any address", async function () {
         // Deploy Reaction Factory
         const contractFactory = await ethers.getContractFactory("ReactionFactory");
-        const reactionFactoryContract: Contract = await contractFactory.deploy();
-
-        // Init Factory
-        await expect(reactionFactoryContract.initialize(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion))
-            .to.emit(reactionFactoryContract, "Initialized");
+        const reactionFactoryContract: Contract = await contractFactory.deploy(sfHost, sfCfa, sfSuperTokenFactory, sfResolver, sfVersion, BICONOMY_FORWARDED_MUMBAI);
 
         // Deploy new Reaction Token
         const reactionTokenName: string = 'Like';

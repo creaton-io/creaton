@@ -11,7 +11,7 @@ import {Base64} from 'js-base64';
 import {Button} from './elements/button';
 import {Input} from './elements/input';
 import {Textarea} from './elements/textArea';
-import {ARWEAVE_URI, ARWEAVE_GATEWAY} from './Config';
+import {ARWEAVE_URI, ARWEAVE_GATEWAY, BICONOMY_UPLOAD_ENABLED} from './Config';
 import SignUp from './Signup';
 import {Toggle} from './elements/toggle';
 import {Web3UtilsContext, Web3UtilsProviderContext} from './Web3Utils';
@@ -22,6 +22,7 @@ import LitJsSdk from 'lit-js-sdk';
 import {ExecutableDefinitionsRule} from 'graphql';
 import {Editor} from '@tinymce/tinymce-react';
 import {Splash} from './components/splash';
+import { useMetaTx } from './hooks/metatx';
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -37,6 +38,7 @@ const Upload = () => {
   const [subscribersDescription, setSubscribersDescription] = useState('');
   const [fileName, setFileName] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
+  const { executeMetaTx } = useMetaTx();
   const handleFileSelection = (event) => {
     const file = event.currentTarget.files[0];
     console.log(file);
@@ -46,7 +48,6 @@ const Upload = () => {
   const fileInput = React.createRef<any>();
   const [ffmpeg, setffmpeg] = useState<any>(undefined);
   const [editorInit, setEditorInit] = useState<boolean>(false);
-  const {biconomyProvider, setBiconomyProvider} = useContext(Web3UtilsProviderContext);
   useEffect(() => {
     ;(async () => {
       if (ffmpeg === undefined) {
@@ -176,7 +177,15 @@ const Upload = () => {
           try {
             let tier = 0;
             if (uploadEncrypted) tier = 1;
-            receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
+
+            if(BICONOMY_UPLOAD_ENABLED){
+              receipt = await executeMetaTx('Creator', 'upload', [ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier], {contractAddress: currentCreator!.creatorContract});
+            }else{
+              receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
+              web3utils.setIsWaiting(true);
+              await receipt.wait(1);
+              console.log(receipt);
+            }            
           } catch (error: any) {
             notificationHandler.setNotification({
               description: 'Could not upload the content to your contract' + error.message,
@@ -185,11 +194,8 @@ const Upload = () => {
             web3utils.setIsWaiting(false);
             return;
           }
-          web3utils.setIsWaiting(true);
-          await receipt.wait(1);
           web3utils.setIsWaiting(false);
           notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'});
-          console.log(receipt);
         });
       })
       .catch(function (error) {
@@ -204,19 +210,6 @@ const Upload = () => {
       reader.onloadend = () => resolve(reader.result);
       reader.readAsDataURL(blob);
     });
-  }
-
-  function base64ToBlob(base64Data: string) {
-    const parts = base64Data.split(';base64,');
-    const contentType = parts[0].split(':')[1];
-    const decodedData = window.atob(parts[1]);
-
-    const uInt8Array = new Uint8Array(decodedData.length);
-    for (let i = 0; i < decodedData.length; ++i) {
-      uInt8Array[i] = decodedData.charCodeAt(i);
-    }
-
-    return new Blob([uInt8Array], { type: contentType });
   }
 
   async function encryptDescription(text: string){

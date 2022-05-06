@@ -2642,6 +2642,11 @@
             "internalType": "uint8",
             "name": "monthDistributionPercentage",
             "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
           }
         ],
         "stateMutability": "nonpayable",
@@ -2963,6 +2968,25 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "forwarder",
+            "type": "address"
+          }
+        ],
+        "name": "isTrustedForwarder",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "name",
         "outputs": [
@@ -3033,7 +3057,7 @@
         "inputs": [
           {
             "internalType": "address",
-            "name": "recipient",
+            "name": "to",
             "type": "address"
           },
           {
@@ -3057,12 +3081,12 @@
         "inputs": [
           {
             "internalType": "address",
-            "name": "sender",
+            "name": "from",
             "type": "address"
           },
           {
             "internalType": "address",
-            "name": "recipient",
+            "name": "to",
             "type": "address"
           },
           {
@@ -3080,6 +3104,32 @@
           }
         ],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "trustedForwarder",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "versionRecipient",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       }
     ],
@@ -6541,11 +6591,35 @@
             "internalType": "uint8",
             "name": "_reporterProfitPercentage",
             "type": "uint8"
+          },
+          {
+            "internalType": "address",
+            "name": "_trustedForwarder",
+            "type": "address"
           }
         ],
         "name": "initialize",
         "outputs": [],
         "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "forwarder",
+            "type": "address"
+          }
+        ],
+        "name": "isTrustedForwarder",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
         "type": "function"
       },
       {
@@ -6851,6 +6925,19 @@
         "type": "function"
       },
       {
+        "inputs": [],
+        "name": "trustedForwarder",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [
           {
             "internalType": "address",
@@ -6882,6 +6969,19 @@
         "type": "function"
       },
       {
+        "inputs": [],
+        "name": "versionRecipient",
+        "outputs": [
+          {
+            "internalType": "string",
+            "name": "",
+            "type": "string"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
         "inputs": [
           {
             "internalType": "string",
@@ -6907,6 +7007,6 @@
         "type": "function"
       }
     ],
-    "address": "0xFe06B1948FC7a4307138C7B0A6845802F15FCb45"
+    "address": "0x39D74f28D231Fc100AEd48a89dbdE24F10626307"
   }
 }

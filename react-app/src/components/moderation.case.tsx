@@ -7,7 +7,8 @@ import { Web3UtilsContext } from "../Web3Utils";
 import { NotificationHandlerContext } from "../ErrorHandler";
 import { Radio } from "../elements/radio";
 import { Button } from "../elements/button";
-import { CREATE_TOKEN_ADDRESS } from "../Config";
+import { BICONOMY_MODERATION_ENABLED, CREATE_TOKEN_ADDRESS } from "../Config";
+import { useMetaTx } from "../hooks/metatx";
 
 interface CaseProps {
     jurorDecision: any
@@ -20,6 +21,7 @@ export const Case: FC<CaseProps> = ({ jurorDecision }) => {
     const [userAddress, setUserAddress] = useState('');
     const [checkedOK, setCheckedOK] = useState(true);
     const [stakingSymbol, setStakingSymbol] = useState('');
+    const { executeMetaTx } = useMetaTx();
 
     useEffect(() => {
         (async function iife() {
@@ -53,12 +55,15 @@ export const Case: FC<CaseProps> = ({ jurorDecision }) => {
         const contentId = jurorDecision.moderationCase.content.id;
         const vote = (checkedOK) ? 2:3;
         try {
-            console.log('Voting data', contentId, vote);
-            await moderationContract.vote(contentId, vote);
-            moderationContract.once("JurorVoted", async (user, contentId, vote) => {
-                web3utils.setIsWaiting(false);
-                notificationHandler.setNotification({description: "Thanks for voting!", type: 'success'});
-            });
+            if(BICONOMY_MODERATION_ENABLED){
+                await executeMetaTx("Moderation", "vote", [contentId, vote]);
+            }else{
+                await moderationContract.vote(contentId, vote);
+                moderationContract.once("JurorVoted", async (user, contentId, vote) => {
+                    web3utils.setIsWaiting(false);
+                    notificationHandler.setNotification({description: "Thanks for voting!", type: 'success'});
+                });
+            }
         } catch(error: any) {
             web3utils.setIsWaiting(false);
             notificationHandler.setNotification({description: error.message.toString(), type: 'error'})

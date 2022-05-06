@@ -16,7 +16,8 @@ import { useCanBecomeCreator } from "../Whitelist";
 import { Splash } from "../components/splash";
 import { useParams } from "react-router-dom";
 import {Link} from "react-router-dom";
-import{ USDC_TOKEN_ADDRESS, DAI_TOKEN_ADDRESS, CREATE_TOKEN_ADDRESS} from "../Config";
+import{ USDC_TOKEN_ADDRESS, DAI_TOKEN_ADDRESS, CREATE_TOKEN_ADDRESS, BICONOMY_NFTLANCE_ENABLED} from "../Config";
+import { useMetaTx } from "../hooks/metatx";
 
 interface params {
   id: string;
@@ -29,6 +30,7 @@ export const Nftlance: FC = () => {
   const web3Context = useWeb3React();
   const web3utils = useContext(Web3UtilsContext);
   const notificationHandler = useContext(NotificationHandlerContext);
+  const { executeMetaTx } = useMetaTx();
   const [createCreatorsCollectionsVisible, setCreateCreatorsCollectionsVisible] = useState<boolean>(false);
   const [creatorCollectionsAddress, setCreatorCollectionsAddress] = useState<string | boolean>(false);
   const [createNftCatalogVisible, setCreateNftCatalogVisible] = useState<boolean>(false);
@@ -117,13 +119,22 @@ export const Nftlance: FC = () => {
 
     const nftlanceContract: Contract = new ethers.Contract(creaton_contracts.nftlance.address, creaton_contracts.nftlance.abi, signer);
     try {
-      nftlanceContract.deployCreatorCollection("", e.target.token.value);
-      nftlanceContract.once("DeployedCreatorCollection", async (creatorCollectionsAddress, fanCollectibleAddress, fanCollectibleURI, token) => {
-        setCreatorCollectionsAddress(creatorCollectionsAddress);
-        setCreateCreatorsCollectionsVisible(false);
-        web3utils.setIsWaiting(false);
-        notificationHandler.setNotification({ description: 'New Creator Collections deployed successfully!', type: 'success' });
-      });
+      if(BICONOMY_NFTLANCE_ENABLED){
+        executeMetaTx("NFTLance", "deployCreatorCollection", ["h", e.target.token.value], undefined, async() => {
+          setCreatorCollectionsAddress(creatorCollectionsAddress);
+          setCreateCreatorsCollectionsVisible(false);
+          web3utils.setIsWaiting(false);
+          notificationHandler.setNotification({ description: 'New Creator Collections deployed successfully!', type: 'success' });
+        });
+      }else{
+        nftlanceContract.deployCreatorCollection("", e.target.token.value);
+        nftlanceContract.once("DeployedCreatorCollection", async (creatorCollectionsAddress, fanCollectibleAddress, fanCollectibleURI, token) => {
+          setCreatorCollectionsAddress(creatorCollectionsAddress);
+          setCreateCreatorsCollectionsVisible(false);
+          web3utils.setIsWaiting(false);
+          notificationHandler.setNotification({ description: 'New Creator Collections deployed successfully!', type: 'success' });
+        });
+      }
     } catch (error: any) {
       web3utils.setIsWaiting(false);
       notificationHandler.setNotification({ description: error.toString(), type: 'error' })

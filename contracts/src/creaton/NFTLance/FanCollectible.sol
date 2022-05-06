@@ -3,7 +3,9 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract FanCollectible is ERC1155, Ownable {
+import "../../dependency/gsn/BaseRelayRecipient.sol";
+
+contract FanCollectible is ERC1155, Ownable, BaseRelayRecipient  {
     uint256 private _currentTokenID = 0;
     address private _minter; //I was wrong! this is actually *very* important, and needs to be the address of the controlling contract!
     
@@ -22,8 +24,9 @@ contract FanCollectible is ERC1155, Ownable {
     event Minted(address to, uint256 id, bytes data);
     event RequestDataSet(string cardID, uint256 indexed tokenID, string collectibleRequestData);
 
-    constructor(string memory _uri) ERC1155(_uri) {
+    constructor(string memory _uri, address _trustedForwarder) ERC1155(_uri) {
         _minter = msg.sender;
+        trustedForwarder = _trustedForwarder;
     }
 
     /**
@@ -137,4 +140,17 @@ contract FanCollectible is ERC1155, Ownable {
         return collectibleURI[_tokenId];
     }
 
+    function versionRecipient() external view virtual override returns (string memory) {
+        return "2.2.3-matic";
+    }
+
+    function _msgSender() internal view override(Context, BaseRelayRecipient)
+        returns (address sender) {
+        sender = BaseRelayRecipient._msgSender();
+    }
+
+    function _msgData() internal view override(Context, BaseRelayRecipient)
+        returns (bytes memory) {
+        return BaseRelayRecipient._msgData();
+    }
 }

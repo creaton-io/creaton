@@ -1,35 +1,39 @@
 [
   {
-    "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "previousAdmin",
+        "name": "sfHost",
         "type": "address"
       },
       {
-        "indexed": false,
         "internalType": "address",
-        "name": "newAdmin",
+        "name": "sfCfa",
         "type": "address"
-      }
-    ],
-    "name": "AdminChanged",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
+      },
       {
-        "indexed": true,
         "internalType": "address",
-        "name": "beacon",
+        "name": "sfSuperTokenFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "sfResolver",
+        "type": "address"
+      },
+      {
+        "internalType": "string",
+        "name": "sfVersion",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_trustedForwarder",
         "type": "address"
       }
     ],
-    "name": "BeaconUpgraded",
-    "type": "event"
+    "stateMutability": "nonpayable",
+    "type": "constructor"
   },
   {
     "anonymous": false,
@@ -112,19 +116,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "implementation",
-        "type": "address"
-      }
-    ],
-    "name": "Upgraded",
-    "type": "event"
-  },
-  {
     "inputs": [
       {
         "internalType": "contract ERC20WithTokenInfo",
@@ -164,6 +155,11 @@
         "internalType": "address",
         "name": "stakingTokenAddress",
         "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "monthDistributionPercentage",
+        "type": "uint8"
       }
     ],
     "name": "deployReaction",
@@ -188,6 +184,11 @@
         "internalType": "address",
         "name": "token",
         "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "monthDistributionPercentage",
+        "type": "uint8"
       }
     ],
     "name": "getStakedFlow",
@@ -223,39 +224,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "sfHost",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "sfCfa",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "sfSuperTokenFactory",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "sfResolver",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "sfVersion",
-        "type": "string"
-      }
-    ],
-    "name": "initialize",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "contract ERC20WithTokenInfo",
         "name": "_token",
         "type": "address"
@@ -270,6 +238,38 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "forwarder",
+        "type": "address"
+      }
+    ],
+    "name": "isTrustedForwarder",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_trustedForwarder",
+        "type": "address"
+      }
+    ],
+    "name": "setTrustedForwarder",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -292,34 +292,29 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "trustedForwarder",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "newImplementation",
+        "name": "",
         "type": "address"
       }
     ],
-    "name": "upgradeTo",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "versionRecipient",
+    "outputs": [
       {
-        "internalType": "address",
-        "name": "newImplementation",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes",
-        "name": "data",
-        "type": "bytes"
+        "internalType": "string",
+        "name": "",
+        "type": "string"
       }
     ],
-    "name": "upgradeToAndCall",
-    "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "view",
     "type": "function"
   }
 ]

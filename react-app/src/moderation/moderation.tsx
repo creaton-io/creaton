@@ -8,9 +8,10 @@ import { Input } from "../elements/input";
 import { NotificationHandlerContext } from "../ErrorHandler";
 import creaton_contracts from "../Contracts";
 import { gql, useQuery } from "@apollo/client";
-import { CREATE_TOKEN_ADDRESS } from "../Config";
+import { BICONOMY_MODERATION_ENABLED, CREATE_TOKEN_ADDRESS } from "../Config";
 import { Case } from "../components/moderation.case";
 import { ReportedCase } from "../components/moderation.reportedcase";
+import { useMetaTx } from "../hooks/metatx";
 
 interface params {
     id: string;
@@ -26,6 +27,7 @@ export const Moderation: FC = () => {
     const [becomeAJurorVisible, setBecomeAJurorVisible] = useState(false);
     const [stakingTokenSymbol, setStakingTokenSymbol] = useState("");
     const [juror, setJuror] = useState<any>();
+    const { executeMetaTx } = useMetaTx();
 
     useEffect(() => {
         (async function iife() {
@@ -121,7 +123,6 @@ export const Moderation: FC = () => {
 
         const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
  
-        const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
         try {
             // Allowance
             const erc20Contract: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
@@ -137,22 +138,23 @@ export const Moderation: FC = () => {
             }
 
             const allowance = await erc20Contract.allowance(userAddress, creaton_contracts.moderation.address);
+            let tx: any;
             if(stakingAmount.gt(allowance)){
-                let tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
-                await tx.wait();
-                let receipt = await tx.wait();
-                receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
-                if(receipt.length == 0){
-                    throw Error('Error allowing token for staking');
+                if(BICONOMY_MODERATION_ENABLED){
+                    tx = await executeMetaTx('erc20Contract', 'approve', [creaton_contracts.moderation.address, stakingAmount], {contractAddress: CREATE_TOKEN_ADDRESS as string}, async (tx:any) => {
+                        await addJuror(stakingAmount);
+                    });
+                }else{
+                    tx = await erc20Contract.approve(creaton_contracts.moderation.address, stakingAmount);
+                    await tx.wait();
+                    let receipt = await tx.wait();
+                    receipt = receipt.events?.filter((x: any) => {return x.event == "Approval"})[0];
+                    if(receipt.length == 0){
+                        throw Error('Error allowing token for staking');
+                    }
+                    await addJuror(stakingAmount);
                 }
             }
-
-            await moderationContract.addJuror(stakingAmount);
-            moderationContract.once("JurorAdded", async (user, stake) => {
-                setBecomeAJurorVisible(false);
-                web3utils.setIsWaiting(false);
-                notificationHandler.setNotification({description: "Congratulations! You just become a Juror!", type: 'success'});
-            });
         } catch(error: any) {
             web3utils.setIsWaiting(false);
             notificationHandler.setNotification({description: error.message.toString(), type: 'error'})
@@ -160,20 +162,47 @@ export const Moderation: FC = () => {
         }
     }
 
+    async function addJuror(stakingAmount){
+        const provider = web3Context.provider as Web3Provider;
+        if(!provider || !userAddress) return;
+
+        const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
+        const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
+        if(BICONOMY_MODERATION_ENABLED){
+            await executeMetaTx("Moderation", "addJuror", [stakingAmount], undefined, async (receipt: any) => {
+                setBecomeAJurorVisible(false);
+                web3utils.setIsWaiting(false);
+                notificationHandler.setNotification({description: "Congratulations! You just become a Juror!", type: 'success'});
+            });
+        }else{
+            await moderationContract.addJuror(stakingAmount);
+            moderationContract.once("JurorAdded", async (user, stake) => {
+                setBecomeAJurorVisible(false);
+                web3utils.setIsWaiting(false);
+                notificationHandler.setNotification({description: "Congratulations! You just become a Juror!", type: 'success'});
+            });
+        }   
+    }
     async function removeJuror() {
         web3utils.setIsWaiting(true);
         const provider = web3Context.provider as Web3Provider;
         if(!provider || !userAddress) return;
 
         const signer: ethers.providers.JsonRpcSigner = provider!.getSigner();
- 
         const moderationContract: Contract = new ethers.Contract(creaton_contracts.moderation.address, creaton_contracts.moderation.abi, signer);
         try {
-            await moderationContract.removeJuror();
-            moderationContract.once("JurorRemoved", async (juror, unstaked) => {
-                web3utils.setIsWaiting(false);
-                notificationHandler.setNotification({description: ethers.utils.formatEther(unstaked)+" $" + stakingTokenSymbol + " unstaked. You are not a Juror anymore.", type: 'success'});
-            });
+            if(BICONOMY_MODERATION_ENABLED){
+                let tx = await executeMetaTx("Moderation", "removeJuror", [], undefined, () => {
+                    web3utils.setIsWaiting(false);
+                    notificationHandler.setNotification({description: " $" + stakingTokenSymbol + " unstaked. You are not a Juror anymore.", type: 'success'});
+                });
+            }else{
+                await moderationContract.removeJuror();
+                moderationContract.once("JurorRemoved", async (juror, unstaked) => {
+                    web3utils.setIsWaiting(false);
+                    notificationHandler.setNotification({description: ethers.utils.formatEther(unstaked)+" $" + stakingTokenSymbol + " unstaked. You are not a Juror anymore.", type: 'success'});
+                });
+            }
         } catch(error: any) {
             web3utils.setIsWaiting(false);
             notificationHandler.setNotification({description: error.message.toString(), type: 'error'})
@@ -203,7 +232,7 @@ export const Moderation: FC = () => {
             {moderationData && <div className="text-white">
                 <p className="text-5xl pt-12 pb-6 pl-6 m-auto">Moderation Panel</p>
 
-                { moderationData.cases && juror && <div className="flex flex-col text-left rounded-2xl border border-opacity-10 bg-white bg-opacity-5 p-5 my-10">
+                { juror && <div className="flex flex-col text-left rounded-2xl border border-opacity-10 bg-white bg-opacity-5 p-5 my-10">
                     <h4 className="text-lg font-semibold text-white">
                         Initially Staked: <span className="font-normal">{`${ethers.utils.formatEther(juror.initialStaked)} $${stakingTokenSymbol}`}</span>
                     </h4>

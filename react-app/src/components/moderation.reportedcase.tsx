@@ -1,12 +1,8 @@
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import { Contract, ethers } from "ethers";
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import creaton_contracts from "../Contracts";
-import { Web3UtilsContext } from "../Web3Utils";
-import { NotificationHandlerContext } from "../ErrorHandler";
-import { Radio } from "../elements/radio";
-import { Button } from "../elements/button";
 import { CREATE_TOKEN_ADDRESS } from "../Config";
 
 interface ReportedContentProps {
