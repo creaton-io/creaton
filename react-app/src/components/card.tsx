@@ -301,14 +301,6 @@ export const Card: FC<ButtonProps> = ({
                       }
                       hover
                     >
-              <div className=" mr-5 ">
-                <Icon
-                  onClick={onLike}
-                  name="heart"
-                  className={clsx('cursor-pointer', isLiked ? 'text-green-500' : 'text-white')}
-                />
-                <span className="ml-2 text-white">{likeCount}</span>
-              </div>
 
               { REACTION_TOKENS_ENABLED && <div className=" mr-5 ">
                 {!reacting && !hasReacted && 

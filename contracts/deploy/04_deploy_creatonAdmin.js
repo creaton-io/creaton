@@ -18,11 +18,11 @@ const func = async function (hre) {
   });
   await sf.initialize();
 
-  // function sleep(ms) {
-  //   return new Promise((resolve) => {
-  //     setTimeout(resolve, ms);
-  //   });
-  // }
+  function sleep(ms) {
+    return new Promise((resolve) => {
+      setTimeout(resolve, ms);
+    });
+  }
 
   // console.log('NFTFactory Deploy');
   // const nftFactory = await deploy('NFTFactory', {
@@ -57,11 +57,11 @@ const func = async function (hre) {
   //   address: nftLanceFactory.address,
   // });
 
-  // console.log('CreatorV1');
-  // let implementationContract = await deploy('CreatorV1', {
-  //   from: admin,
-  //   log: true,
-  // });
+  console.log('CreatorV1');
+  let implementationContract = await deploy('CreatorV1', {
+    from: admin,
+    log: true,
+  });
 
   // console.log('CreatorBeaconnnn');
   // await deploy('CreatorBeacon', {
@@ -75,7 +75,7 @@ const func = async function (hre) {
   //   from: admin,
   //   log: true,
   // });
-  // await sleep(10000);
+   await sleep(3000);
 
   const trustedforwarder =
     network.chainId === 137

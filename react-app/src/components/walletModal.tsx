@@ -7,8 +7,8 @@ import {Icon} from '../icons';
 import {Button} from '../elements/button';
 import {ExclamationIcon, XIcon} from '@heroicons/react/outline';
 
-export default function WalletModal() {
-  const [open, setOpen] = useState(false);
+export default function WalletModal({openBool = false, embed = false}) {
+  const [open, setOpen] = useState(openBool);
   const web3utils = useContext(Web3UtilsContext);
 
   const EmailInput = () => {
@@ -189,7 +189,8 @@ export default function WalletModal() {
           </div>
         </Dialog>
       </Transition.Root>
-      <div>
+
+      <div className={embed ? "hidden" : ""}>
         <Button label="Connect Wallet" theme="secondary" onClick={() => setOpen(true)}></Button>
       </div>
     </div>

@@ -169,7 +169,7 @@ const App = () => {
                                 </div>
                               )}
                               <ChainIdChecker />
-                              <div className={value.disableInteraction ? 'filter blur-sm h-full' : 'h-full'}>
+                              <div className='h-full'>
                                 <Switch>
                                   <Route exact path="/">
                                     <Discovery />

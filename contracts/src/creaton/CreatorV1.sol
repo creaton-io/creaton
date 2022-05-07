@@ -22,6 +22,8 @@ import {
 
 import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
+import { IUnlock, IPublicLock } from "./unlock/IUnlock.sol";
+
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Errors
@@ -58,6 +60,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     address public creator;
     ICreatonAdmin adminContract;
     NFTFactory nftFactory;
+    IUnlock unlockProtocol;
+    address public unlockLock;
 
     string public description;
     int96 public subscriptionPrice;
@@ -84,7 +88,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         string memory nftSymbol,
         address _trustedForwarder
     ) public payable initializer {
-        admin = msg.sender;
+        admin = _msgSender();
 
         assert(address(host) != address(0));
         assert(address(cfa) != address(0));
@@ -107,7 +111,23 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
 
+        unlockProtocol = IUnlock(0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f); //Polygon v10
+
+        uint256 version = unlockProtocol.unlockVersion();
+        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
+        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, address(acceptedToken), 0, 10000000, nftName, salt));
+        lock.addLockManager(_msgSender());
+        lock.addKeyGranter(_msgSender());
+        lock.setEventHooks(address(this), address(this));
+        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
+        lock.updateLockSymbol(nftSymbol); // TODO: change?
+        unlockLock = address(lock);
+        // TODO: config the lock: symbol, image, callbacks, etc. -- need Lock interface
+        //Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
+
+        //Creator subscribes to themselves
         _addSubscriber(creator);
+        grantKeys(creator);
     }
 
     // -----------------------------------------
@@ -296,9 +316,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
         int96 contract2treasuryDelta = contractFlowRate - contract2creatorDelta;
 
-        //TODO: does not work, probably need to batch transfer also for best UX
-        //_acceptedToken.approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
-        //_acceptedToken.transfer(creator, uint256(uint96(subscriptionPrice)));
+        //Grant Unlock NFT and key to subscriber
+        grantKeys(context.msgSender);
 
         if (subscriberCount == 1) {
             //creator are subscribed to themselves already
@@ -344,6 +363,12 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function _unsubscribe(bytes calldata ctx) private returns (bytes memory newCtx) {
         address sender = _host.decodeCtx(ctx).msgSender;
 
+        //delete Unlock NFT key (Unlock NFT do not get burned)
+        IPublicLock lock = IPublicLock(unlockLock);
+        if (lock.getHasValidKey(sender)) {
+            lock.expireAndRefundFor(sender, 0);
+        }
+
         _delSubscriber(sender);
         
         if (subscriberCount == 1) {
@@ -363,6 +388,19 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
                 contract2treasuryCurrent + contract2treasuryDelta
             );
         }
+    }
+
+    function grantKeys(address msgSender) internal {
+        IPublicLock lock = IPublicLock(unlockLock);
+        address[] memory _recipients = new address[](1);
+        uint[] memory _expirationTimestamps = new uint[](1);
+        address[] memory _keyManagers = new address[](1);
+        _recipients[0] = msgSender;
+        _expirationTimestamps[0] = 2236879077;
+        _keyManagers[0] = address(this);
+        //bool isManager = lock.isLockManager(address(this));
+        //bool isGranter = lock.isKeyGranter(address(this));
+        lock.grantKeys(_recipients, _expirationTimestamps, _keyManagers);
     }
 
     // -----------------------------------------
@@ -452,7 +490,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
 
     modifier onlyHost() {
-        require(msg.sender == address(_host), "CreatonSuperApp: support only one host");
+        require(_msgSender() == address(_host), "CreatonSuperApp: support only one host");
         _;
     }
 

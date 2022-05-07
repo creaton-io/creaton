@@ -13,6 +13,8 @@ import {NotificationHandlerContext} from "./ErrorHandler";
 import {Web3UtilsContext, Web3UtilsProviderContext} from "./Web3Utils";
 import { CeramicProvider } from "./CeramicProvider";
 import { useMetaTx } from "./hooks/metatx";
+import {Example} from './components/error-notification';
+import WalletModal from './components/walletModal';
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React()
@@ -128,17 +130,13 @@ const ProfileEdit = (props) => {
         refetch()
       }
     } catch (error: any) {
-      web3utils.setIsWaiting(false);
-      notificationHandler.setNotification({
-        description: 'Could not create your profile' + error.message,
-        type: 'error'
-      });
-      return;
+
+      return (<Example/>);
     }
   }
 
   if (!web3Context.isActive)
-    return (<div>Connect your wallet</div>)
+    return (<WalletModal openBool={true} embed={true}/>)
 
   return (
     // <CeramicProvider>

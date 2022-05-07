@@ -173,7 +173,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     matic: {
-      url: 'https://matic-mainnet--jsonrpc.datahub.figment.io/apikey/' + process.env.FIGMENT_TOKEN,
+      url: 'https://polygon-rpc.com',
       accounts,
     },
   },

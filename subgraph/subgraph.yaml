@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: matic
     source:
-      address: "0x1C35671C0ff32e51714611e39B82Cb57c4085034" #CreatonAdminAddress Do not remove this comment
+      address: "0x3C308C265aAd515EF7b2BcfF9eA221499F986dDC" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 25732304
     mapping:

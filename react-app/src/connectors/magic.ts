@@ -2,7 +2,7 @@ import { initializeConnector } from '@web3-react/core'
 import { Magic } from '@web3-react/magic'
 
 const customNodeOptions = {
-  rpcUrl: 'https://rpc-mumbai.maticvigil.com/', // Polygon RPC URL
+  rpcUrl: 'https://rpc-mumbai.matic.today/', // Polygon RPC URL
   chainId: 80001 // Polygon chain id
 }
 

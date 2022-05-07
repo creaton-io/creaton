@@ -23,6 +23,7 @@ import {ExecutableDefinitionsRule} from 'graphql';
 import {Editor} from '@tinymce/tinymce-react';
 import {Splash} from './components/splash';
 import { useMetaTx } from './hooks/metatx';
+import WalletModal from './components/walletModal';
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -63,8 +64,7 @@ const Upload = () => {
 
   const notificationHandler = useContext(NotificationHandlerContext);
   const litNode = useContext(LitContext);
-  if (!context.isActive) return <div>Not connected</div>;
-  if (!canBecomeCreator) return <div>Not allowed, you are not whitelisted</div>;
+  if (!context.isActive) return (<WalletModal openBool={true} embed={true}/>);
   if (loading) return <Splash src="https://assets5.lottiefiles.com/packages/lf20_bkmfzg9t.json"></Splash>;
   if (currentCreator === undefined) return <SignUp />;
   if (!litNode) return <div>Lit Node not loaded yet</div>;
