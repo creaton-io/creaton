@@ -55,7 +55,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         expect(await protoTeam.balanceOf(teamMember.address)).to.equal(ethers.utils.parseEther("63072"));
 
         await protoTeam.connect(teamMember).approve(redeemCreate.address, ethers.utils.parseEther("63072"));
-        await redeemCreate.connect(teamMember).startTeamStream(ethers.utils.parseEther("63072"));
+        await redeemCreate.connect(teamMember).startTeamStream(ethers.utils.parseEther("63072"), teamMember.address);
 
         await timeTravel(365*2*24*60*60+ 10 + 180*86400);//2 years
         console.log(await sablierContract.balanceOf(100000, teamMember.address));
@@ -72,7 +72,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoAdvisor.balanceOf(advisorMember.address)).to.equal(ethers.utils.parseEther("262656"));
         await protoAdvisor.connect(advisorMember).approve(redeemCreate.address, ethers.utils.parseEther("262656"));
-        await redeemCreate.connect(advisorMember).startAdvisorStream(ethers.utils.parseEther("262656"));
+        await redeemCreate.connect(advisorMember).startAdvisorStream(ethers.utils.parseEther("262656"), advisorMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//2 years
         console.log(await sablierContract.balanceOf(100000, advisorMember.address));
@@ -88,7 +88,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoAmbassador.balanceOf(ambassadorMember.address)).to.equal(ethers.utils.parseEther("262656"));
         await protoAmbassador.connect(ambassadorMember).approve(redeemCreate.address, ethers.utils.parseEther("262656"));
-        await redeemCreate.connect(ambassadorMember).startAmbassadorStream(ethers.utils.parseEther("262656"));
+        await redeemCreate.connect(ambassadorMember).startAmbassadorStream(ethers.utils.parseEther("262656"), ambassadorMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//2 years
         console.log(await sablierContract.balanceOf(100000, ambassadorMember.address));
@@ -104,7 +104,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoSeed.balanceOf(seedMember.address)).to.equal(ethers.utils.parseEther("209952"));
         await protoSeed.connect(seedMember).approve(redeemCreate.address, ethers.utils.parseEther("209952"));
-        await redeemCreate.connect(seedMember).startSeedStream(ethers.utils.parseEther("209952"));
+        await redeemCreate.connect(seedMember).startSeedStream(ethers.utils.parseEther("209952"), seedMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//2 years
         console.log(await sablierContract.balanceOf(100000, seedMember.address));
@@ -120,7 +120,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoPrivate.balanceOf(privateMember.address)).to.equal(ethers.utils.parseEther("104544"));
         await protoPrivate.connect(privateMember).approve(redeemCreate.address, ethers.utils.parseEther("104544"));
-        await redeemCreate.connect(privateMember).startPrivateStream(ethers.utils.parseEther("104544"));
+        await redeemCreate.connect(privateMember).startPrivateStream(ethers.utils.parseEther("104544"), privateMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//1 year
         console.log(await sablierContract.balanceOf(100000, privateMember.address));
@@ -137,7 +137,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         expect(await protoTeam.balanceOf(teamMember.address)).to.equal(ethers.utils.parseEther("1"));
 
         await protoTeam.connect(teamMember).approve(redeemCreate.address, ethers.utils.parseEther("1"));
-        await redeemCreate.connect(teamMember).startTeamStream(ethers.utils.parseEther("1"));
+        await redeemCreate.connect(teamMember).startTeamStream(ethers.utils.parseEther("1"), teamMember.address);
 
         await timeTravel(365*2*24*60*60+ 10 + 180*86400);//2 years
         // console.log(await sablierContract.balanceOf(100000, teamMember.address));
@@ -157,7 +157,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoAdvisor.balanceOf(advisorMember.address)).to.equal(ethers.utils.parseEther("1.5"));
         await protoAdvisor.connect(advisorMember).approve(redeemCreate.address, ethers.utils.parseEther("1.5"));
-        await redeemCreate.connect(advisorMember).startAdvisorStream(ethers.utils.parseEther("1.5"));
+        await redeemCreate.connect(advisorMember).startAdvisorStream(ethers.utils.parseEther("1.5"), advisorMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//2 years
         // console.log(await sablierContract.balanceOf(100000, advisorMember.address));
@@ -175,7 +175,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoAmbassador.balanceOf(ambassadorMember.address)).to.equal(ethers.utils.parseEther("1.5"));
         await protoAmbassador.connect(ambassadorMember).approve(redeemCreate.address, ethers.utils.parseEther("1.5"));
-        await redeemCreate.connect(ambassadorMember).startAmbassadorStream(ethers.utils.parseEther("1.5"));
+        await redeemCreate.connect(ambassadorMember).startAmbassadorStream(ethers.utils.parseEther("1.5"), ambassadorMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//2 years
         console.log(await sablierContract.balanceOf(100000, ambassadorMember.address));
@@ -192,7 +192,7 @@ describe('Redeeming Create For Investors Based On Proto Create', function(){
         //just confirm that it transferred correctly.
         expect(await protoPrivate.balanceOf(privateMember.address)).to.equal(ethers.utils.parseEther("104544"));
         await protoPrivate.connect(privateMember).approve(redeemCreate.address, ethers.utils.parseEther("104544"));
-        await redeemCreate.connect(privateMember).startPrivateStream(ethers.utils.parseEther("104544"));
+        await redeemCreate.connect(privateMember).startPrivateStream(ethers.utils.parseEther("104544"), privateMember.address);
 
         await timeTravel(365*2*24*60*60+ 10);//1 year
         console.log(await sablierContract.balanceOf(100000, privateMember.address));
