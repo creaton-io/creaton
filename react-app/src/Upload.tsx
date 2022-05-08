@@ -24,6 +24,7 @@ import {Editor} from '@tinymce/tinymce-react';
 import {Splash} from './components/splash';
 import { useMetaTx } from './hooks/metatx';
 import WalletModal from './components/walletModal';
+import DanteEditor from './assets/dante3';
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -48,7 +49,7 @@ const Upload = () => {
   };
   const fileInput = React.createRef<any>();
   const [ffmpeg, setffmpeg] = useState<any>(undefined);
-  const [editorInit, setEditorInit] = useState<boolean>(false);
+  const [editorInit, setEditorInit] = useState<boolean>(true);
   useEffect(() => {
     ;(async () => {
       if (ffmpeg === undefined) {
@@ -398,7 +399,7 @@ const Upload = () => {
             <label className="block font-semibold mb-1">Description</label>
           </div>
 
-          <Editor
+          {/* <Editor
             apiKey="onu4668y0hkvss8rf10j9bfaz4ijluey87k92e4z0fqstj6w"
             initialValue="<p></p>"
             init={{
@@ -421,7 +422,11 @@ const Upload = () => {
             }}
             onChange={(e) => encryptDescription(e.target.getContent())}
             onInit={(e) => setEditorInit(true)}
-          />
+          /> */}
+          <span className="w-3/4">
+            <DanteEditor 
+              content={'hello world'} widgets={undefined} theme={undefined} fixed={true} onUpdate={undefined} readOnly={undefined} bodyPlaceholder={undefined} extensions={undefined}          />
+          </span>
         </div>
 
         <div className="w-full m-5">
@@ -436,7 +441,7 @@ const Upload = () => {
             type="file"
             ref={fileInput}
           />
-          <Button label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
+          <Button className="max-w-36" label="Choose file" type="button" onClick={() => fileInput.current.click()}></Button>
           <small className="text-white">{currentFile ? currentFile.name || 'Error' : 'No file chosen'}</small>
           {currentFile?.type === 'video/mp4' && ffmpeg !== undefined && (
             <div className="w-full m-5 hidden">
