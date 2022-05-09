@@ -1,3 +1,5 @@
+/* ****************** IMPORTS ****************** */
+
 import {useParams} from 'react-router-dom';
 import React, {CSSProperties, useContext, useEffect, useState} from 'react';
 import {useWeb3React} from '@web3-react/core';
@@ -29,6 +31,12 @@ import ScriptTag from 'react-script-tag';
 import {captureRejectionSymbol} from 'stream';
 import CyberConnect, {Env, Blockchain} from '@cyberlab/cyberconnect';
 import { useMetaTx } from './hooks/metatx';
+
+
+
+
+
+/* ****************** GRAPH QUERIES ****************** */
 
 interface params {
   id: string;
@@ -120,6 +128,12 @@ export function Creator() {
     pollInterval: 500,
   });
 
+
+
+
+
+/* ****************** USECONTEXT ****************** */
+
   //const textile = useContext(TextileContext)
   const litNode = useContext(LitContext);
   const notificationHandler = useContext(NotificationHandlerContext);
@@ -128,6 +142,12 @@ export function Creator() {
   const provider = context.provider as Web3Provider;
   const { executeMetaTx } = useMetaTx();
 
+
+
+
+
+/* ****************** FOLLOWING ****************** */ 
+
   let isFollowing = false;
   followersData?.identity?.followers?.list?.map((item) => {
     if (item.address === context.account) {
@@ -135,6 +155,12 @@ export function Creator() {
     }
     return;
   });
+
+
+
+
+
+/* ****************** SET STATES ****************** */
 
   const contentsQuery = useQuery(CONTENTS_QUERY, {variables: {user: creatorContractAddress}, pollInterval: 10000});
   function updateContentsQuery() {
@@ -161,6 +187,12 @@ export function Creator() {
   const [reportErc20Available, setReportErc20Available] = useState<string>();
   const [reportErc20Symbol, setReportErc20Symbol] = useState<string>();
   const [cyberConnect, setCyberConnect] = useState<CyberConnect>();
+
+
+
+
+
+/* ****************** SUPERFLUID, SUBSCRIBE ****************** */
 
   async function getUsdcx() {
     if (!superfluid) return;
@@ -189,6 +221,12 @@ export function Creator() {
   //let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
 
   const canDecrypt = isSelf || subscription === 'subscribed';
+
+
+
+
+
+/* ****************** DOWNLOADING ****************** */
 
   useEffect(() => {
     if (contentsQuery.loading || contentsQuery.error) return;
@@ -222,6 +260,13 @@ export function Creator() {
       }
     }
   }, [downloadStatus, canDecrypt]);
+
+
+
+
+
+
+/* ****************** BALANCE, STREAMING ****************** */
 
   useEffect(() => {
     (async function iife() {
@@ -346,6 +391,12 @@ export function Creator() {
     console.log('unsubscribed');
   }
 
+
+
+
+
+/* ****************** CONTENT ****************** */
+
   async function decrypt(content) {
     //if (content.ipfs.startsWith('/ipfs'))
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
@@ -462,6 +513,12 @@ export function Creator() {
     } else return;
   }
 
+
+
+
+
+/* ****************** SUBSCRIBE ****************** */
+
   async function subscribe() {
     if (!web3utils.isSignedUp()) return;
     const creatorContract = new Contract(creatorContractAddress, creaton_contracts.Creator.abi).connect(
@@ -473,6 +530,12 @@ export function Creator() {
     web3utils.setIsWaiting(false);
     notificationHandler.setNotification({description: 'Sent subscription request', type: 'success'});
   }
+
+
+
+
+
+/* ****************** MODERATION ****************** */
 
   async function reportForModeration(content, amount, file, callback){
     if(!MODERATION_ENABLED) return;
@@ -665,6 +728,12 @@ export function Creator() {
     }
   }
 
+
+
+
+
+/* ****************** SUBSCRIBE BUTTON ****************** */ 
+
   function generateButton() {
     let isSelf = currentCreator && currentCreator.creatorContract === creatorContractAddress;
 
@@ -689,6 +758,12 @@ export function Creator() {
       </div>
     );
   }
+
+
+
+
+
+/* ****************** PROFILE PIC, CSS ****************** */
 
   function getCoverPhotoUrl() {
     let cover_url = JSON.parse(contractQuery.data.creators[0].profile.data).cover;
@@ -731,6 +806,13 @@ export function Creator() {
           </svg>
         </Link>
       </div>
+
+
+
+
+
+{/* ****************** USERNAME, DISCRIPTION ****************** */}
+
       <div className="flex flex-col max-w-5xl my-0 pt-20 mx-auto text-center py-5 text-center">
         <h3 className="text-l font-bold text-white">
           {contractQuery.data.creators[0].profile !== null
@@ -742,6 +824,9 @@ export function Creator() {
           
           
 
+
+
+{/* ****************** SUBSCRIBE BUTTON ****************** */}
 
           <h1 className="text-white text-2xl">
             {followersData?.identity?.followerCount} <br/>
@@ -786,12 +871,24 @@ export function Creator() {
           </>
           )}
 
+
+
+
+
+{/* ****************** NFTLANCE BUTTON ****************** */}
+
           { NFTLANCE_ENABLED && <Link to={'/nftlance/'+contractQuery.data.creators[0].id}>
             <Button className="mt-5" label={'Check NFTLance Profile'} />
           </Link>}
  
           {generateButton()}
         </div>
+
+
+
+
+
+{/* ****************** POSTS ****************** */}
 
         <h1 className="mb-5 text-2xl font-bold text-white">
           {contents.length === 0 ? 'No posts yet!' : 'Latest posts'}
