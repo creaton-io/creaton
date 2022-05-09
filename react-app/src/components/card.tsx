@@ -1,3 +1,5 @@
+/* ****************** IMPORTS ****************** */
+
 import React, {ButtonHTMLAttributes, FC, useContext, useEffect, useState} from 'react';
 import {Icon} from '../icons';
 import clsx from 'clsx';
@@ -11,6 +13,12 @@ import { LinkPreview } from '@dhaiwat10/react-link-preview';
 import { MODERATION_ENABLED, REACTION_TOKENS_ENABLED } from '../Config';
 import { Button } from '../elements/button';
 import Tooltip from '../elements/tooltip';
+
+
+
+
+
+/* ****************** GRAPH DATA ****************** */
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   className?: string;
@@ -86,6 +94,12 @@ export const Card: FC<ButtonProps> = ({
   const [fileName, setFileName] = useState('');
   const [currentFile, setCurrentFile] = useState<File | undefined>(undefined);
 
+
+
+
+
+/* ****************** MODAL ****************** */
+
   function showAmountModal(e) {
     hideAllAmountModal();
     e.target.parentElement.parentElement.getElementsByClassName('reactAmount')[0].classList.remove('hidden');
@@ -137,6 +151,12 @@ export const Card: FC<ButtonProps> = ({
     }
   }
   
+
+
+
+
+/* ****************** SUBSCRIPTION AND ENCRYPTION ****************** */
+
   function base64ToBlob(base64Data: string) {
     const parts = base64Data.split(';base64,');
     const contentType = parts[0].split(':')[1];
@@ -277,6 +297,13 @@ export const Card: FC<ButtonProps> = ({
         </div>
       </div>
     );
+
+
+
+
+
+/* ****************** FILE URL ****************** */
+
   return (
     <div className="mb-5">
       <div className="flex flex-col rounded-2xl border border-gray-100/10 pr-8 pl-8 pb-8 bg-white bg-opacity-5 filter shadow-md hover:shadow-lg">
@@ -301,6 +328,12 @@ export const Card: FC<ButtonProps> = ({
                       }
                       hover
                     >
+
+
+
+
+                      
+{/* ****************** REACTION TOKENS ****************** */}
 
               { REACTION_TOKENS_ENABLED && <div className=" mr-5 ">
                 {!reacting && !hasReacted && 
