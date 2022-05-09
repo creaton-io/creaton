@@ -134,7 +134,7 @@ export default function MenuBar({ editor, fixed }) {
         <div className="dante-menu-linkinput" style={{ width: `${11 * 43}px` }}>
           <input
             className="dante-menu-input"
-            placeholder={"put your souce here"}
+            placeholder={"Put your source here"}
             onKeyPress={handleInputEnter}
             //defaultValue={ this.getDefaultValue() }
           />

@@ -425,7 +425,7 @@ const Upload = () => {
           /> */}
           <span className="w-3/4">
             <DanteEditor 
-              content={'hello world'} widgets={undefined} theme={undefined} fixed={true} onUpdate={undefined} readOnly={undefined} bodyPlaceholder={undefined} extensions={undefined}          />
+              content={'Write cool stuff here...'} widgets={undefined} theme={undefined} fixed={undefined} onUpdate={(e) => encryptDescription(e.target.getContent())} readOnly={undefined} bodyPlaceholder={undefined} extensions={undefined}          />
           </span>
         </div>
 
