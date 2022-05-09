@@ -1,3 +1,5 @@
+/* ****************** IMPORTS ****************** */
+
 import {useEffect, useRef, useState} from 'react';
 import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
@@ -37,7 +39,19 @@ import { hooks as magicHooks, magic } from './connectors/magic';
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { BiconomyProvider } from './contexts/Biconomy';
 
+
+
+
+
+/* ****************** FONT AND ICONS ****************** */
+
 initFontAwesome();
+
+
+
+
+
+/* ****************** CONNECTION ****************** */
 
 const connectors: [MetaMask | Magic | Network, Web3ReactHooks][] = [
   [metaMask, metaMaskHooks],
@@ -78,7 +92,20 @@ const client = new ApolloClient({
 //   return null;
 // };
 
+
+
+
+
+/* ****************** APP ****************** */
+
 const App = () => {
+
+
+
+
+
+/* ****************** BICONOMY: PROTOCOL FOR SEAMLESS CONNECTION ****************** */
+
   const [showSubmenu, setShowSubmenu] = useState<boolean>(false);
   const submenuRef = useRef<any>(null);
 
@@ -86,6 +113,11 @@ const App = () => {
     return new Web3Provider(provider); //library
   };
 
+
+
+
+
+/* ****************** NOTIFICATION ****************** */ 
 
   return (
     <NotificationHandlerProvider>
@@ -114,6 +146,12 @@ const App = () => {
                           )
                         }
                       </NotificationHandlerContext.Consumer>
+
+
+
+
+
+{/* ****************** SUBMENU AND CSS ****************** */} 
 
                       <div className="flex-initial">
                         <div className="relative bg-primary-gradient">
@@ -156,6 +194,12 @@ const App = () => {
                         </div>
                       </div>
 
+
+
+
+
+{/* ****************** WAITING MESSAGE ****************** */} 
+
                       <Web3UtilsContext.Consumer>
                         {(value) => {
                           return (
@@ -169,6 +213,13 @@ const App = () => {
                                 </div>
                               )}
                               <ChainIdChecker />
+
+
+
+
+
+{/* ****************** ROUTES ****************** */}
+
                               <div className='h-full'>
                                 <Switch>
                                   <Route exact path="/">
@@ -227,6 +278,13 @@ const App = () => {
                           );
                         }}
                       </Web3UtilsContext.Consumer>
+
+
+
+
+
+{/* ****************** MENU CSS ****************** */}
+
                       <div>
                         <div className="sm:hidden bottom-0 fixed w-full backdrop-filter z-50 backdrop-blur">
                           <div className="border-b border-gray-200">
@@ -310,5 +368,10 @@ const App = () => {
     </NotificationHandlerProvider>
   );
 };
+
+
+
+
+/* ****************** EXPORT APP ****************** */
 
 export default App;
