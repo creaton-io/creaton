@@ -1,3 +1,5 @@
+/* ****************** GENERAL CSS ****************** */
+
 body, .bg-primary-gradient {
   background: linear-gradient(130deg, #5A338E 0%, #37255F 35%, #281840 90%);
   min-height: 100%;
@@ -76,6 +78,12 @@ p.subscribersText{
 p.encryptedText{
   display:none;
 }
+
+
+
+
+
+/* ****************** STEPPER CSS ****************** */
 
 .multi-steps > li.is-active ~ li:before, .multi-steps > li.is-active:before {
   content: counter(stepNum);
