@@ -115,6 +115,7 @@
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-import": "^14.0.2",
     "postcss-preset-env": "^7.4.1",
+    "process": "^0.11.10",
     "react": "^17.0.2",
     "react-app-rewired": "^2.1.9",
     "react-colorful": "^5.5.1",
