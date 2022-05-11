@@ -37,6 +37,7 @@ const ConnectOrSignup = ({
             href=""
             onClick={(e) => {
               e.preventDefault();
+              onAvatarClick();
             }}
           >
           <Avatar size="menu" src={""} />
