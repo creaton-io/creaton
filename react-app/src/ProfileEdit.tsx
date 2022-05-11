@@ -77,7 +77,7 @@ const ProfileEdit = (props) => {
     }
   
     // when each chunk is stored, update the percentage complete and display
-    const totalSize = file.size.reduce((a, b) => a + b, 0)
+    const totalSize = file.size
     let uploaded = 0
   
     const onStoredChunk = size => {
@@ -106,14 +106,14 @@ const ProfileEdit = (props) => {
     //   ceramic.updateProfile(payload.username, "test description hardcoded");
     // }
     if (currentFile) {
-      const cid = await storeIpfsWithProgress(currentFile);
-      payload['image'] = "https://dweb.link/" + cid;
+      const cid = await storeIpfsWithProgress([currentFile]);
+      payload['image'] = "https://dweb.link/ipfs/" + cid + "/" + currentFile?.name;
     } else if (previewSrc) {
       payload['image'] = previewSrc
     }
     if (currentCoverFile) {
-      const cid = await storeIpfsWithProgress(currentFile);
-      payload['cover'] = "https://dweb.link/" + cid;
+      const cid = await storeIpfsWithProgress([currentFile]);
+      payload['cover'] = "https://dweb.link/ipfs/" + cid + "/" + currentFile?.name;
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }
