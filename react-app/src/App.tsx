@@ -30,6 +30,7 @@ import {Discovery} from './Discovery';
 import {SuperfluidProvider} from './Superfluid';
 import {ConnectOrSignup, HeaderButtons, ProfileMenu, ChainIdChecker, CreatorHome} from './components';
 import { Moderation } from './moderation';
+import { Chat } from './chat';
 import { MetaMask } from '@web3-react/metamask';
 import { Magic } from '@web3-react/magic';
 import { WalletConnect } from '@web3-react/walletconnect'
@@ -271,6 +272,9 @@ const App = () => {
                                   </Route>
                                   <Route path="/moderation">
                                     <Moderation />
+                                  </Route>
+                                  <Route path="/chat">
+                                    <Chat />
                                   </Route>
                                 </Switch>
                               </div>
