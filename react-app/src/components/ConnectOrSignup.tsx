@@ -39,6 +39,7 @@ const ConnectOrSignup = ({
               e.preventDefault();
             }}
           >
+          <Avatar size="menu" src={""} />
           </a>
         </div>
       ) : currentProfile && account && !isActive ? (
