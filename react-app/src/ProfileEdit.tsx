@@ -15,6 +15,7 @@ import { CeramicProvider } from "./CeramicProvider";
 import { useMetaTx } from "./hooks/metatx";
 import {Example} from './components/error-notification';
 import WalletModal from './components/walletModal';
+import { Web3Storage } from "web3.storage";
 
 const ProfileEdit = (props) => {
   const web3Context = useWeb3React()
@@ -66,6 +67,33 @@ const ProfileEdit = (props) => {
     setCurrentCoverFile(file)
     showPreviewImage(file, setCoverSrc)
   };
+
+  
+
+  async function storeIpfsWithProgress(file) {
+    // show the root cid as soon as it's ready
+    const onRootCidReady = cid => {
+      console.log('uploading files with cid:', cid)
+    }
+  
+    // when each chunk is stored, update the percentage complete and display
+    const totalSize = file.size.reduce((a, b) => a + b, 0)
+    let uploaded = 0
+  
+    const onStoredChunk = size => {
+      uploaded += size
+      const pct = totalSize / uploaded
+      console.log(`Uploading... ${pct.toFixed(2)}% complete`)
+    }
+  
+    // makeStorageClient returns an authorized Web3.Storage client instance
+    const client = new Web3Storage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEFFZjI1MDgyODE2RjQ2MzAwNjZkMTFkRkRDNzVCRTZhOWY2QzJFNjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NTIyMTM3MjE5NzUsIm5hbWUiOiJDcmVhdG9uIn0.KTulJ6Oj8gR_AdmLlWMXAyv8ZBZ92djn5CFsnJWlNpI" })
+  
+    // client.put will invoke our callbacks during the upload
+    // and return the root cid when the upload completes
+    return client.put(file, { wrapWithDirectory: false, onRootCidReady, onStoredChunk })
+  }
+
   const CreatonAdminContract = creaton_contracts.CreatonAdmin
   const creatorFactoryContract = new Contract(CreatonAdminContract.address, CreatonAdminContract.abi)
 
@@ -78,36 +106,14 @@ const ProfileEdit = (props) => {
     //   ceramic.updateProfile(payload.username, "test description hardcoded");
     // }
     if (currentFile) {
-      const buf = await currentFile.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      const file_type = currentFile.type
-      const formData = new FormData();
-      formData.append("file", new Blob([bytes], {
-        type: file_type
-      }));
-      const response = await fetch(ARWEAVE_URI + '/upload', {
-        method: 'POST',
-        body: formData
-      })
-      const arweave_id = await response.text()
-      payload['image'] = ARWEAVE_GATEWAY + arweave_id
+      const cid = await storeIpfsWithProgress(currentFile);
+      payload['image'] = "https://dweb.link/" + cid;
     } else if (previewSrc) {
       payload['image'] = previewSrc
     }
     if (currentCoverFile) {
-      const buf = await currentCoverFile.arrayBuffer();
-      const bytes = new Uint8Array(buf);
-      const file_type = currentCoverFile.type
-      const formData = new FormData();
-      formData.append("file", new Blob([bytes], {
-        type: file_type
-      }));
-      const response = await fetch(ARWEAVE_URI + '/upload', {
-        method: 'POST',
-        body: formData
-      })
-      const arweave_id = await response.text()
-      payload['cover'] = ARWEAVE_GATEWAY + arweave_id
+      const cid = await storeIpfsWithProgress(currentFile);
+      payload['cover'] = "https://dweb.link/" + cid;
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }

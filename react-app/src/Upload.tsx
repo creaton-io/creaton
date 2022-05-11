@@ -25,6 +25,7 @@ import {Splash} from './components/splash';
 import { useMetaTx } from './hooks/metatx';
 import WalletModal from './components/walletModal';
 import DanteEditor from './assets/dante3';
+import { Web3Storage } from 'web3.storage'
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -71,7 +72,7 @@ const Upload = () => {
   if (!litNode) return <div>Lit Node not loaded yet</div>;
 
   async function upload(file: File, file_type: string) {
-    let response;
+    let cid;
 
     
     const provider = context.provider as Web3Provider;
@@ -111,38 +112,34 @@ const Upload = () => {
           readme: 'test',
         });
 
-        web3utils.setIsWaiting('Uploading encrypted content to arweave...');
-        const formData = new FormData();
-        formData.append('file', zipBlob); //do not change "file"!
-        response = await fetch(ARWEAVE_URI + '/upload', {
-          method: 'POST',
-          body: formData,
-        });
+        web3utils.setIsWaiting('Uploading encrypted content to IPFS...');
+        cid = await storeIpfsWithProgress(zipBlob);
       } catch (error: any) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'});
         web3utils.setIsWaiting(false);
         return;
       }
     } else {
-      web3utils.setIsWaiting('Uploading content to Arweave...');
-      const formData = new FormData();
-      const buf = await file.arrayBuffer();
-      let bytes = new Uint8Array(buf);
-      formData.append(
-        'file',
-        new Blob([bytes], {
-          type: file_type,
-        })
-      );
-      response = await fetch(ARWEAVE_URI + '/upload', {
-        method: 'POST',
-        body: formData,
-      });
+
+      cid = await storeIpfsWithProgress(file);
+
+      /* Arweave Upload */
+      // web3utils.setIsWaiting('Uploading content to Arweave...');
+      // const formData = new FormData();
+      // const buf = await file.arrayBuffer();
+      // let bytes = new Uint8Array(buf);
+      // formData.append(
+      //   'file',
+      //   new Blob([bytes], {
+      //     type: file_type,
+      //   })
+      // );
+      // response = await fetch(ARWEAVE_URI + '/upload', {
+      //   method: 'POST',
+      //   body: formData,
+      // });
     }
 
-    response
-      .text()
-      .then(async function (arweave_id) {
         const metadata = {
           name: fileName,
           type: file_type,
@@ -150,7 +147,7 @@ const Upload = () => {
           link: link,
           altText: altText,
           date: new Date().getTime().toString(),
-          ipfs: arweave_id,
+          ipfs: cid,
         };
         const NFTMetadata = {
           description: description,
@@ -158,7 +155,7 @@ const Upload = () => {
           altText: altText,
           subscribersDescription,
           name: fileName,
-          image: ARWEAVE_GATEWAY + arweave_id,
+          image: "https://dweb.link/" + cid + "/" + fileName,
         };
         const formData = new FormData();
         formData.append(
@@ -198,11 +195,11 @@ const Upload = () => {
           web3utils.setIsWaiting(false);
           notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'});
         });
-      })
-      .catch(function (error) {
-        notificationHandler.setNotification({description: error.toString(), type: 'error'});
-        web3utils.setIsWaiting(false);
-      });
+      /* actually nothing can go wrong */
+      // .catch(function (error) {
+      //   notificationHandler.setNotification({description: error.toString(), type: 'error'});
+      //   web3utils.setIsWaiting(false);
+      // });
   }
 
   function blobToBase64(blob) {
@@ -370,6 +367,30 @@ const Upload = () => {
   function handleSubmit(event) {
     uploadContent();
     event.preventDefault();
+  }
+
+  async function storeIpfsWithProgress(file) {
+    // show the root cid as soon as it's ready
+    const onRootCidReady = cid => {
+      console.log('uploading files with cid:', cid)
+    }
+  
+    // when each chunk is stored, update the percentage complete and display
+    const totalSize = file.size.reduce((a, b) => a + b, 0)
+    let uploaded = 0
+  
+    const onStoredChunk = size => {
+      uploaded += size
+      const pct = totalSize / uploaded
+      console.log(`Uploading... ${pct.toFixed(2)}% complete`)
+    }
+  
+    // makeStorageClient returns an authorized Web3.Storage client instance
+    const client = new Web3Storage({ token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJkaWQ6ZXRocjoweEFFZjI1MDgyODE2RjQ2MzAwNjZkMTFkRkRDNzVCRTZhOWY2QzJFNjMiLCJpc3MiOiJ3ZWIzLXN0b3JhZ2UiLCJpYXQiOjE2NTIyMTM3MjE5NzUsIm5hbWUiOiJDcmVhdG9uIn0.KTulJ6Oj8gR_AdmLlWMXAyv8ZBZ92djn5CFsnJWlNpI" })
+  
+    // client.put will invoke our callbacks during the upload
+    // and return the root cid when the upload completes
+    return client.put(file, { wrapWithDirectory: false, onRootCidReady, onStoredChunk })
   }
 
   return (
