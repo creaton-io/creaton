@@ -86,7 +86,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 _subscriptionPrice,
         string memory nftName,
         string memory nftSymbol,
-        address _trustedForwarder
+        address _trustedForwarder,
+        address unlockLock
     ) public payable initializer {
         admin = _msgSender();
 
@@ -111,17 +112,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
 
-        unlockProtocol = IUnlock(0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f); //Polygon v10
-
-        uint256 version = unlockProtocol.unlockVersion();
-        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
-        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, address(acceptedToken), 0, 10000000, nftName, salt));
-        lock.addLockManager(_msgSender());
-        lock.addKeyGranter(_msgSender());
-        lock.setEventHooks(address(this), address(this));
-        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
-        lock.updateLockSymbol(nftSymbol); // TODO: change?
-        unlockLock = address(lock);
+        unlockLock = unlockLock;
         // TODO: config the lock: symbol, image, callbacks, etc. -- need Lock interface
         //Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
 

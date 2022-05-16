@@ -68,8 +68,6 @@ const ProfileEdit = (props) => {
     showPreviewImage(file, setCoverSrc)
   };
 
-  
-
   async function storeIpfsWithProgress(file) {
     // show the root cid as soon as it's ready
     const onRootCidReady = cid => {
@@ -107,13 +105,13 @@ const ProfileEdit = (props) => {
     // }
     if (currentFile) {
       const cid = await storeIpfsWithProgress([currentFile]);
-      payload['image'] = "https://dweb.link/ipfs/" + cid + "/" + currentFile?.name;
+      payload['image'] = "https://dweb.link/ipfs/" + cid;
     } else if (previewSrc) {
       payload['image'] = previewSrc
     }
     if (currentCoverFile) {
       const cid = await storeIpfsWithProgress([currentFile]);
-      payload['cover'] = "https://dweb.link/ipfs/" + cid + "/" + currentFile?.name;
+      payload['cover'] = "https://dweb.link/ipfs/" + cid;
     } else if (coverSrc) {
       payload['cover'] = previewSrc
     }

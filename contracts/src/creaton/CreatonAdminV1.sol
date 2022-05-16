@@ -18,12 +18,14 @@ import {
     ISuperApp
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
+import { IUnlock, IPublicLock } from "./unlock/IUnlock.sol";
+
 contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice);
+    event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice, address unlock);
     event NewSubscriber(address user, uint256 amount);
     event ProfileUpdate(address user, string jsonData);
     event ReactionFactoryDeployed(address factoryContractAddress);
@@ -40,6 +42,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     address private _host;
     address private _cfa;
     address private _acceptedToken;
+    int96 private _MINIMUM_FLOW_RATE;
 
     ISuperfluid public superFluid;
 
@@ -49,6 +52,8 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     address public creatorBeacon;
     address public override nftFactory;
     address public reactionFactory;
+
+    IUnlock unlockProtocol;
 
     // -----------------------------------------
     // Constructor
@@ -98,7 +103,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         string memory nftName,
         string memory nftSymbol
     ) external {
-        //require(registeredUsers[_msgSender()], "You need to signup on Creaton before becoming a creator"); //can use Ceramic for profiles in the future
+
         CreatorProxy creatorContract =
             new CreatorProxy(
                 creatorBeacon,
@@ -128,7 +133,19 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
 
         //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
 
-        emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
+        unlockProtocol = IUnlock(0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f); //Polygon v10
+        _MINIMUM_FLOW_RATE = (int96(uint96(subscriptionPrice)) * 1e18) / (3600 * 24 * 30);
+        
+        uint256 version = unlockProtocol.unlockVersion();
+        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
+        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, _acceptedToken, 0, 10000000, nftName, salt));
+        lock.addLockManager(_msgSender());
+        lock.addKeyGranter(_msgSender());
+        lock.setEventHooks(creatorContractAddr, creatorContractAddr);
+        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
+        lock.updateLockSymbol(nftSymbol); // TODO: change?
+        
+        emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice, address(lock));
     }
 
     function updateProfile(string memory dataJSON) external {

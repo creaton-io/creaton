@@ -74,7 +74,6 @@ const Upload = () => {
   async function upload(file: File, file_type: string) {
     let cid;
 
-    
     const provider = context.provider as Web3Provider;
 
     const creatorContract = new Contract(currentCreator!.creatorContract, CreatorContract.abi).connect(
@@ -113,7 +112,7 @@ const Upload = () => {
         });
 
         web3utils.setIsWaiting('Uploading encrypted content to IPFS...');
-        cid = await storeIpfsWithProgress(zipBlob);
+        cid = await storeIpfsWithProgress([zipBlob]);
       } catch (error: any) {
         notificationHandler.setNotification({description: error.toString(), type: 'error'});
         web3utils.setIsWaiting(false);
@@ -121,7 +120,7 @@ const Upload = () => {
       }
     } else {
 
-      cid = await storeIpfsWithProgress(file);
+      cid = await storeIpfsWithProgress([file]);
 
       /* Arweave Upload */
       // web3utils.setIsWaiting('Uploading content to Arweave...');
@@ -155,46 +154,39 @@ const Upload = () => {
           altText: altText,
           subscribersDescription,
           name: fileName,
-          image: "https://dweb.link/" + cid + "/" + fileName,
+          image: "https://dweb.link/ipfs/" + cid,
         };
         const formData = new FormData();
-        formData.append(
-          'file',
-          new Blob([JSON.stringify(NFTMetadata)], {
-            type: 'application/json',
-          })
-        );
-        const response = await fetch(ARWEAVE_URI + '/upload', {
-          method: 'POST',
-          body: formData,
-        });
-        response.text().then(async function (nft_arweave_id) {
-          console.log(metadata.ipfs);
-          web3utils.setIsWaiting('Adding content metadata to your creator contract');
-          let receipt;
-          try {
-            let tier = 0;
-            if (uploadEncrypted) tier = 1;
+        formData.set('file', new Blob([JSON.stringify(NFTMetadata)], {
+          type: 'application/json', 
+        }), "metadata.json");
+        const cidMetadata = storeIpfsWithProgress([formData.get('file')]);
+        
+        console.log(metadata.ipfs);
+        web3utils.setIsWaiting('Adding content metadata to your creator contract');
+        let receipt;
+        try {
+          let tier = 0;
+          if (uploadEncrypted) tier = 1;
 
-            if(BICONOMY_UPLOAD_ENABLED){
-              receipt = await executeMetaTx('Creator', 'upload', [ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier], {contractAddress: currentCreator!.creatorContract});
-            }else{
-              receipt = await creatorContract.upload(ARWEAVE_GATEWAY + nft_arweave_id, JSON.stringify(metadata), tier);
-              web3utils.setIsWaiting(true);
-              await receipt.wait(1);
-              console.log(receipt);
-            }            
-          } catch (error: any) {
-            notificationHandler.setNotification({
-              description: 'Could not upload the content to your contract' + error.message,
-              type: 'error',
-            });
-            web3utils.setIsWaiting(false);
-            return;
-          }
+          if(BICONOMY_UPLOAD_ENABLED){
+            receipt = await executeMetaTx('Creator', 'upload', ["https://dweb.link/ipfs/" + cidMetadata, JSON.stringify(metadata), tier], {contractAddress: currentCreator!.creatorContract});
+          }else{
+            receipt = await creatorContract.upload("https://dweb.link/ipfs/" + cidMetadata, JSON.stringify(metadata), tier);
+            web3utils.setIsWaiting(true);
+            await receipt.wait(1);
+            console.log(receipt);
+          }            
+        } catch (error: any) {
+          notificationHandler.setNotification({
+            description: 'Could not upload the content to your contract' + error.message,
+            type: 'error',
+          });
           web3utils.setIsWaiting(false);
-          notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'});
-        });
+          return;
+        }
+        web3utils.setIsWaiting(false);
+        notificationHandler.setNotification({description: 'New NFT minted successfully!', type: 'success'});
       /* actually nothing can go wrong */
       // .catch(function (error) {
       //   notificationHandler.setNotification({description: error.toString(), type: 'error'});
@@ -270,27 +262,18 @@ const Upload = () => {
     for (const match of matches) {
       const segmentData = ffmpeg.FS('readFile', match[0]);
       const formData = new FormData();
-      formData.append(
+      formData.set(
         'file',
         new Blob([segmentData], {
           type: 'video/mp2t',
         })
       );
       // eslint-disable-next-line no-loop-func
-      const promise = new Promise((resolve, reject) => {
-        fetch(ARWEAVE_URI + '/upload', {
-          method: 'POST',
-          body: formData,
-        })
-          .then((response) => {
-            response.text().then((arweave_id) => {
-              playlistText = playlistText.replace(match[0], ARWEAVE_GATEWAY + arweave_id);
-              resolve(arweave_id);
-            });
-          })
-          .catch(() => {
-            reject();
-          });
+      const promise = new Promise(async (resolve, reject) => {
+        const cid = await storeIpfsWithProgress([formData.get('file')]);
+
+        playlistText = playlistText.replace(match[0], "https://dweb.link/ipfs/" + cid);
+        resolve(cid);
       });
       console.log('started uploading ' + match[0]);
       promises.push(promise);
@@ -376,7 +359,7 @@ const Upload = () => {
     }
   
     // when each chunk is stored, update the percentage complete and display
-    const totalSize = file.size.reduce((a, b) => a + b, 0)
+    const totalSize = file.size
     let uploaded = 0
   
     const onStoredChunk = size => {

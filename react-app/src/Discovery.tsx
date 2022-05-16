@@ -354,7 +354,7 @@ export function Discovery() {
 
   function getSrc(content) {
     let src;
-    if (content.tier === 0) src = 'https://arweave.net/' + content.ipfs;
+    if (content.tier === 0) src = content.ipfs;
     else {
       if (downloadStatus[content.ipfs] !== 'cached') return;
       src = downloadCache[content.ipfs];

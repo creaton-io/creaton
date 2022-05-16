@@ -440,6 +440,11 @@
         "internalType": "address",
         "name": "_trustedForwarder",
         "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "unlockLock",
+        "type": "address"
       }
     ],
     "name": "initialize",

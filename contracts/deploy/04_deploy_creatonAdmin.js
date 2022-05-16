@@ -35,11 +35,11 @@ const func = async function (hre) {
   //   address: nftFactory.address,
   // });
 
-  console.log('ReactionFactory Deploy');
-  const reactionFactory = await deploy('ReactionFactory', {
-    from: admin,
-    log: true,
-  });
+  // console.log('ReactionFactory Deploy');
+  // const reactionFactory = await deploy('ReactionFactory', {
+  //   from: admin,
+  //   log: true,
+  // });
 
   // await hre.tenderly.verify({
   //   name: 'ReactionFactory',
@@ -110,10 +110,10 @@ const func = async function (hre) {
 
   // console.log('CreatorAdmin deployed');
 
-  // await hre.tenderly.verify({
-  //   name: 'CreatonAdmin',
-  //   address: creatonAdmin.address,
-  // });
+  await hre.tenderly.persistArtifacts({
+    name: 'CreatonAdmin',
+    address: creatonAdmin.address,
+  })
 
   // await hre.tenderly.push({
   //   name: 'CreatonAdmin',
