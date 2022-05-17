@@ -39,6 +39,7 @@ import { hooks as networkHooks, network } from './connectors/network';
 import { hooks as magicHooks, magic } from './connectors/magic';
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { BiconomyProvider } from './contexts/Biconomy';
+import XmtpProvider from './chat/XmtpProvider';
 
 
 
@@ -273,8 +274,10 @@ const App = () => {
                                   <Route path="/moderation">
                                     <Moderation />
                                   </Route>
-                                  <Route path="/chat">
-                                    <Chat />
+                                  <Route path="/chat/:recipientWalletAddr?">
+                                    <XmtpProvider>
+                                      <Chat />
+                                    </XmtpProvider>
                                   </Route>
                                 </Switch>
                               </div>
