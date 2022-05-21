@@ -57,7 +57,7 @@ export const Conversation: FC = () => {
                 <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"></span>
             </div>
 
-            <div className="relative w-full p-6 overflow-y-auto h-[40rem]">
+            <div className="relative w-full p-6 overflow-y-auto h-[40rem]" style={{maxHeight:"70vh", display: "flex", flexDirection: "column-reverse"}}>
                 <ul className="space-y-2">
                     {messages?.map((msg: Message) => {
                         const isSender = msg.senderAddress === walletAddress;
