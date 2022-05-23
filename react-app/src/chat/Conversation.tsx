@@ -17,9 +17,10 @@ export const Conversation: FC = () => {
 
     const messagesEndRef = useRef(null)
     const scrollToMessagesEndRef = useCallback(() => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ;(messagesEndRef.current as any)?.scrollIntoView({ behavior: 'smooth' })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        ;(messagesEndRef.current as any)?.scrollIntoView({ behavior: 'smooth' })
     }, [messagesEndRef])
+
     const { messages, sendMessage, loading } = useConversation(
         recipientWalletAddr,
         scrollToMessagesEndRef
@@ -57,7 +58,7 @@ export const Conversation: FC = () => {
                 <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"></span>
             </div>
 
-            <div className="relative w-full p-6 overflow-y-auto h-[40rem]" style={{maxHeight:"70vh", display: "flex", flexDirection: "column-reverse"}}>
+            <div className="relative w-full p-6 overflow-y-auto h-[40rem]" style={{maxHeight:"70vh"}}>
                 <ul className="space-y-2">
                     {messages?.map((msg: Message) => {
                         const isSender = msg.senderAddress === walletAddress;

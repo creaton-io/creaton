@@ -9,6 +9,7 @@ import { ConversationTile } from "./ConversationTile";
 import { Conversation } from "./Conversation";
 import { useParams } from "react-router-dom";
 import Loader from "./Loader";
+import { NewConversation } from "./NewConversation";
 
 interface params {
     recipientWalletAddr: string;
@@ -65,8 +66,8 @@ export const Chat: FC = () => {
     return (
         <>
             <div className="mt-10 container mx-auto bg-white">
-                <div className="min-w-full border rounded grid col-span-3" style={{gridTemplateColumns: "repeat(3, minmax(0, 1fr))"}}>
-                    <div className="border-r border-gray-300 col-span-1">
+                <div className="min-w-full border grid col-span-3" style={{borderColor: "rgb(124 58 237)", gridTemplateColumns: "repeat(3, minmax(0, 1fr))"}}>
+                    <div className="border-r border-gray-300 col-span-1 bg-transparent">
                         <div className="mx-3 my-3">
                             {/* <div className="relative text-gray-600">
                                 THIS IS A SEARCH BOX. FEEL FREE TO ENABLE IT NAD IMPLEMENT IT
@@ -82,14 +83,18 @@ export const Chat: FC = () => {
                             </div> */}
                         </div>
 
-                        <h2 className="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
+                        <h2 className="my-2 mb-2 ml-2 text-lg text-gray-600 font-bold">Chats</h2>
+
                         {!client && <div className="py-10"><Loader
                             headingText="Awaiting signatures..."
                             subHeadingText="Use your wallet to sign"
                             isLoading
                         /></div>}
 
+                        { client && <NewConversation /> }
+
                         {loadingConversations && <p>Loading conversations...</p>}
+
 
                         { client && !loadingConversations && (conversations && conversations.length > 0) ? 
                             <ul className="overflow-auto h-[32rem]">
