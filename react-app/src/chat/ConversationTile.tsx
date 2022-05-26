@@ -1,36 +1,32 @@
-import { FC, useEffect, useState } from "react";
+import { FC } from "react";
 import { Conversation } from '@xmtp/xmtp-js/dist/types/src/conversations';
 import { Message } from '@xmtp/xmtp-js';
 import useConversation from '../hooks/useConversation';
-import { Link } from "react-router-dom";
-import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
+import { Link, useParams } from "react-router-dom";
 import AddressAvatar from "./AddressAvatar";
 import { formatDate, shortAddress, truncate } from ".";
 
 type ConversationTileProps = {
     conversation: Conversation
-    isSelected: boolean
+    recipients: any
+}
+interface params {
+    recipientWalletAddr: string;
 }
 
 const getLatestMessage = (messages: Message[]): Message | null =>
   messages.length ? messages[messages.length - 1] : null
 
-export const ConversationTile: FC<ConversationTileProps> = ({conversation, isSelected}) => {
-    const web3Context = useWeb3React();
-    const [userAddress, setUserAddress] = useState('');
+export const ConversationTile: FC<ConversationTileProps> = ({conversation, recipients}) => {
+    let { recipientWalletAddr } = useParams<params>();
 
-    useEffect(() => {
-        (async function iife() {
-            const provider = web3Context.provider as Web3Provider;
-            if(!provider) return;
-
-            const signer = provider!.getSigner();
-            const address = await signer.getAddress();
-
-            setUserAddress(address.toLowerCase());
-        })();
-    }, [web3Context]);
+    let recipientProfile = {image: '', username: ''};
+    let data;
+    recipients.map((r) => {
+        if(r.user == conversation.peerAddress.toLowerCase())
+        data = JSON.parse(r.profile.data);
+        if(data) recipientProfile = {image: data.image, username: data.username};
+    });
 
     const { messages } = useConversation(conversation.peerAddress)
     const latestMessage = getLatestMessage(messages)
@@ -40,19 +36,19 @@ export const ConversationTile: FC<ConversationTileProps> = ({conversation, isSel
     }
 
     return (
-        <Link to={path} key={conversation.peerAddress}>
-            <a className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
-                <AddressAvatar peerAddress={conversation.peerAddress} />
-                {/* <img className="object-cover w-10 h-10 rounded-full" src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg" alt="username" /> */}
+        <li className={`${conversation.peerAddress == recipientWalletAddr?'bg-gray-100':''}`}>
+            <Link to={path} key={conversation.peerAddress} className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
+                {(recipientProfile.image) ?
+                    <img className="object-cover w-10 h-10 rounded-full" src={recipientProfile.image} alt="username" /> : <AddressAvatar peerAddress={conversation.peerAddress} /> }
                 <div className="w-full pb-2">
                     <div className="flex justify-between">
-                        <span className="block ml-2 font-semibold text-gray-600">{shortAddress(conversation.peerAddress)}</span>
+                        <span className="block ml-2 font-semibold text-gray-600">{(recipientProfile.username) ? recipientProfile.username:shortAddress(conversation.peerAddress)}</span>
                         <span className="block ml-2 text-sm text-gray-600">{formatDate(latestMessage?.sent)}</span>
                     </div>
                     <span className="block ml-2 text-sm text-gray-600">{latestMessage && truncate(latestMessage.content, 75)}
                     </span>
                 </div>
-            </a>
-        </Link>      
+            </Link>
+        </li>
     )
 };

@@ -10,6 +10,8 @@ import { Conversation } from "./Conversation";
 import { useParams } from "react-router-dom";
 import Loader from "./Loader";
 import { NewConversation } from "./NewConversation";
+import { gql, useQuery } from "@apollo/client";
+import { ethers } from "ethers";
 
 interface params {
     recipientWalletAddr: string;
@@ -22,6 +24,7 @@ export const Chat: FC = () => {
     const web3Context = useWeb3React();
     const [userAddress, setUserAddress] = useState('');
     const [xmtpConnected, setXmtpConnected] = useState(false);
+    const [recipients, setRecipients] = useState([]);
 
     const { getMessages } = useContext(XmtpContext);
 
@@ -63,6 +66,25 @@ export const Chat: FC = () => {
         })();
     }, [web3Context]);
 
+    const SUBSCRIBERS_INFO_QUERY = gql`
+        query GET_SUBSCRIBERS($userAddress: String!) {
+            subscribers (where: {creator: $userAddress, status: "subscribed", user_not: $userAddress}){
+                id
+                user
+                profile {
+                    id
+                    data
+                }
+            }	
+        }
+    `;
+    const {data: subscribersData } = useQuery(SUBSCRIBERS_INFO_QUERY, { variables: {userAddress}, pollInterval: 10000 });
+    
+    useEffect(() => {
+        if(!subscribersData) return;
+        setRecipients(subscribersData.subscribers.filter(async (u) => await client?.canMessage(ethers.utils.getAddress(u.user))));
+    },[subscribersData]);
+
     return (
         <>
             <div className="mt-10 container mx-auto bg-white">
@@ -91,10 +113,9 @@ export const Chat: FC = () => {
                             isLoading
                         /></div>}
 
-                        { client && <NewConversation /> }
+                        { client && recipients && <NewConversation recipients={recipients}/> }
 
                         {loadingConversations && <p>Loading conversations...</p>}
-
 
                         { client && !loadingConversations && (conversations && conversations.length > 0) ? 
                             <ul className="overflow-auto h-[32rem]">
@@ -103,7 +124,7 @@ export const Chat: FC = () => {
                                         <ConversationTile 
                                             key={convo.peerAddress} 
                                             conversation={convo} 
-                                            isSelected={recipientWalletAddr == convo.peerAddress} 
+                                            recipients={recipients}
                                         />
                                     )
                                 )}
@@ -115,7 +136,7 @@ export const Chat: FC = () => {
 
                     <div className="hidden lg:block" style={{gridColumn: "span 2 / span 2"}}>
                         <div className="w-full">
-                            <Conversation /> 
+                            <Conversation recipients={recipients}/> 
                         </div>
                     </div>
                 </div>

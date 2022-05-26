@@ -1,89 +1,13 @@
-import { FC, useContext, useEffect, useState } from "react";
-import { Web3Provider } from "@ethersproject/providers";
-import { useWeb3React } from "@web3-react/core";
-import { gql, useQuery } from "@apollo/client";
+import { FC, useState } from "react";
 import { Link } from "react-router-dom";
 import { ethers } from "ethers";
-import XmtpContext from "../contexts/xmtp";
 
-export const NewConversation: FC = () => {
-    const web3Context = useWeb3React();
-    const { client } = useContext(XmtpContext);
-    const [userAddress, setUserAddress] = useState('');
+type NewConversationProps = {
+    recipients: any
+}
+export const NewConversation: FC<NewConversationProps> = ({recipients}) => {
     const [modalVisible, setModalVisible] = useState(false);
-    const [recipients, setRecipients] = useState([]);
-
-    useEffect(() => {
-        (async function iife() {
-            const provider = web3Context.provider as Web3Provider;
-            if(!provider) return;
-
-            const signer = provider!.getSigner();
-            const address = await signer.getAddress();
-
-            setUserAddress(address.toLowerCase());
-        })();
-    }, [web3Context]);
-
-    // const FOLLOWERS_INFO_QUERY = gql`
-    //     query GET_FOLLOWERS($userAddress: String!) {
-    //         identity(address: $userAddress) {
-    //             address
-    //             followers {
-    //                 list {
-    //                     address
-    //                 }
-    //             }
-    //             followings {
-    //                 list {
-    //                     address
-    //                 }
-    //             }
-    //         }
-    //     }
-    // `;
-
-    const SUBSCRIBERS_INFO_QUERY = gql`
-        query GET_SUBSCRIBERS($userAddress: String!) {
-            subscribers (where: {creator: $userAddress, status: "subscribed", user_not: $userAddress}){
-                id
-                user
-                profile {
-                    id
-                    data
-                }
-            }	
-        }
-    `;
-
-    // const SUBSCRIBED_INFO_QUERY = gql`
-    //     query GET_SUBSCRIBEDS($userAddress: String!) {
-    //         subscribers (where: {user: $userAddress, status: "subscribed", creator_not: $userAddress}){
-    //             id
-    //             creator {
-    //                 id
-    //                 profile {
-    //                     id
-    //                     data
-    //                 }
-    //             }
-    //         }	
-    //     }
-    // `;
-
-    const {data: subscribersData } = useQuery(SUBSCRIBERS_INFO_QUERY, { variables: {userAddress}, pollInterval: 10000 });
-    // const {data: subscribedData } = useQuery(SUBSCRIBED_INFO_QUERY, { variables: {userAddress}, pollInterval: 10000 });
-    // const {data: followersData } = useQuery(FOLLOWERS_INFO_QUERY, { variables: {userAddress}, context: {clientName: 'cyberConnect'}, pollInterval: 10000 });
     
-    
-    useEffect(() => {
-        if(!subscribersData) return;
-
-        const users = subscribersData.subscribers.filter(async (u) => await client?.canMessage(ethers.utils.getAddress(u.user)));
-        setRecipients(users);
-    },[subscribersData]);
-
-
     return (
         <>
             <button 

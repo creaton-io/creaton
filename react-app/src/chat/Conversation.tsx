@@ -9,10 +9,9 @@ interface params {
     recipientWalletAddr: string;
 }
 
-export const Conversation: FC = () => {
+export const Conversation: FC<any> = ({recipients}) => {
     let { recipientWalletAddr } = useParams<params>();
     const { walletAddress, client } = useXmtp();
-
     const [message, setMessage] = useState('');
 
     const messagesEndRef = useRef(null)
@@ -35,6 +34,14 @@ export const Conversation: FC = () => {
         )
     }
 
+    let recipientProfile = {image: '', username: ''};
+    let data;
+    recipients.map((r) => {
+        if(r.user == recipientWalletAddr.toLowerCase())
+        data = JSON.parse(r.profile.data);
+        if(data) recipientProfile = {image: data.image, username: data.username};
+    });
+   
     const handleKeyDown = (e: any) => {
         if (e.key === 'Enter') {
             onSend(e);
@@ -53,8 +60,9 @@ export const Conversation: FC = () => {
     return (
         <>
             <div className="relative flex items-center p-3 border-b border-gray-300">
-                <AddressAvatar peerAddress={recipientWalletAddr} />
-                <span className="block ml-2 font-bold text-gray-600">{recipientWalletAddr}</span>
+                {(recipientProfile.image) ?
+                    <img className="object-cover w-10 h-10 rounded-full" src={recipientProfile.image} alt="username" /> : <AddressAvatar peerAddress={recipientWalletAddr} /> }
+                <span className="block ml-2 font-bold text-gray-600">{(recipientProfile.username) ? recipientProfile.username:recipientWalletAddr}</span>
                 <span className="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3"></span>
             </div>
 
