@@ -79,7 +79,7 @@ export const Chat: FC = () => {
             }	
         }
     `;
-    const {data: subscribersData } = useQuery(SUBSCRIBERS_INFO_QUERY, { variables: {userAddress}, pollInterval: 10000 });
+    const {data: subscribersData } = useQuery(SUBSCRIBERS_INFO_QUERY, { variables: {userAddress}, pollInterval: 1000 });
     
     useEffect(() => {
         (async function iife() {
@@ -97,7 +97,7 @@ export const Chat: FC = () => {
             setRecipients(users);
             setRecipientsAddresses(usersAddresses);
         })();
-    },[subscribersData]);
+    },[client, subscribersData]);
 
     return (
         <>
