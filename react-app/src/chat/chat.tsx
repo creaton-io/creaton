@@ -25,6 +25,7 @@ export const Chat: FC = () => {
     const [userAddress, setUserAddress] = useState('');
     const [xmtpConnected, setXmtpConnected] = useState(false);
     const [recipients, setRecipients] = useState([]);
+    const [recipientsAddresses, setRecipientsAddresses] = useState<any>([]);
 
     const { getMessages } = useContext(XmtpContext);
 
@@ -81,8 +82,21 @@ export const Chat: FC = () => {
     const {data: subscribersData } = useQuery(SUBSCRIBERS_INFO_QUERY, { variables: {userAddress}, pollInterval: 10000 });
     
     useEffect(() => {
-        if(!subscribersData) return;
-        setRecipients(subscribersData.subscribers.filter(async (u) => await client?.canMessage(ethers.utils.getAddress(u.user))));
+        (async function iife() {
+            if(!subscribersData) return;
+
+            let users: any = [];
+            let usersAddresses: any = [];
+            await Promise.all(subscribersData.subscribers.map(async (u) => {
+                if(await client?.canMessage(ethers.utils.getAddress(u.user))){
+                    users.push(u);
+                    usersAddresses.push(u.user);
+                }
+            }));
+
+            setRecipients(users);
+            setRecipientsAddresses(usersAddresses);
+        })();
     },[subscribersData]);
 
     return (
@@ -92,7 +106,7 @@ export const Chat: FC = () => {
                     <div className="border-r border-gray-300 col-span-1 bg-transparent">
                         <div className="mx-3 my-3">
                             {/* <div className="relative text-gray-600">
-                                THIS IS A SEARCH BOX. FEEL FREE TO ENABLE IT NAD IMPLEMENT IT
+                                THIS IS A SEARCH BOX. FEEL FREE TO IMPLEMENT IT
 
                                 <span className="absolute inset-y-0 left-0 flex items-center pl-2">
                                     <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -120,13 +134,15 @@ export const Chat: FC = () => {
                         { client && !loadingConversations && (conversations && conversations.length > 0) ? 
                             <ul className="overflow-auto h-[32rem]">
                                 { conversations.sort(orderByLatestMessage)
-                                    .map((convo) => (
-                                        <ConversationTile 
-                                            key={convo.peerAddress} 
-                                            conversation={convo} 
-                                            recipients={recipients}
-                                        />
-                                    )
+                                    .map((convo) => {
+                                        if(!recipientsAddresses.includes(convo.peerAddress.toLowerCase())) return;
+
+                                        return <ConversationTile 
+                                                    key={convo.peerAddress} 
+                                                    conversation={convo} 
+                                                    recipients={recipients}
+                                                />
+                                    }
                                 )}
                             </ul>
                         :
@@ -136,7 +152,7 @@ export const Chat: FC = () => {
 
                     <div className="hidden lg:block" style={{gridColumn: "span 2 / span 2"}}>
                         <div className="w-full">
-                            <Conversation recipients={recipients}/> 
+                            {recipientWalletAddr && <Conversation recipientWalletAddr={recipientWalletAddr} recipients={recipients}/> }
                         </div>
                     </div>
                 </div>

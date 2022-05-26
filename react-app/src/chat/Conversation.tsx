@@ -1,19 +1,13 @@
 import { FC, useCallback, useRef, useState } from "react";
 import { Message } from '@xmtp/xmtp-js';
-import { useParams } from "react-router-dom";
 import useConversation from "../hooks/useConversation";
 import useXmtp from "../hooks/useXmtp";
 import AddressAvatar from "./AddressAvatar";
+import { ethers } from "ethers";
 
-interface params {
-    recipientWalletAddr: string;
-}
-
-export const Conversation: FC<any> = ({recipients}) => {
-    let { recipientWalletAddr } = useParams<params>();
+export const Conversation: FC<any> = ({recipientWalletAddr, recipients}) => {
     const { walletAddress, client } = useXmtp();
     const [message, setMessage] = useState('');
-
     const messagesEndRef = useRef(null)
     const scrollToMessagesEndRef = useCallback(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,7 +15,7 @@ export const Conversation: FC<any> = ({recipients}) => {
     }, [messagesEndRef])
 
     const { messages, sendMessage, loading } = useConversation(
-        recipientWalletAddr,
+        ethers.utils.getAddress(recipientWalletAddr),
         scrollToMessagesEndRef
     )
 
@@ -34,6 +28,7 @@ export const Conversation: FC<any> = ({recipients}) => {
         )
     }
 
+    // Reformat data to access image and username
     let recipientProfile = {image: '', username: ''};
     let data;
     recipients.map((r) => {
@@ -50,7 +45,6 @@ export const Conversation: FC<any> = ({recipients}) => {
 
     const onSend = async (e) => {
         e.preventDefault()
-
         if (!message) return;
 
         sendMessage(message);

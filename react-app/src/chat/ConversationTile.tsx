@@ -19,7 +19,14 @@ const getLatestMessage = (messages: Message[]): Message | null =>
 
 export const ConversationTile: FC<ConversationTileProps> = ({conversation, recipients}) => {
     let { recipientWalletAddr } = useParams<params>();
+    const { messages } = useConversation(conversation.peerAddress)
+    const latestMessage = getLatestMessage(messages)
+    const path = `/chat/${conversation.peerAddress}`
+    if (!latestMessage) {
+        return null
+    }
 
+    // Reformat data to get username and image
     let recipientProfile = {image: '', username: ''};
     let data;
     recipients.map((r) => {
@@ -27,13 +34,6 @@ export const ConversationTile: FC<ConversationTileProps> = ({conversation, recip
         data = JSON.parse(r.profile.data);
         if(data) recipientProfile = {image: data.image, username: data.username};
     });
-
-    const { messages } = useConversation(conversation.peerAddress)
-    const latestMessage = getLatestMessage(messages)
-    const path = `/chat/${conversation.peerAddress}`
-    if (!latestMessage) {
-        return null
-    }
 
     return (
         <li className={`${conversation.peerAddress == recipientWalletAddr?'bg-gray-100':''}`}>
