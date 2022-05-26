@@ -40,11 +40,6 @@
         "internalType": "address",
         "name": "_trustedForwarder",
         "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_reactionFactory",
-        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -92,6 +87,19 @@
     "inputs": [
       {
         "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
         "internalType": "address",
         "name": "user",
         "type": "address"
@@ -123,19 +131,6 @@
       }
     ],
     "name": "ProfileUpdate",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "factoryContractAddress",
-        "type": "address"
-      }
-    ],
-    "name": "ReactionFactoryDeployed",
     "type": "event"
   },
   {
@@ -257,19 +252,6 @@
   {
     "inputs": [],
     "name": "nftFactory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "reactionFactory",
     "outputs": [
       {
         "internalType": "address",

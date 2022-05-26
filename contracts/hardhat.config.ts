@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-etherscan';
 import '@nomiclabs/hardhat-web3';
 import '@nomiclabs/hardhat-waffle';
 import 'hardhat/config';
@@ -40,9 +41,12 @@ const config: HardhatUserConfig = {
     apiKey: '4ZWQXK75DWT1QxDqSPTGzbU9uu3ZetzZ',
     apiSecret: '5gu1MrsvEoWfiiCafGeBytuoUmaSRoWt4NAed1gepL4pJNTqzNSjVB7MdhZSj3SW',
   },
+  etherscan: {
+    apiKey: 'NUI5MQPRV2NU6547845TM3356N2K4X8YAA',
+  },
   tenderly: {
-    project: 'Creaton',
-    username: 'Aer0xander',
+    project: 'project',
+    username: 'alexlander',
   },
   gasReporter: {
     enabled: false, //set to false for faster compile times!
@@ -51,9 +55,6 @@ const config: HardhatUserConfig = {
     coinmarketcap: 'a5c40070-7a5a-442e-9b9c-43ed83047df6',
     showTimeSpent: true,
   },
-  // etherscan: {
-  //   apiKey: process.env.ETHERSCAN_SCAN,
-  // },
   solidity: {
     compilers: [
       {

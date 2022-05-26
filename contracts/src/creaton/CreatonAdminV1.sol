@@ -28,7 +28,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice, address unlock);
     event NewSubscriber(address user, uint256 amount);
     event ProfileUpdate(address user, string jsonData);
-    event ReactionFactoryDeployed(address factoryContractAddress);
 
     // -----------------------------------------
     // Storage
@@ -51,7 +50,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
 
     address public creatorBeacon;
     address public override nftFactory;
-    address public reactionFactory;
 
     IUnlock unlockProtocol;
 
@@ -67,8 +65,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         int96 _treasuryFee,
         address _creatorBeacon,
         address _nftFactory,
-        address _trustedForwarder,
-        address _reactionFactory
+        address _trustedForwarder
     ) {
         owner = msg.sender;
 
@@ -89,8 +86,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         nftFactory = _nftFactory;
 
         trustedForwarder = _trustedForwarder;
-        
-        reactionFactory = _reactionFactory;
     }
 
     // -----------------------------------------

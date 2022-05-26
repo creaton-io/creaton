@@ -83,7 +83,6 @@ const func = async function (hre) {
       : '0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b'; //testnet USDCx
   const beaconContract = await hre.deployments.get('CreatorBeacon');
   const nftFactory = await hre.deployments.get('NFTFactory');
-  const reactionFactoryDeploy = await hre.deployments.get('ReactionFactory');
   const treasuryFee = 96;
 
   console.log('CreatorAdmin');
@@ -99,8 +98,7 @@ const func = async function (hre) {
       treasuryFee,
       beaconContract.address,
       nftFactory.address,
-      trustedforwarder,
-      reactionFactoryDeploy.address
+      trustedforwarder
     ],
     log: true,
   });
@@ -111,6 +109,11 @@ const func = async function (hre) {
   // console.log('CreatorAdmin deployed');
 
   await hre.tenderly.persistArtifacts({
+    name: 'CreatonAdmin',
+    address: creatonAdmin.address,
+  })
+
+  await hre.tenderly.verify({
     name: 'CreatonAdmin',
     address: creatonAdmin.address,
   })

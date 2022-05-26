@@ -43,11 +43,6 @@
             "internalType": "address",
             "name": "_trustedForwarder",
             "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "_reactionFactory",
-            "type": "address"
           }
         ],
         "stateMutability": "nonpayable",
@@ -95,6 +90,19 @@
         "inputs": [
           {
             "indexed": false,
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          }
+        ],
+        "name": "Initialized",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
             "internalType": "address",
             "name": "user",
             "type": "address"
@@ -126,19 +134,6 @@
           }
         ],
         "name": "ProfileUpdate",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "factoryContractAddress",
-            "type": "address"
-          }
-        ],
-        "name": "ReactionFactoryDeployed",
         "type": "event"
       },
       {
@@ -271,19 +266,6 @@
         "type": "function"
       },
       {
-        "inputs": [],
-        "name": "reactionFactory",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [
           {
             "internalType": "address",
@@ -394,7 +376,7 @@
         "type": "function"
       }
     ],
-    "address": "0x2c654c336Eb825b104a2c0514A6eE650d078CD4D"
+    "address": "0xb1Af6f8d1747C3F3C3bD7077F12D9e5AD880f7e9"
   },
   "Creator": {
     "abi": [
@@ -422,6 +404,19 @@
         "inputs": [
           {
             "indexed": false,
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          }
+        ],
+        "name": "Initialized",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
             "internalType": "uint256",
             "name": "tokenId",
             "type": "uint256"
@@ -440,6 +435,19 @@
           }
         ],
         "name": "NewPost",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "fee",
+            "type": "bool"
+          }
+        ],
+        "name": "NoFee",
         "type": "event"
       },
       {
@@ -764,6 +772,19 @@
       },
       {
         "inputs": [],
+        "name": "fee",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
         "name": "getSubscriberCount",
         "outputs": [
           {
@@ -961,6 +982,19 @@
       {
         "inputs": [
           {
+            "internalType": "bool",
+            "name": "setFee",
+            "type": "bool"
+          }
+        ],
+        "name": "setFee",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "address",
             "name": "",
             "type": "address"
@@ -1096,6 +1130,6 @@
         "type": "receive"
       }
     ],
-    "address": "0xf0384f5e4F04CFEE80c42711A6F509AF0A797083"
+    "address": "0x55ca9add6e1346b25B5192f66A4673DAe8aFD271"
   }
 }

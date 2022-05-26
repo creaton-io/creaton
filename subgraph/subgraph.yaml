@@ -6,9 +6,9 @@ dataSources:
     name: CreatonAdmin
     network: matic
     source:
-      address: "0x2c654c336Eb825b104a2c0514A6eE650d078CD4D" #CreatonAdminAddress Do not remove this comment
+      address: "0xb1Af6f8d1747C3F3C3bD7077F12D9e5AD880f7e9" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
-      startBlock: 25732304
+      startBlock: 28579442
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -23,29 +23,7 @@ dataSources:
           handler: handleProfileUpdate
         - event: CreatorDeployed(address,address,string,uint256,address)
           handler: handleCreatorDeployed
-        - event: ReactionFactoryDeployed(address)
-          handler: handleReactionFactoryDeployed
       file: ./src/mapping.ts
-  - kind: ethereum/contract
-    name: ReactionFactory
-    network: matic
-    source:
-      address: "0x480Ff3710cd0D5131Df70A7558c40DFF93266314"
-      abi: ReactionFactory
-      startBlock: 26185415
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - ReactionDef
-      abis:
-        - name: ReactionFactory
-          file: ./abis/ReactionFactory.json
-      eventHandlers:
-        - event: ReactionDeployed(address,address,string,string,string,address)
-          handler: handleReactionDeployed
-      file: ./src/reaction-mapping.ts
 templates:
   - kind: ethereum/contract
     name: Creator
@@ -69,49 +47,6 @@ templates:
           handler: handleNewPost
         - event: HidePost(uint256,bool)
           handler: handleHidePost
-      file: ./src/mapping.ts   
-  - kind: ethereum/contract
-    name: ReactionToken
-    network: matic
-    source:
-      abi: ReactionToken
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - User
-        - Reaction
-        - Stake
-        - Flow
-      abis:
-        - name: ReactionToken
-          file: ./abis/ReactionToken.json
-      eventHandlers:
-        - event: Staked(address,uint256,address)
-          handler: handleStake
-        - event: Reacted(address,address,uint256,address,uint256,string,string)
-          handler: handleReacted
-        - event: Flowed(address,uint256,address,address,address)
-          handler: handleFlowed
-      file: ./src/reaction-mapping.ts
-  - kind: ethereum/contract
-    name: StakedFlow
-    network: matic
-    source:
-      abi: StakedFlow
-    mapping:
-      kind: ethereum/events
-      apiVersion: 0.0.4
-      language: wasm/assemblyscript
-      entities:
-        - StakedFlow
-      abis:
-        - name: StakedFlow
-          file: ./abis/StakedFlow.json
-      eventHandlers:
-        - event: Flowing(address,uint256,address,uint256)
-          handler: handleFlowing
-      file: ./src/reaction-mapping.ts
+      file: ./src/mapping.ts
 
 

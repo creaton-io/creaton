@@ -4,7 +4,6 @@ import {Content, Creator, Profile, Subscriber} from '../generated/schema';
 import {SubscriberEvent, PostContract, NewPost, HidePost} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
 import {Address, DataSourceContext, dataSource, json, Bytes, log, BigInt} from '@graphprotocol/graph-ts';
-import { linkCreatorWithReactionUser } from './reaction-mapping';
 
 // const zeroAddress = '0x0000000000000000000000000000000000000000';
 
@@ -29,11 +28,7 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   if (profile) {
     entity.profile = profile.id;
   }
-
-  entity.reactionsReceived = BigInt.fromI32(0);
   entity.save();
-
-  linkCreatorWithReactionUser(id, event.params.creatorContract);
 }
 
 export function handleSubscriberEvent(event: SubscriberEvent): void {

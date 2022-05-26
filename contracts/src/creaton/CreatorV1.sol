@@ -43,6 +43,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     event NewPost(uint256 tokenId, string jsonData, Type contentType);
     event PostContract(address nftContract);
     event HidePost(uint256 tokenId, bool hide);
+    event NoFee(bool fee);
 
     struct Subscriber {
         Status status;
@@ -72,6 +73,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     mapping(uint256 => Type) post2tier;
     uint256 uIntSubscriptionPrice;
     mapping(address => bool) public payedUpfront;
+    bool public fee = true;
 
     // -----------------------------------------
     // Initializer
@@ -166,6 +168,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
     function hidePost(uint256 tokenId, bool hide) external onlyCreator {
         emit HidePost(tokenId, hide);
+    }
+
+    function setFee(bool setFee) external onlyCreator {
+        fee = setFee;
+        emit NoFee(fee);
     }
 
     // -----------------------------------------
@@ -301,7 +308,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         (, int96 flowRate, , ) = IConstantFlowAgreementV1(agreementClass).getFlowByID(_acceptedToken, agreementId);
         require(flowRate >= _MINIMUM_FLOW_RATE, _ERR_STR_LOW_FLOW_RATE);
         ISuperfluid.Context memory context = _host.decodeCtx(ctx); // should give userData
-        require(payedUpfront[context.msgSender] == true, _ERR_STR_NO_UPFRONT);
+        if (fee)
+            require(payedUpfront[context.msgSender] == true, _ERR_STR_NO_UPFRONT);
 
         int96 contractFlowRate = _cfa.getNetFlow(_acceptedToken, address(this));
         int96 contract2creatorDelta = percentage(contractFlowRate, adminContract.treasuryFee());
