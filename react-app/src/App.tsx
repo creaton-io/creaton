@@ -30,6 +30,7 @@ import {Discovery} from './Discovery';
 import {SuperfluidProvider} from './Superfluid';
 import {ConnectOrSignup, HeaderButtons, ProfileMenu, ChainIdChecker, CreatorHome} from './components';
 import { Moderation } from './moderation';
+import { Chat } from './chat';
 import { MetaMask } from '@web3-react/metamask';
 import { Magic } from '@web3-react/magic';
 import { WalletConnect } from '@web3-react/walletconnect'
@@ -38,6 +39,7 @@ import { hooks as networkHooks, network } from './connectors/network';
 import { hooks as magicHooks, magic } from './connectors/magic';
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { BiconomyProvider } from './contexts/Biconomy';
+import XmtpProvider from './chat/XmtpProvider';
 
 
 
@@ -271,6 +273,11 @@ const App = () => {
                                   </Route>
                                   <Route path="/moderation">
                                     <Moderation />
+                                  </Route>
+                                  <Route path="/chat/:recipientWalletAddr?">
+                                    <XmtpProvider>
+                                      <Chat />
+                                    </XmtpProvider>
                                   </Route>
                                 </Switch>
                               </div>
