@@ -17,6 +17,8 @@ import {Example} from './components/error-notification';
 import {Dialog, Transition} from '@headlessui/react';
 import {LoginIcon} from '@heroicons/react/outline';
 import {ExclamationIcon, XIcon} from '@heroicons/react/outline';
+import { Link } from 'react-router-dom';
+import { CHAT_ENABLED } from './Config';
 
 const CreatorContract = creaton_contracts.Creator;
 
@@ -273,7 +275,10 @@ const Subscribers = () => {
   return (
     <div className="w-3/4 sm:w-1/2 pt-8 m-auto grid grid-cols-1 place-items-start text-white">
       <div>
-        <h3 className="text-md text-white pb-4">
+        {CHAT_ENABLED && <Link to="/chat">
+          <Button label="Chat with your subscribers"></Button>
+        </Link>}
+        <h3 className="mt-10 text-md text-white pb-4 text-5xl">
           {subscribed_subscribers.length >= 2 //in Lit Protocol, one is in the subscriber mapping themselves to see the content
             ? 'These profiles are streaming money to you right now!'
             : "No one is subscribed to you yet, but don't worry, soon!"}

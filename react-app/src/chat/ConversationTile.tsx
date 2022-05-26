@@ -6,42 +6,17 @@ import { Link } from "react-router-dom";
 import { Web3Provider } from "@ethersproject/providers";
 import { useWeb3React } from "@web3-react/core";
 import AddressAvatar from "./AddressAvatar";
+import { formatDate, shortAddress, truncate } from ".";
 
 type ConversationTileProps = {
     conversation: Conversation
     isSelected: boolean
-    onClick?: () => void
 }
-
-export const truncate = (
-    str: string | undefined,
-    length: number
-  ): string | undefined => {
-    if (!str) {
-      return str
-    }
-    if (str.length > length) {
-      return `${str.substring(0, length - 3)}...`
-    }
-    return str
-  }
-
-export const formatDate = (d: Date | undefined): string =>
-  d ? d.toLocaleDateString('en-US') : ''
-
-export const formatTime = (d: Date | undefined): string =>
-  d
-    ? d.toLocaleTimeString(undefined, {
-        hour12: true,
-        hour: 'numeric',
-        minute: '2-digit',
-      })
-    : '';
 
 const getLatestMessage = (messages: Message[]): Message | null =>
   messages.length ? messages[messages.length - 1] : null
 
-export const ConversationTile: FC<ConversationTileProps> = ({conversation, isSelected, onClick}) => {
+export const ConversationTile: FC<ConversationTileProps> = ({conversation, isSelected}) => {
     const web3Context = useWeb3React();
     const [userAddress, setUserAddress] = useState('');
 
@@ -64,14 +39,9 @@ export const ConversationTile: FC<ConversationTileProps> = ({conversation, isSel
         return null
     }
 
-    const shortAddress = (addr: string): string =>
-      addr.length > 12 && addr.startsWith('0x')
-        ? `${addr.substring(0, 6)}...${addr.substring(addr.length - 6)}`
-        : addr
-
     return (
         <Link to={path} key={conversation.peerAddress}>
-            <a onClick={onClick} className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
+            <a className="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
                 <AddressAvatar peerAddress={conversation.peerAddress} />
                 {/* <img className="object-cover w-10 h-10 rounded-full" src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg" alt="username" /> */}
                 <div className="w-full pb-2">
