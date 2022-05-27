@@ -1,6 +1,5 @@
 import 'dotenv/config';
 import '@nomiclabs/hardhat-ethers';
-import '@nomiclabs/hardhat-web3';
 import '@nomiclabs/hardhat-waffle';
 import 'hardhat/config';
 import 'hardhat-deploy';
@@ -144,7 +143,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       accounts: hardhatAccounts,
       forking: {
-        url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+        url: 'https://polygon-mumbai.infura.io/v3/' + process.env.INFURA_TOKEN,
       },
     },
     localhost: {
@@ -152,7 +151,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     staging: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_TOKEN,
       accounts,
     },
     rinkeby: {
@@ -164,12 +163,11 @@ const config: HardhatUserConfig = {
       accounts,
     },
     goerli: {
-      // url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
-      url: 'https://eth-goerli.alchemyapi.io/v2/' + 'IUpvNP1pJQSpTDx7buvmQTFD6L9aYvUi',
+      url: 'https://eth-goerli.alchemyapi.io/v2/' + process.env.ALCHEMY_TOKEN,
       accounts,
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+      url: 'https://polygon-mumbai.g.alchemy.com/v2/' + process.env.ALCHEMY_TOKEN,
       accounts,
     },
     matic: {
