@@ -5,6 +5,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "deploy": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/creaton-polygon-v2",
+    "deploy-rinkeby": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/creaton-rinkeby",
     "deploy-staging": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/mumbai",
     "deploy-dev": "graph deploy --access-token eea3500ceb0e462588b1ba3d012f419f --node https://api.thegraph.com/deploy/ creaton-io/creaton-dev",
     "deploy-goerli": "graph deploy --node https://api.thegraph.com/deploy/ --ipfs https://api.thegraph.com/ipfs/ creaton-io/creaton-goerli",

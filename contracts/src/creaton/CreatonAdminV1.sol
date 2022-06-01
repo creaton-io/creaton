@@ -48,7 +48,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     address public override treasury;
     int96 public override treasuryFee;
 
-    address public creatorBeacon;
     address public override nftFactory;
 
     IUnlock unlockProtocol;
@@ -63,7 +62,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         address acceptedToken, // get these from superfluid contracts
         address _treasury,
         int96 _treasuryFee,
-        address _creatorBeacon,
         address _nftFactory,
         address _trustedForwarder
     ) {
@@ -81,8 +79,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
 
         treasury = _treasury;
         treasuryFee = _treasuryFee;
-
-        creatorBeacon = _creatorBeacon;
         nftFactory = _nftFactory;
 
         trustedForwarder = _trustedForwarder;
@@ -98,12 +94,17 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         string memory nftName,
         string memory nftSymbol
     ) external {
+                
+        uint256 version = unlockProtocol.unlockVersion();
+        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
+        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, _acceptedToken, 0, 10000000, nftName, salt));
+        lock.addLockManager(_msgSender());
+        lock.addKeyGranter(_msgSender());
+        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
+        lock.updateLockSymbol(nftSymbol); // TODO: change?
 
-        CreatorProxy creatorContract =
-            new CreatorProxy(
-                creatorBeacon,
-                abi.encodeWithSignature(
-                    "initialize(address,address,address,address,string,uint256,string,string,address)",
+        CreatorV1 creatorContract =
+            new CreatorV1(
                     _host,
                     _cfa,
                     _acceptedToken,
@@ -112,14 +113,17 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
                     subscriptionPrice,
                     nftName,
                     nftSymbol,
-                    trustedForwarder
-                )
+                    trustedForwarder,
+                    address(lock)
             );
+
 
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
 
         address creatorContractAddr = address(creatorContract);
         require(creatorContractAddr != address(0));
+
+        lock.setEventHooks(creatorContractAddr, creatorContractAddr);
 
         superFluid.registerAppByFactory(ISuperApp(creatorContractAddr), configWord);
 
@@ -128,17 +132,8 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
 
         //IERC20(_acceptedToken).transfer(creatorContractAddr, 1e16); not necessary anymore?
 
-        unlockProtocol = IUnlock(0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f); //Polygon v10
+        unlockProtocol = IUnlock(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b); //Rinkeby v10
         _MINIMUM_FLOW_RATE = (int96(uint96(subscriptionPrice)) * 1e18) / (3600 * 24 * 30);
-        
-        uint256 version = unlockProtocol.unlockVersion();
-        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
-        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, _acceptedToken, 0, 10000000, nftName, salt));
-        lock.addLockManager(_msgSender());
-        lock.addKeyGranter(_msgSender());
-        lock.setEventHooks(creatorContractAddr, creatorContractAddr);
-        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
-        lock.updateLockSymbol(nftSymbol); // TODO: change?
         
         emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice, address(lock));
     }

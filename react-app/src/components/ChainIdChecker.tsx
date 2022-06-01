@@ -7,7 +7,7 @@ const ChainIdChecker = (props) => {
   const library = web3React.provider as Web3Provider;
   const chainId = web3React.chainId;
 
-  if (!library || chainId === 80001 || chainId === 137) return null;
+  if (!library || chainId === 80001 || chainId === 137 || chainId === 4) return null;
   return (
     <div className="w-full fixed h-full z-30 flex items-center">
       <div className="border-2 grid grid-cols-1 py-7 px-6 max-w-lg m-auto transform -translate-y-1/2 place-items-center rounded-lg bg-gray-100">

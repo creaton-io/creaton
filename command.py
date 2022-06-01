@@ -51,6 +51,47 @@ def update_contracts_mumbai():
     print(f'Updated {REACT_CONTRACT_PATH}')
     update_subgraph(creaton_admin, creator, network)
 
+def update_contracts_rinkeby():
+    BASE_PATH = Path('contracts/deployments')
+    #networks = list(os.listdir(BASE_PATH))
+    #network = prompt([
+    #    {
+    #        'type': 'list',
+    #        'name': 'network',
+    #        'message': 'Which network?',
+    #        'choices': networks
+    #    },
+    #])['network']
+    network = 'rinkeby'
+    creaton_admin = json.load(open(BASE_PATH / network / 'CreatonAdmin.json'))
+    creaton_admin['address'] = prompt([
+        {
+            'type': 'input',
+            'name': 'address',
+            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+        },
+    ])['address']
+    creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
+    #twitter = json.load(open(BASE_PATH / network / 'TwitterVerification.json'))
+    #paymaster = json.load(open(BASE_PATH / network / 'CreatonPaymaster.json'))
+    #staking = json.load(open(BASE_PATH / network / 'MetatxStaking.json'))
+    #token = json.load(open(BASE_PATH / network / 'CreatonToken.json'))
+    contracts_info = {'network': network, 'CreatonAdmin': creaton_admin, 'Creator': creator,
+                      #'TwitterVerification': twitter,
+                      #'Paymaster': paymaster
+                      #'CreatonStaking': staking,
+                      #'CreatonToken': token
+                      }
+    for name, contract in contracts_info.items():
+        if name == 'network':
+            continue
+        contracts_info[name] = {'abi': contract['abi'], 'address': contract['address']}  # remove all extra info
+    REACT_CONTRACT_PATH = Path('react-app/src/contracts-staging-rinkeby.json')
+    json.dump(contracts_info, open(REACT_CONTRACT_PATH, 'w'), indent=2)
+    print(f'Updated {REACT_CONTRACT_PATH}')
+    update_subgraph(creaton_admin, creator, network)
+
+
 def update_contracts_dev():
     BASE_PATH = Path('contracts/deployments')
     #networks = list(os.listdir(BASE_PATH))
@@ -179,6 +220,13 @@ def deploy_contracts_mumbai():
     if yesno('Update the contract addresses in dev subgraph and dev react?'):
         return update_contracts_dev()
 
+def deploy_contracts_rinkeby():
+    run_command('npm run rinkeby:contracts')
+    if yesno('Update the contract addresses in staging subgraph and staging react?'):
+        return update_contracts_rinkeby()
+    if yesno('Update the contract addresses in dev subgraph and dev react?'):
+        return update_contracts_dev()
+
 def upgrade_creator_mumbai():
     run_command('npm run mumbai:upgradecreator')
     if yesno('Update the contract addresses in subgraph and react?'):
@@ -204,6 +252,7 @@ def main():
                 Separator(),
                 'deploy contracts',
                 'deploy contracts mumbai testnet',
+                'deploy contracts rinkeby testnet',
                 'update contracts',
                 'update contracts staging mumbai testnet',
                 'update contracts dev mumbai testnet',
@@ -216,6 +265,9 @@ def main():
     subproject = prompt(question)['subproject']
     if subproject == 'deploy contracts mumbai testnet':
         return deploy_contracts_mumbai()
+
+    if subproject == 'deploy contracts rinkeby testnet':
+        return deploy_contracts_rinkeby()
 
     if subproject == 'deploy contracts':
         return deploy_contracts()

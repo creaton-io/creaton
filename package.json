@@ -33,6 +33,7 @@
     "mumbai:contracts": "dotenv -e .env.staging -- npm --prefix contracts run mumbai:deploy",
     "mumbai:upgradecreator": "dotenv -e .env.staging -- npm --prefix contracts run mumbai:upgradecreator",
     "matic:contracts": "dotenv -e .env -- npm --prefix contracts run matic:deploy",
+    "rinkeby:contracts": "dotenv -e .env -- npm --prefix contracts run rinkeby:deploy",
     "matic:verifycontracts": "dotenv -e .env.production -- npm --prefix contracts run matic:verify"
   },
   "dependencies": {

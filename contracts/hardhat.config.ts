@@ -157,7 +157,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     rinkeby: {
-      url: 'https://rinkeby.infura.io/v3/' + process.env.INFURA_TOKEN,
+      url: 'https://rinkeby.infura.io/v3/1b9df8d0f50d4881b5017572c414ba51',
       accounts,
     },
     kovan: {
