@@ -89,7 +89,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         string memory nftName,
         string memory nftSymbol,
         address _trustedForwarder,
-        address unlockLock
+        address _unlockLock
     ) public payable initializer {
         admin = _msgSender();
 
@@ -114,13 +114,12 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
 
-        unlockLock = unlockLock;
+        unlockLock = _unlockLock;
         // TODO: config the lock: symbol, image, callbacks, etc. -- need Lock interface
         //Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
 
         //Creator subscribes to themselves
         _addSubscriber(creator);
-        grantKeys(creator);
     }
 
     // -----------------------------------------
