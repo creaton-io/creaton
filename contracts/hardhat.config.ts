@@ -42,7 +42,7 @@ const config: HardhatUserConfig = {
     apiSecret: '5gu1MrsvEoWfiiCafGeBytuoUmaSRoWt4NAed1gepL4pJNTqzNSjVB7MdhZSj3SW',
   },
   etherscan: {
-    apiKey: 'NUI5MQPRV2NU6547845TM3356N2K4X8YAA',
+    apiKey: 'ZNZYR3R5P6JD4K348E6W6ANZ4ZWYDN4I19',
   },
   tenderly: {
     project: 'project',

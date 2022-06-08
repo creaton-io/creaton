@@ -79,7 +79,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // Initializer
     // -----------------------------------------
 
-    constructor(
+    function initialize(
         address host,
         address cfa,
         address acceptedToken,

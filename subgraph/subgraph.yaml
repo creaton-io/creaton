@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: rinkeby
     source:
-      address: "0xB390070afBDf6096267aF354F0120622B523Cba9" #CreatonAdminAddress Do not remove this comment
+      address: "0x3A9C39327275aD35A84e5c2B82F327Cb3996c5C5" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 10773885
     mapping:

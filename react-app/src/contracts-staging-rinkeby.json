@@ -31,6 +31,11 @@
           },
           {
             "internalType": "address",
+            "name": "_creatorBeacon",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
             "name": "_nftFactory",
             "type": "address"
           },
@@ -164,6 +169,19 @@
           }
         ],
         "name": "creator2contract",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "creatorBeacon",
         "outputs": [
           {
             "internalType": "address",
@@ -358,7 +376,7 @@
         "type": "function"
       }
     ],
-    "address": "0xB390070afBDf6096267aF354F0120622B523Cba9"
+    "address": "0x3A9C39327275aD35A84e5c2B82F327Cb3996c5C5"
   },
   "Creator": {
     "abi": [

@@ -346,13 +346,6 @@ export function Creator() {
         ),
       ],
       [
-        202, // callAppAction to participate
-        creatorContractAddress,
-        creatorContract.interface.encodeFunctionData('upfrontFee', ['0x']),
-        //app.contract.methods.upfrontFee("0x").encodeABI()
-        //defaultAbiCoder.encode(['address', 'uint256'], [contractAddress, parseEther('10')]
-      ],
-      [
         201, // create constant flow (10/mo)
         sf.agreements.cfa.address,
         defaultAbiCoder.encode(

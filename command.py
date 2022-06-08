@@ -209,8 +209,8 @@ def update_subgraph(creaton_admin, creator, network):
         f.write(''.join(converted_lines))
     print(f'Updated {yaml_path}')
 
-    if yesno('Deploy on Matic?'):
-        run_command('cd subgraph && npm run deploy')
+    if yesno('Deploy on Rinkeby??'):
+        run_command('cd subgraph && npm run deploy-rinkeby')
 
 
 def deploy_contracts_mumbai():

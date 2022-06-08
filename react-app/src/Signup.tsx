@@ -68,7 +68,9 @@ const SignUp = () => {
       const provider = context.provider as Web3Provider;
       const connectedContract = creatorFactoryContract.connect(provider.getSigner());
       connectedContract
-      .deployCreator(creatorName, subscriptionPrice, collectionName, collectionSymbol)
+      .deployCreator(creatorName, subscriptionPrice, collectionName, collectionSymbol, {
+        gasLimit: 3000000
+      })
       .then(async function (response) {
         setSignedup('Waiting for your signup to be confirmed on the blockchain...');
         web3utils.setIsWaiting(true);

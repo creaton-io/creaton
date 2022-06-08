@@ -57,18 +57,18 @@ const func = async function (hre) {
   //   address: nftLanceFactory.address,
   // });
 
-  // console.log('CreatorV1');
-  // let implementationContract = await deploy('CreatorV1', {
-  //   from: admin,
-  //   log: true,
-  // });
+  console.log('CreatorV1');
+  let implementationContract = await deploy('CreatorV1', {
+    from: admin,
+    log: true,
+  });
 
-  // console.log('CreatorBeaconnnn');
-  // await deploy('CreatorBeacon', {
-  //   from: admin,
-  //   args: [implementationContract.address],
-  //   log: true,
-  // });
+  console.log('CreatorBeaconnnn');
+  await deploy('CreatorBeacon', {
+    from: admin,
+    args: [implementationContract.address],
+    log: true,
+  });
 
   // console.log('CreatorAdmin');
   // const creatonAdmin = await deploy('CreatonAdmin', {
@@ -82,6 +82,8 @@ const func = async function (hre) {
       ? '0x86C80a8aa58e0A4fa09A69624c31Ab2a6CAD56b8' //polygon
       : network.chainId === 4 ? '0xFD4973FeB2031D4409fB57afEE5dF2051b171104' //rinkeby
       : '0x9399BB24DBB5C4b782C70c2969F58716Ebbd6a3b'; //testnet USDCx
+  
+  const beaconContract = await hre.deployments.get('CreatorBeacon');
   const nftFactoryContract = await hre.deployments.get('NFTFactory');
   const treasuryFee = 96;
 
@@ -97,8 +99,10 @@ const func = async function (hre) {
         : '0x42bb40bF79730451B11f6De1CbA222F17b87Afd7', //mumbai USDCx 
       '0xC2Be769Df80AA18aA7982B5ecA0AaE037460891d',
       treasuryFee,
+      beaconContract.address,
       nftFactoryContract.address,
-      trustedforwarder
+      trustedforwarder,
+
     ],
     log: true,
   });

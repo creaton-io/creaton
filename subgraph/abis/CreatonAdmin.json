@@ -28,6 +28,11 @@
       },
       {
         "internalType": "address",
+        "name": "_creatorBeacon",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_nftFactory",
         "type": "address"
       },
@@ -161,6 +166,19 @@
       }
     ],
     "name": "creator2contract",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "creatorBeacon",
     "outputs": [
       {
         "internalType": "address",
