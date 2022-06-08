@@ -97,7 +97,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         string memory nftName,
         string memory nftSymbol
     ) external {
-        unlockProtocol = IUnlock(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b); //Rinkeby v10
+        unlockProtocol = IUnlock(0x1FF7e338d5E582138C46044dc238543Ce555C963); //Mumbai
         uint256 version = unlockProtocol.unlockVersion();
         bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
         IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, _acceptedToken, 0, 10000000, nftName, salt));
