@@ -22,7 +22,8 @@ import {
 
 import {SuperAppBase} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperAppBase.sol";
 
-import { IUnlock, IPublicLock } from "./unlock/IUnlock.sol";
+import "./unlock/IUnlockV11.sol";
+import "./unlock/IPublicLockV10.sol";
 
 contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
@@ -61,8 +62,8 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     address public creator;
     ICreatonAdmin adminContract;
     NFTFactory nftFactory;
-    IUnlock unlockProtocol;
-    IPublicLock unlockLock;
+    IUnlockV11 unlockProtocol;
+    IPublicLockV10 unlockLock;
 
     string public description;
     int96 public subscriptionPrice;
@@ -113,14 +114,19 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
         
-        unlockProtocol = IUnlock(0x1FF7e338d5E582138C46044dc238543Ce555C963);//(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b); //Rinkeby v10
+        unlockProtocol = IUnlockV11(0x1FF7e338d5E582138C46044dc238543Ce555C963);//(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b); //Rinkeby v10
         uint256 version = unlockProtocol.unlockVersion();
         bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, acceptedToken)));
-        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, acceptedToken, 0, 10000000, nftName, salt));
-        // lock.addLockManager(_msgSender());
-        // lock.addKeyGranter(_msgSender());
-        // lock.setEventHooks(address(this), address(this));
-        
+        IPublicLockV10 lock = IPublicLockV10(unlockProtocol.createLock(315360000, acceptedToken, 0, 10000000, nftName, salt));
+        lock.addLockManager(_msgSender());
+        lock.addKeyGranter(_msgSender());
+        lock.setEventHooks(
+            address(this), 
+            address(this), 
+            address(this), 
+            address(this)
+        );
+
         //lock.setBaseTokenURI("https://api.backer.vip/keys/");
         lock.updateLockSymbol(nftSymbol); // TODO: change?
         unlockLock = lock;
@@ -371,9 +377,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         address sender = _host.decodeCtx(ctx).msgSender;
 
         //delete Unlock NFT key (Unlock NFT do not get burned)
-        IPublicLock lock = IPublicLock(unlockLock);
+        IPublicLockV10 lock = IPublicLockV10(unlockLock);
         if (lock.getHasValidKey(sender)) {
-            lock.expireAndRefundFor(sender, 0);
+            lock.expireAndRefundFor(lock.tokenOfOwnerByIndex(sender, 0), 0);
         }
 
         _delSubscriber(sender);
@@ -398,7 +404,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     }
 
     function grantKeys(address msgSender) internal {
-        IPublicLock lock = IPublicLock(unlockLock);
+        IPublicLockV10 lock = IPublicLockV10(unlockLock);
         address[] memory _recipients = new address[](1);
         uint[] memory _expirationTimestamps = new uint[](1);
         address[] memory _keyManagers = new address[](1);
