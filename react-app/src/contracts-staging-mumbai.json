@@ -43,11 +43,6 @@
             "internalType": "address",
             "name": "_trustedForwarder",
             "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "_reactionFactory",
-            "type": "address"
           }
         ],
         "stateMutability": "nonpayable",
@@ -89,6 +84,19 @@
         "inputs": [
           {
             "indexed": false,
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          }
+        ],
+        "name": "Initialized",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
             "internalType": "address",
             "name": "user",
             "type": "address"
@@ -120,19 +128,6 @@
           }
         ],
         "name": "ProfileUpdate",
-        "type": "event"
-      },
-      {
-        "anonymous": false,
-        "inputs": [
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "factoryContractAddress",
-            "type": "address"
-          }
-        ],
-        "name": "ReactionFactoryDeployed",
         "type": "event"
       },
       {
@@ -265,19 +260,6 @@
         "type": "function"
       },
       {
-        "inputs": [],
-        "name": "reactionFactory",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
         "inputs": [
           {
             "internalType": "address",
@@ -388,7 +370,7 @@
         "type": "function"
       }
     ],
-    "address": "0x669ce358b1e5137A53362aCBeBF5B21745abB864"
+    "address": "0x82fC1d8fe37FaCB126B4ab6Ca44c938E65834e47"
   },
   "Creator": {
     "abi": [
@@ -416,6 +398,19 @@
         "inputs": [
           {
             "indexed": false,
+            "internalType": "uint8",
+            "name": "version",
+            "type": "uint8"
+          }
+        ],
+        "name": "Initialized",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
             "internalType": "uint256",
             "name": "tokenId",
             "type": "uint256"
@@ -434,6 +429,19 @@
           }
         ],
         "name": "NewPost",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "bool",
+            "name": "fee",
+            "type": "bool"
+          }
+        ],
+        "name": "NoFee",
         "type": "event"
       },
       {
@@ -758,6 +766,19 @@
       },
       {
         "inputs": [],
+        "name": "fee",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
         "name": "getSubscriberCount",
         "outputs": [
           {
@@ -882,6 +903,101 @@
         "inputs": [
           {
             "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "name": "keyPurchasePrice",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "minKeyPrice",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "operator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "refund",
+            "type": "uint256"
+          }
+        ],
+        "name": "onKeyCancel",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minKeyPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pricePaid",
+            "type": "uint256"
+          }
+        ],
+        "name": "onKeyPurchase",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
             "name": "",
             "type": "address"
           }
@@ -943,6 +1059,19 @@
           }
         ],
         "name": "recoverTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bool",
+            "name": "setFee",
+            "type": "bool"
+          }
+        ],
+        "name": "setFee",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1072,7 +1201,7 @@
         "type": "receive"
       }
     ],
-    "address": "0x410408C6a9061E214B034C2b360897dA505c143C"
+    "address": "0x8B6BD7962C7247376229cADaA388F3F03AF309e6"
   },
   "Paymaster": {
     "abi": [

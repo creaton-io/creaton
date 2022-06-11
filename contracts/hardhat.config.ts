@@ -145,7 +145,7 @@ const config: HardhatUserConfig = {
     hardhat: {
       accounts: hardhatAccounts,
       forking: {
-        url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+        url: 'https://polygon-mumbai.infura.io/v3/1b9df8d0f50d4881b5017572c414ba51',
       },
     },
     localhost: {
@@ -153,7 +153,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     staging: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+      url: 'https://polygon-mumbai.infura.io/v3/1b9df8d0f50d4881b5017572c414ba51',
       accounts,
     },
     rinkeby: {
@@ -170,7 +170,7 @@ const config: HardhatUserConfig = {
       accounts,
     },
     mumbai: {
-      url: 'https://polygon-mumbai.g.alchemy.com/v2/mI1l0P98j53LS6ZDuAyn2vWI7RSp_OqT',
+      url: 'https://polygon-mumbai.infura.io/v3/1b9df8d0f50d4881b5017572c414ba51',
       accounts,
     },
     matic: {

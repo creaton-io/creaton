@@ -18,14 +18,12 @@ import {
     ISuperApp
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
-import { IUnlock, IPublicLock } from "./unlock/IUnlock.sol";
-
 contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Events
     // -----------------------------------------
 
-    event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice, address unlock);
+    event CreatorDeployed(address creator, address creatorContract, string description, uint256 subscriptionPrice);
     event NewSubscriber(address user, uint256 amount);
     event ProfileUpdate(address user, string jsonData);
 
@@ -50,8 +48,6 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
 
     address public creatorBeacon;
     address public override nftFactory;
-
-    IUnlock unlockProtocol;
 
     // -----------------------------------------
     // Constructor
@@ -97,20 +93,11 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         string memory nftName,
         string memory nftSymbol
     ) external {
-        unlockProtocol = IUnlock(0x1FF7e338d5E582138C46044dc238543Ce555C963); //Mumbai
-        uint256 version = unlockProtocol.unlockVersion();
-        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, _acceptedToken)));
-        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, _acceptedToken, 0, 10000000, nftName, salt));
-        lock.addLockManager(_msgSender());
-        lock.addKeyGranter(_msgSender());
-        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
-        lock.updateLockSymbol(nftSymbol); // TODO: change?
-
         CreatorProxy creatorContract =
             new CreatorProxy(
                 creatorBeacon,
                 abi.encodeWithSignature(
-                    "initialize(address,address,address,address,string,uint256,string,string,address,address)",
+                    "initialize(address,address,address,address,string,uint256,string,string,address)",
                     _host,
                     _cfa,
                     _acceptedToken,
@@ -119,8 +106,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
                     subscriptionPrice,
                     nftName,
                     nftSymbol,
-                    trustedForwarder,
-                    address(lock)
+                    trustedForwarder
                 )
             );
 
@@ -138,7 +124,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
 
         _MINIMUM_FLOW_RATE = (int96(uint96(subscriptionPrice)) * 1e18) / (3600 * 24 * 30);
         
-        emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice, address(lock));
+        emit CreatorDeployed(_msgSender(), creatorContractAddr, description, subscriptionPrice);
     }
 
     function updateProfile(string memory dataJSON) external {

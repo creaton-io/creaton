@@ -71,12 +71,6 @@
         "internalType": "uint256",
         "name": "subscriptionPrice",
         "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "address",
-        "name": "unlock",
-        "type": "address"
       }
     ],
     "name": "CreatorDeployed",

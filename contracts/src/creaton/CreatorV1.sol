@@ -62,7 +62,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     ICreatonAdmin adminContract;
     NFTFactory nftFactory;
     IUnlock unlockProtocol;
-    address public unlockLock;
+    IPublicLock unlockLock;
 
     string public description;
     int96 public subscriptionPrice;
@@ -88,8 +88,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         uint256 _subscriptionPrice,
         string memory nftName,
         string memory nftSymbol,
-        address _trustedForwarder,
-        address _unlockLock
+        address _trustedForwarder
     ) public payable initializer {
         admin = _msgSender();
 
@@ -113,8 +112,18 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         adminContract = ICreatonAdmin(admin);
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
-
-        unlockLock = _unlockLock;
+        
+        unlockProtocol = IUnlock(0x1FF7e338d5E582138C46044dc238543Ce555C963);//(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b); //Rinkeby v10
+        uint256 version = unlockProtocol.unlockVersion();
+        bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, acceptedToken)));
+        IPublicLock lock = IPublicLock(unlockProtocol.createLock(315360000, acceptedToken, 0, 10000000, nftName, salt));
+        // lock.addLockManager(_msgSender());
+        // lock.addKeyGranter(_msgSender());
+        // lock.setEventHooks(address(this), address(this));
+        
+        //lock.setBaseTokenURI("https://api.backer.vip/keys/");
+        lock.updateLockSymbol(nftSymbol); // TODO: change?
+        unlockLock = lock;
         // TODO: config the lock: symbol, image, callbacks, etc. -- need Lock interface
         //Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
 
@@ -481,6 +490,17 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         return
             ISuperAgreement(agreementClass).agreementType() ==
             keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1");
+    }
+
+    /// @dev Unlock Protocol callbacks:
+    function onKeyCancel(address operator, address to, uint256 refund) external {
+        // TODO: anything?
+    }
+    function keyPurchasePrice(address from, address recipient, address referrer, bytes calldata data) external view returns (uint minKeyPrice) {
+        return type(uint).max;
+    }
+    function onKeyPurchase(address from, address recipient, address referrer, bytes calldata data, uint minKeyPrice, uint pricePaid) external {
+        // TODO:
     }
 
     // -----------------------------------------
