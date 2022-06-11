@@ -19,15 +19,10 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
         (async function iife() {
             const provider = web3Context.provider as Web3Provider;
             if(!provider) return;
-
             const signer = provider.getSigner();
-            // const reactionContract = new ethers.Contract(flow.owner.id, creaton_contracts.ReactionToken.abi, signer);
-            // setReactionToken({
-            //     name: await reactionContract.name(),
-            //     symbol: await reactionContract.symbol(),
-            // });
 
-            const superTokenContract = new ethers.Contract(flow.stakingSuperToken, creaton_contracts.ISuperToken.abi, signer);
+            console.log('Flow: ', flow);
+            const superTokenContract = new ethers.Contract(flow.token.id, creaton_contracts.ISuperToken.abi, signer);
             setSuperToken({
                 name: await superTokenContract.name(),
                 symbol: await superTokenContract.symbol(),
@@ -35,7 +30,7 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
 
             if(superTokenBalance.toString() == '0'){
                 setSuperTokenBalance(await superTokenContract.balanceOf(signer.getAddress()));
-                const rate = ethers.BigNumber.from(flow.flowRate);
+                const rate = ethers.BigNumber.from(flow.currentFlowRate);
 
                 setInterval(async () => {
                     setSuperTokenBalance(prevValue => {
@@ -51,7 +46,7 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
         if(!provider) return;
 
         const signer = provider.getSigner();
-        const superTokenContract = new ethers.Contract(flow.stakingSuperToken, creaton_contracts.ISuperToken.abi, signer);
+        const superTokenContract = new ethers.Contract(flow.token.id, creaton_contracts.ISuperToken.abi, signer);
         let tx = await superTokenContract.downgrade(await superTokenContract.balanceOf(signer.getAddress()));
         let receipt = await tx.wait();
         console.log(receipt);
@@ -63,17 +58,15 @@ export const UserFlow: FC<UserFlowProps> = ({ flow }) => {
                 <div className="bg-white bg-opacity-5 mb-4 rounded-xl shadow-md border-2 border-opacity-10 transition transform hover:shadow-lg">
                     <li className="py-4 px-6 flex"> 
                         <div className="ml-3">
-                            {/* <p className="text-white"><span className="font-bold">Reacted with </span>"{reactionToken.name}"</p> */}
-                            <p className="text-sm text-white"><span className="font-bold">Received: </span>{ethers.utils.formatEther(superTokenBalance)} {superToken.name} ({superToken.symbol})</p>
-                            <p className="mt-2 text-sm text-gray-200"><span className="font-bold">Receiving: </span>{ethers.utils.formatEther(flow.flowRate)} / second</p>
-                            <p className="mt-2 text-sm text-gray-200"><span className="font-bold">Last Balance: </span>{ethers.utils.formatEther(flow.balance)} ({superToken.symbol})</p>
+                            {/* <p className="text-sm text-white"><span className="font-bold">Received: </span>{ethers.utils.formatEther(superTokenBalance)} {superToken.name} ({superToken.symbol})</p> */}
+                            <p className="mt-2 text-sm text-gray-200"><span className="font-bold">Receiving: </span>{ethers.utils.formatEther(flow.currentFlowRate)} / second</p>
                         </div>
                         <div className="ml-auto text-center">
                             <p className="font-bold text-white">
-                                <button onClick={() => { if(!isNaN(+superTokenBalance)) withdraw(); }} 
+                                {flow.reaction && <button onClick={() => { if(!isNaN(+superTokenBalance)) withdraw(); }} 
                                     className="px-3 py-2 rounded-md text-sm font-medium bg-gradient-to-r from-green to-indigo-400 text-white hover:bg-green-900 active:bg-green-900 focus:outline-none focus:bg-blue focus:ring-1 focus:ring-blue focus:ring-offset-2 disabled:bg-gray-100 disabled:text-gray-900 disabled:cursor-default ml-2">
                                         Withdraw
-                                </button>
+                                </button>}
                             </p>
                             <p className="mt-2 text-sm text-white"></p>
                         </div>
