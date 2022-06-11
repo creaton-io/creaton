@@ -121,10 +121,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         lock.addLockManager(_msgSender());
         lock.addKeyGranter(_msgSender());
         lock.setEventHooks(
-            address(this), 
-            address(this), 
-            address(this), 
-            address(this)
+            address(0), 
+            address(0), 
+            address(0), 
+            address(0)
         );
 
         //lock.setBaseTokenURI("https://api.backer.vip/keys/");
