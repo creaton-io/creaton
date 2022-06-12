@@ -45,7 +45,7 @@ import XmtpProvider from './chat/XmtpProvider';
 
 
 
-/* ****************** FONT AND ICONS ****************** */
+/* ****************** FONT AND ICONS ***************** */
 
 initFontAwesome();
 
