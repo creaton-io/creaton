@@ -274,13 +274,13 @@ export function Creator() {
       const signer = provider.getSigner();
       const userAddress = await signer.getAddress();
 
-      const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
-      setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
-      setReactionErc20Symbol(await erc20Contract.symbol());
+      // const erc20Contract: Contract = new Contract(REACTION_ERC20 as string, creaton_contracts.erc20.abi, signer);
+      // setReactionErc20Available((await erc20Contract.balanceOf(userAddress)).toString());
+      // setReactionErc20Symbol(await erc20Contract.symbol());
 
-      const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
-      setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
-      setReportErc20Symbol(await erc20Contract2.symbol());
+      // const erc20Contract2: Contract = new Contract(CREATE_TOKEN_ADDRESS as string, creaton_contracts.erc20.abi, signer);
+      // setReportErc20Available((await erc20Contract2.balanceOf(userAddress)).toString());
+      // setReportErc20Symbol(await erc20Contract2.symbol());
       let cyberConnectInstance = new CyberConnect({
         provider: provider,
         namespace: 'Creaton',

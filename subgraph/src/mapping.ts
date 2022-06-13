@@ -21,9 +21,8 @@ export function handleCreatorDeployed(event: CreatorDeployedEvent): void {
   CreatorTemplate.createWithContext(event.params.creatorContract, context);
   entity.description = event.params.description;
   entity.subscriptionPrice = event.params.subscriptionPrice;
-  entity.unlock = event.params.unlock;
-  context.setBytes('unlock', event.params.unlock);
   entity.timestamp = event.block.timestamp;
+  entity.reactionsReceived = BigInt.fromI32(0);
   let profile = Profile.load(id);
   if (profile) {
     entity.profile = profile.id;

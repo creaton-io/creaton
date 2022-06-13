@@ -16,7 +16,6 @@ type Creator @entity {
   reactionUser: [ReactionUser]! @derivedFrom(field: "creator")
   reactionsReceived: BigInt!
   reportedContent: [ReportedContent!] @derivedFrom(field: "creators")
-  unlock: Bytes!
 }
 
 type Subscriber @entity {

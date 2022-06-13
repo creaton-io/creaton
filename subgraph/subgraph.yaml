@@ -4,11 +4,11 @@ schema:
 dataSources:
   - kind: ethereum/contract
     name: CreatonAdmin
-    network: mumbai
+    network: rinkeby
     source:
-      address: "0x82fC1d8fe37FaCB126B4ab6Ca44c938E65834e47" #CreatonAdminAddress Do not remove this comment
+      address: "0x481AC57F07D67d172dB5E470d4828d68F1174254" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
-      startBlock: 26699560
+      startBlock: 10773885
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.4
@@ -21,13 +21,13 @@ dataSources:
       eventHandlers:
         - event: ProfileUpdate(address,string)
           handler: handleProfileUpdate
-        - event: CreatorDeployed(address,address,string,uint256,address)
+        - event: CreatorDeployed(address,address,string,uint256)
           handler: handleCreatorDeployed
       file: ./src/mapping.ts
 templates:
   - kind: ethereum/contract
     name: Creator
-    network: mumbai
+    network: rinkeby
     source:
       abi: Creator
     mapping:

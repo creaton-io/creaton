@@ -26,7 +26,7 @@ const SuperfluidProvider = (props) => {
       const usdcx = sf.tokens.USDCx;
       setSuperfluid({sf, usdc, usdcx});
       // app = await ethers.getContractAt('Creator', contractAddr, subscriber);
-    } else if (web3Context.chainId === 80001) {
+    } else if (web3Context.chainId === 80001 || web3Context.chainId === 4) {
       const sf = new SuperfluidSDK.Framework({
         ethers: provider!,
         tokens: ['fUSDC'],
