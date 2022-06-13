@@ -1,6 +1,6 @@
 /* ****************** IMPORTS ****************** */
 
-import {useEffect, useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {HashRouter as Router, Switch, Route, Link} from 'react-router-dom';
 import './App.css';
 import {ApolloClient, ApolloProvider, InMemoryCache, HttpLink} from '@apollo/client';
@@ -40,12 +40,13 @@ import { hooks as magicHooks, magic } from './connectors/magic';
 import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { BiconomyProvider } from './contexts/Biconomy';
 import XmtpProvider from './chat/XmtpProvider';
+import NewCreator from './NewCreator';
 
 
 
 
 
-/* ****************** FONT AND ICONS ***************** */
+/* ****************** FONT AND ICONS ****************** */
 
 initFontAwesome();
 
@@ -163,7 +164,8 @@ const App = () => {
                           >
                             <div className="relative h-full max-w-7xl mx-auto"></div>
                           </div>
-                          <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4">
+                          {/* Added display none for showing new nav */}
+                          <div className="relative pt-2 pb-2 sm:pt-4 sm:pb-4" style={{display: "none"}}>
                             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                               <nav className="relative flex items-center sm:h-10 md:justify-center" aria-label="Global">
                                 <div className="flex items-center flex-1 md:absolute md:inset-y-0 md:left-0">
@@ -230,6 +232,9 @@ const App = () => {
                                   <Route exact path="/creators">
                                     <Creators />
                                   </Route>
+                                  <Route exact path="/new-creators">
+                                    <NewCreator />
+                                  </Route>
                                   {/* <Route path="/connect-wallet">
                                     <WalletConnect />
                                   </Route> */}
@@ -291,8 +296,8 @@ const App = () => {
 
 
 {/* ****************** MENU CSS ****************** */}
-
-                      <div>
+{/* Added display none for showing new nav */}
+                      <div style={{display: "none"}}>
                         <div className="sm:hidden bottom-0 fixed w-full backdrop-filter z-50 backdrop-blur">
                           <div className="border-b border-gray-200">
                             <nav className="-mb-px flex" aria-label="Tabs">
@@ -338,7 +343,7 @@ const App = () => {
                                     fillRule="evenodd"
                                     d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z"
                                     clipRule="evenodd"
-                                  />
+                                 />
                                 </svg>
                               </Link>
 
