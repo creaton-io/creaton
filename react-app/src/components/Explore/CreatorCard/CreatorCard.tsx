@@ -1,68 +1,47 @@
-import styled from "styled-components";
+import * as React from "react";
+import {
+  BottomContainer,
+  BottomText,
+  CountContainer,
+  PriceContainer,
+  StyledBottomImage,
+  StyledContainer,
+  StyledTitle,
+  StyledTopImage,
+} from "./CreatorCard.styles";
+import icon from "../../../assets/png/Group_714.png";
 
-export const StyledContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  background-color: #46385a;
-  border: 0.2px solid #46385a;
-  box-shadow: 0px 0px 4px rgba(0, 0, 0, 0.15);
-  border-radius: 12px;
-`;
+interface CreatorCardProps {
+  topImage: string;
+  bottomImage: string;
+  title: string;
+  count: string;
+  price: string;
+}
 
-export const StyledTopImage = styled.img`
-  align-self: center;
-  padding-top: 9px;
-`;
+const CreatorCard = ({
+  bottomImage,
+  count,
+  price,
+  title,
+  topImage,
+}: CreatorCardProps) => {
+  return (
+    <StyledContainer>
+      <StyledTopImage src={topImage} width={"95%"} height={"50%"} />
+      <StyledBottomImage src={bottomImage} width={72} height={72} />
+      <StyledTitle>{title}</StyledTitle>
+      <BottomContainer>
+        <CountContainer>
+          <img src={icon} width={20} height={20} alt={"count"} />
+          <div>{count}</div>
+        </CountContainer>
+        <PriceContainer>
+          <BottomText>{price}</BottomText>
+        </PriceContainer>
+      </BottomContainer>
+    </StyledContainer>
+  );
+};
 
-export const StyledBottomImage = styled.img`
-  position: relative;
-  bottom: 37px;
-  left: 22px;
-`;
-
-export const StyledTitle = styled.div`
-  font-size: 24px;
-  font-weight: 900;
-  line-height: 55px;
-  color: #ffffff;
-  padding-left: 25px;
-  position: relative;
-  bottom: 36px;
-`;
-
-export const BottomContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  bottom: 30px;
-  padding-left: 25px;
-`;
-
-export const CountContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-evenly;
-  background: #352a50;
-  border-radius: 12px;
-  padding: 8px;
-  color: #fff;
-  font-size: 15px;
-  line-height: 0px;
-  font-weight: 900;
-  width: 80px;
-`;
-
-export const PriceContainer = styled.div`
-  background: #352a50;
-  border-radius: 12px;
-  margin-right: 8px;
-`;
-
-export const BottomText = styled.div`
-  color: #fff;
-  font-size: 15px;
-  line-height: 0px;
-  padding: 18px;
-  font-weight: 900;
-`;
+export default CreatorCard;
