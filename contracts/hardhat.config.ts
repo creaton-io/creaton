@@ -25,7 +25,8 @@ if (mnemonic) {
   };
 } else {
   hardhatAccounts = [];
-  for (let i = 0; i < 101; i++) {//Rewards needs to be tested with 101 accounts
+  for (let i = 0; i < 101; i++) {
+    //Rewards needs to be tested with 101 accounts
     const wallet = Wallet.createRandom();
     hardhatAccounts.push({
       privateKey: wallet.privateKey,
@@ -147,6 +148,7 @@ const config: HardhatUserConfig = {
       forking: {
         url: 'https://polygon-mumbai.infura.io/v3/1b9df8d0f50d4881b5017572c414ba51',
       },
+      chainId: 80001,
     },
     localhost: {
       url: 'http://localhost:8545',
