@@ -111,16 +111,16 @@ describe('Creaton Admin Tests', async () => {
     await creatonAdmin.deployed();
   });
 
-  // it('Should be able to deploy a new Creator', async () => {
-  //   const description = 'Hi! This is the Creator Test';
-  //   const subscriptionPrice = 1;
-  //   const nftName = 'Testing';
-  //   const nftSymbol = 'TST';
-  //   await expect(creatonAdmin.deployCreator(description, subscriptionPrice, nftName, nftSymbol)).to.emit(
-  //     creatonAdmin,
-  //     'CreatorDeployed'
-  //   );
-  // });
+  it('Should be able to deploy a new Creator', async () => {
+    const description = 'Hi! This is the Creator Test';
+    const subscriptionPrice = 1;
+    const nftName = 'Testing';
+    const nftSymbol = 'TST';
+    await expect(creatonAdmin.deployCreator(description, subscriptionPrice, nftName, nftSymbol)).to.emit(
+      creatonAdmin,
+      'CreatorDeployed'
+    );
+  });
 
   it('Should be able to subscribe to a new Creator', async () => {
     const description = 'Hi! This is the Creator Test';
@@ -169,13 +169,23 @@ describe('Creaton Admin Tests', async () => {
 
     timeTravel(3600 * 24 * 15);
 
-    // const finalCreatorContractBalance = await superTokenContract.balanceOf(creatorContractAddress);
-    // expect(finalCreatorContractBalance).to.be.above(initialCreatorBalance);
+    const finalCreatorContractBalance = await FUSDCXContract.balanceOf({
+      account: creatorContractAddress,
+      providerOrSigner: owner,
+    });
+    const finalCreatorBalance = await FUSDCXContract.balanceOf({
+      account: owner.address,
+      providerOrSigner: owner,
+    });
+    const finalTreasuryBalance = await FUSDCXContract.balanceOf({
+      account: CREATON_TREASURY,
+      providerOrSigner: owner,
+    });
 
-    // const creatorBalance = await superTokenContract.balanceOf(creatorContract.creator());
-    // expect(creatorBalance).to.be.above(initialCreatorBalance);
+    expect(+finalTreasuryBalance).to.be.above(+initialTreasuryBalance);
 
-    // const treasuryBalance = await superTokenContract.balanceOf(CREATON_TREASURY);
-    // expect(treasuryBalance).to.be.above(initialTreasuryBalance);
+    console.log('Creator Contract: %s -> %s', initialCreatorContractBalance, finalCreatorContractBalance);
+    console.log('Creator: %s -> %s', initialCreatorBalance, finalCreatorBalance);
+    console.log('Treasury: %s -> %s', initialTreasuryBalance, finalTreasuryBalance);
   });
 });
