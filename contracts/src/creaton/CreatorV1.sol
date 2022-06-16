@@ -45,6 +45,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     event PostContract(address nftContract);
     event HidePost(uint256 tokenId, bool hide);
     event NoFee(bool fee);
+    event AddUnlock(address lock);
 
     struct Subscriber {
         Status status;
@@ -130,10 +131,14 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         //lock.setBaseTokenURI("https://api.backer.vip/keys/");
         lock.updateLockSymbol(nftSymbol); // TODO: change?
         unlockLock = lock;
+
+        emit AddUnlock(address(lock));
         // TODO: config the lock: symbol, image, callbacks, etc. -- need Lock interface
         //Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
 
         //Creator subscribes to themselves
+        
+        grantKeys(creator);
         _addSubscriber(creator);
     }
 
@@ -151,6 +156,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function recoverTokens(address _token) external onlyCreator {
         IERC20(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
         IERC20(_token).transfer(_msgSender(), IERC20(_token).balanceOf(address(this)));
+    }
+
+    function recoverSuperTokens(address _token) external onlyCreator {
+        ISuperToken(_token).approve(address(this), 0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff);
+        ISuperToken(_token).transfer(_msgSender(), ISuperToken(_token).balanceOf(address(this)));
     }
 
     function changeStatus(address _address, Status status) private {
@@ -230,7 +240,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         // open flow to creator
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
-            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            abi.encodeWithSelector(_cfa.createFlow.selector, _acceptedToken, address(this), contract2creator, new bytes(0)),
             new bytes(0),
             ctx
         );
@@ -258,7 +268,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         // update flow to creator
         (newCtx, ) = _host.callAgreementWithContext(
             _cfa,
-            abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, creator, contract2creator, new bytes(0)),
+            abi.encodeWithSelector(_cfa.updateFlow.selector, _acceptedToken, address(this), contract2creator, new bytes(0)),
             new bytes(0),
             ctx
         );

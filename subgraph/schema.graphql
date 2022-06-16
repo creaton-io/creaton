@@ -54,6 +54,7 @@ type ReactionUser @entity {
   reactions: [Reaction!]  @derivedFrom(field: "reactingUser")
   flowed: [Flow!]  @derivedFrom(field: "recipient")
   creator: Creator
+  unlock: Bytes
 }
 
 type ReactionDef @entity {

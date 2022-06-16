@@ -11,6 +11,8 @@ import WertModal from './wertModal';
 import LiFiModal from './lifiModal';
 import NavigationLink from './NavigationLink';
 import { Web3Provider } from '@ethersproject/providers';
+import { Contract } from 'ethers';
+import creaton_contracts from "../Contracts";
 
 const ProfileMenu = (props) => {
   const {currentProfile} = useCurrentProfile();
@@ -106,8 +108,19 @@ const ProfileMenu = (props) => {
   async function unwrapUsdcx() {
     setUnwrappingUsdcx(true);
 
-    let tx = await usdcx.downgrade(parseEther(unwrapAmount));
-    await tx.wait();
+    // let tx = await usdcx.downgrade(parseEther(unwrapAmount));
+    // await tx.wait();
+
+    let creator = currentCreator?.creatorContract || "";
+
+    const creatorContract = new Contract(creator, creaton_contracts.Creator.abi).connect(
+      web3Provider.getSigner()
+    );
+    const receipt = await creatorContract.recoverTokens(usdcx.address);
+    //web3utils.setIsWaiting(true);
+    await receipt.wait(1);
+    //web3utils.setIsWaiting(false);
+    //notificationHandler.setNotification({description: 'Withdrawn USDC', type: 'success'});
 
     setUsdcxBalance(await usdcx.balanceOf(account));
     setUsdcBalance(await usdc.balanceOf(account));

@@ -6,7 +6,7 @@ dataSources:
     name: CreatonAdmin
     network: rinkeby
     source:
-      address: "0x481AC57F07D67d172dB5E470d4828d68F1174254" #CreatonAdminAddress Do not remove this comment
+      address: "0xf487aeB47eb34952D64F0bA69707403a1Db2A536" #CreatonAdminAddress Do not remove this comment
       abi: CreatonAdmin
       startBlock: 10773885
     mapping:
@@ -47,6 +47,8 @@ templates:
           handler: handleNewPost
         - event: HidePost(uint256,bool)
           handler: handleHidePost
+        - event: AddUnlock(address)
+          handler: handleAddUnlock
       file: ./src/mapping.ts
 
 

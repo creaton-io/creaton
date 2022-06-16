@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import {CreatorDeployed as CreatorDeployedEvent, ProfileUpdate } from '../generated/CreatonAdmin/CreatonAdmin';
 import {Content, Creator, Profile, Subscriber} from '../generated/schema';
-import {SubscriberEvent, PostContract, NewPost, HidePost} from '../generated/templates/Creator/Creator';
+import {SubscriberEvent, PostContract, NewPost, HidePost, AddUnlock} from '../generated/templates/Creator/Creator';
 import {Creator as CreatorTemplate} from '../generated/templates';
 import {Address, DataSourceContext, dataSource, json, Bytes, log, BigInt} from '@graphprotocol/graph-ts';
 
@@ -115,6 +115,16 @@ export function handleHidePost(event: HidePost): void {
   let id = creator_contract.toHex() + '-' + tokenId.toString();
   let entity = Content.load(id);
   entity.hide = event.params.hide;
+  entity.save();
+}
+
+export function handleAddUnlock(event: AddUnlock): void {
+  let id = event.params.creator.toHex();
+  let entity = Creator.load(id);
+  if (!entity) {
+    entity = new Creator(id);
+  }
+  entity.unlock = event.params.unlock;
   entity.save();
 }
 
