@@ -122,6 +122,27 @@ describe('Creaton Admin Tests', async () => {
     );
   });
 
+  it('Should be able to update the Creator description', async () => {
+    const description = 'Hi! This is the Creator Test';
+    const subscriptionPrice = 100;
+    const nftName = 'Testing';
+    const nftSymbol = 'TST';
+    const tx = await creatonAdmin.deployCreator(description, subscriptionPrice, nftName, nftSymbol);
+    let receipt = await tx.wait();
+    receipt = receipt.events?.filter((x: any) => {
+      return x.event == 'CreatorDeployed';
+    })[0];
+
+    const creatorContractAddress = receipt.args.creatorContract;
+    expect(creatorContractAddress).to.be.properAddress;
+    const creatorContract = await ethers.getContractAt('CreatorV1', creatorContractAddress);
+
+    const expectedDescription = 'Black Metal Ist Krieg!';
+    await expect(creatorContract.setDescription(expectedDescription))
+      .to.emit(creatorContract, 'DescriptionUpdated')
+      .withArgs(expectedDescription);
+  });
+
   it('Should be able to subscribe to a new Creator with no Fee', async () => {
     const description = 'Hi! This is the Creator Test';
     const subscriptionPrice = 100;

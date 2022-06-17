@@ -46,6 +46,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     event HidePost(uint256 tokenId, bool hide);
     event NoFee(bool fee);
     event AddUnlock(address lock);
+    event DescriptionUpdated(string description);
 
     struct Subscriber {
         Status status;
@@ -199,6 +200,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function setFee(bool setFee) external onlyCreator {
         fee = setFee;
         emit NoFee(fee);
+    }
+
+    function setDescription(string calldata _description) external onlyCreator {
+        description = _description;
+        emit DescriptionUpdated(description);
     }
 
     // -----------------------------------------
