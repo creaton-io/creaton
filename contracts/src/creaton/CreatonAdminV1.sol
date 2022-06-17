@@ -110,12 +110,25 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
                 )
             );
 
+        // CreatorV1 creatorContract = new CreatorV1();
+        // creatorContract.initialize(
+        //     _host,
+        //     _cfa,
+        //     _acceptedToken,
+        //     _msgSender(),
+        //     description,
+        //     subscriptionPrice,
+        //     nftName,
+        //     nftSymbol,
+        //     trustedForwarder
+        // );
+
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
 
         address creatorContractAddr = address(creatorContract);
         require(creatorContractAddr != address(0));
 
-        //superFluid.registerAppByFactory(ISuperApp(creatorContractAddr), configWord);
+        superFluid.registerAppByFactory(ISuperApp(creatorContractAddr), configWord);
 
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);
