@@ -119,12 +119,13 @@ export function handleHidePost(event: HidePost): void {
 }
 
 export function handleAddUnlock(event: AddUnlock): void {
-  let id = event.params.creator.toHex();
+  let context = dataSource.context();
+  let id = context.getString('user');
   let entity = Creator.load(id);
   if (!entity) {
     entity = new Creator(id);
   }
-  entity.unlock = event.params.unlock;
+  entity.unlock = event.params.lock;
   entity.save();
 }
 

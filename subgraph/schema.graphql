@@ -12,6 +12,7 @@ type Creator @entity {
   description: String!
   subscriptionPrice: BigInt!
   timestamp: BigInt!
+  unlock: Bytes
   subscribers: [Subscriber!]! @derivedFrom(field: "creator")
   reactionUser: [ReactionUser]! @derivedFrom(field: "creator")
   reactionsReceived: BigInt!
@@ -54,7 +55,6 @@ type ReactionUser @entity {
   reactions: [Reaction!]  @derivedFrom(field: "reactingUser")
   flowed: [Flow!]  @derivedFrom(field: "recipient")
   creator: Creator
-  unlock: Bytes
 }
 
 type ReactionDef @entity {
