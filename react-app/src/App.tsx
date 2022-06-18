@@ -41,6 +41,7 @@ import { CoinbaseWallet } from '@web3-react/coinbase-wallet'
 import { BiconomyProvider } from './contexts/Biconomy';
 import XmtpProvider from './chat/XmtpProvider';
 import NewCreator from './NewCreator';
+import NewHome from './NewHome';
 
 
 
@@ -234,6 +235,9 @@ const App = () => {
                                   </Route>
                                   <Route exact path="/new-creators">
                                     <NewCreator />
+                                  </Route>
+                                  <Route exact path="/new-home">
+                                    <NewHome />
                                   </Route>
                                   {/* <Route path="/connect-wallet">
                                     <WalletConnect />

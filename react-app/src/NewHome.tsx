@@ -6,6 +6,7 @@ import BottomNav from './components/BottomNav/BottomNav';
 import {BrowserRouter} from 'react-router-dom';
 import styled from 'styled-components';
 import Footer from './components/Footer/Footer';
+import Home from './components/Home/Home';
 
 const StyledContainer = styled.div`
   background-color: #120821;
@@ -13,12 +14,12 @@ const StyledContainer = styled.div`
 `;
 initializeIcons();
 
-function NewCreator() {
+function NewHome() {
   return (
     <BrowserRouter>
       <StyledContainer>
         <NavBar />
-        <Explore />
+        <Home />
         <BottomNav />
         <Footer />
       </StyledContainer>
@@ -26,4 +27,4 @@ function NewCreator() {
   );
 }
 
-export default NewCreator;
+export default NewHome;

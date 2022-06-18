@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "3id-did-provider": "^1.1.1",
+    "react-multi-carousel": "^2.8.0",
     "@3id/connect": "^0.2.5",
     "@apollo/client": "3.5.9",
     "@biconomy/mexa": "^2.0.28",
