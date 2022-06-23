@@ -13,7 +13,8 @@ import {
     ISuperfluid,
     ISuperToken,
     ISuperAgreement,
-    SuperAppDefinitions
+    SuperAppDefinitions,
+    ISuperApp
 } from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol";
 
 import {
@@ -367,6 +368,43 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         payedUpfront[context.msgSender] = false;
 
         _addSubscriber(context.msgSender);
+    }
+
+    function changeCreator(
+        address newCreator
+    ) external onlyCreator {
+        //creator are subscribed to themselves already
+        if (subscriberCount > 1) {
+        require(newCreator != address(0), "New receiver is zero address");
+        // @dev because our app is registered as final, we can't take downstream apps
+        require(!_host.isApp(ISuperApp(newCreator)), "New receiver can not be a superApp");
+        if (newCreator == creator) return ;
+        // @dev delete flow to old receiver
+        _host.callAgreement(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.deleteFlow.selector,
+                _acceptedToken,
+                address(this),
+                creator,
+                new bytes(0)
+            ),
+            "0x"
+        );
+        // @dev create flow to new receiver
+        _host.callAgreement(
+            _cfa,
+            abi.encodeWithSelector(
+                _cfa.createFlow.selector,
+                _acceptedToken,
+                newCreator,
+                _cfa.getNetFlow(_acceptedToken, address(this)),
+                new bytes(0)
+            ),
+            "0x"
+        );
+        }
+        creator = newCreator;
     }
 
     function _updateSubscribe(

@@ -42,16 +42,12 @@ import { BiconomyProvider } from './contexts/Biconomy';
 
 
 
-
 /* ****************** FONT AND ICONS ****************** */
-
 initFontAwesome();
 
 
-
-
-
 /* ****************** CONNECTION ****************** */
+
 
 const connectors: [MetaMask | Magic | Network, Web3ReactHooks][] = [
   [metaMask, metaMaskHooks],

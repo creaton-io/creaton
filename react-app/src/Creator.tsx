@@ -395,7 +395,7 @@ export function Creator() {
     //  encObject = await textile!.downloadEncryptedFile(content.ipfs)
     //else {//handle arweave
 
-    const encryptedZipBlob = await (await fetch('https://arweave.net/' + content.ipfs)).blob();
+    const encryptedZipBlob = await (await fetch(content.ipfs)).blob();
     const authSig = await LitJsSdk.checkAndSignAuthMessage({chain: 'mumbai'});
 
     let {decryptedFile} = await LitJsSdk.decryptZipFileWithMetadata({
@@ -427,7 +427,7 @@ export function Creator() {
 
   function getSrc(content) {
     let src;
-    if (content.tier === 0) src = 'https://arweave.net/' + content.ipfs;
+    if (content.tier === 0) src = content.ipfs;
     else {
       if (downloadStatus[content.ipfs] !== 'cached') return;
       src = downloadCache[content.ipfs];

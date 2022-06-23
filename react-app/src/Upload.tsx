@@ -154,7 +154,7 @@ const Upload = () => {
           altText: altText,
           subscribersDescription,
           name: fileName,
-          image: "https://dweb.link/ipfs/" + cid,
+          image: "https://" + cid + ".ipfs.dweb.link/",
         };
         const formData = new FormData();
         formData.set('file', new Blob([JSON.stringify(NFTMetadata)], {
@@ -427,9 +427,9 @@ const Upload = () => {
             onChange={(e) => encryptDescription(e.target.getContent())}
             onInit={(e) => setEditorInit(true)}
           /> */}
-          <span className="w-3/4">
+          <span className="max-w-3/4">
             <DanteEditor 
-              content={'Write cool stuff here...'} widgets={undefined} theme={undefined} fixed={undefined} onUpdate={(e) => encryptDescription(e.target.getContent())} readOnly={undefined} bodyPlaceholder={undefined} extensions={undefined}          />
+              content={'Write cool stuff here...'} widgets={undefined} theme={undefined} fixed={true} onUpdate={(e) => encryptDescription(e.target.getContent())} readOnly={undefined} bodyPlaceholder={undefined} extensions={undefined}          />
           </span>
         </div>
 
@@ -464,7 +464,7 @@ const Upload = () => {
           )}
         </div>
 
-        <div className="w-full m-5">
+        {/* <div className="w-full m-5">
           <div className="flex items-center mb-1">
             <label className="block font-semibold flex float-right">
             <span className="mr-1" onClick={()=>{setAltTextVisible((prev)=>!prev)}}>Alt</span>
@@ -482,7 +482,7 @@ const Upload = () => {
               onChange={(e) => setAltText(e.target.value)}
             />
           </div>}
-        </div>
+        </div> */}
 
         <div className="w-full m-5">
           <div className="flex items-center mb-1">

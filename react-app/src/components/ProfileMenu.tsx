@@ -40,10 +40,23 @@ const ProfileMenu = (props) => {
       console.log('setting balance in profile menu');
       setUsdcxBalance(balance);
     });
+
     usdc.balanceOf(account).then((balance) => {
       setUsdcBalance(balance);
     });
   }, [usdc, usdcx, account]);
+
+  useEffect(() => {
+    if (!account && !usdc && !usdcx) return;
+
+    setInterval(() => {
+      usdcx.balanceOf(account).then((balance) => {
+        console.log('setting balance in profile menu');
+        setUsdcxBalance(balance);
+      });
+    }, 10000);
+  
+  });
 
   useEffect(() => {
     if (!provider && !account) return;
