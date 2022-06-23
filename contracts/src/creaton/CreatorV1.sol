@@ -47,6 +47,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     event HidePost(uint256 tokenId, bool hide);
     event NoFee(bool fee);
     event AddUnlock(address lock);
+    event DescriptionUpdated(string description);
 
     struct Subscriber {
         Status status;
@@ -116,8 +117,10 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         nftFactory = NFTFactory(adminContract.nftFactory());
         createPostNFT(nftName, nftSymbol);
         
-        unlockProtocol = IUnlockV11(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b);//(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b); //Rinkeby v10
-        uint256 version = unlockProtocol.unlockVersion();
+        // Mumbai: 0x1FF7e338d5E582138C46044dc238543Ce555C963
+        // Rinkeby: 0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b;
+        unlockProtocol = IUnlockV11(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b);
+        //uint16 version = unlockProtocol.unlockVersion();
         bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, acceptedToken)));
         IPublicLockV10 lock = IPublicLockV10(unlockProtocol.createLock(315360000, acceptedToken, 0, 10000000, nftName, salt));
         lock.addLockManager(_msgSender());
@@ -198,6 +201,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     function setFee(bool setFee) external onlyCreator {
         fee = setFee;
         emit NoFee(fee);
+    }
+
+    function setDescription(string calldata _description) external onlyCreator {
+        description = _description;
+        emit DescriptionUpdated(description);
     }
 
     // -----------------------------------------

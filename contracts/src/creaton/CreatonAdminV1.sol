@@ -110,6 +110,19 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
                 )
             );
 
+        // CreatorV1 creatorContract = new CreatorV1();
+        // creatorContract.initialize(
+        //     _host,
+        //     _cfa,
+        //     _acceptedToken,
+        //     _msgSender(),
+        //     description,
+        //     subscriptionPrice,
+        //     nftName,
+        //     nftSymbol,
+        //     trustedForwarder
+        // );
+
         uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
 
         address creatorContractAddr = address(creatorContract);
