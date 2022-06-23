@@ -144,8 +144,8 @@ const ProfileMenu = (props) => {
     setWrappingUsdc(true);
 
     let tx;
-    if ((await usdc.allowance(account, usdcx.address)) < wrapAmount) {
-      tx = await usdc.approve(usdcx.address, wrapAmount);
+    if ((await usdc.allowance(account, usdcx.address)).lt(parseEther(wrapAmount))) {
+      tx = await usdc.approve(usdcx.address, parseEther(wrapAmount));
       await tx.wait();
     }
 
