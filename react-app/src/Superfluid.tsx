@@ -22,8 +22,8 @@ const SuperfluidProvider = (props) => {
 
       await sf.initialize();
       // @ts-ignore
-      const usdc = sf.tokens.USDC;
-      const usdcx = sf.tokens.USDCx;
+      const usdc = await sf.tokens.USDC;
+      const usdcx = await sf.tokens.USDCx;
       setSuperfluid({sf, usdc, usdcx});
       // app = await ethers.getContractAt('Creator', contractAddr, subscriber);
     } else if (web3Context.chainId === 80001 || web3Context.chainId === 4) {
@@ -35,13 +35,16 @@ const SuperfluidProvider = (props) => {
       await sf.initialize();
       // @ts-ignore
       const usdc = await sf.contracts.TestToken.at(sf.tokens.fUSDC.address);
-      const usdcx = sf.tokens.fUSDCx;
+      const usdcx = await sf.tokens.fUSDCx;
       setSuperfluid({sf, usdc, usdcx});
       // app = await ethers.getContractAt('Creator', contractAddr, subscriber);
     }
   }
   useEffect(() => {
-    init();
+    async function initInit() {
+      await init();
+    }
+    initInit();
   }, [web3Context]);
   return <SuperfluidContext.Provider value={superfluid}>{props.children}</SuperfluidContext.Provider>;
 };

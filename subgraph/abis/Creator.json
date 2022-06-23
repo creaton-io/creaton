@@ -377,6 +377,19 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newCreator",
+        "type": "address"
+      }
+    ],
+    "name": "changeCreator",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "creator",
     "outputs": [

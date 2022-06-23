@@ -95,7 +95,7 @@ const func = async function (hre) {
       sf.agreements.cfa.address,
       network.chainId === 137
         ? '0xCAa7349CEA390F89641fe306D93591f87595dc1F'
-        : network.chainId === 4 ? '0xdF7B8461a1d9f57f12F88d97FC6131E36d302d81' //rinkeby USDCx
+        : network.chainId === 4 ? '0x0F1D7C55A2B133E000eA10EeC03c774e0d6796e8' //rinkeby USDCx
         : '0x42bb40bF79730451B11f6De1CbA222F17b87Afd7', //mumbai USDCx 
       '0xC2Be769Df80AA18aA7982B5ecA0AaE037460891d',
       treasuryFee,

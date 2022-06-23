@@ -115,7 +115,7 @@ contract CreatonAdmin is ICreatonAdmin, Initializable, BaseRelayRecipient {
         address creatorContractAddr = address(creatorContract);
         require(creatorContractAddr != address(0));
 
-        //superFluid.registerAppByFactory(ISuperApp(creatorContractAddr), configWord);
+        superFluid.registerAppByFactory(ISuperApp(creatorContractAddr), configWord);
 
         contract2creator[creatorContractAddr] = _msgSender();
         creator2contract[_msgSender()].push(creatorContractAddr);
