@@ -2,7 +2,7 @@ import {expect} from 'chai';
 import {ethers, network} from 'hardhat';
 import {Contract} from '@ethersproject/contracts';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
-import {BatchCall, ConstantFlowAgreementV1, Framework} from '@superfluid-finance/sdk-core';
+import {ConstantFlowAgreementV1, Framework} from '@superfluid-finance/sdk-core';
 import {Address} from 'hardhat-deploy/dist/types';
 import Operation from './common/Operation';
 
@@ -260,10 +260,15 @@ describe('Creaton Admin Tests', async () => {
     // Minting some fUSDC and upgrading it to SuperToken
     const subscriber = alice;
     const fusdcContract = await ethers.getContractAt('TestToken', FUSDCADDRESS);
-    await fusdcContract.mint(subscriber.address, ethers.utils.parseEther('1000'));
-    await fusdcContract.connect(subscriber).approve(FUSDCXADDRESS, ethers.utils.parseEther('1000'));
-    const upgradeTxn = await FUSDCXContract.upgrade({amount: ethers.utils.parseEther('1000')}).exec(subscriber);
+    await fusdcContract.mint(subscriber.address, ethers.utils.parseEther('2000'));
+    await fusdcContract.connect(subscriber).approve(FUSDCXADDRESS, ethers.utils.parseEther('2000'));
+    const upgradeTxn = await FUSDCXContract.upgrade({amount: ethers.utils.parseEther('2000')}).exec(subscriber);
     await upgradeTxn.wait();
+
+    await FUSDCXContract.transfer({
+      receiver: creatorContractAddress,
+      amount: ethers.utils.parseEther('1000'),
+    }).exec(subscriber);
 
     const initialCreatorBalance = await FUSDCXContract.realtimeBalanceOf({
       account: owner.address,
@@ -283,7 +288,7 @@ describe('Creaton Admin Tests', async () => {
     });
     expect(+initialCreatorBalance.availableBalance).to.be.equal(0);
     expect(initialSubscriberBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
-    expect(+initialCreatorContractBalance.availableBalance).to.be.equal(0);
+    expect(initialCreatorContractBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
     expect(+initialTreasuryBalance.availableBalance).to.be.equal(0);
 
     await payUpfrontFee(creatorContractAddress, subscriber);
