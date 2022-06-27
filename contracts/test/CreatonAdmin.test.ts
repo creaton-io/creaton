@@ -45,8 +45,7 @@ const payUpfrontFee = async (creatorContractAddress: string, subscriber: SignerW
   const approveOp = FUSDCXContract.approve({receiver: creatorContractAddress, amount: subscriptionPrice});
   const superAppTransactionPromise = creatorContract.populateTransaction.upfrontFee('0x');
   const upfrontFeeOp = new Operation(superAppTransactionPromise, 'CALL_APP_ACTION');
-  const batchCall = new BatchCall({hostAddress: SFHOST, operations: [approveOp, upfrontFeeOp]});
-  return await batchCall.exec(signer);
+  return await SF.batchCall([approveOp, upfrontFeeOp]).exec(signer);
 };
 
 const startStreaming = async (creatorContractAddress: string, subscriber: SignerWithAddress) => {
@@ -86,7 +85,7 @@ describe('Creaton Admin Tests', async () => {
       networkName: 'custom',
       resolverAddress: SFRESOLVER,
       dataMode: 'WEB3_ONLY',
-      protocolReleaseVersion: 'test',
+      protocolReleaseVersion: 'v1',
       provider: ethers.provider,
     });
 
