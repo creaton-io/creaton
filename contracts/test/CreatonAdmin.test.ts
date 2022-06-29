@@ -4,6 +4,7 @@ import {Contract} from '@ethersproject/contracts';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
 import {ConstantFlowAgreementV1, Framework} from '@superfluid-finance/sdk-core';
 import {Address} from 'hardhat-deploy/dist/types';
+// import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
 import Operation from './common/Operation';
 
 let CREATON_TREASURY: Address;
@@ -43,7 +44,7 @@ const payUpfrontFee = async (creatorContractAddress: string, subscriber: SignerW
   const subscriptionPrice = await creatorContract.subscriptionPrice();
 
   const approveOp = FUSDCXContract.approve({receiver: creatorContractAddress, amount: subscriptionPrice});
-  const superAppTransactionPromise = creatorContract.populateTransaction.upfrontFee('0x');
+  const superAppTransactionPromise = creatorContract.connect(subscriber).populateTransaction.upfrontFee('0x');
   const upfrontFeeOp = new Operation(superAppTransactionPromise, 'CALL_APP_ACTION');
   return await SF.batchCall([approveOp, upfrontFeeOp]).exec(signer);
 };
@@ -55,17 +56,7 @@ const startStreaming = async (creatorContractAddress: string, subscriber: Signer
   const subscriptionPrice = await creatorContract.subscriptionPrice();
   const MINIMUM_FLOW_RATE = ethers.utils.parseUnits(subscriptionPrice.toString(), 18).div(3600 * 24 * 30);
 
-  const cfaV1 = new ConstantFlowAgreementV1({
-    config: {
-      hostAddress: SFHOST,
-      cfaV1Address: SFCFA,
-      idaV1Address: SFIDA,
-      resolverAddress: SFRESOLVER,
-      governanceAddress: '',
-    },
-  });
-
-  const txnResponse = await cfaV1
+  const txnResponse = await SF.cfaV1
     .createFlow({
       sender: subscriber.address,
       receiver: creatorContractAddress,
