@@ -239,6 +239,10 @@ describe('Creaton Admin Tests', async () => {
     });
     const MINIMUM_FLOW_RATE = ethers.utils.parseUnits(subscriptionPrice.toString(), 18).div(3600 * 24 * 30);
     expect(contractFlow.flowRate).to.be.equal(MINIMUM_FLOW_RATE);
+
+    // Check if the user has the key
+    expect(await creatorContract.hasValidKey(alice.address)).to.be.equal(true);
+    expect(await creatorContract.hasValidKey(bob.address)).to.be.equal(false);
   });
 
   // it('Should be able to subscribe to a new Creator with Fee', async () => {

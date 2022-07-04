@@ -30,17 +30,18 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Errors
     // -----------------------------------------
-
     string private constant _ERR_STR_LOW_FLOW_RATE = "Superfluid: flow rate not enough";
     string private constant _ERR_STR_NO_UPFRONT = "Creaton: pay monthly amount upfront first";
 
     // -----------------------------------------
     // Structures
     // -----------------------------------------
-
     enum Status {unSubscribed, subscribed}
     enum Type {free, encrypted}
 
+    // -----------------------------------------
+    // Events
+    // -----------------------------------------
     event SubscriberEvent(address user, Status status);
     event NewPost(uint256 tokenId, string jsonData, Type contentType);
     event PostContract(address nftContract);
@@ -56,11 +57,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Storage
     // -----------------------------------------
-
     ISuperfluid private _host; // host
     IConstantFlowAgreementV1 private _cfa; // the stored constant flow agreement class address
     ISuperToken private _acceptedToken; // accepted token
-
     address public admin;
     address public creator;
     ICreatonAdmin adminContract;
@@ -82,7 +81,6 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     // -----------------------------------------
     // Initializer
     // -----------------------------------------
-
     function initialize(
         address host,
         address cfa,
@@ -104,8 +102,6 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         _cfa = IConstantFlowAgreementV1(cfa);
         _acceptedToken = ISuperToken(acceptedToken);
         trustedForwarder = _trustedForwarder;
-        //uint256 configWord = SuperAppDefinitions.APP_LEVEL_FINAL;
-        //_host.registerApp(configWord);
 
         creator = _creator;
         description = _description;
@@ -119,7 +115,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         
         // Mumbai: 0x1FF7e338d5E582138C46044dc238543Ce555C963
         // Rinkeby: 0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b;
-        unlockProtocol = IUnlockV11(0xD8C88BE5e8EB88E38E6ff5cE186d764676012B0b);
+        unlockProtocol = IUnlockV11(0x1FF7e338d5E582138C46044dc238543Ce555C963);
         //uint16 version = unlockProtocol.unlockVersion();
         bytes12 salt = bytes12(keccak256(abi.encodePacked(_MINIMUM_FLOW_RATE, acceptedToken)));
         IPublicLockV10 lock = IPublicLockV10(unlockProtocol.createLock(315360000, acceptedToken, 0, 10000000, nftName, salt));
@@ -138,10 +134,9 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
 
         emit AddUnlock(address(lock));
         // TODO: config the lock: symbol, image, callbacks, etc. -- need Lock interface
-        //Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
+        // Tier memory tier = Tier(address(lock), flowRate, token, multiplier, name, metadata, true);
 
         //Creator subscribes to themselves
-        
         grantKeys(creator);
         _addSubscriber(creator);
     }
@@ -228,9 +223,7 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         trustedForwarder = _trustedForwarder;
     }
 
-    /// @dev Take entrance fee from the user and issue a ticket
     function upfrontFee(bytes calldata ctx) external onlyHost returns (bytes memory newCtx) {
-        // msg sender is encoded in the Context
         address sender = _host.decodeCtx(ctx).msgSender;
         _acceptedToken.transferFrom(sender, creator, uIntSubscriptionPrice);
         payedUpfront[sender] = true;
@@ -470,6 +463,11 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         //bool isManager = lock.isLockManager(address(this));
         //bool isGranter = lock.isKeyGranter(address(this));
         lock.grantKeys(_recipients, _expirationTimestamps, _keyManagers);
+    }
+
+    function hasValidKey(address _userAddress) external view returns (bool) {
+        IPublicLockV10 lock = IPublicLockV10(unlockLock);
+        return lock.getHasValidKey(_userAddress);
     }
 
     // -----------------------------------------

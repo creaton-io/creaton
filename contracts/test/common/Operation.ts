@@ -2,6 +2,8 @@ import { TransactionRequest } from "@ethersproject/abstract-provider";
 import { SFError } from "@superfluid-finance/sdk-core";
 import { ethers } from "ethers";
 
+// import { SFError } from "./SFError";
+
 export type OperationType =
     | "UNSUPPORTED" // 0
     | "ERC20_APPROVE" // 1
@@ -82,7 +84,7 @@ export default class Operation {
                 populatedTransaction
             );
             return signedTxn;
-        } catch (err) { 
+        } catch (err) {
             throw new SFError({
                 type: "SIGN_TRANSACTION",
                 customMessage: "There was an error signing the transaction",
