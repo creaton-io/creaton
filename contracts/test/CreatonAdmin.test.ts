@@ -1,11 +1,11 @@
 import {expect} from 'chai';
-import {ethers, network} from 'hardhat';
+import {artifacts, ethers, network} from 'hardhat';
 import {Contract} from '@ethersproject/contracts';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
-import {ConstantFlowAgreementV1, Framework} from '@superfluid-finance/sdk-core';
+import {ConstantFlowAgreementV1, Framework, Operation} from '@superfluid-finance/sdk-core';
 import {Address} from 'hardhat-deploy/dist/types';
-// import Operation from '@superfluid-finance/sdk-core/dist/module/Operation';
-import Operation from './common/Operation';
+
+import SFHostABI from '@superfluid-finance/sdk-core/dist/main/abi/Superfluid.json';
 
 let CREATON_TREASURY: Address;
 
@@ -43,10 +43,21 @@ const payUpfrontFee = async (creatorContractAddress: string, subscriber: SignerW
   const creatorContract = await ethers.getContractAt('CreatorV1', creatorContractAddress);
   const subscriptionPrice = await creatorContract.subscriptionPrice();
 
-  const approveOp = FUSDCXContract.approve({receiver: creatorContractAddress, amount: subscriptionPrice});
-  const superAppTransactionPromise = creatorContract.connect(subscriber).populateTransaction.upfrontFee('0x');
-  const upfrontFeeOp = new Operation(superAppTransactionPromise, 'CALL_APP_ACTION');
+  const approveOp = FUSDCXContract.approve({
+    receiver: creatorContractAddress,
+    amount: ethers.utils.parseEther(subscriptionPrice.toString()).toString(),
+  });
+  // const superAppTransactionPromise = creatorContract.connect(subscriber).populateTransaction.upfrontFee('0x');
+  // const upfrontFeeOp = new Operation(superAppTransactionPromise, 'CALL_APP_ACTION');
+  const creatorContractArtifact = await artifacts.readArtifact('CreatorV1');
+  const superAppInterface = new ethers.utils.Interface(creatorContractArtifact.abi);
+  const callData = superAppInterface.encodeFunctionData('upfrontFee', ['0x']);
+  const upfrontFeeOp = SF.host.callAppAction(creatorContractAddress, callData);
+
   return await SF.batchCall([approveOp, upfrontFeeOp]).exec(signer);
+  // Workaround to make the previous line work (by Sam F from Superfluid)
+  // const sfHost = new ethers.Contract(SFHOST, SFHostABI.abi, subscriber);
+  // await sfHost.connect(signer).batchCall([approveOp, upfrontFeeOp]);
 };
 
 const startStreaming = async (creatorContractAddress: string, subscriber: SignerWithAddress) => {
@@ -69,13 +80,12 @@ const startStreaming = async (creatorContractAddress: string, subscriber: Signer
 };
 
 describe('Creaton Admin Tests', async () => {
-  let snapshotId: string = '0x1';
+  let snapshotId = '0x1';
 
   before(async () => {
     SF = await Framework.create({
-      networkName: 'custom',
+      chainId: 80001,
       resolverAddress: SFRESOLVER,
-      dataMode: 'WEB3_ONLY',
       protocolReleaseVersion: 'v1',
       provider: ethers.provider,
     });
@@ -227,7 +237,7 @@ describe('Creaton Admin Tests', async () => {
     // console.log('Treasury: %s -> %s', initialTreasuryBalance.availableBalance, finalTreasuryBalance.availableBalance);
 
     const finalSubscribers = await creatorContract.getSubscriberCount();
-    console.log('Subscribers: %s -> %s', initialSubscribers, finalSubscribers);
+    // console.log('Subscribers: %s -> %s', initialSubscribers, finalSubscribers);
     expect(finalSubscribers).to.be.equal(initialSubscribers.add(1));
 
     // Check the flowRate
@@ -245,94 +255,104 @@ describe('Creaton Admin Tests', async () => {
     expect(await creatorContract.hasValidKey(bob.address)).to.be.equal(false);
   });
 
-  // it('Should be able to subscribe to a new Creator with Fee', async () => {
-  //   const description = 'Hi! This is the Creator Test';
-  //   const subscriptionPrice = 100;
-  //   const nftName = 'Testing';
-  //   const nftSymbol = 'TST';
-  //   const tx = await creatonAdmin.deployCreator(description, subscriptionPrice, nftName, nftSymbol);
-  //   let receipt = await tx.wait();
-  //   receipt = receipt.events?.filter((x: any) => {
-  //     return x.event == 'CreatorDeployed';
-  //   })[0];
+  it('Should be able to subscribe to a new Creator with Fee', async () => {
+    const description = 'Hi! This is the Creator Test';
+    const subscriptionPrice = 100;
+    const nftName = 'Testing';
+    const nftSymbol = 'TST';
+    const tx = await creatonAdmin.deployCreator(description, subscriptionPrice, nftName, nftSymbol);
+    let receipt = await tx.wait();
+    receipt = receipt.events?.filter((x: any) => {
+      return x.event == 'CreatorDeployed';
+    })[0];
 
-  //   const creatorContractAddress = receipt.args.creatorContract;
-  //   expect(creatorContractAddress).to.be.properAddress;
-  //   const creatorContract = await ethers.getContractAt('CreatorV1', creatorContractAddress);
+    const creatorContractAddress = receipt.args.creatorContract;
+    expect(creatorContractAddress).to.be.properAddress;
+    const creatorContract = await ethers.getContractAt('CreatorV1', creatorContractAddress);
 
-  //   const initialSubscribers = await creatorContract.getSubscriberCount();
+    const initialSubscribers = await creatorContract.getSubscriberCount();
 
-  //   // Minting some fUSDC and upgrading it to SuperToken
-  //   const subscriber = alice;
-  //   const fusdcContract = await ethers.getContractAt('TestToken', FUSDCADDRESS);
-  //   await fusdcContract.mint(subscriber.address, ethers.utils.parseEther('2000'));
-  //   await fusdcContract.connect(subscriber).approve(FUSDCXADDRESS, ethers.utils.parseEther('2000'));
-  //   const upgradeTxn = await FUSDCXContract.upgrade({amount: ethers.utils.parseEther('2000')}).exec(subscriber);
-  //   await upgradeTxn.wait();
+    // Minting some fUSDC and upgrading it to SuperToken
+    const subscriber = alice;
+    const fusdcContract = await ethers.getContractAt('TestToken', FUSDCADDRESS);
+    await fusdcContract.mint(subscriber.address, ethers.utils.parseEther('2000'));
+    await fusdcContract.connect(subscriber).approve(FUSDCXADDRESS, ethers.utils.parseEther('2000'));
+    const upgradeTxn = await FUSDCXContract.upgrade({amount: ethers.utils.parseEther('2000')}).exec(subscriber);
+    await upgradeTxn.wait();
 
-  //   await FUSDCXContract.transfer({
-  //     receiver: creatorContractAddress,
-  //     amount: ethers.utils.parseEther('1000'),
-  //   }).exec(subscriber);
+    await FUSDCXContract.transfer({
+      receiver: creatorContractAddress,
+      amount: ethers.utils.parseEther('1000'),
+    }).exec(subscriber);
 
-  //   const initialCreatorBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: owner.address,
-  //     providerOrSigner: subscriber,
-  //   });
-  //   const initialSubscriberBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: subscriber.address,
-  //     providerOrSigner: subscriber,
-  //   });
-  //   const initialCreatorContractBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: creatorContractAddress,
-  //     providerOrSigner: owner,
-  //   });
-  //   const initialTreasuryBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: CREATON_TREASURY,
-  //     providerOrSigner: owner,
-  //   });
-  //   expect(+initialCreatorBalance.availableBalance).to.be.equal(0);
-  //   expect(initialSubscriberBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
-  //   expect(initialCreatorContractBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
-  //   expect(+initialTreasuryBalance.availableBalance).to.be.equal(0);
+    const initialCreatorBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: owner.address,
+      providerOrSigner: subscriber,
+    });
+    const initialSubscriberBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: subscriber.address,
+      providerOrSigner: subscriber,
+    });
+    const initialCreatorContractBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: creatorContractAddress,
+      providerOrSigner: owner,
+    });
+    const initialTreasuryBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: CREATON_TREASURY,
+      providerOrSigner: owner,
+    });
+    expect(+initialCreatorBalance.availableBalance).to.be.equal(0);
+    expect(initialSubscriberBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
+    expect(initialCreatorContractBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
+    expect(+initialTreasuryBalance.availableBalance).to.be.equal(0);
 
-  //   await payUpfrontFee(creatorContractAddress, subscriber);
-  //   await startStreaming(creatorContractAddress, subscriber);
+    await payUpfrontFee(creatorContractAddress, subscriber);
+    const afterUpfrontFeeBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: owner.address,
+      providerOrSigner: subscriber,
+    });
+    expect(afterUpfrontFeeBalance.availableBalance).to.be.equal(
+      ethers.utils.parseEther(
+        ethers.BigNumber.from(initialCreatorBalance.availableBalance).add(subscriptionPrice).toString()
+      )
+    );
 
-  //   await timeTravel(3600 * 24 * 15); // 15 days
+    await startStreaming(creatorContractAddress, subscriber);
 
-  //   const finalCreatorBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: owner.address,
-  //     providerOrSigner: subscriber,
-  //   });
-  //   const finalSubscriberBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: subscriber.address,
-  //     providerOrSigner: subscriber,
-  //   });
-  //   const finalCreatorContractBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: creatorContractAddress,
-  //     providerOrSigner: owner,
-  //   });
-  //   const finalTreasuryBalance = await FUSDCXContract.realtimeBalanceOf({
-  //     account: CREATON_TREASURY,
-  //     providerOrSigner: owner,
-  //   });
+    await timeTravel(3600 * 24 * 15); // 15 days
 
-  //   // Not really checking if the flow numbers add up, but, it's something...
-  //   expect(+finalCreatorBalance.availableBalance).to.be.above(+initialCreatorBalance.availableBalance);
-  //   expect(+finalSubscriberBalance.availableBalance).to.be.below(+initialSubscriberBalance.availableBalance);
-  //   expect(+finalCreatorContractBalance.availableBalance).to.be.equal(0);
-  //   expect(+finalTreasuryBalance.availableBalance).to.be.above(+initialTreasuryBalance.availableBalance);
+    const finalCreatorBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: owner.address,
+      providerOrSigner: subscriber,
+    });
+    const finalSubscriberBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: subscriber.address,
+      providerOrSigner: subscriber,
+    });
+    const finalCreatorContractBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: creatorContractAddress,
+      providerOrSigner: owner,
+    });
+    const finalTreasuryBalance = await FUSDCXContract.realtimeBalanceOf({
+      account: CREATON_TREASURY,
+      providerOrSigner: owner,
+    });
 
-  //   // console.log('Creator: %s -> %s', initialCreatorBalance.availableBalance, finalCreatorBalance.availableBalance);
-  //   // console.log('Subscriber Balance: %s -> %s', initialSubscriberBalance.availableBalance, finalSubscriberBalance.availableBalance);
-  //   // console.log('Creator Contract: %s -> %s', initialCreatorContractBalance.availableBalance, finalCreatorContractBalance.availableBalance);
-  //   // console.log('Treasury: %s -> %s', initialTreasuryBalance.availableBalance, finalTreasuryBalance.availableBalance);
+    // Not really checking if the flow numbers add up, but, it's something...
+    expect(+finalCreatorBalance.availableBalance).to.be.above(+initialCreatorBalance.availableBalance);
+    expect(+finalSubscriberBalance.availableBalance).to.be.below(+initialSubscriberBalance.availableBalance);
+    expect(finalCreatorContractBalance.availableBalance).to.be.equal(ethers.utils.parseEther('1000'));
+    expect(+finalTreasuryBalance.availableBalance).to.be.above(+initialTreasuryBalance.availableBalance);
 
-  //   const finalSubscribers = await creatorContract.getSubscriberCount();
-  //   console.log('Subscribers: %s -> %s', initialSubscribers, finalSubscribers);
-  //   expect(finalSubscribers).to.be.equal(initialSubscribers.add(1));
-  // });
+    // console.log('Creator: %s -> %s', initialCreatorBalance.availableBalance, finalCreatorBalance.availableBalance);
+    // console.log('Subscriber Balance: %s -> %s', initialSubscriberBalance.availableBalance, finalSubscriberBalance.availableBalance);
+    // console.log('Creator Contract: %s -> %s', initialCreatorContractBalance.availableBalance, finalCreatorContractBalance.availableBalance);
+    // console.log('Treasury: %s -> %s', initialTreasuryBalance.availableBalance, finalTreasuryBalance.availableBalance);
+
+    const finalSubscribers = await creatorContract.getSubscriberCount();
+    // console.log('Subscribers: %s -> %s', initialSubscribers, finalSubscribers);
+    expect(finalSubscribers).to.be.equal(initialSubscribers.add(1));
+  });
 
   it('A Creator should be able to upload', async () => {
     const description = 'Hi! This is the Creator Test';

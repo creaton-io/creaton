@@ -121,12 +121,12 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
         IPublicLockV10 lock = IPublicLockV10(unlockProtocol.createLock(315360000, acceptedToken, 0, 10000000, nftName, salt));
         lock.addLockManager(_msgSender());
         lock.addKeyGranter(_msgSender());
-        lock.setEventHooks(
-            address(0), 
-            address(0), 
-            address(0), 
-            address(0)
-        );
+        // lock.setEventHooks(
+        //     address(0), 
+        //     address(0), 
+        //     address(0), 
+        //     address(0)
+        // );
 
         //lock.setBaseTokenURI("https://api.backer.vip/keys/");
         lock.updateLockSymbol(nftSymbol); // TODO: change?
