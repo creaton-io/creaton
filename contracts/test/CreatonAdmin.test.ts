@@ -47,17 +47,13 @@ const payUpfrontFee = async (creatorContractAddress: string, subscriber: SignerW
     receiver: creatorContractAddress,
     amount: ethers.utils.parseEther(subscriptionPrice.toString()).toString(),
   });
-  // const superAppTransactionPromise = creatorContract.connect(subscriber).populateTransaction.upfrontFee('0x');
-  // const upfrontFeeOp = new Operation(superAppTransactionPromise, 'CALL_APP_ACTION');
+
   const creatorContractArtifact = await artifacts.readArtifact('CreatorV1');
   const superAppInterface = new ethers.utils.Interface(creatorContractArtifact.abi);
   const callData = superAppInterface.encodeFunctionData('upfrontFee', ['0x']);
   const upfrontFeeOp = SF.host.callAppAction(creatorContractAddress, callData);
 
   return await SF.batchCall([approveOp, upfrontFeeOp]).exec(signer);
-  // Workaround to make the previous line work (by Sam F from Superfluid)
-  // const sfHost = new ethers.Contract(SFHOST, SFHostABI.abi, subscriber);
-  // await sfHost.connect(signer).batchCall([approveOp, upfrontFeeOp]);
 };
 
 const startStreaming = async (creatorContractAddress: string, subscriber: SignerWithAddress) => {

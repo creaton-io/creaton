@@ -224,9 +224,12 @@ contract CreatorV1 is SuperAppBase, Initializable, BaseRelayRecipient {
     }
 
     function upfrontFee(bytes calldata ctx) external onlyHost returns (bytes memory newCtx) {
-        address sender = _host.decodeCtx(ctx).msgSender;
-        _acceptedToken.transferFrom(sender, creator, uIntSubscriptionPrice);
-        payedUpfront[sender] = true;
+        if(fee){
+            address sender = _host.decodeCtx(ctx).msgSender;
+            _acceptedToken.transferFrom(sender, creator, uIntSubscriptionPrice);
+            payedUpfront[sender] = true;
+        }
+
         return ctx;
     }
 
