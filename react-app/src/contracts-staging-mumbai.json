@@ -370,7 +370,7 @@
         "type": "function"
       }
     ],
-    "address": "0xFb5554CfF521d4e53207944f258DA3CA9E90b125"
+    "address": "0x8ef4707C4A5981Fe84fB0F46251ADdA60362872D"
   },
   "Creator": {
     "abi": [
@@ -385,6 +385,19 @@
           }
         ],
         "name": "AddUnlock",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          }
+        ],
+        "name": "DescriptionUpdated",
         "type": "event"
       },
       {
@@ -819,6 +832,25 @@
       {
         "inputs": [
           {
+            "internalType": "address",
+            "name": "_userAddress",
+            "type": "address"
+          }
+        ],
+        "name": "hasValidKey",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "uint256",
             "name": "tokenId",
             "type": "uint256"
@@ -1105,6 +1137,19 @@
       {
         "inputs": [
           {
+            "internalType": "string",
+            "name": "_description",
+            "type": "string"
+          }
+        ],
+        "name": "setDescription",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
             "internalType": "bool",
             "name": "setFee",
             "type": "bool"
@@ -1240,7 +1285,7 @@
         "type": "receive"
       }
     ],
-    "address": "0x233Adb9fE8F21BC464aB1b7aB74DBB667432543A"
+    "address": "0xe9c9Aa3C5F2a2ebBaFA1FBB5cC06B4ebDF044E25"
   },
   "Paymaster": {
     "abi": [

@@ -3,7 +3,6 @@
   "description": "Smart contracts for Creaton",
   "version": "0.0.1",
   "private": true,
-  "type": "module",
   "devDependencies": {
     "@decentral.ee/web3-helpers": "^0.5.2",
     "@ethereum-waffle/chai": "^3.4.4",
