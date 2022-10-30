@@ -74,12 +74,6 @@
             "internalType": "uint256",
             "name": "subscriptionPrice",
             "type": "uint256"
-          },
-          {
-            "indexed": false,
-            "internalType": "address",
-            "name": "unlock",
-            "type": "address"
           }
         ],
         "name": "CreatorDeployed",
@@ -376,10 +370,36 @@
         "type": "function"
       }
     ],
-    "address": "0xb1Af6f8d1747C3F3C3bD7077F12D9e5AD880f7e9"
+    "address": "0x80f7c4faf0c5f99d1e731a1545be36dda6fcdb78a40cb217609c357e766c3de0"
   },
   "Creator": {
     "abi": [
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "lock",
+            "type": "address"
+          }
+        ],
+        "name": "AddUnlock",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "string",
+            "name": "description",
+            "type": "string"
+          }
+        ],
+        "name": "DescriptionUpdated",
+        "type": "event"
+      },
       {
         "anonymous": false,
         "inputs": [
@@ -745,6 +765,19 @@
         "type": "function"
       },
       {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "newCreator",
+            "type": "address"
+          }
+        ],
+        "name": "changeCreator",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
         "inputs": [],
         "name": "creator",
         "outputs": [
@@ -791,6 +824,25 @@
             "internalType": "uint256",
             "name": "",
             "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_userAddress",
+            "type": "address"
+          }
+        ],
+        "name": "hasValidKey",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
           }
         ],
         "stateMutability": "view",
@@ -860,11 +912,6 @@
             "internalType": "address",
             "name": "_trustedForwarder",
             "type": "address"
-          },
-          {
-            "internalType": "address",
-            "name": "unlockLock",
-            "type": "address"
           }
         ],
         "name": "initialize",
@@ -908,6 +955,101 @@
           }
         ],
         "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          }
+        ],
+        "name": "keyPurchasePrice",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "minKeyPrice",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "operator",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "refund",
+            "type": "uint256"
+          }
+        ],
+        "name": "onKeyCancel",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "from",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "recipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "referrer",
+            "type": "address"
+          },
+          {
+            "internalType": "bytes",
+            "name": "data",
+            "type": "bytes"
+          },
+          {
+            "internalType": "uint256",
+            "name": "minKeyPrice",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "pricePaid",
+            "type": "uint256"
+          }
+        ],
+        "name": "onKeyPurchase",
+        "outputs": [],
+        "stateMutability": "nonpayable",
         "type": "function"
       },
       {
@@ -974,7 +1116,33 @@
             "type": "address"
           }
         ],
+        "name": "recoverSuperTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_token",
+            "type": "address"
+          }
+        ],
         "name": "recoverTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "_description",
+            "type": "string"
+          }
+        ],
+        "name": "setDescription",
         "outputs": [],
         "stateMutability": "nonpayable",
         "type": "function"
@@ -1027,19 +1195,6 @@
       {
         "inputs": [],
         "name": "trustedForwarder",
-        "outputs": [
-          {
-            "internalType": "address",
-            "name": "",
-            "type": "address"
-          }
-        ],
-        "stateMutability": "view",
-        "type": "function"
-      },
-      {
-        "inputs": [],
-        "name": "unlockLock",
         "outputs": [
           {
             "internalType": "address",
@@ -1130,6 +1285,6 @@
         "type": "receive"
       }
     ],
-    "address": "0x55ca9add6e1346b25B5192f66A4673DAe8aFD271"
+    "address": "0x3Ad43aeB5B877C2fa53C8F79550879A7c296daf9"
   }
 }
