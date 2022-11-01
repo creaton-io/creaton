@@ -2,10 +2,8 @@ import {expect} from 'chai';
 import {artifacts, ethers, network} from 'hardhat';
 import {Contract} from '@ethersproject/contracts';
 import {SignerWithAddress} from '@nomiclabs/hardhat-ethers/signers';
-import {ConstantFlowAgreementV1, Framework, Operation} from '@superfluid-finance/sdk-core';
+import {Framework} from '@superfluid-finance/sdk-core';
 import {Address} from 'hardhat-deploy/dist/types';
-
-import SFHostABI from '@superfluid-finance/sdk-core/dist/main/abi/Superfluid.json';
 
 let CREATON_TREASURY: Address;
 
