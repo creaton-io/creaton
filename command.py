@@ -28,7 +28,7 @@ def update_contracts_mumbai():
         {
             'type': 'input',
             'name': 'address',
-            'message': "Hardhat deployment files doesn't include the proxy address. Enter it manually:",
+            'message': "Hardhat deployment files doesn't include the Creaton Admin address. Enter it manually:",
         },
     ])['address']
     creator = json.load(open(BASE_PATH / network / 'CreatorV1.json'))
@@ -209,8 +209,8 @@ def update_subgraph(creaton_admin, creator, network):
         f.write(''.join(converted_lines))
     print(f'Updated {yaml_path}')
 
-    if yesno('Deploy on Rinkeby??'):
-        run_command('cd subgraph && npm run deploy-rinkeby')
+    if yesno('Deploy on Mumbai??'):
+        run_command('cd subgraph && graph codegen && graph build && npm run deploy-staging')
 
 
 def deploy_contracts_mumbai():
